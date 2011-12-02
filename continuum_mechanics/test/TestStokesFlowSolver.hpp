@@ -31,118 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
+#include "StokesFlowAssembler.hpp"
 #include "StokesFlowSolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "QuadraticMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "Warnings.hpp"
 
-class TestStokesFlow : public CxxTest::TestSuite
+class TestStokesFlowSolver : public CxxTest::TestSuite
 {
 public:
-
-	/*
-	 * Test that the mesh is calculated correctly on the cannonical triangle.
-	 * Tests against the analytical solution calculated by hand.
-	 */
-	void TestAssembleOnElementStokes()	throw(Exception)
-	{
-        EXIT_IF_PARALLEL; // defined in PetscTools
-
-		QuadraticMesh<2> mesh;
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/canonical_triangle_quadratic", 2, 2, false);
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        std::vector<unsigned> dirichlet_nodes;
-        dirichlet_nodes.push_back(0);
-
-        double mu = 1.0;
-        c_vector<double,2> body_force = zero_vector<double>(2);
-
-        StokesFlowProblemDefinition<2> problem_defn(mesh);
-        problem_defn.SetViscosity(mu);
-        problem_defn.SetZeroFlowNodes(dirichlet_nodes);
-
-        StokesFlowSolver<2> solver(mesh, problem_defn, "");
-
-        c_matrix<double, 15, 15 > A_elem;
-        c_matrix<double, 15, 15 > A_elem_precond;
-        c_vector<double, 15 > b_elem;
-
-        solver.AssembleOnElement(*(mesh.GetElement(0)), A_elem, A_elem_precond, b_elem);
-
-		double A[6][6] = {
-                           {      1.0,  1.0/6.0,  1.0/6.0,      0.0, -2.0/3.0, -2.0/3.0},
-                           {  1.0/6.0,  1.0/2.0,      0.0,      0.0,      0.0, -2.0/3.0},
-                           {  1.0/6.0,      0.0,  1.0/2.0,      0.0, -2.0/3.0,      0.0},
-                           {      0.0,      0.0,      0.0,  8.0/3.0, -4.0/3.0, -4.0/3.0},
-                           { -2.0/3.0,      0.0, -2.0/3.0, -4.0/3.0,  8.0/3.0,      0.0},
-                           { -2.0/3.0, -2.0/3.0,      0.0, -4.0/3.0,      0.0,  8.0/3.0}
-                         };
-
-		double Bx[6][3] = {
-                            { -1.0/6.0,      0.0,      0.0},
-                            {      0.0,  1.0/6.0,      0.0},
-                            {      0.0,      0.0,      0.0},
-                            {  1.0/6.0,  1.0/6.0,  1.0/3.0},
-                            { -1.0/6.0, -1.0/6.0, -1.0/3.0},
-                            {  1.0/6.0, -1.0/6.0,      0.0},
-                         };
-
-		double By[6][3] = {
-                            { -1.0/6.0,      0.0,      0.0},
-                            {      0.0,      0.0,      0.0},
-                            {      0.0,      0.0,  1.0/6.0},
-                            {  1.0/6.0,  1.0/3.0,  1.0/6.0},
-                            {  1.0/6.0,      0.0, -1.0/6.0},
-                            { -1.0/6.0, -1.0/3.0, -1.0/6.0},
-                          };
-
-        c_matrix<double,15,15> exact_ael = zero_matrix<double>(15);
-
-        // The diagonal 6x6 blocks
-        for (unsigned i=0; i<6; i++)
-        {
-            for (unsigned j=0; j<6; j++)
-            {
-                exact_ael(2*i,  2*j)   = A[i][j];
-                exact_ael(2*i+1,2*j+1) = A[i][j];
-            }
-        }
-
-        // The 6x3 Blocks
-        for (unsigned i=0; i<6; i++)
-        {
-            for (unsigned j=0; j<3; j++)
-            {
-                exact_ael(2*i,12+j)   = -Bx[i][j];
-                exact_ael(2*i+1,12+j) = -By[i][j];
-                //- as -Div(U)=0
-                exact_ael(12+j,2*i)   = -Bx[i][j];
-                exact_ael(12+j,2*i+1) = -By[i][j];
-            }
-        }
-
-		for (unsigned i=0; i<15; i++)
-		{
-			for (unsigned j=0; j<15; j++)
-			{
-			    if (fabs(A_elem(i,j)) < 1e-9)
-                {
-                    A_elem(i,j) = 0.0;
-                }
-
-				TS_ASSERT_DELTA(A_elem(i,j), exact_ael(i,j), 1e-9);
-			}
-			TS_ASSERT_DELTA(b_elem(i), 0.0, 1e-9);
-		}
-
-        // Test Warnings
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 2u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Preallocation failure: requested number of nonzeros per row greater than number of columns");
-        Warnings::QuietDestroy();
-	}
-
 	/*
 	 * Solution is u = [x, -y], p = const (= 1 as applying zero-Neumann on RHS).
 	 * Dirichlet BC applied on three sides, zero-Neumann on the other (so pressure is fully defined)

@@ -4,4 +4,5 @@ TestIncompressibleNonlinearElasticitySolver.hpp
 TestMaterialLaws.hpp
 TestNonlinearElasticityTools.hpp
 TestProblemDefinitions.hpp
-TestStokesFlow.hpp
+TestStokesFlowAssembler.hpp
+TestStokesFlowSolver.hpp

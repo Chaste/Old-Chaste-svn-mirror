@@ -41,12 +41,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscVecTools.hpp"
 #include "PetscException.hpp"
 #include "StokesFlowProblemDefinition.hpp"
+#include "StokesFlowAssembler.hpp"
 
 #define STOKES_VERBOSE
 
 /**
  * Finite element solver for Stokes flow problems.
- * \todo improve documentation (#1806)
+ * \todo improve documentation (#1956)
  */
 template<unsigned DIM>
 class StokesFlowSolver
@@ -76,6 +77,8 @@ private:
     /** Object containing all the information about the problem to solve */
     StokesFlowProblemDefinition<DIM>& mrProblemDefinition;
 
+    /** Assembler for computing volume integral part of matrix and RHS vector */
+    StokesFlowAssembler<DIM>* mpStokesFlowAssembler;
 
     /**
      * Absolute tolerance for linear systems. Can be set by calling
@@ -90,9 +93,6 @@ private:
      * nodes and M vertices; or DIM*N in the compressible case).
      */
     unsigned mNumDofs;
-
-    /** Gaussian quadrature rule. */
-    GaussianQuadratureRule<DIM>* mpQuadratureRule;
 
     /** Boundary Gaussian quadrature rule. */
     GaussianQuadratureRule<DIM-1>* mpBoundaryQuadratureRule;
@@ -128,23 +128,6 @@ private:
      */
     void ApplyBoundaryConditions();
 
-    /**
-     * Calculate the contribution of a single element to the linear system.
-     *
-     * @param rElement The element to assemble on.
-     * @param rAElem The element's contribution to the LHS matrix is returned in this
-     *    n by n matrix, where n is the no. of nodes in this element. There is no
-     *    need to zero this matrix before calling.
-     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
-     *     in creating a preconditioner.
-     * @param rBElem The element's contribution to the RHS vector is returned in this
-     *    vector of length n, the no. of nodes in this element. There is no
-     *    need to zero this vector before calling.
-     */
-    void AssembleOnElement(Element<DIM, DIM>& rElement,
-                           c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
-                           c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
-                           c_vector<double, STENCIL_SIZE>& rBElem);
 
     /**
      * Compute the term from the surface integral of s*phi, where s is
@@ -174,8 +157,6 @@ public:
      * @param rQuadMesh Quadratic mesh
      * @param rpProblemDefinition Problem definition
      * @param outputDirectory the output directory to use
-     * @param dirichletNodes vector of node indices at which Dirichlet boundary conditions are imposed for the fluid velocity
-     * @param pDirichletVelocities vector of Dirichlet boundary conditions for the fluid velocity (defaults to NULL)
      */
     StokesFlowSolver(QuadraticMesh<DIM>& rQuadMesh,
                      StokesFlowProblemDefinition<DIM>& rProblemDefinition,
@@ -257,16 +238,17 @@ StokesFlowSolver<DIM>::StokesFlowSolver(QuadraticMesh<DIM>& rQuadMesh,
 
     AllocateMatrixMemory();
 
-    mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
     mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
+
+    mpStokesFlowAssembler = new StokesFlowAssembler<DIM>(&mrQuadMesh, &mrProblemDefinition);
 }
 
 template<unsigned DIM>
 StokesFlowSolver<DIM>::~StokesFlowSolver()
 {
+    delete mpStokesFlowAssembler;
     delete mpLinearSystem;
     delete mpPreconditionMatrixLinearSystem;
-    delete mpQuadratureRule;
     delete mpBoundaryQuadratureRule;
 }
 
@@ -446,52 +428,18 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     mpLinearSystem->ZeroLhsMatrix();
     mpPreconditionMatrixLinearSystem->ZeroLhsMatrix();
 
-    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem;
 
-    /*
-     * The (element) preconditioner matrix: this is the same as the Jacobian, but
-     * with the mass matrix (i.e .\intgl phi_i phi_j) in the pressure-pressure block.
-     */
-    c_matrix<double, STENCIL_SIZE, STENCIL_SIZE> a_elem_precond;
+    // Use assembler to assemble volume integral part....
+    mpStokesFlowAssembler->SetMatrixToAssemble(mpLinearSystem->rGetLhsMatrix(), true);
+    mpStokesFlowAssembler->SetVectorToAssemble(mpLinearSystem->rGetRhsVector(), true);
+    mpStokesFlowAssembler->Assemble();
 
-    c_vector<double, STENCIL_SIZE> b_elem;
+///\todo! don't use the same assembler for this, use one that puts in C=M...
+    mpStokesFlowAssembler->SetMatrixToAssemble(mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), true);
+    mpStokesFlowAssembler->AssembleMatrix();
 
-    // Loop over elements
-    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mrQuadMesh.GetElementIteratorBegin();
-         iter != mrQuadMesh.GetElementIteratorEnd();
-         ++iter)
-    {
-        #ifdef MECHLIN_VERY_VERBOSE
-        std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << mrQuadMesh.GetNumElements() << std::flush;
-        #endif
 
-        Element<DIM, DIM>& element = *iter;
-
-        if (element.GetOwnership() == true)
-        {
-            AssembleOnElement(element, a_elem, a_elem_precond, b_elem);
-
-            unsigned p_indices[STENCIL_SIZE];
-            for (unsigned i=0; i<NUM_NODES_PER_ELEMENT; i++)
-            {
-                for (unsigned j=0; j<DIM; j++)
-                {
-                    p_indices[DIM*i+j] = DIM*element.GetNodeGlobalIndex(i) + j;
-                }
-            }
-
-            for (unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
-            {
-                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mrQuadMesh.GetNumNodes() + element.GetNodeGlobalIndex(i);
-            }
-
-            mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
-            mpPreconditionMatrixLinearSystem->AddLhsMultipleValues(p_indices, a_elem_precond);
-
-            mpLinearSystem->AddRhsMultipleValues(p_indices, b_elem);
-        }
-    }
-
+    // This bit needs to also be done in an assembler class...
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
 
     if (mrProblemDefinition.GetTractionBoundaryConditionType() != NO_TRACTIONS)
@@ -540,144 +488,6 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     mpPreconditionMatrixLinearSystem->FinaliseLhsMatrix();
 }
 
-template<unsigned DIM>
-void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
-                                              c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
-                                              c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
-                                              c_vector<double, STENCIL_SIZE>& rBElem)
-{
-    static c_matrix<double,DIM,DIM> jacobian;
-    static c_matrix<double,DIM,DIM> inverse_jacobian;
-    double jacobian_determinant;
-
-    mrQuadMesh.GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
-
-    rAElem.clear();
-    rAElemPrecond.clear();
-
-    rBElem.clear();
-
-    // Allocate memory for the basis functions values and derivative values
-    static c_vector<double, NUM_VERTICES_PER_ELEMENT> linear_phi;
-    static c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
-    static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
-    static c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT> grad_linear_phi;
-    static c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
-
-    c_vector<double,DIM> body_force;
-
-    // Loop over Gauss points
-    for (unsigned quadrature_index=0; quadrature_index < mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
-    {
-        double wJ = jacobian_determinant * mpQuadratureRule->GetWeight(quadrature_index);
-        const ChastePoint<DIM>& quadrature_point = mpQuadratureRule->rGetQuadPoint(quadrature_index);
-
-        // Set up basis function info
-        LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
-        QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
-        QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
-        LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_linear_phi);
-        trans_grad_quad_phi = trans(grad_quad_phi);
-
-        switch (mrProblemDefinition.GetBodyForceType())
-        {
-            case FUNCTIONAL_BODY_FORCE:
-            {
-                c_vector<double,DIM> X = zero_vector<double>(DIM);
-                // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
-                for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
-                {
-                    X += linear_phi(node_index) * mrQuadMesh.GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
-                }
-                body_force = mrProblemDefinition.EvaluateBodyForceFunction(X, 0.0);
-                break;
-            }
-            case CONSTANT_BODY_FORCE:
-            {
-                body_force = mrProblemDefinition.GetConstantBodyForce();
-                break;
-            }
-            default:
-                NEVER_REACHED;
-        }
-
-        // Vector
-		for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
-		{
-			unsigned spatial_dim = index%DIM;
-			unsigned node_index = (index-spatial_dim)/DIM;
-
-			rBElem(index) += body_force(spatial_dim) * quad_phi(node_index) * wJ;
-		}
-
-		for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-		{
-			rBElem(NUM_NODES_PER_ELEMENT*DIM + vertex_index) += 0.0 * wJ;
-		}
-
-        // Matrix
-		for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
-		{
-			unsigned spatial_dim1 = index1%DIM;
-			unsigned node_index1 = (index1-spatial_dim1)/DIM;
-
-			for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
-			{
-				unsigned spatial_dim2 = index2%DIM;
-				unsigned node_index2 = (index2-spatial_dim2)/DIM;
-
-				if (spatial_dim1 == spatial_dim2)
-				{
-					double grad_quad_phi_grad_quad_phi = 0.0;
-					for (unsigned k=0; k<DIM; k++)
-				    {
-						grad_quad_phi_grad_quad_phi += grad_quad_phi(k, node_index1) * grad_quad_phi(k, node_index2);
-				    }
-
-					rAElem(index1,index2) += mrProblemDefinition.GetViscosity() * grad_quad_phi_grad_quad_phi * wJ;
-				}
-
-//                for (unsigned k=0; k<DIM; k++)
-//                {
-//                    rAElem(index1,index2)  +=   mrProblemDefinition.GetViscosity()
-//                                              * (spatial_dim1==spatial_dim2)
-//                                              * grad_quad_phi(k, node_index1)
-//                                              * grad_quad_phi(k, node_index2)
-//                                              * wJ;
-//                }
-			}
-
-            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-			{
-			    unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-
-                rAElem(index1,index2) += -grad_quad_phi(spatial_dim1, node_index1) * linear_phi(vertex_index) * wJ;
-			}
-		}
-
-		for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-		{
-		    unsigned index1 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-
-		    for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
-		    {
-		        unsigned spatial_dim2 = index2%DIM;
-		        unsigned node_index2 = (index2-spatial_dim2)/DIM;
-
-                rAElem(index1,index2) += -grad_quad_phi(spatial_dim2, node_index2) * linear_phi(vertex_index) * wJ;
-		    }
-		}
-    }
-
-	rAElemPrecond = rAElemPrecond + rAElem;
-//	for (unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
-//	{
-//		for (unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
-//		{
-//			rAElemPrecond(i,j) = 0.0;
-//		}
-//	}
-}
 
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
