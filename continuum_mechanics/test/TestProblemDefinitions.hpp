@@ -172,7 +172,14 @@ public:
 
         TS_ASSERT_DELTA(problem_defn.EvaluateTractionFunction(X,t)(0), 5.0,  1e-12);
         TS_ASSERT_DELTA(problem_defn.EvaluateTractionFunction(X,t)(1), 55.0, 1e-12);
+    }
 
+    // Test the functionality specific to SolidMechanicsProblemDefinition
+    void TestSolidMechanicsProblemDefinition() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
+
+        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
 
         //////////////////////////////////
         // Fixed nodes
@@ -182,15 +189,15 @@ public:
         fixed_nodes.push_back(0);
         fixed_nodes.push_back(4);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes().size(), 2u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[0], 0u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[1], 4u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodeDisplacements().size(), 2u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes().size(), 2u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[0], 0u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[1], 4u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodeValues().size(), 2u);
 
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[0](0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[0](1), 0.0, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[1](0), 0.0, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[1](1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](1), 0.0, 1e-12);
 
         fixed_nodes.push_back(8);
         fixed_nodes.push_back(9);
@@ -215,36 +222,29 @@ public:
 
         problem_defn.SetFixedNodes(fixed_nodes, locations);
 
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes().size(), 5u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodeDisplacements().size(), 5u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes().size(), 5u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodeValues().size(), 5u);
 
         // the fully fixed nodes
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[0], 0u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[1], 4u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[2], 8u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[0], 0u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[1], 4u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[2], 8u);
 
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[0](0), 0.0 - mesh.GetNode(0)->rGetLocation()[0], 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[0](1), 0.0 - mesh.GetNode(0)->rGetLocation()[1], 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[1](0), 0.0 - mesh.GetNode(4)->rGetLocation()[0], 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[1](1), 0.1 - mesh.GetNode(4)->rGetLocation()[1], 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[2](0), 0.1 - mesh.GetNode(8)->rGetLocation()[0], 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[2](1), 0.1 - mesh.GetNode(8)->rGetLocation()[1], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](0), 0.0 - mesh.GetNode(0)->rGetLocation()[0], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](1), 0.0 - mesh.GetNode(0)->rGetLocation()[1], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](0), 0.0 - mesh.GetNode(4)->rGetLocation()[0], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](1), 0.1 - mesh.GetNode(4)->rGetLocation()[1], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[2](0), 0.1 - mesh.GetNode(8)->rGetLocation()[0], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[2](1), 0.1 - mesh.GetNode(8)->rGetLocation()[1], 1e-12);
 
         // the partial fixed nodes
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[3], 9u);
-        TS_ASSERT_EQUALS(problem_defn.rGetFixedNodes()[4], 10u);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[3](0), 0.5 - mesh.GetNode(9)->rGetLocation()[0], 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[3](1), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](0), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
-        TS_ASSERT_DELTA(problem_defn.rGetFixedNodeDisplacements()[4](1), 1.5 - mesh.GetNode(10)->rGetLocation()[1], 1e-12);
-    }
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[3], 9u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[4], 10u);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[3](0), 0.5 - mesh.GetNode(9)->rGetLocation()[0], 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[3](1), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[4](0), SolidMechanicsProblemDefinition<2>::FREE, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[4](1), 1.5 - mesh.GetNode(10)->rGetLocation()[1], 1e-12);
 
-    // Test the functionality specific to SolidMechanicsProblemDefinition
-    void TestSolidMechanicsProblemDefinition() throw(Exception)
-    {
-        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
-
-        SolidMechanicsProblemDefinition<2> problem_defn(mesh);
 
         ///////////////////////////////////////
         // Set an incompressible material law
@@ -331,6 +331,70 @@ public:
 
         problem_defn.SetViscosity(1.3423423);
         TS_ASSERT_EQUALS(problem_defn.GetViscosity(),1.3423423);
+
+        //////////////////////////////////
+        // Fixed nodes
+        //////////////////////////////////
+
+        std::vector<unsigned> fixed_flow_nodes;
+        fixed_flow_nodes.push_back(0);
+        fixed_flow_nodes.push_back(4);
+        problem_defn.SetZeroFlowNodes(fixed_flow_nodes);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes().size(), 2u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[0], 0u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[1], 4u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodeValues().size(), 2u);
+
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](1), 0.0, 1e-12);
+
+        fixed_flow_nodes.push_back(8);
+        fixed_flow_nodes.push_back(9);
+        fixed_flow_nodes.push_back(10);
+
+        std::vector<c_vector<double,2> > fixed_flows;
+        c_vector<double,2> flow = zero_vector<double>(2);
+        fixed_flows.push_back(flow);
+        flow(1)=0.1;
+        fixed_flows.push_back(flow);
+        flow(0)=0.1;
+        fixed_flows.push_back(flow);
+
+        flow(0)=0.5;
+        flow(1)=StokesFlowProblemDefinition<2>::FREE;
+        fixed_flows.push_back(flow);
+
+        flow(0)=StokesFlowProblemDefinition<2>::FREE;
+        flow(1)=1.5;
+        fixed_flows.push_back(flow);
+
+        problem_defn.SetPrescribedFlowNodes(fixed_flow_nodes, fixed_flows);
+
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes().size(), 5u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodeValues().size(), 5u);
+
+        // the fully fixed nodes
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[0], 0u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[1], 4u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[2], 8u);
+
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[0](1), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](0), 0.0, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[1](1), 0.1, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[2](0), 0.1, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[2](1), 0.1, 1e-12);
+
+        // the partial fixed nodes
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[3], 9u);
+        TS_ASSERT_EQUALS(problem_defn.rGetDirichletNodes()[4], 10u);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[3](0), 0.5, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[3](1), StokesFlowProblemDefinition<2>::FREE, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[4](0), StokesFlowProblemDefinition<2>::FREE, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[4](1), 1.5, 1e-12);
+
     }
 };
 

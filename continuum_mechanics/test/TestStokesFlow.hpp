@@ -59,7 +59,11 @@ public:
         double mu = 1.0;
         c_vector<double,2> body_force = zero_vector<double>(2);
 
-        StokesFlowSolver<2> solver(mu, &mesh, body_force, "", dirichlet_nodes);
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetViscosity(mu);
+        problem_defn.SetZeroFlowNodes(dirichlet_nodes);
+
+        StokesFlowSolver<2> solver(mesh, problem_defn, "");
 
         c_matrix<double, 15, 15 > A_elem;
         c_matrix<double, 15, 15 > A_elem_precond;
@@ -176,7 +180,11 @@ public:
         }
         assert(dirichlet_flow.size() == 7);
 
-        StokesFlowSolver<2> solver(mu, &mesh, zero_vector<double>(2), "SimpleStokesFlow", dirichlet_nodes, &dirichlet_flow);
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetViscosity(mu);
+        problem_defn.SetPrescribedFlowNodes(dirichlet_nodes, dirichlet_flow);
+
+        StokesFlowSolver<2> solver(mesh, problem_defn, "SimpleStokesFlow");
 
         solver.Solve();
 
@@ -237,7 +245,11 @@ public:
 
 		c_vector<double,2> body_force = zero_vector<double>(2);
 
-		StokesFlowSolver<2> solver(mu, &mesh, body_force, "PipeStokesFlow", dirichlet_nodes, &dirichlet_flow);
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetViscosity(mu);
+        problem_defn.SetPrescribedFlowNodes(dirichlet_nodes, dirichlet_flow);
+
+		StokesFlowSolver<2> solver(mesh, problem_defn, "PipeStokesFlow");
 
 		// Uncomment to make errors smaller
 		//solver.SetKspAbsoluteTolerance(1e-12);
@@ -303,7 +315,11 @@ public:
 
         c_vector<double,2> body_force = zero_vector<double>(2);
 
-        StokesFlowSolver<2> solver(mu, &mesh, body_force, "AnalyticalStokesFlow", dirichlet_nodes, &dirichlet_flow);
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetViscosity(mu);
+        problem_defn.SetPrescribedFlowNodes(dirichlet_nodes, dirichlet_flow);
+
+        StokesFlowSolver<2> solver(mesh, problem_defn, "AnalyticalStokesFlow");
 
         // Change tolerance for coverage
         solver.SetKspAbsoluteTolerance(1e-8);
@@ -383,7 +399,11 @@ public:
 
 		c_vector<double,2> body_force = zero_vector<double>(2);
 
-		StokesFlowSolver<2> solver(mu, &mesh, body_force, "LidCavityStokesFlow", dirichlet_nodes, &dirichlet_flow);
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetViscosity(mu);
+        problem_defn.SetPrescribedFlowNodes(dirichlet_nodes, dirichlet_flow);
+
+		StokesFlowSolver<2> solver(mesh, problem_defn, "LidCavityStokesFlow");
 
 		// Uncomment to make errors smaller
 		//solver.SetKspAbsoluteTolerance(1e-12);
@@ -461,9 +481,13 @@ public:
 
 		c_vector<double,2> body_force = zero_vector<double>(2);
 
-		StokesFlowSolver<2> solver(mu, &mesh, body_force, "PoiseuilleFlow", dirichlet_nodes, &dirichlet_flow);
+        StokesFlowProblemDefinition<2> problem_defn(mesh);
+        problem_defn.SetViscosity(mu);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, normal_stresses);
+        problem_defn.SetPrescribedFlowNodes(dirichlet_nodes, dirichlet_flow);
 
-		solver.SetSurfaceNormalStressBoundaryConditions(boundary_elems, normal_stresses);
+		StokesFlowSolver<2> solver(mesh, problem_defn, "PoiseuilleFlow");
+
 
 		// Uncomment to make errors smaller
 		//solver.SetKspAbsoluteTolerance(1e-12);

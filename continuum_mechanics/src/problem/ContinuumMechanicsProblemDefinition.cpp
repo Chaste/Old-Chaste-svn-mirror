@@ -133,63 +133,32 @@ void ContinuumMechanicsProblemDefinition<DIM>::SetApplyNormalPressureOnDeformedS
 
 
 template<unsigned DIM>
-void ContinuumMechanicsProblemDefinition<DIM>::SetZeroDisplacementNodes(std::vector<unsigned>& rFixedNodes)
+void ContinuumMechanicsProblemDefinition<DIM>::SetZeroDirichletNodes(std::vector<unsigned>& rZeroDirichletNodes)
 {
-    mFixedNodes = rFixedNodes;
+    mDirichletNodes = rZeroDirichletNodes;
 
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
+    for (unsigned i=0; i<mDirichletNodes.size(); i++)
     {
-        assert(mFixedNodes[i] < mrMesh.GetNumNodes());
+        assert(mDirichletNodes[i] < mrMesh.GetNumNodes());
     }
 
-    mFixedNodeDisplacements.clear();
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
+    mDirichletNodeValues.clear();
+    for (unsigned i=0; i<mDirichletNodes.size(); i++)
     {
-        mFixedNodeDisplacements.push_back(zero_vector<double>(DIM));
+        mDirichletNodeValues.push_back(zero_vector<double>(DIM));
     }
 }
 
 template<unsigned DIM>
-void ContinuumMechanicsProblemDefinition<DIM>::SetFixedNodes(std::vector<unsigned>& rFixedNodes, std::vector<c_vector<double,DIM> >& rFixedNodeLocations)
+std::vector<unsigned>& ContinuumMechanicsProblemDefinition<DIM>::rGetDirichletNodes()
 {
-    assert(rFixedNodes.size()==rFixedNodeLocations.size());
-    mFixedNodes = rFixedNodes;
-
-    mFixedNodeDisplacements.clear();
-    for (unsigned i=0; i<mFixedNodes.size(); i++)
-    {
-        unsigned index = mFixedNodes[i];
-        c_vector<double,DIM> displacement;
-        for(unsigned j=0; j<DIM; j++)
-        {
-            double location = rFixedNodeLocations[i](j);
-
-            // compute the displacement, assuming the node
-            // is not free in this direction
-            if(location != FREE)
-            {
-                displacement(j) = location - mrMesh.GetNode(index)->rGetLocation()[j];
-            }
-            else
-            {
-                displacement(j) = FREE;
-            }
-        }
-        mFixedNodeDisplacements.push_back(displacement);
-    }
-}
-
-
-template<unsigned DIM>
-std::vector<unsigned>& ContinuumMechanicsProblemDefinition<DIM>::rGetFixedNodes()
-{
-    return mFixedNodes;
+    return mDirichletNodes;
 }
 
 template<unsigned DIM>
-std::vector<c_vector<double,DIM> >& ContinuumMechanicsProblemDefinition<DIM>::rGetFixedNodeDisplacements()
+std::vector<c_vector<double,DIM> >& ContinuumMechanicsProblemDefinition<DIM>::rGetDirichletNodeValues()
 {
-    return mFixedNodeDisplacements;
+    return mDirichletNodeValues;
 }
 
 template<unsigned DIM>

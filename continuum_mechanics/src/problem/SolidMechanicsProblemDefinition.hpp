@@ -133,6 +133,24 @@ public:
      * @param elementIndex index of element
      */
     AbstractCompressibleMaterialLaw<DIM>* GetCompressibleMaterialLaw(unsigned elementIndex);
+
+    /**
+     * Set a list of nodes (indices) to be fixed in space with zero displacement
+     * @param rFixedNodes the fixed nodes
+     */
+    void SetZeroDisplacementNodes(std::vector<unsigned>& rFixedNodes)
+    {
+        this->SetZeroDirichletNodes(rFixedNodes);
+    }
+
+    /**
+     * Set a list of nodes to be fixed, with their corresponding new LOCATIONS (not displacements).
+     * (This class will store as displacements though, and it is displacements that will be returned
+     * by rGetDirichletNodeValues).
+     * @param rFixedNodes the fixed node indices
+     * @param rFixedNodeLocation corresponding locations
+     */
+    void SetFixedNodes(std::vector<unsigned>& rFixedNodes, std::vector<c_vector<double,DIM> >& rFixedNodeLocation);
 };
 
 

@@ -39,6 +39,38 @@ SolidMechanicsProblemDefinition<DIM>::SolidMechanicsProblemDefinition(QuadraticM
 }
 
 
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::SetFixedNodes(std::vector<unsigned>& rFixedNodes, std::vector<c_vector<double,DIM> >& rFixedNodeLocations)
+{
+    assert(rFixedNodes.size()==rFixedNodeLocations.size());
+    this->mDirichletNodes = rFixedNodes;
+
+    this->mDirichletNodeValues.clear();
+    for (unsigned i=0; i<this->mDirichletNodes.size(); i++)
+    {
+        unsigned index = this->mDirichletNodes[i];
+        c_vector<double,DIM> displacement;
+        for(unsigned j=0; j<DIM; j++)
+        {
+            double location = rFixedNodeLocations[i](j);
+
+            // compute the displacement, assuming the node
+            // is not free in this direction
+            if(location != this->FREE)
+            {
+                displacement(j) = location - this->mrMesh.GetNode(index)->rGetLocation()[j];
+            }
+            else
+            {
+                displacement(j) = this->FREE;
+            }
+        }
+        this->mDirichletNodeValues.push_back(displacement);
+    }
+}
+
+
 template<unsigned DIM>
 void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType compressibilityType,
                                                           AbstractMaterialLaw<DIM>* pMaterialLaw)

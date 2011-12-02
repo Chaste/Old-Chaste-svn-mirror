@@ -58,6 +58,19 @@ public:
         }
         return mMu;
     }
+
+    void SetZeroFlowNodes(std::vector<unsigned>& rZeroFlowNodes)
+    {
+        this->SetZeroDirichletNodes(rZeroFlowNodes);
+    }
+
+    void SetPrescribedFlowNodes(std::vector<unsigned>& rPrescribedFlowNodes, std::vector<c_vector<double,DIM> >& rPrescribedFlow)
+    {
+        assert(rPrescribedFlowNodes.size()==rPrescribedFlow.size());
+
+        this->mDirichletNodes = rPrescribedFlowNodes;
+        this->mDirichletNodeValues = rPrescribedFlow;
+    }
 };
 
 

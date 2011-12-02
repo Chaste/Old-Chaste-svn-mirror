@@ -57,9 +57,6 @@ typedef enum TractionBoundaryConditionType_
 } TractionBoundaryConditionType;
 
 
-///\todo #1806 Rename the 'fixed nodes' stuff to something that applies to both solid and fluids, and also update comments/dox
-///
-
 /**
  *  A class for specifying various parts of a continuum mechanics problem, Dirichlet node information (which
  *  nodes are in space in a solid problem, which nodes have fixed flow in a fluids problem), the body force (per unit mass)
@@ -69,8 +66,8 @@ template<unsigned DIM>
 class ContinuumMechanicsProblemDefinition
 {
 public:
-    /** Special displacement that indicates a node is free to move (in a particular direction).
-     *  Used in SetFixedNodes(). */
+    /** Special value for Dirichlet nodes, indicating that a Dirichlet boundary condition
+     *  in a particular dimension is not specified */
     static const double FREE; // set to DBL_MAX
 
 protected:
@@ -113,15 +110,18 @@ protected:
     /** The tractions as a function of space and time (only used if mTractionBoundaryConditionType is set appropriately) */
     c_vector<double,DIM> (*mpTractionBoundaryConditionFunction)(c_vector<double,DIM>& rX, double t);
 
-    //////////////////////////////
-    // fixed nodes
-    //////////////////////////////
+    ///////////////////////////////////////////
+    // Dirichlet boundary conditions
+    ///////////////////////////////////////////
 
-    /** All nodes (including non-vertices) which are fixed. */
-    std::vector<unsigned> mFixedNodes;
+    /**
+     * All nodes (including non-vertices) which have a dirichlet boundary condition (ie position
+     * prescribed in solid mechanics problems, flow prescribed in fluids problems). */
+    std::vector<unsigned> mDirichletNodes;
 
-    /** The displacements of those nodes with displacement boundary conditions. */
-    std::vector<c_vector<double,DIM> > mFixedNodeDisplacements;
+    /** The values at the nodes with Dirichlet boundary conditions (displacement  */
+    std::vector<c_vector<double,DIM> > mDirichletNodeValues;
+
 
 public:
     /**
@@ -142,27 +142,23 @@ public:
     double GetDensity();
 
     /**
-     * Set a list of nodes (indices) to be fixed in space with zero displacement
-     * @param rFixedNodes the fixed nodes
+     * Set a list of nodes (indices) to be given zero Dirichlet boundary condition
+     * @param rZeroDirichletNodes the nodes at which the value (displacement/flow) is zero
      */
-    void SetZeroDisplacementNodes(std::vector<unsigned>& rFixedNodes);
+    void SetZeroDirichletNodes(std::vector<unsigned>& rZeroDirichletNodes);
+
+    // No method here for setting non-zero Dirichlet BCs - these are in the subclasses..
 
     /**
-     * Set a list of nodes to be fixed, with their corresponding new LOCATIONS (not displacements)
-     * @param rFixedNodes the fixed node indices
-     * @param rFixedNodeLocation corresponding locations
+     *  Get the Dirichlet nodes
      */
-    void SetFixedNodes(std::vector<unsigned>& rFixedNodes, std::vector<c_vector<double,DIM> >& rFixedNodeLocation);
+    std::vector<unsigned>& rGetDirichletNodes();
 
     /**
-     *  Get the fixed nodes
+     * Get the Dirichlet node values.
      */
-    std::vector<unsigned>& rGetFixedNodes();
+    std::vector<c_vector<double,DIM> >& rGetDirichletNodeValues();
 
-    /**
-     * Get the fixed node displacements
-     */
-    std::vector<c_vector<double,DIM> >& rGetFixedNodeDisplacements();
 
     /**
      * Set the body force to be used - this version sets a constant body force

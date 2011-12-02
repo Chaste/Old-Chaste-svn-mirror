@@ -40,8 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscMatTools.hpp"
 #include "PetscVecTools.hpp"
 #include "PetscException.hpp"
+#include "StokesFlowProblemDefinition.hpp"
 
-#define MECHLIN_VERBOSE
+#define STOKES_VERBOSE
 
 /**
  * Finite element solver for Stokes flow problems.
@@ -69,11 +70,12 @@ private:
     /** Boundary stencil size. */
     static const unsigned BOUNDARY_STENCIL_SIZE = DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + DIM;
 
-    /** Dynamic viscosity. */
-    double mMu;
-
     /** Quadratic mesh. */
-    QuadraticMesh<DIM>* mpQuadMesh;
+    QuadraticMesh<DIM>& mrQuadMesh;
+
+    /** Object containing all the information about the problem to solve */
+    StokesFlowProblemDefinition<DIM>& mrProblemDefinition;
+
 
     /**
      * Absolute tolerance for linear systems. Can be set by calling
@@ -104,20 +106,8 @@ private:
     /** Where to write output, relative to CHASTE_TESTOUTPUT. */
     std::string mOutputDirectory;
 
-    /** Applied body force. */
-    c_vector<double,DIM> mBodyForce;
-
-    /** Vector of node indices at which Dirichlet boundary conditions are imposed for the fluid velocity. */
-    std::vector<unsigned> mDirichletNodes;
-
-    /** Vctor of Dirichlet boundary conditions for the fluid velocity. */
-    std::vector<c_vector<double,DIM> > mDirichletVelocities;
-
     /** Vector of pointers to boundary elements in the mesh. */
     std::vector<BoundaryElement<DIM-1,DIM>*> mBoundaryElements;
-
-    /** Vector of surface normal stresses. */
-    std::vector<c_vector<double,DIM> > mSurfaceNormalStresses;
 
     /** The solution at each node. */
     std::vector<double> mSolution;
@@ -169,7 +159,7 @@ private:
      */
     void AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
                                    c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-                                   c_vector<double,DIM>& rNormalStress);
+                                   unsigned boundaryConditionIndex);
 
     /**
      * Allocate memory for the Jacobian and preconditioner matrices.
@@ -181,19 +171,15 @@ public:
     /**
      * Constructor.
      * 
-     * @param mu the dynamic viscosity
-     * @param pQuadMesh pointer to a quadratic mesh
-     * @param bodyForce an applied body force
+     * @param rQuadMesh Quadratic mesh
+     * @param rpProblemDefinition Problem definition
      * @param outputDirectory the output directory to use
      * @param dirichletNodes vector of node indices at which Dirichlet boundary conditions are imposed for the fluid velocity
      * @param pDirichletVelocities vector of Dirichlet boundary conditions for the fluid velocity (defaults to NULL)
      */
-    StokesFlowSolver(double mu,
-                     QuadraticMesh<DIM>* pQuadMesh,
-                     c_vector<double,DIM> bodyForce,
-                     std::string outputDirectory,
-                     std::vector<unsigned>& dirichletNodes,
-                     std::vector<c_vector<double,DIM> >* pDirichletVelocities=NULL);
+    StokesFlowSolver(QuadraticMesh<DIM>& rQuadMesh,
+                     StokesFlowProblemDefinition<DIM>& rProblemDefinition,
+                     std::string outputDirectory);
 
     /**
      * Destructor.
@@ -227,16 +213,6 @@ public:
      * @return mPressureSolution
      */
     std::vector<double>& rGetPressures();
-
-    /**
-     * Set the surface normal stress boundary conditions by specifying mBoundaryElements
-     * and mSurfaceNormalStresses.
-     * 
-     * @param rBoundaryElements vector of pointers to boundary elements in the mesh
-     * @param rSurfaceNormalStresses vector of surface normal stresses.
-     */
-    void SetSurfaceNormalStressBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-                                                  std::vector<c_vector<double,DIM> >& rSurfaceNormalStresses);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -246,20 +222,18 @@ public:
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::ApplyBoundaryConditions()
 {
-    assert(mDirichletVelocities.size() == mDirichletNodes.size());
-
     std::vector<unsigned> rows;
-    rows.resize(DIM*mDirichletNodes.size());
+    rows.resize(DIM*mrProblemDefinition.rGetDirichletNodes().size());
 
-    for (unsigned i=0; i<mDirichletNodes.size(); i++)
+    for (unsigned i=0; i<mrProblemDefinition.rGetDirichletNodes().size(); i++)
     {
-        unsigned node_index = mDirichletNodes[i];
+        unsigned node_index = mrProblemDefinition.rGetDirichletNodes()[i];
         for (unsigned j=0; j<DIM; j++)
         {
             unsigned dof_index = DIM*node_index + j;
             rows[DIM*i + j] = dof_index;
 
-            double value = mDirichletVelocities[i](j);
+            double value = mrProblemDefinition.rGetDirichletNodeValues()[i](j);
             mpLinearSystem->SetRhsVectorElement(dof_index, value);
         }
     }
@@ -269,54 +243,22 @@ void StokesFlowSolver<DIM>::ApplyBoundaryConditions()
 }
 
 template<unsigned DIM>
-StokesFlowSolver<DIM>::StokesFlowSolver(double mu,
-										QuadraticMesh<DIM>* pQuadMesh,
-										c_vector<double,DIM> bodyForce,
-										std::string outputDirectory,
-										std::vector<unsigned>& dirichletNodes,
-										std::vector<c_vector<double,DIM> >* pDirichletVelocities)
-    : mMu(mu),
-      mpQuadMesh(pQuadMesh),
+StokesFlowSolver<DIM>::StokesFlowSolver(QuadraticMesh<DIM>& rQuadMesh,
+										StokesFlowProblemDefinition<DIM>& rProblemDefinition,
+										std::string outputDirectory)
+    : mrQuadMesh(rQuadMesh),
+      mrProblemDefinition(rProblemDefinition),
       mKspAbsoluteTol(-1),
-      mNumDofs(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices()),
-      mOutputDirectory(outputDirectory),
-      mBodyForce(bodyForce),
-      mDirichletNodes(dirichletNodes)
+      mNumDofs(DIM*rQuadMesh.GetNumNodes()+rQuadMesh.GetNumVertices()),
+      mOutputDirectory(outputDirectory)
 {
-    assert(mu > 0);
-    assert(pQuadMesh);
     assert(DIM==2 || DIM==3);
-    assert(!dirichletNodes.empty());
+    assert(!mrProblemDefinition.rGetDirichletNodes().empty());
 
     AllocateMatrixMemory();
 
-    for (unsigned i=0; i<mDirichletNodes.size(); i++)
-    {
-        assert(mDirichletNodes[i] < mpQuadMesh->GetNumNodes());
-    }
-
     mpQuadratureRule = new GaussianQuadratureRule<DIM>(3);
     mpBoundaryQuadratureRule = new GaussianQuadratureRule<DIM-1>(3);
-
-    // Compute the displacements at each of the fixed nodes, given the fixed nodes locations
-    if (pDirichletVelocities == NULL)
-    {
-        mDirichletVelocities.clear();
-        for (unsigned i=0; i<mDirichletNodes.size(); i++)
-        {
-            mDirichletVelocities.push_back(zero_vector<double>(DIM));
-        }
-    }
-    else
-    {
-        assert(pDirichletVelocities->size() == mDirichletNodes.size());
-        for (unsigned i=0; i<mDirichletNodes.size(); i++)
-        {
-            c_vector<double,DIM> velocity = (*pDirichletVelocities)[i];
-            mDirichletVelocities.push_back(velocity);
-        }
-    }
-    assert(mDirichletVelocities.size() == mDirichletNodes.size());
 }
 
 template<unsigned DIM>
@@ -331,7 +273,7 @@ StokesFlowSolver<DIM>::~StokesFlowSolver()
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::Solve()
 {
-    #ifdef MECHLIN_VERBOSE
+    #ifdef STOKES_VERBOSE
     Timer::Reset();
     #endif
 
@@ -339,7 +281,7 @@ void StokesFlowSolver<DIM>::Solve()
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ASSEMBLE);
     AssembleSystem();
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::ASSEMBLE);
-    #ifdef MECHLIN_VERBOSE
+    #ifdef STOKES_VERBOSE
     Timer::PrintAndReset("AssembleSystem");
     #endif
 
@@ -378,7 +320,7 @@ void StokesFlowSolver<DIM>::Solve()
 
     KSPSetFromOptions(solver);
     KSPSetUp(solver);
-    #ifdef MECHLIN_VERBOSE
+    #ifdef STOKES_VERBOSE
     Timer::PrintAndReset("KSP Setup");
     #endif
 
@@ -436,7 +378,7 @@ void StokesFlowSolver<DIM>::Solve()
 	KSPEXCEPT(reason);
 	std::cout << "Converged Reason = " << reason << "\n" << std::flush;
 
-    #ifdef MECHLIN_VERBOSE
+    #ifdef STOKES_VERBOSE
     Timer::PrintAndReset("KSP Solve");
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
@@ -471,7 +413,7 @@ void StokesFlowSolver<DIM>::WriteOutput()
     {
         for (unsigned j=0; j<DIM; j++)
         {
-            *p_file << mpQuadMesh->GetNode(i)->rGetLocation()[j] << " ";
+            *p_file << mrQuadMesh.GetNode(i)->rGetLocation()[j] << " ";
         }
 
         for (unsigned j=0; j<DIM; j++)
@@ -489,7 +431,7 @@ void StokesFlowSolver<DIM>::WriteOutput()
     {
         for (unsigned j=0; j<DIM; j++)
         {
-            *p_pressure_file << mpQuadMesh->GetNode(i)->rGetLocation()[j] << " ";
+            *p_pressure_file << mrQuadMesh.GetNode(i)->rGetLocation()[j] << " ";
         }
 
         *p_pressure_file << r_pressure[i] << "\n";
@@ -515,12 +457,12 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     c_vector<double, STENCIL_SIZE> b_elem;
 
     // Loop over elements
-    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mpQuadMesh->GetElementIteratorBegin();
-         iter != mpQuadMesh->GetElementIteratorEnd();
+    for (typename AbstractTetrahedralMesh<DIM, DIM>::ElementIterator iter = mrQuadMesh.GetElementIteratorBegin();
+         iter != mrQuadMesh.GetElementIteratorEnd();
          ++iter)
     {
         #ifdef MECHLIN_VERY_VERBOSE
-        std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << mpQuadMesh->GetNumElements() << std::flush;
+        std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << mrQuadMesh.GetNumElements() << std::flush;
         #endif
 
         Element<DIM, DIM>& element = *iter;
@@ -540,7 +482,7 @@ void StokesFlowSolver<DIM>::AssembleSystem()
 
             for (unsigned i=0; i<NUM_VERTICES_PER_ELEMENT; i++)
             {
-                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + element.GetNodeGlobalIndex(i);
+                p_indices[DIM*NUM_NODES_PER_ELEMENT + i] = DIM*mrQuadMesh.GetNumNodes() + element.GetNodeGlobalIndex(i);
             }
 
             mpLinearSystem->AddLhsMultipleValues(p_indices, a_elem);
@@ -551,12 +493,13 @@ void StokesFlowSolver<DIM>::AssembleSystem()
     }
 
     c_vector<double, BOUNDARY_STENCIL_SIZE> b_boundary_elem;
-    if (!mBoundaryElements.empty())
+
+    if (mrProblemDefinition.GetTractionBoundaryConditionType() != NO_TRACTIONS)
     {
-        for (unsigned i=0; i<mBoundaryElements.size(); i++)
+        for (unsigned bc_index=0; bc_index<mrProblemDefinition.rGetTractionBoundaryElements().size(); bc_index++)
         {
-            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mBoundaryElements[i]);
-            AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, mSurfaceNormalStresses[i]);
+            BoundaryElement<DIM-1,DIM>& r_boundary_element = *(mrProblemDefinition.rGetTractionBoundaryElements()[bc_index]);
+            AssembleOnBoundaryElement(r_boundary_element, b_boundary_elem, bc_index);
 
             unsigned p_indices[BOUNDARY_STENCIL_SIZE];
             for (unsigned i=0; i<NUM_NODES_PER_BOUNDARY_ELEMENT; i++)
@@ -569,10 +512,10 @@ void StokesFlowSolver<DIM>::AssembleSystem()
 
             for (unsigned i=0; i<DIM /*vertices per boundary elem */; i++)
             {
-                p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mpQuadMesh->GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
+                p_indices[DIM*NUM_NODES_PER_BOUNDARY_ELEMENT + i] = DIM*mrQuadMesh.GetNumNodes() + r_boundary_element.GetNodeGlobalIndex(i);
             }
 
-            this->mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
+            mpLinearSystem->AddRhsMultipleValues(p_indices, b_boundary_elem);
 
             // Some extra checking
             if (DIM == 2)
@@ -607,7 +550,7 @@ void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
     static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
 
-    mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
+    mrQuadMesh.GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     rAElem.clear();
     rAElemPrecond.clear();
@@ -636,11 +579,26 @@ void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
         LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_linear_phi);
         trans_grad_quad_phi = trans(grad_quad_phi);
 
-        // Interpolate F(x) and p(x)
-        ChastePoint<DIM> physical_quad_point;
-        for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
+        switch (mrProblemDefinition.GetBodyForceType())
         {
-            physical_quad_point.rGetLocation() += linear_phi(vertex_index)*rElement.GetNode(vertex_index)->rGetLocation();
+            case FUNCTIONAL_BODY_FORCE:
+            {
+                c_vector<double,DIM> X = zero_vector<double>(DIM);
+                // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
+                for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+                {
+                    X += linear_phi(node_index) * mrQuadMesh.GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                }
+                body_force = mrProblemDefinition.EvaluateBodyForceFunction(X, 0.0);
+                break;
+            }
+            case CONSTANT_BODY_FORCE:
+            {
+                body_force = mrProblemDefinition.GetConstantBodyForce();
+                break;
+            }
+            default:
+                NEVER_REACHED;
         }
 
         // Vector
@@ -649,7 +607,7 @@ void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
 			unsigned spatial_dim = index%DIM;
 			unsigned node_index = (index-spatial_dim)/DIM;
 
-			rBElem(index) += mBodyForce(spatial_dim) * quad_phi(node_index) * wJ;
+			rBElem(index) += body_force(spatial_dim) * quad_phi(node_index) * wJ;
 		}
 
 		for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
@@ -676,12 +634,12 @@ void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
 						grad_quad_phi_grad_quad_phi += grad_quad_phi(k, node_index1) * grad_quad_phi(k, node_index2);
 				    }
 
-					rAElem(index1,index2) += mMu * grad_quad_phi_grad_quad_phi * wJ;
+					rAElem(index1,index2) += mrProblemDefinition.GetViscosity() * grad_quad_phi_grad_quad_phi * wJ;
 				}
 
 //                for (unsigned k=0; k<DIM; k++)
 //                {
-//                    rAElem(index1,index2)  +=   mMu
+//                    rAElem(index1,index2)  +=   mrProblemDefinition.GetViscosity()
 //                                              * (spatial_dim1==spatial_dim2)
 //                                              * grad_quad_phi(k, node_index1)
 //                                              * grad_quad_phi(k, node_index2)
@@ -724,27 +682,36 @@ void StokesFlowSolver<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
 template<unsigned DIM>
 void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>& rBoundaryElement,
                                                       c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
-                                                      c_vector<double,DIM>& rNormalStress)
+                                                      unsigned boundaryConditionIndex)
 {
     rBelem.clear();
 
     c_vector<double, DIM> weighted_direction;
     double jacobian_determinant;
-    mpQuadMesh->GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
+    mrQuadMesh.GetWeightedDirectionForBoundaryElement(rBoundaryElement.GetIndex(), weighted_direction, jacobian_determinant);
 
     c_vector<double,NUM_NODES_PER_BOUNDARY_ELEMENT> phi;
 
-    for (unsigned quad_index=0; quad_index<this->mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
+    for (unsigned quad_index=0; quad_index<mpBoundaryQuadratureRule->GetNumQuadPoints(); quad_index++)
     {
-        double wJ = jacobian_determinant * this->mpBoundaryQuadratureRule->GetWeight(quad_index);
+        double wJ = jacobian_determinant * mpBoundaryQuadratureRule->GetWeight(quad_index);
 
-        const ChastePoint<DIM-1>& quad_point = this->mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
+        const ChastePoint<DIM-1>& quad_point = mpBoundaryQuadratureRule->rGetQuadPoint(quad_index);
 
         QuadraticBasisFunction<DIM-1>::ComputeBasisFunctions(quad_point, phi);
 
-        // Get the required normal stress. Note this is constant on each boundary element
-        c_vector<double,DIM> normal_stress = zero_vector<double>(DIM);
-        normal_stress = rNormalStress;
+        c_vector<double,DIM> traction = zero_vector<double>(DIM);
+
+        switch (mrProblemDefinition.GetTractionBoundaryConditionType())
+        {
+            case ELEMENTWISE_TRACTION:
+            {
+                traction = mrProblemDefinition.rGetElementwiseTractions()[boundaryConditionIndex];
+                break;
+            }
+            default:
+                NEVER_REACHED;
+        }
 
         for (unsigned index=0; index<NUM_NODES_PER_BOUNDARY_ELEMENT*DIM; index++)
         {
@@ -753,7 +720,7 @@ void StokesFlowSolver<DIM>::AssembleOnBoundaryElement(BoundaryElement<DIM-1,DIM>
 
             assert(node_index < NUM_NODES_PER_BOUNDARY_ELEMENT);
 
-            rBelem(index) += normal_stress(spatial_dim) * phi(node_index) * wJ;
+            rBelem(index) += traction(spatial_dim) * phi(node_index) * wJ;
         }
     }
 }
@@ -794,20 +761,20 @@ void StokesFlowSolver<DIM>::AllocateMatrixMemory()
 //            num_non_zeros_each_row[i] = 0;
 //        }
 //
-//        for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+//        for (unsigned i=0; i<mrQuadMesh.GetNumNodes(); i++)
 //        {
 //            // this upper bound neglects the fact that two containing elements will share the same nodes..
 //            // 4 = max num dofs associated with this node
 //            // 30 = 3*9+3 = 3 dimensions x 9 other nodes on this element   +  3 vertices with a pressure unknown
-//            unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
+//            unsigned num_non_zeros_upper_bound = 4 + 30*mrQuadMesh.GetNode(i)->GetNumContainingElements();
 //
 //            num_non_zeros_each_row[DIM*i + 0] = num_non_zeros_upper_bound;
 //            num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
 //            num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
 //
-//            if (i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//            if (i<mrQuadMesh.GetNumVertices()) // then this is a vertex
 //            {
-//                num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;
+//                num_non_zeros_each_row[DIM*mrQuadMesh.GetNumNodes() + i] = num_non_zeros_upper_bound;
 //            }
 //        }
 //
@@ -851,8 +818,8 @@ void StokesFlowSolver<DIM>::SetKspAbsoluteTolerance(double kspAbsoluteTolerance)
 template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& StokesFlowSolver<DIM>::rGetVelocities()
 {
-    mVelocitiesSolution.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
-    for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+    mVelocitiesSolution.resize(mrQuadMesh.GetNumNodes(), zero_vector<double>(DIM));
+    for (unsigned i=0; i<mrQuadMesh.GetNumNodes(); i++)
     {
         for (unsigned j=0; j<DIM; j++)
         {
@@ -866,22 +833,13 @@ template<unsigned DIM>
 std::vector<double>& StokesFlowSolver<DIM>::rGetPressures()
 {
     mPressureSolution.clear();
-    mPressureSolution.resize(mpQuadMesh->GetNumVertices());
+    mPressureSolution.resize(mrQuadMesh.GetNumVertices());
 
-    for (unsigned i=0; i<mpQuadMesh->GetNumVertices(); i++)
+    for (unsigned i=0; i<mrQuadMesh.GetNumVertices(); i++)
     {
-        mPressureSolution[i] = mSolution[DIM*mpQuadMesh->GetNumNodes() + i];
+        mPressureSolution[i] = mSolution[DIM*mrQuadMesh.GetNumNodes() + i];
     }
     return mPressureSolution;
-}
-
-template<unsigned DIM>
-void StokesFlowSolver<DIM>::SetSurfaceNormalStressBoundaryConditions(std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
-                                                                     std::vector<c_vector<double,DIM> >& rSurfaceNormalStresses)
-{
-    assert(rBoundaryElements.size() == rSurfaceNormalStresses.size());
-    mBoundaryElements = rBoundaryElements;
-    mSurfaceNormalStresses = rSurfaceNormalStresses;
 }
 
 #endif /* STOKESFLOWSOLVER_HPP_ */

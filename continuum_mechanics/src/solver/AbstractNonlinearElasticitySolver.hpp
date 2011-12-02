@@ -717,8 +717,8 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyDirichletBoundaryConditions(bo
     std::vector<unsigned> rows;
     std::vector<double> values;
 
-    rows.resize(DIM*mrProblemDefinition.rGetFixedNodes().size());
-    values.resize(DIM*mrProblemDefinition.rGetFixedNodes().size());
+    rows.resize(DIM*mrProblemDefinition.rGetDirichletNodes().size());
+    values.resize(DIM*mrProblemDefinition.rGetDirichletNodes().size());
 
     // Whether to apply symmetrically, ie alter columns as well as rows (see comment above)
     bool applySymmetrically = (applyToLinearSystem) && (mCompressibilityType==COMPRESSIBLE);
@@ -730,13 +730,13 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyDirichletBoundaryConditions(bo
         PetscMatTools::Finalise(mJacobianMatrix);
     }
 
-    for (unsigned i=0; i<mrProblemDefinition.rGetFixedNodes().size(); i++)
+    for (unsigned i=0; i<mrProblemDefinition.rGetDirichletNodes().size(); i++)
     {
-        unsigned node_index = mrProblemDefinition.rGetFixedNodes()[i];
+        unsigned node_index = mrProblemDefinition.rGetDirichletNodes()[i];
 
         for (unsigned j=0; j<DIM; j++)
         {
-            double disp = mrProblemDefinition.rGetFixedNodeDisplacements()[i](j);
+            double disp = mrProblemDefinition.rGetDirichletNodeValues()[i](j); // problem defn returns DISPLACEMENTS here
 
             if(disp != SolidMechanicsProblemDefinition<DIM>::FREE)
             {
