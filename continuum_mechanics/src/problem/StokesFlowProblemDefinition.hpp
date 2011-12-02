@@ -29,8 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef STOKESFLOWPROBLEMDEFINITION_HPP_
 #define STOKESFLOWPROBLEMDEFINITION_HPP_
 
-#include <cxxtest/TestSuite.h>
-
 #include "ContinuumMechanicsProblemDefinition.hpp"
 
 template<unsigned DIM>
