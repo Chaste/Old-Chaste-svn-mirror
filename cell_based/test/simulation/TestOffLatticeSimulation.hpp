@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckpointArchiveTypes.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "CylindricalHoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -299,6 +300,48 @@ public:
         // For coverage of these 'Get' functions
         TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
+    }
+
+
+    /**
+     * Test a cell-based simulation with a periodic mesh.
+     */
+    void TestOffLatticeSimulationWithPeriodicMesh() throw (Exception)
+    {
+        // Create a simple mesh
+        int cells_up = 6;
+        int cells_across = 6;
+
+        CylindricalHoneycombMeshGenerator generator(cells_across, cells_up, 0);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
+
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+        // Set up cell-based simulation
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithPeriodicMesh");
+        simulator.SetEndTime(0.5);
+
+        // Create some force laws and pass them to the simulation
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        simulator.AddForce(p_linear_force);
+
+        simulator.Solve();
+
+        // Check that the number of nodes is equal to the number of cells
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumNodes(), simulator.rGetCellPopulation().GetNumRealCells());
+
+        // Check that the setup file is written correctly
+        std::string output_directory = "TestOffLatticeSimulationWithPeriodicMesh/results_from_time_0/";
+        OutputFileHandler output_file_handler(output_directory, false);
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizsetup  cell_based/test/data/TestOffLatticeSimulationWithPeriodicMesh/results.vizsetup").c_str()), 0);
     }
 
     /**
