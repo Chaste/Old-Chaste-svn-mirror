@@ -2,6 +2,15 @@
 # Suppressions of library errors in Ubuntu Lucid #
 ##################################################
 
+#################################################
+# Note if memory leaks depend on the context (e.g. 
+# CHASTE_TEST_OUTPUT it may be advisable for Scons
+# to produce suppressions automatically:
+#       python/BuildTypes.py
+#       -    #_valgrind_flags +=" --gen-suppressions=all"
+#       +    _valgrind_flags +=" --gen-suppressions=all"
+#################################################
+
 # HDF5
 ######
 
@@ -173,9 +182,7 @@
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
    ...
-   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
-   fun:_ZN12vtkXMLWriter5WriteEv
-   fun:_ZN13VtkMeshWriterILj2ELj2EE10WriteFilesEv
+   fun:_ZN13VtkMeshWriter*WriteFilesEv
 }
 
 {
