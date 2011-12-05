@@ -716,10 +716,39 @@ public:
         p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
 
-        // Run the simulation and test that no exceptions are thrown
+        // Run the simulation and test that the correct exceptions are thrown
         TS_ASSERT_THROWS_THIS(simulator.Solve(),
             "Simulation has produced an element with zero area.  Please re-run with a cutoff on your forces");
+
+        CellBasedEventHandler::Reset();
     }
+
+
+
+    void TestSettingEndTimeIssue() throw(Exception)
+	{
+		SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 1);
+
+		HoneycombMeshGenerator generator(2, 2, 0);
+		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Create some cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), DIFFERENTIATED);
+
+        // Create a mesh-based cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+		OffLatticeSimulation<2> simulator(cell_population);
+
+		simulator.SetOutputDirectory("TestSettingEndTimeIssue");
+        simulator.SetEndTime(1.0);
+        TS_ASSERT_THROWS_THIS(simulator.Solve(),
+				"End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell based tests.");
+	}
+
+
 };
 
 #endif /*TESTOFFLATTICESIMULATION_HPP_*/

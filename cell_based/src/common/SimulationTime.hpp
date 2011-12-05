@@ -122,6 +122,14 @@ public:
     bool IsStartTimeSetUp() const;
 
     /**
+     * Allows lower classes to check whether the simulation time class has been set up before using it
+     *
+     * @return whether the end time of the simulation and the number of timesteps has been set.
+     */
+    bool IsEndTimeAndNumberOfTimeStepsSetUp() const;
+
+
+    /**
      * @return whether the simulation has finished.
      */
     bool IsFinished() const;

@@ -289,7 +289,15 @@ void AbstractCellBasedSimulation<DIM>::Solve()
     }
     else
     {
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
+    	if(p_simulation_time->IsEndTimeAndNumberOfTimeStepsSetUp())
+		{
+    		EXCEPTION("End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell based tests.");
+		}
+    	else
+    	{
+    		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(mEndTime, num_time_steps);
+    	}
+
     }
 
     if (mOutputDirectory=="")
@@ -365,7 +373,7 @@ void AbstractCellBasedSimulation<DIM>::Solve()
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::OUTPUT);
     }
 
-    LOG(1, "--END TIME = " << SimulationTime::Instance()->GetTime() << "\n");
+    LOG(1, "--END TIME = " << p_simulation_time->GetTime() << "\n");
 
     // Carry out a final update so that cell population is coherent with new cell positions.
     // NB cell birth/death still need to be checked because they may be spatially-dependent.

@@ -130,6 +130,18 @@ bool SimulationTime::IsStartTimeSetUp() const
     return (mStartTime != DOUBLE_UNSET);
 }
 
+bool SimulationTime::IsEndTimeAndNumberOfTimeStepsSetUp() const
+{
+	if(mpTimeStepper)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool SimulationTime::IsFinished() const
 {
     // assert(mpTimeStepper);
