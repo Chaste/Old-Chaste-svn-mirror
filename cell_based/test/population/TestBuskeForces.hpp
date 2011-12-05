@@ -418,7 +418,7 @@ public:
         buske_force_parameter_file->close();
 
         std::string buske_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + buske_force_results_dir + "buske_results.parameters notforrelease_cell_based/test/data/TestForcesNotForRelease/buske_results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + buske_force_results_dir + "buske_results.parameters cell_based/test/data/TestForcesNotForRelease/buske_results.parameters").c_str()), 0);
 
         // Test with BuskeCompressionForce
         BuskeCompressionForce<2> buske_compression_force;
@@ -429,7 +429,7 @@ public:
         buske_compression_force_parameter_file->close();
 
         std::string buske_compression_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-        TS_ASSERT_EQUALS(system(("diff " + buske_compression_force_results_dir + "buske_compression_results.parameters notforrelease_cell_based/test/data/TestForcesNotForRelease/buske_compression_results.parameters").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + buske_compression_force_results_dir + "buske_compression_results.parameters cell_based/test/data/TestForcesNotForRelease/buske_compression_results.parameters").c_str()), 0);
     }
 
     void TestBuskeAdhesiveForceArchiving() throw (Exception)

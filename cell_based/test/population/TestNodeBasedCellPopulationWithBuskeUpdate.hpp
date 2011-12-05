@@ -108,7 +108,7 @@ public:
 
 		// Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters notforrelease_cell_based/test/data/TestNodeBasedCellPopulationWithBuskeUpdate/results.parameters").c_str()), 0);
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters cell_based/test/data/TestNodeBasedCellPopulationWithBuskeUpdate/results.parameters").c_str()), 0);
 	}
 
     void TestArchivingCellPopulation() throw (Exception)
