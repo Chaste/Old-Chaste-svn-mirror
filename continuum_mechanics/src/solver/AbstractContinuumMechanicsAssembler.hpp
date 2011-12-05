@@ -318,7 +318,7 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
         }
         if( PetscMatTools::GetSize(this->mMatrixToAssemble) != DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() )
         {
-            EXCEPTION("Matrix provided to be assembled has size " << PetscMatTools::GetSize(this->mMatrixToAssemble) << ", not expected size of " << DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() << "(dim*num_nodes+num_vertices)");
+            EXCEPTION("Matrix provided to be assembled has size " << PetscMatTools::GetSize(this->mMatrixToAssemble) << ", not expected size of " << DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() << " (dim*num_nodes+num_vertices)");
         }
     }
 
@@ -330,7 +330,7 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
         }
         if( PetscVecTools::GetSize(this->mVectorToAssemble) != DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() )
         {
-            EXCEPTION("Vector provided to be assembled has size " << PetscVecTools::GetSize(this->mVectorToAssemble) << ", not expected size of " << DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() << "(dim*num_nodes+num_vertices)");
+            EXCEPTION("Vector provided to be assembled has size " << PetscVecTools::GetSize(this->mVectorToAssemble) << ", not expected size of " << DIM*mpMesh->GetNumNodes()+mpMesh->GetNumVertices() << " (dim*num_nodes+num_vertices)");
         }
     }
 
