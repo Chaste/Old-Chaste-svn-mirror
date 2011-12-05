@@ -212,7 +212,7 @@ public:
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
 
-        MixedDimensionMesh<2,2> mesh;
+        MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
         mesh.ConstructFromMeshReader(reader);
 
         PurkinjeCellFactory cell_factory;
@@ -223,11 +223,33 @@ public:
         // don't
         BoundaryConditionsContainer<2,2,2> bcc;
 
-        MonodomainPurkinjeSolver<2,2> solver(&mesh,&tissue,&bcc);
+        unsigned num_quad_points=1;
+
+        MonodomainPurkinjeSolver<2,2> solver(&mesh,&tissue,&bcc,num_quad_points);
 
         ///\todo #1898 set up initial conditions vector, then call Solve()...
 
-    }
+        //Create an initial condition
+//        Vec init_cond;
+//
+//		// get the voltage stripes
+//		DistributedVector ic = mesh.GetDistributedVectorFactory()->CreateDistributedVector(init_cond);
+//		DistributedVector::Stripe volume_stripe = DistributedVector::Stripe(ic,0);
+//		DistributedVector::Stripe cable_stripe = DistributedVector::Stripe(ic,1);
+//
+//		for (DistributedVector::Iterator index = ic.Begin();
+//			 index!= ic.End();
+//			 ++index)
+//		{
+//			// make it zero in the cable stripe for the nodes that are not in purkinje ..
+//		}
+//		ic.Restore();
+//		double t_end = 0.1;
+//		solver.SetTimes(0, t_end);
+//		solver.SetTimeStep(0.01);
+		//solver.SetInitialCondition(init_cond);
+		//Vec result = solver.Slove();
+       }
 };
 
 #endif // TESTMONODOMAINPURKINJEASSEMBLERSANDSOLVER_HPP_
