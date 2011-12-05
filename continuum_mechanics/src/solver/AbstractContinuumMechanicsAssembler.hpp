@@ -112,13 +112,13 @@ protected:
      *
      *  @param rQuadPhi  All the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rGradQuadPhi  Gradients of all the quadratic basis functions on this element, evaluated at the current quad point
-     *  @param rX Current location (physical position corresponding to quad point
+     *  @param rX Current location (physical position)
      *  @param pElement Current element
      */
     virtual c_matrix<double,SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL> ComputeSpatialSpatialMatrixTerm(
         c_vector<double, NUM_NODES_PER_ELEMENT>& rQuadPhi,
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT>& rGradQuadPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         return zero_matrix<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL);
@@ -142,7 +142,7 @@ protected:
      *  @param rGradQuadPhi  Gradients of all the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rLinearPhi  All the linear basis functions on this element, evaluated at the current quad point
      *  @param rGradLinearPhi  Gradients of all the linear basis functions on this element, evaluated at the current quad point
-     *  @param rX Current location (physical position corresponding to quad point
+     *  @param rX Current location (physical position corresponding to quad point)
      *  @param pElement Current element
      */
     virtual c_matrix<double,SPATIAL_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputeSpatialPressureMatrixTerm(
@@ -150,7 +150,7 @@ protected:
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT>& rGradQuadPhi,
         c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
         c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         return zero_matrix<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL);
@@ -172,13 +172,13 @@ protected:
      *
      *  @param rLinearPhi  All the linear basis functions on this element, evaluated at the current quad point
      *  @param rGradLinearPhi  Gradients of all the linear basis functions on this element, evaluated at the current quad point
-     *  @param rX Current location (physical position corresponding to quad point
+     *  @param rX Current location (physical position)
      *  @param pElement Current element
      */
     virtual c_matrix<double,PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputePressurePressureMatrixTerm(
         c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
         c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         return zero_matrix<double>(PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL);
@@ -203,13 +203,13 @@ protected:
      *
      *  @param rQuadPhi  All the quadratic basis functions on this element, evaluated at the current quad point
      *  @param rGradQuadPhi  Gradients of all the quadratic basis functions on this element, evaluated at the current quad point
-     *  @param rX Current location (physical position corresponding to quad point
+     *  @param rX Current location (physical position)
      *  @param pElement Current element
      */
     virtual c_vector<double,SPATIAL_BLOCK_SIZE_ELEMENTAL> ComputeSpatialVectorTerm(
         c_vector<double, NUM_NODES_PER_ELEMENT>& rQuadPhi,
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT>& rGradQuadPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         return zero_vector<double>(SPATIAL_BLOCK_SIZE_ELEMENTAL);
@@ -234,13 +234,13 @@ protected:
      *
      *  @param rLinearPhi  All the linear basis functions on this element, evaluated at the current quad point
      *  @param rGradLinearPhi  Gradients of all the linear basis functions on this element, evaluated at the current quad point
-     *  @param rX Current location (physical position corresponding to quad point
+     *  @param rX Current location (physical position)
      *  @param pElement Current element
      */
     virtual c_vector<double,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputePressureVectorTerm(
             c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
             c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-            ChastePoint<DIM>& rX,
+            c_vector<double,DIM>& rX,
             Element<DIM,DIM>* pElement)
     {
         return zero_vector<double>(PRESSURE_BLOCK_SIZE_ELEMENTAL);
@@ -435,10 +435,13 @@ void AbstractContinuumMechanicsAssembler<DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MA
         LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_linear_phi);
 
         // interpolate X (ie physical location of this quad point).
-        ChastePoint<DIM> X;
+        c_vector<double,DIM> X = zero_vector<double>(DIM);
         for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
         {
-            X.rGetLocation() += linear_phi(vertex_index)*rElement.GetNode(vertex_index)->rGetLocation();
+            for(unsigned j=0; j<DIM; j++)
+            {
+                X(j) += linear_phi(vertex_index)*rElement.GetNode(vertex_index)->rGetLocation()(j);
+            }
         }
 
         if(this->mAssembleVector)

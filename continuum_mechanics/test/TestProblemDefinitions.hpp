@@ -105,13 +105,19 @@ public:
         TS_ASSERT_DELTA(problem_defn.EvaluateBodyForceFunction(X,t)(0), 10.5, 1e-12);
         TS_ASSERT_DELTA(problem_defn.EvaluateBodyForceFunction(X,t)(1), 23.0, 1e-12);
 
+        TS_ASSERT_DELTA(problem_defn.GetBodyForce(X,t)(0), 10.5, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.GetBodyForce(X,t)(1), 23.0, 1e-12);
+
         c_vector<double,2> body_force;
-        body_force(0) = -9.8;
+        body_force(0) = -9.81;
         body_force(1) = 0.01;
         problem_defn.SetBodyForce(body_force);
         TS_ASSERT_EQUALS(problem_defn.GetBodyForceType(), CONSTANT_BODY_FORCE);
-        TS_ASSERT_DELTA(problem_defn.GetConstantBodyForce()(0), -9.8,  1e-12);
+        TS_ASSERT_DELTA(problem_defn.GetConstantBodyForce()(0), -9.81,  1e-12);
         TS_ASSERT_DELTA(problem_defn.GetConstantBodyForce()(1),  0.01, 1e-12);
+
+        TS_ASSERT_DELTA(problem_defn.GetBodyForce(X,t)(0), -9.81, 1e-12);
+        TS_ASSERT_DELTA(problem_defn.GetBodyForce(X,t)(1),  0.01, 1e-12);
 
 
         //////////////////////////////////

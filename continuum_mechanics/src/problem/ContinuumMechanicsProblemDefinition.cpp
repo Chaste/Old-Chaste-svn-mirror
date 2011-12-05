@@ -72,6 +72,7 @@ void ContinuumMechanicsProblemDefinition<DIM>::SetBodyForce(c_vector<double,DIM>
     mpBodyForceFunction = pFunction;
 }
 
+
 template<unsigned DIM>
 BodyForceType ContinuumMechanicsProblemDefinition<DIM>::GetBodyForceType()
 {
@@ -90,6 +91,24 @@ c_vector<double,DIM> ContinuumMechanicsProblemDefinition<DIM>::EvaluateBodyForce
 {
     assert(mBodyForceType==FUNCTIONAL_BODY_FORCE);
     return (*mpBodyForceFunction)(rX,t);
+}
+
+template<unsigned DIM>
+c_vector<double,DIM> ContinuumMechanicsProblemDefinition<DIM>::GetBodyForce(c_vector<double,DIM>& rX, double t)
+{
+    switch(mBodyForceType)
+    {
+        case CONSTANT_BODY_FORCE:
+        {
+            return mConstantBodyForce;
+        }
+        case FUNCTIONAL_BODY_FORCE:
+        {
+            return (*mpBodyForceFunction)(rX,t);
+        }
+        default:
+            NEVER_REACHED;
+    }
 }
 
 

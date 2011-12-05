@@ -173,6 +173,16 @@ public:
     void SetBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>& rX, double t));
 
     /**
+     * Get the body force at a particular point and time.
+     * Note: The user can either call this, or check what type of body force has been set using
+     * GetBodyForceType() and then call GetConstantBodyForce() or EvaluateBodyForceFunction(X,t).
+     *
+     * @param rX spatial location
+     * @param t current time
+     */
+    c_vector<double,DIM> GetBodyForce(c_vector<double,DIM>& rX, double t = 0.0);
+
+    /**
      * Get the body force type
      */
     BodyForceType GetBodyForceType();

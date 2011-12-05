@@ -37,6 +37,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MassMatrixAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 
+
+// NOTE: The tests in TestStokesFlowAssembler also, essentially, test that this class is performing
+// correctly.
+
 template<unsigned DIM>
 class SimpleAssembler : public AbstractContinuumMechanicsAssembler<DIM,true,true>
 {
@@ -69,7 +73,7 @@ public:
     c_matrix<double,SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL> ComputeSpatialSpatialMatrixTerm(
         c_vector<double, NUM_NODES_PER_ELEMENT>& rQuadPhi,
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT>& rGradQuadPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         c_matrix<double,SPATIAL_BLOCK_SIZE_ELEMENTAL,SPATIAL_BLOCK_SIZE_ELEMENTAL> ret;
@@ -88,7 +92,7 @@ public:
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT>& rGradQuadPhi,
         c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
         c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         c_matrix<double,SPATIAL_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ret;
@@ -105,7 +109,7 @@ public:
     c_matrix<double,PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputePressurePressureMatrixTerm(
         c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
         c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         c_matrix<double,PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ret;
@@ -123,7 +127,7 @@ public:
     c_vector<double,SPATIAL_BLOCK_SIZE_ELEMENTAL> ComputeSpatialVectorTerm(
         c_vector<double, NUM_NODES_PER_ELEMENT>& rQuadPhi,
         c_matrix<double, DIM, NUM_NODES_PER_ELEMENT>& rGradQuadPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         c_vector<double,SPATIAL_BLOCK_SIZE_ELEMENTAL> ret;
@@ -137,7 +141,7 @@ public:
     c_vector<double,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputePressureVectorTerm(
             c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
             c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-            ChastePoint<DIM>& rX,
+            c_vector<double,DIM>& rX,
             Element<DIM,DIM>* pElement)
     {
         c_vector<double,PRESSURE_BLOCK_SIZE_ELEMENTAL> ret;
@@ -183,7 +187,7 @@ public:
     c_matrix<double,PRESSURE_BLOCK_SIZE_ELEMENTAL,PRESSURE_BLOCK_SIZE_ELEMENTAL> ComputePressurePressureMatrixTerm(
         c_vector<double, NUM_VERTICES_PER_ELEMENT>& rLinearPhi,
         c_matrix<double, DIM, NUM_VERTICES_PER_ELEMENT>& rGradLinearPhi,
-        ChastePoint<DIM>& rX,
+        c_vector<double,DIM>& rX,
         Element<DIM,DIM>* pElement)
     {
         return outer_prod(rLinearPhi,rLinearPhi);
