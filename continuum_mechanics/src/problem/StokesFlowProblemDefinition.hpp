@@ -31,25 +31,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ContinuumMechanicsProblemDefinition.hpp"
 
+/**
+ *  Class for defining everything needed for a solving the Stokes' Flow equations.
+ *  This class mainly allows for the setting of the viscosity. It inherits from
+ *  a class which allows for the setting of body force, density and various
+ *  types of boundary condition.
+ */
 template<unsigned DIM>
 class StokesFlowProblemDefinition : public ContinuumMechanicsProblemDefinition<DIM>
 {
 private:
+    /** Dynamic viscosity */
     double mMu;
 
 public:
+    /**
+     * Constructor (initialises viscosity to -1 so can check if it is unset
+     * @param rMesh Quadratic mesh
+     */
     StokesFlowProblemDefinition(QuadraticMesh<DIM>& rMesh)
         : ContinuumMechanicsProblemDefinition<DIM>(rMesh),
           mMu(-1.0)
     {
     }
 
+    /**
+     * Set the viscosity
+     * @param mu viscosity
+     */
     void SetViscosity(double mu)
     {
         assert(mu > 0.0);
         mMu = mu;
     }
 
+    /**
+     * Get the viscosity. Exception thrown if this hasn't been set yet.
+     */
     double GetViscosity()
     {
         if(mMu < 0.0)
@@ -59,11 +77,26 @@ public:
         return mMu;
     }
 
+    /**
+     * Set nodes on which to apply the boundary condition \vec{u}=0, ie flow = 0 in all
+     * components. Just calls SetZeroDirichletNodes() on the parent class.
+     * @param rZeroFlowNodes Nodes on which to apply the boundary conditions
+     */
     void SetZeroFlowNodes(std::vector<unsigned>& rZeroFlowNodes)
     {
         this->SetZeroDirichletNodes(rZeroFlowNodes);
     }
 
+    /**
+     * Set Dirichlet boundary conditions: provide a set of nodes and the prescribed flow
+     * on these nodes.
+     *
+     * If you only want to set one component of the flow for the node rPrescribedFlowNodes[i],
+     * set the other components of rPrescribedFlow[i] to be StokesFlowProblemDefinition::FREE.
+     *
+     * @param rPrescribedFlowNodes vector of node indices.
+     * @param rPrescribedFlow vector of prescribed flow values for these nodes.
+     */
     void SetPrescribedFlowNodes(std::vector<unsigned>& rPrescribedFlowNodes, std::vector<c_vector<double,DIM> >& rPrescribedFlow)
     {
         assert(rPrescribedFlowNodes.size()==rPrescribedFlow.size());
