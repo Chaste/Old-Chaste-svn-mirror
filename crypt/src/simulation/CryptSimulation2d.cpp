@@ -149,11 +149,6 @@ c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(CellPtr pPare
     }
 }
 
-void CryptSimulation2d::WriteVisualizerSetupFile()
-{
-    *mpVizSetupFile << "MeshWidth\t" << mrCellPopulation.GetWidth(0) << "\n";
-}
-
 void CryptSimulation2d::SetupWriteBetaCatenin()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);

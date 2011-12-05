@@ -107,13 +107,6 @@ protected:
     c_vector<double, 2> CalculateCellDivisionVector(CellPtr pParentCell);
 
     /**
-     * Overridden WriteVisualizerSetupFile() method.
-     *
-     * Writes out special information about the mesh to the visualizer.
-     */
-    void WriteVisualizerSetupFile();
-
-    /**
      * Use an output file handler to create a beta catenin results file.
      */
     void SetupWriteBetaCatenin();
