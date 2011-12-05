@@ -254,6 +254,11 @@ std::vector<unsigned> HoneycombMeshGenerator::GetCellLocationIndices()
 
 MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
 {
+
+	if(mGhostNodeIndices.size() != 0u)
+	{
+		EXCEPTION("Cannot call GetCircularMesh on a HoneycombMesh with ghost nodes");
+	}
     // Centre the mesh at (0,0)
     c_vector<double,2> centre = zero_vector<double>(2);
     for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)

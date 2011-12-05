@@ -270,6 +270,17 @@ public:
         Output2DNodesToFile(p_mesh, "circular_mesh.dat");
     }
 
+    void TestGetCircularMeshWithGhostNodesThrowsException() throw(Exception)
+    {
+        unsigned num_cells_depth = 10;
+        unsigned num_cells_width = 10;
+        double radius = 3.5;
+
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 3);
+
+        TS_ASSERT_THROWS_THIS(generator.GetCircularMesh(radius), "Cannot call GetCircularMesh on a HoneycombMesh with ghost nodes");
+    }
+
     void TestCircularMeshIsJacobian() throw(Exception)
     {
         HoneycombMeshGenerator generator(20, 20, 0);
