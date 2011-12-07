@@ -49,62 +49,62 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainPurkinjeCableMassMatrixAssembler : public AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>
 {
 private:
+    /** The scale factor. */
+    double mScaleFactor;
 
-	/** The scale factor. */
-	double mScaleFactor;
-
-	/** Whether to use mass lumping or not. */
-	bool mUseMassLumping;
+    /** Whether to use mass lumping or not. */
+    bool mUseMassLumping;
 
 public:
 
-	/**
-	 * Implemented ComputeMatrixTerm(), defined in AbstractFeCableIntegralAssembler.
-	 * See documentation in that class.
-	 *
-	 * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
-	 * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i).
-	 * @param rX The point in space.
-	 * @param rU The unknown as a vector, u(i) = u_i.
-	 * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j).
-	 * @param pElement Pointer to the element.
-	 */
-	c_matrix<double,4,4 /* 2(number of bases per cable) \times 2(PROBLEM_DIM)*/>
-			ComputeMatrixTerm(
-					c_vector<double, ELEMENT_DIM+1> &rPhi,
-					c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
-					ChastePoint<SPACE_DIM> &rX,
-					c_vector<double,1> &rU,
-					c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-					Element<ELEMENT_DIM,SPACE_DIM>* pElement)
-		{
-		c_matrix<double,4, 4> ret = zero_matrix<double>(4, 4);
+    /**
+     * Implemented ComputeMatrixTerm(), defined in AbstractFeCableIntegralAssembler.
+     * See documentation in that class.
+     *
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
+     * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i).
+     * @param rX The point in space.
+     * @param rU The unknown as a vector, u(i) = u_i.
+     * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j).
+     * @param pElement Pointer to the element.
+     */
+    c_matrix<double,4,4 /* 2(number of bases per cable) \times 2(PROBLEM_DIM)*/>
+            ComputeMatrixTerm(
+                    c_vector<double, ELEMENT_DIM+1> &rPhi,
+                    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
+                    ChastePoint<SPACE_DIM> &rX,
+                    c_vector<double,2> &rU,
+                    c_matrix<double,2, SPACE_DIM> &rGradU /* not used */,
+                    Element<ELEMENT_DIM,SPACE_DIM>* pElement)
+    {
+        c_matrix<double,4, 4> ret = zero_matrix<double>(4, 4);
 
-		for(unsigned i=0; i<2; i++) // 2 = number of basis functions per cable element
-		{
-			for(unsigned j=0; j<2; j++)  // 2 = number of basis functions per cable element
-			{
-				ret(2*i,  2*j)   = 0;  // [V,V] block
-				ret(2*i+1,2*j)   = 0;  // [Vpurkinje,V] block
-				ret(2*i,  2*j+1) = 0;  // [V,Vpurkinje] block
-				ret(2*i+1,2*j+1) = rPhi(i)*rPhi(j);
-			}
-		}
-		return ret;
-		}
-	 /**
-	  * Constructor.
-	  *
-	  * @param pMesh the mesh
-	  * @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
-	  * @param useMassLumping whether to use mass matrix lumping or not
-	  */
-	  MonodomainPurkinjeCableMassMatrixAssembler(MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, bool useMassLumping=false, double scaleFactor=1.0)
-	     : AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>(pMesh),
-	       mScaleFactor(scaleFactor),
-	       mUseMassLumping(useMassLumping)
-	    {
-	    }
+        for(unsigned i=0; i<2; i++) // 2 = number of basis functions per cable element
+        {
+            for(unsigned j=0; j<2; j++)  // 2 = number of basis functions per cable element
+            {
+                ret(2*i,  2*j)   = 0;  // [V,V] block
+                ret(2*i+1,2*j)   = 0;  // [Vpurkinje,V] block
+                ret(2*i,  2*j+1) = 0;  // [V,Vpurkinje] block
+                ret(2*i+1,2*j+1) = rPhi(i)*rPhi(j);
+            }
+        }
+        return ret;
+    }
+
+   /**
+    * Constructor.
+    *
+    * @param pMesh the mesh
+    * @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
+    * @param useMassLumping whether to use mass matrix lumping or not
+    */
+    MonodomainPurkinjeCableMassMatrixAssembler(MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, bool useMassLumping=false, double scaleFactor=1.0)
+       : AbstractFeCableIntegralAssembler<ELEMENT_DIM,SPACE_DIM,2,false,true,NORMAL>(pMesh),
+         mScaleFactor(scaleFactor),
+         mUseMassLumping(useMassLumping)
+    {
+    }
 };
 
 #endif /*MONODOMAINPURKINJECABLEMASSMATRIXASSEMBLER_HPP_*/

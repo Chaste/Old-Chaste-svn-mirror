@@ -83,67 +83,67 @@ class TestMonodomainPurkinjeAssemblersAndSolvers : public CxxTest::TestSuite
 public:
     void TestMonodomainPurkinjeVolumeAssembler() throw (Exception)
     {
-    	PdeSimulationTime::SetPdeTimeStep(0.01);
+        PdeSimulationTime::SetPdeTimeStep(0.01);
 
-    	DistributedTetrahedralMesh<2,2> mesh;
+        DistributedTetrahedralMesh<2,2> mesh;
         mesh.ConstructRegularSlabMesh(0.05, 0.1, 0.1);
 
-    	PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
-    	cell_factory.SetMesh(&mesh);
-    	MonodomainTissue<2> tissue(&cell_factory);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
+        cell_factory.SetMesh(&mesh);
+        MonodomainTissue<2> tissue(&cell_factory);
 
-    	// Make sure that a 2Nx2N matrix is partitioned in the same place as an NxN matrix.
-    	unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
-    	Mat purkinje_mat;
-    	PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9, 2*num_local_nodes, 2*num_local_nodes);
-    	Mat normal_mat;
-    	PetscTools::SetupMat(normal_mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 9, num_local_nodes, num_local_nodes);
+        // Make sure that a 2Nx2N matrix is partitioned in the same place as an NxN matrix.
+        unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        Mat purkinje_mat;
+        PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9, 2*num_local_nodes, 2*num_local_nodes);
+        Mat normal_mat;
+        PetscTools::SetupMat(normal_mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 9, num_local_nodes, num_local_nodes);
 
-    	MonodomainPurkinjeVolumeAssembler<2,2> purkinje_vol_assembler(&mesh, &tissue);
-    	purkinje_vol_assembler.SetMatrixToAssemble(purkinje_mat, true);
-    	purkinje_vol_assembler.Assemble();
+        MonodomainPurkinjeVolumeAssembler<2,2> purkinje_vol_assembler(&mesh, &tissue);
+        purkinje_vol_assembler.SetMatrixToAssemble(purkinje_mat, true);
+        purkinje_vol_assembler.Assemble();
 
-    	MonodomainAssembler<2,2> normal_vol_assembler(&mesh, &tissue);
-    	normal_vol_assembler.SetMatrixToAssemble(normal_mat, true);
-    	normal_vol_assembler.Assemble();
+        MonodomainAssembler<2,2> normal_vol_assembler(&mesh, &tissue);
+        normal_vol_assembler.SetMatrixToAssemble(normal_mat, true);
+        normal_vol_assembler.Assemble();
 
-    	PetscMatTools::Finalise(purkinje_mat);
-    	PetscMatTools::Finalise(normal_mat);
+        PetscMatTools::Finalise(purkinje_mat);
+        PetscMatTools::Finalise(normal_mat);
 
-    	PetscInt lo, hi;
-    	PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
+        PetscInt lo, hi;
+        PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
 
-    	//Check that the partitioning is exactly as expected
-    	TS_ASSERT_EQUALS((unsigned)lo, 2*mesh.GetDistributedVectorFactory()->GetLow());
-    	TS_ASSERT_EQUALS((unsigned)hi, 2*mesh.GetDistributedVectorFactory()->GetHigh());
+        //Check that the partitioning is exactly as expected
+        TS_ASSERT_EQUALS((unsigned)lo, 2*mesh.GetDistributedVectorFactory()->GetLow());
+        TS_ASSERT_EQUALS((unsigned)hi, 2*mesh.GetDistributedVectorFactory()->GetHigh());
 
         for (AbstractTetrahedralMesh<2,2>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
-        		node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
-    	{
-    		unsigned i = node_iter->GetIndex();
-        	assert(lo<=(int)(2*i) && (int)(2*i)<hi);
-			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-			{
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j),   PetscMatTools::GetElement(normal_mat,i,j), 1e-8);
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
-			}
+                node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
+        {
+            unsigned i = node_iter->GetIndex();
+            assert(lo<=(int)(2*i) && (int)(2*i)<hi);
+            for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+            {
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j),   PetscMatTools::GetElement(normal_mat,i,j), 1e-8);
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
+            }
 
-    		assert(lo<=(int)(2*i+1) && (int)(2*i+1)<hi);
-			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-			{
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0, 1e-8);
-			}
-    	}
+            assert(lo<=(int)(2*i+1) && (int)(2*i+1)<hi);
+            for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+            {
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0, 1e-8);
+            }
+        }
 
-    	MatDestroy(purkinje_mat);
-    	MatDestroy(normal_mat);
+        MatDestroy(purkinje_mat);
+        MatDestroy(normal_mat);
 
     }
 
     void TestMonodomainPurkinjeCableAssembler() throw(Exception)
     {
-    	PdeSimulationTime::SetPdeTimeStep(0.01);
+        PdeSimulationTime::SetPdeTimeStep(0.01);
 
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
@@ -153,57 +153,57 @@ public:
         mesh.ConstructFromMeshReader(reader);
 
         Mat purkinje_mat;
-    	unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        unsigned num_local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         PetscTools::SetupMat(purkinje_mat, 2*mesh.GetNumNodes(), 2*mesh.GetNumNodes(), 9, 2*num_local_nodes, 2*num_local_nodes);
 
-		MonodomainPurkinjeCableAssembler<2,2> purkinje_cable_assembler(&mesh);
+        MonodomainPurkinjeCableAssembler<2,2> purkinje_cable_assembler(&mesh);
 
-		purkinje_cable_assembler.SetMatrixToAssemble(purkinje_mat, true);
-		purkinje_cable_assembler.Assemble();
-		PetscMatTools::Finalise(purkinje_mat);
+        purkinje_cable_assembler.SetMatrixToAssemble(purkinje_mat, true);
+        purkinje_cable_assembler.Assemble();
+        PetscMatTools::Finalise(purkinje_mat);
 
-		PetscInt lo, hi;
-		PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
-		for (AbstractTetrahedralMesh<2,2>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
-				node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
-		{
-			unsigned i = node_iter->GetIndex();
-			assert(lo<=(int)(2*i) && (int)(2*i)<hi);
-			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-			{
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j), 0 , 1e-8);
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
-			}
+        PetscInt lo, hi;
+        PetscMatTools::GetOwnershipRange(purkinje_mat, lo, hi);
+        for (AbstractTetrahedralMesh<2,2>::NodeIterator node_iter = mesh.GetNodeIteratorBegin();
+                node_iter != mesh.GetNodeIteratorEnd(); ++node_iter)
+        {
+            unsigned i = node_iter->GetIndex();
+            assert(lo<=(int)(2*i) && (int)(2*i)<hi);
+            for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+            {
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j), 0 , 1e-8);
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i,2*j+1), 0.0, 1e-8);
+            }
 
-			assert(lo<=(int)(2*i+1) && (int)(2*i+1)<hi);
-			for(unsigned j=0; j<mesh.GetNumNodes(); j++)
-			{
-				//Non-Purkinje are all zero
-				TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
+            assert(lo<=(int)(2*i+1) && (int)(2*i+1)<hi);
+            for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+            {
+                //Non-Purkinje are all zero
+                TS_ASSERT_DELTA( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j),   0.0, 1e-8);
 
-				//Make sure that columns associated with cable node have non-zero Purkinje entries
-				if ( (i>55) && (i<65) && (j>=i-1) && (j<=i+1))
-				{
-					TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
-				}
-				else if ((i==55) && (j>=55) && (j<=56) )
-				{
-					TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
-				}
-				else if ((i==65) && (j>=64) && (j<=65) )
-				{
-					TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
-				}
-				else
-				{
-					//Other entries are zero
-					TS_ASSERT_DELTA(PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0 ,1.0e-8);
-				}
-			}
-		}
+                //Make sure that columns associated with cable node have non-zero Purkinje entries
+                if ( (i>55) && (i<65) && (j>=i-1) && (j<=i+1))
+                {
+                    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+                }
+                else if ((i==55) && (j>=55) && (j<=56) )
+                {
+                    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+                }
+                else if ((i==65) && (j>=64) && (j<=65) )
+                {
+                    TS_ASSERT_DIFFERS( PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0);
+                }
+                else
+                {
+                    //Other entries are zero
+                    TS_ASSERT_DELTA(PetscMatTools::GetElement(purkinje_mat,2*i+1,2*j+1), 0.0 ,1.0e-8);
+                }
+            }
+        }
 
-		MatDestroy(purkinje_mat);
-	}
+        MatDestroy(purkinje_mat);
+    }
 
     void TestMonodomainPurkinjeSolver() throw(Exception)
     {
@@ -220,7 +220,7 @@ public:
 
         MonodomainTissue<2> tissue( &cell_factory );
 
-        // don't
+        // Create an empty BCC - zero Neumann BCs will be applied everywhere
         BoundaryConditionsContainer<2,2,2> bcc;
 
         unsigned num_quad_points=1;
@@ -228,28 +228,28 @@ public:
         MonodomainPurkinjeSolver<2,2> solver(&mesh,&tissue,&bcc,num_quad_points);
 
         ///\todo #1898 set up initial conditions vector, then call Solve()...
-
-        //Create an initial condition
+//
+//        //Create an initial condition
 //        Vec init_cond;
 //
-//		// get the voltage stripes
-//		DistributedVector ic = mesh.GetDistributedVectorFactory()->CreateDistributedVector(init_cond);
-//		DistributedVector::Stripe volume_stripe = DistributedVector::Stripe(ic,0);
-//		DistributedVector::Stripe cable_stripe = DistributedVector::Stripe(ic,1);
+//        // get the voltage stripes
+//        DistributedVector ic = mesh.GetDistributedVectorFactory()->CreateDistributedVector(init_cond);
+//        DistributedVector::Stripe volume_stripe = DistributedVector::Stripe(ic,0);
+//        DistributedVector::Stripe cable_stripe = DistributedVector::Stripe(ic,1);
 //
-//		for (DistributedVector::Iterator index = ic.Begin();
-//			 index!= ic.End();
-//			 ++index)
-//		{
-//			// make it zero in the cable stripe for the nodes that are not in purkinje ..
-//		}
-//		ic.Restore();
-//		double t_end = 0.1;
-//		solver.SetTimes(0, t_end);
-//		solver.SetTimeStep(0.01);
-		//solver.SetInitialCondition(init_cond);
-		//Vec result = solver.Slove();
-       }
+//        for (DistributedVector::Iterator index = ic.Begin();
+//             index!= ic.End();
+//             ++index)
+//        {
+//            // make it zero in the cable stripe for the nodes that are not in purkinje ..
+//        }
+////        ic.Restore();
+////        double t_end = 0.1;
+////        solver.SetTimes(0, t_end);
+////        solver.SetTimeStep(0.01);
+//        //solver.SetInitialCondition(init_cond);
+//        //Vec result = solver.Slove();
+    }
 };
 
 #endif // TESTMONODOMAINPURKINJEASSEMBLERSANDSOLVER_HPP_

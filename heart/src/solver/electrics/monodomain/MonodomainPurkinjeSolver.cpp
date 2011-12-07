@@ -130,9 +130,8 @@ void MonodomainPurkinjeSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec curr
     // apply Neumann boundary conditions
     /////////////////////////////////////////
 
-    //Not needed at the momemnt! Because of the zero Neumaan boundary condition.
-    // mpNeumannSurfaceTermsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
-    //mpNeumannSurfaceTermsAssembler->AssembleVector();
+    mpNeumannSurfaceTermsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+    mpNeumannSurfaceTermsAssembler->AssembleVector();
 
     /////////////////////////////////////////
     // apply correction term
@@ -185,8 +184,8 @@ void MonodomainPurkinjeSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec ini
     VecGetOwnershipRange(r_template, &ownership_range_lo, &ownership_range_hi);
     PetscInt local_size = ownership_range_hi - ownership_range_lo;
     PetscTools::SetupMat(mMassMatrix, 2*this->mpMesh->GetNumNodes(), 2*this->mpMesh->GetNumNodes(),
-                             2*this->mpMesh->CalculateMaximumNodeConnectivityPerProcess(),
-                             local_size, local_size);
+                         2*this->mpMesh->CalculateMaximumNodeConnectivityPerProcess(),
+                         local_size, local_size);
 }
 
 
@@ -243,7 +242,6 @@ MonodomainPurkinjeSolver<ELEMENT_DIM,SPACE_DIM>::~MonodomainPurkinjeSolver()
 
     if(mVecForConstructingRhs)
     {
-//// TODO: currently commented to avoid coverage failure, uncomment when this class is being finished
         VecDestroy(mVecForConstructingRhs);
         MatDestroy(mMassMatrix);
     }

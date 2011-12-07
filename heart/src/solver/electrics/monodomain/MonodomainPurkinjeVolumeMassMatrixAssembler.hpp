@@ -74,8 +74,8 @@ public:
                 c_vector<double, ELEMENT_DIM+1> &rPhi,
                 c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
                 ChastePoint<SPACE_DIM> &rX,
-                c_vector<double,1> &rU,
-                c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
+                c_vector<double,2> &rU,
+                c_matrix<double,2,SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> mass_matrix = outer_prod(rPhi, rPhi);
