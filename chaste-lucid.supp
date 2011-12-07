@@ -1,6 +1,9 @@
-##################################################
-# Suppressions of library errors in Ubuntu Lucid #
-##################################################
+#############################################################
+# Suppressions of library errors in Ubuntu Lucid and newer. #
+#                                                           #
+# This file is used automatically if valgrind is new enough #
+# to support the "..." syntax.                              #
+#############################################################
 
 #################################################
 # Note if memory leaks depend on the context (e.g. 
@@ -19,44 +22,28 @@
    Memcheck:Param
    write(buf)
    fun:__write_nocancel
-   fun:ADIOI_GEN_WriteContig
+   ...
    fun:MPIOI_File_write
    fun:mca_io_romio_dist_MPI_File_write_at
+   ...
    fun:PMPI_File_write_at
    obj:/usr/lib/libhdf5.so.6.0.3
-   fun:H5FD_write
-   fun:H5F_block_write
-   obj:/usr/lib/libhdf5.so.6.0.3
-   obj:/usr/lib/libhdf5.so.6.0.3
-   fun:H5C_flush_cache
-   fun:H5AC_flush
-   fun:H5F_flush
-   fun:H5F_try_close
-   obj:/usr/lib/libhdf5.so.6.0.3
-   fun:H5I_dec_ref
-   fun:H5Fclose
+# On Maverick we don't have all the details that follow.
+#   ...
+#   fun:H5I_dec_ref
+#   fun:H5Fclose
 }
 {
-   HDF5 file create (main)
+   HDF5 file create
    Memcheck:Leak
    fun:malloc
    ...
    fun:PMPI_File_open
    obj:/usr/lib/libhdf5.so.*
-   fun:H5FD_open
-   fun:H5F_open
-   fun:H5Fcreate
-}
-{
-   HDF5 open (malloc)
-   Memcheck:Leak
-   fun:malloc
-   ...
-   fun:PMPI_File_open
-   obj:/usr/lib/libhdf5.so.*
-   fun:H5FD_open
-   fun:H5F_open
-   fun:H5Fopen
+# On Maverick we don't have all the details that follow.
+#   fun:H5FD_open
+#   fun:H5F_open
+#   fun:H5Fcreate
 }
 
 # Boost
@@ -65,9 +52,42 @@
 {
    boost serialization error
    Memcheck:Leak
-   fun:_Znwm
+   fun:_Znw*
    fun:_ZNK5boost13serialization16void_cast_detail11void_caster18recursive_registerEb
 }
+
+# Bug in Boost 1.44 - 1.46
+{
+   boost terminate bug
+   Memcheck:Addr4
+   fun:_ZNK5boost13serialization13typeid_system27extended_type_info_typeid_012is_less_thanERKNS0_18extended_type_infoE
+   fun:_ZNK5boost13serialization18extended_type_infoltERKS1_
+   fun:_ZNK5boost13serialization16void_cast_detail11void_casterltERKS2_
+   fun:_ZNK5boost13serialization16void_cast_detail11void_caster20recursive_unregisterEv
+   fun:_ZN5boost13serialization16void_cast_detail20void_caster_shortcutD0Ev
+   fun:_ZNK5boost13serialization16void_cast_detail11void_caster20recursive_unregisterEv
+   ...
+   fun:__cxa_finalize
+   ...
+   fun:__run_exit_handlers
+   fun:exit
+   fun:(below main)
+}
+
+# Leak caused by the above bug
+{
+   leak due to boost bug
+   Memcheck:Leak
+   fun:_Znw*
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE 
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_GLOBAL__sub_I_ArchiveLocationInfo.cpp
+   fun:call_init
+   fun:_dl_init
+}
+
+
 
 # PETSc/OpenMPI
 ###############
@@ -95,6 +115,8 @@
    obj:*/libmpi.so*
    fun:PMPI_Init
    fun:*PetscInitialize*
+# Oneiric doesn't have the line above
+#  fun:_ZN10PetscSetup10setUpWorldEv
 }
 {
    mpi_init (realloc)
@@ -131,7 +153,10 @@
    ...
    obj:*/libmpi.so*
    ...
+#  fun:PMPI_Finalize
    fun:*PetscFinalize*
+# Oneiric doesn't have the above, but goes straight to
+#  fun:_ZN10PetscSetup13tearDownWorldEv
 }
 
 
@@ -143,7 +168,7 @@
    fun:hypre_BoomerAMGCreate
    fun:HYPRE_BoomerAMGCreate
    fun:PCHYPRESetType_HYPRE
-   fun:PCSetFromOptions_HYPRE
+   ...
    fun:PCSetFromOptions
 }
 
@@ -167,26 +192,19 @@
 #####
 
 {
-   VTK-ExpandTable 1
+   VTK ExpandTable Writer
    Memcheck:Cond
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
    ...
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   ...
    fun:_ZN12vtkXMLWriter5WriteEv
    fun:*MeshWriter*
 }
-{
-   VTK-ExpandTable 4
-   Memcheck:Cond
-   fun:_ZN14vtkInformation11ExpandTableEv
-   fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
-   ...
-   fun:_ZN13VtkMeshWriter*WriteFilesEv
-}
 
 {
-   VTK-ExpandTable 2
+   VTK ExpandTable Writer UnRegister
    Memcheck:Cond
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
@@ -200,7 +218,7 @@
 }
 
 {  
-   VTK-ExpandTable 3
+   VTK ExpandTable Reader
    Memcheck:Cond
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
@@ -210,44 +228,40 @@
 
 
 {
-   VTK-information vertex 1
+   VTK-information delete via garbage-collector
    Memcheck:Cond
    fun:_ZN14vtkInformationD0Ev
+   ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
    ...
    fun:_ZN23vtkGarbageCollectorImpl16CollectComponentEPNS_13ComponentTypeE
    fun:_ZN23vtkGarbageCollectorImpl15CollectInternalEP13vtkObjectBase
    fun:_ZN19vtkGarbageCollector7CollectEP13vtkObjectBase
+   ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   fun:_ZN16VertexMeshWriter*
+   ...
+   fun:*MeshWriter*
 }
 
 {
-   VTK-information vertex 2
+   VTK-information delete
    Memcheck:Cond
    fun:_ZN14vtkInformationD0Ev
+   ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
+   ...
    fun:_ZN13vtkDataObject14SetInformationEP14vtkInformation
    fun:_ZN13vtkDataObjectD2Ev
+   ...
    fun:_ZN19vtkUnstructuredGridD0Ev
+   ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   fun:*VertexMeshWriter*
+   ...
+   fun:*MeshWriter*
 }
 
 {
-   VTK-information VTK (not Vertex)
-   Memcheck:Cond
-   fun:_ZN14vtkInformationD0Ev
-   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   fun:_ZN13vtkDataObject14SetInformationEP14vtkInformation
-   fun:_ZN13vtkDataObjectD2Ev
-   fun:_ZN19vtkUnstructuredGridD0Ev
-   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   fun:*VtkMeshWriter*
-}
-
-{
-   VTK-information
+   VTK-information delete via garbage-collector 2 (may be unnecessary now)
    Memcheck:Cond
    fun:_ZN14vtkInformationD0Ev
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
@@ -264,10 +278,12 @@
    Memcheck:Cond
    fun:_ZN14vtkInformation4CopyEPS_i
    fun:_ZN34vtkInformationInformationVectorKey8DeepCopyEP14vtkInformationS1_
+   ...
    fun:_ZN13vtkDataObject25CopyInformationToPipelineEP14vtkInformationS1_S1_i
    fun:_ZN23vtkDemandDrivenPipeline18ExecuteInformationEP14vtkInformationPP20vtkInformationVectorS3_
    fun:_ZN32vtkStreamingDemandDrivenPipeline18ExecuteInformationEP14vtkInformationPP20vtkInformationVectorS3_
    fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
+   ...
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN13VtkMeshReader*
 }
@@ -281,6 +297,7 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
 }
+
 # CVODE
 #######
 {
