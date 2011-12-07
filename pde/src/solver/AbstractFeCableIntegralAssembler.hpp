@@ -114,6 +114,8 @@ protected:
         c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
         Element<CABLE_ELEMENT_DIM,SPACE_DIM>* pElement)
     {
+    	// If this line is reached this means this method probably hasn't been over-ridden correctly in
+    	// the concrete class
         NEVER_REACHED;
         return zero_matrix<double>(PROBLEM_DIM*NUM_CABLE_ELEMENT_NODES,PROBLEM_DIM*NUM_CABLE_ELEMENT_NODES);
     }
@@ -146,6 +148,8 @@ protected:
         c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
         Element<CABLE_ELEMENT_DIM,SPACE_DIM>* pElement)
     {
+    	// If this line is reached this means this method probably hasn't been over-ridden correctly in
+    	// the concrete class
         NEVER_REACHED;
         return zero_vector<double>(PROBLEM_DIM*NUM_CABLE_ELEMENT_NODES);
     }

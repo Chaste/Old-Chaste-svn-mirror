@@ -84,6 +84,8 @@ protected:
         c_vector<double, ELEMENT_DIM>& rPhi,
         ChastePoint<SPACE_DIM>& rX)
     {
+    	// If this line is reached this means this method probably hasn't been over-ridden correctly in
+    	// the concrete class
         NEVER_REACHED;
         return zero_vector<double>(ELEMENT_DIM*PROBLEM_DIM);
     }
