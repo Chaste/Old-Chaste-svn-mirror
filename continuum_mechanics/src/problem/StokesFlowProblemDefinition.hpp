@@ -78,7 +78,7 @@ public:
     }
 
     /**
-     * Set nodes on which to apply the boundary condition \vec{u}=0, ie flow = 0 in all
+     * Set nodes on which to apply the boundary condition (u,v,w)=0, ie flow = 0 in all
      * components. Just calls SetZeroDirichletNodes() on the parent class.
      * @param rZeroFlowNodes Nodes on which to apply the boundary conditions
      */
