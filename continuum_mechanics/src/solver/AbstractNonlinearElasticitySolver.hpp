@@ -50,21 +50,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SolidMechanicsProblemDefinition.hpp"
 #include "DeformedBoundaryElement.hpp"
 
-// Bizarrely PETSc 2.2 has this, but doesn't put it in the petscksp.h header...
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-extern PetscErrorCode KSPInitialResidual(KSP,Vec,Vec,Vec,Vec,Vec);
-#endif
-
 //#define MECH_VERBOSE      // Print output on how nonlinear solve is progressing
 //#define MECH_VERY_VERBOSE // See number of elements done whilst assembling vectors or matrices
 //#define MECH_USE_HYPRE    // uses HYPRE to solve linear systems, requires Petsc to be installed with HYPRE
 //#define MECH_KSP_MONITOR  // Print residual norm each iteration in linear solve (ie -ksp_monitor).
 
-//EMTODO: allow change of max_iter, better preconditioner
 
 #ifdef MECH_VERBOSE
 #include "Timer.hpp"
 #endif
+
+
+// Bizarrely PETSc 2.2 has this, but doesn't put it in the petscksp.h header...
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+extern PetscErrorCode KSPInitialResidual(KSP,Vec,Vec,Vec,Vec,Vec);
+#endif
+
 
 
 /**
