@@ -111,7 +111,6 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
         for (unsigned N=0; N<DIM; N++)
         {
             double e = E(M,N);
-          //  if (e > 0)  // EMTODO4: check this
             {
                 double b = mB[M][N];
                 double a = mA[M][N];
@@ -129,10 +128,6 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                           * pow(a-e,-b-1)
                           - pressure*invC_transformed(M,N);
             }
-//                else
-//                {
-//                    T(M,N) = 0.0;
-//                }
         }
     }
 
@@ -151,20 +146,18 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                 }
 
                 double e = E(M,N);
-             //   if (e > 0)
-                {
-                    double b = mB[M][N];
-                    double a = mA[M][N];
-                    double k = mK[M][N];
 
-                    rDTdE(M,N,M,N) +=   k
-                                      * pow(a-e, -b-2)
-                                      * (
-                                           2*(a-e)*(a-e)
-                                         + 4*b*e*(a-e)
-                                         + b*(b+1)*e*e
-                                        );
-                }
+                double b = mB[M][N];
+                double a = mA[M][N];
+                double k = mK[M][N];
+
+                rDTdE(M,N,M,N) +=   k
+                                  * pow(a-e, -b-2)
+                                  * (
+                                       2*(a-e)*(a-e)
+                                     + 4*b*e*(a-e)
+                                     + b*(b+1)*e*e
+                                    );
             }
         }
     }

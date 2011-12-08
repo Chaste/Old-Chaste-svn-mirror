@@ -37,19 +37,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  Pole-zero material law
+ *  Pole-zero material law, as stated in: "Computational mechanics of the heart: from
+ *  tissue structure to ventricular function" Nash, Hunter, J. Elasticity, 2000; or
+ *  in Chapter 41 of "Cardiac Mechano-Electric Feedback and Arrhythmias: from
+ *  Pipette to Patient" (eds Franz, Kohl, Sachs), Remme, Nash and Hunter, 2005.
  *
- *  NOTE: CHANGED THE CODE AT THE MOMENT TO NOT USE THE POSITIVE PART BIT BELOW
- *  AS THEN IT IS NOT TWICE DIFFERENTIABLE
+ *  W = Sum_{M,N=1..3} k_{MN}  E_{MN}^2 / (a_{MN} - E_{MN})^b_{MN}
  *
- *  W = Sum_{M,N=1..3} k_{MN} ([ E_{MN} ]_+)^2 / (a_{MN} - E_{MN})^b_{MN}
- *
- *  Note the positive part operator in the numerator, so that
- *  the term in W corresponding to M,N is zero if E_MN < 0. (This differs
- *  from the original pole-zero paper but seems to be what they meant..)
- *
- *  Note that is the parameters k4,k5,k6,a4,a5,a6 etc are known, then
- *  k01=k10=0.5*k4 and similarly with k5,k6, but a01=a10=a4 etc.
+ *  This class doesn't set parameter values, see NashHunterPoleZeroLaw for
+ *  a derived class which sets cardiac parameter values.
  *
  *  Not isotropic, so inherits directly from AbstractIncompressibleMaterialLaw
  *

@@ -32,8 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PoleZeroMaterialLaw.hpp"
 
 /**
- *  The pole-zero law but with parameters set using values from Chapter 41 of [??],
- *  Remme, Nash and Hunter
+ *  The pole-zero law but with parameters set using values from Chapter 41 of "Cardiac Mechano-Electric
+ *  Feedback and Arrhythmias: from Pipette to Patient" (eds Franz, Kohl, Sachs), Remme, Nash and Hunter, 2005.
  *
  *  The stiffness are in KILOPASCALS
  */

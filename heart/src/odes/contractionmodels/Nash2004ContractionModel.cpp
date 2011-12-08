@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Nash2004ContractionModel.hpp"
 
-const double Nash2004ContractionModel::e0ByT0 = 1.0/100; //EMTODO: what is the correct value for this - see class doxygen
+const double Nash2004ContractionModel::e0ByT0 = 1.0/100; //See class doxygen for discussion on where this comes from
 const double Nash2004ContractionModel::kTa = 47.9;
 
 template<>
