@@ -75,6 +75,24 @@ public:
         problem_defn.SetDeformationAffectsElectrophysiology(false,true);
         TS_ASSERT_EQUALS(problem_defn.GetDeformationAffectsConductivity(), false);
         TS_ASSERT_EQUALS(problem_defn.GetDeformationAffectsCellModels(), true);
+
+        TS_ASSERT_EQUALS(problem_defn.ReadFibreSheetDirectionsFromFile(), false);
+        problem_defn.SetVariableFibreSheetDirectionsFile("some_file.ortho", false);
+        TS_ASSERT_EQUALS(problem_defn.ReadFibreSheetDirectionsFromFile(), true);
+        TS_ASSERT_EQUALS(problem_defn.GetFibreSheetDirectionsFile(), "some_file.ortho");
+        TS_ASSERT_EQUALS(problem_defn.GetFibreSheetDirectionsDefinedPerQuadraturePoint(), false);
+
+        problem_defn.SetVariableFibreSheetDirectionsFile("some_file.orthoquad", true);
+        TS_ASSERT_EQUALS(problem_defn.ReadFibreSheetDirectionsFromFile(), true);
+        TS_ASSERT_EQUALS(problem_defn.GetFibreSheetDirectionsFile(), "some_file.orthoquad");
+        TS_ASSERT_EQUALS(problem_defn.GetFibreSheetDirectionsDefinedPerQuadraturePoint(), true);
+
+        // shouldn't throw
+        problem_defn.SetDeformationAffectsElectrophysiology(false,false);
+        problem_defn.Validate();
+
+        problem_defn.SetDeformationAffectsElectrophysiology(false,true);
+        TS_ASSERT_THROWS_CONTAINS(problem_defn.Validate(), "Deformation affecting cell models cannot be done when fibres-sheet");
     }
 };
 

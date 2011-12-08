@@ -131,11 +131,6 @@ protected :
     /** File where watched location info is written */
     out_stream mpWatchedLocationFile;
 
-    /** .ortho/.orthoquad file from which to read element-wise/quadpoint-wise fibre-sheet-normal-directions */
-    std::string mFibreSheetDirectionsFile;
-    /** Whether the mFibreSheetDirectionsFile file gives the fibre info at each element, or each quadrature point */
-    bool mFibreSheetDirectionsDefinedPerQuadraturePoint;
-
     /** A vector of stretches (in the fibre direction), one for each element in the mechanics mesh */
     std::vector<double> mStretchesForEachMechanicsElement;
     /** A vector of deformation gradients (each entry a matrix), one for each element in the mechanics mesh */
@@ -226,19 +221,6 @@ public :
      *  @param watchedLocation  location (x,y,z) in space.  Watched node is the closest to this point.
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
-
-    /**
-     *  Set a variable fibre-sheet-normal direction (matrices), from file.
-     *  If the second parameter is false, there should be one fibre-sheet definition for each element; otherwise
-     *  there should be one fibre-sheet definition for each *quadrature point* in the mesh.
-     *  In the first case, the file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir 
-     *  for that element), in the second it should have .orthoquad as the format.
-     * 
-     *  @param orthoFile the file containing the fibre/sheet directions
-     *  @param definedPerQuadPoint whether the fibre-sheet definitions are for each quadrature point in the mesh
-     *   (if not, one for each element is assumed).
-     */
-    void SetVariableFibreSheetDirectionsFile(std::string orthoFile, bool definedPerQuadPoint);
 
     /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();

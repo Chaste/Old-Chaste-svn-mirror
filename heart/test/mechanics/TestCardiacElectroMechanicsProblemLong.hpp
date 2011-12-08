@@ -77,17 +77,31 @@ public:
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
+        TetrahedralMesh<2,2> electrics_mesh;
+        electrics_mesh.ConstructRegularSlabMesh(1.0/96.0/*stepsize*/, 1.0/*length*/, 1.0/*width*/, 1.0/*depth*/);
+
+        QuadraticMesh<2> mechanics_mesh;
+        mechanics_mesh.ConstructRegularSlabMesh(0.2, 1.0, 1.0, 1.0 /*as above with a different stepsize*/);
+
+        std::vector<unsigned> fixed_nodes
+            = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh, 0, 0.0); // all the X=0.0 nodes
+
+        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(NHS,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+        problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5mesh_curving_fibres.ortho", false);
+
         HeartConfig::Instance()->SetSimulationDuration(125.0);
 
-        CardiacElectroMechProbRegularGeom<2> problem(INCOMPRESSIBLE,
-                                                     1.0,  /* width */
-                                                     5,    /* mech mesh size */
-                                                     96,   /* elec elem each dir */
-                                                     &cell_factory,
-                                                     NHS,
-                                                     1.0,  /* mechanics solve timestep */
-                                                     1.0,  /* contraction model ode dt */
-                                                     "TestCardiacEmVaryingFibres");
+        CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  &cell_factory,
+                                                  &problem_defn,
+                                                  "TestCardiacEmVaryingFibres");
+
 
         // fibres going from (1,0) at X=0 to (1,1)-direction at X=1
         /* the fibres file was created with the code (inside a class that owns a mesh)
@@ -99,7 +113,6 @@ public:
         }
         assert(0);
         */
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5mesh_curving_fibres.ortho", false);
 
         // problem.SetNoElectricsOutput();
         problem.Solve();
@@ -180,6 +193,7 @@ public:
         problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetMechanicsSolveTimestep(1.0);
+        problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres_by_quadpt.orthoquad", true);
 
         CardiacElectroMechanicsProblem<3> problem(INCOMPRESSIBLE,
                                                   &electrics_mesh,
@@ -204,7 +218,6 @@ public:
 ////        }
 ////        return;
 
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres_by_quadpt.orthoquad", true);
 
         problem.Solve();
 

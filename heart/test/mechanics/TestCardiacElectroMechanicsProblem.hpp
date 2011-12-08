@@ -203,9 +203,6 @@ public:
                                                      0.01,  /* nash ode timestep */
                                                      "TestExplicitWithNash");
 
-        // coverage, this file is just X-direction fibres
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/1by1mesh_fibres.ortho", false);
-
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;

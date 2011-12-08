@@ -35,7 +35,8 @@ ElectroMechanicsProblemDefinition<DIM>::ElectroMechanicsProblemDefinition(Quadra
       mMechanicsSolveTimestep(-1.0),
       mDeformationAffectsConductivity(false),
       mDeformationAffectsCellModels(false),
-      mpDefaultMaterialLaw(NULL)
+      mpDefaultMaterialLaw(NULL),
+      mReadFibreSheetInformationFromFile(false)
 {
 }
 
@@ -91,6 +92,14 @@ void ElectroMechanicsProblemDefinition<DIM>::SetMechanicsSolveTimestep(double ti
 }
 
 template<unsigned DIM>
+void ElectroMechanicsProblemDefinition<DIM>::SetVariableFibreSheetDirectionsFile(std::string fibreSheetDirectionsFile, bool definedPerQuadraturePoint)
+{
+    mReadFibreSheetInformationFromFile = true;
+    mFibreSheetDirectionsFile = fibreSheetDirectionsFile;
+    mFibreSheetDirectionsDefinedPerQuadraturePoint = definedPerQuadraturePoint;
+}
+
+template<unsigned DIM>
 void ElectroMechanicsProblemDefinition<DIM>::Validate()
 {
     SolidMechanicsProblemDefinition<DIM>::Validate();
@@ -111,6 +120,15 @@ void ElectroMechanicsProblemDefinition<DIM>::Validate()
         // J=det(F), which is not equal to 1 in the compressible case. The F dependence
         // is implemented but the J dependence is not yet.
         EXCEPTION("Deformation affecting the conductivity is currently not implemented fully for compressible problems");
+    }
+
+    if(mDeformationAffectsCellModels && mReadFibreSheetInformationFromFile && mFibreSheetDirectionsDefinedPerQuadraturePoint)
+    {
+        // This combination is not allowed. For explanation see doxygen for SetDeformationAffectsElectrophysiology()
+        std::stringstream message;
+        message << "Deformation affecting cell models cannot be done when fibres-sheet information is defined for each quadrature point.";
+        message << "Define fibre-sheet information for each element instead.";
+        EXCEPTION(message.str());
     }
 }
 

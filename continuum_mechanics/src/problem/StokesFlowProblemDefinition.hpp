@@ -116,6 +116,7 @@ public:
      */
     virtual void Validate()
     {
+        ContinuumMechanicsProblemDefinition<DIM>::Validate();
     }
 };
 

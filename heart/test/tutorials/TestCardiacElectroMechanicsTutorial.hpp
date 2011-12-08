@@ -336,14 +336,6 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetMechanicsSolveTimestep(1.0);
 
-        /* Create the problem object */
-        CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
-                                                  &electrics_mesh,
-                                                  &mechanics_mesh,
-                                                  &cell_factory,
-                                                  &problem_defn,
-                                                  "TestCardiacElectroMech3dTwistingCube");
-
         /* The default fibre direction is the X-direction (and the default sheet plane is the XY plane). Here we show
          * how this can be changed.
          *
@@ -352,9 +344,19 @@ public:
          * fibre directions; .ortho the fibre sheet and normal directions). For mechanics problems, the .ortho file
          * can be used to either define the fibre information PER-ELEMENT or PER-QUADRATURE-POINT (ie all the quad points
          * in all the elements). The latter provides a higher resolution description of fibres. Here we use the latter, just
-         * because it is the harder case. Tthe `true` below the problem class tells the class the fibres are defined per quad
+         * because it is the harder case. The `true` below the problem class tells the class the fibres are defined per quad
          * point. To see how this data file was generated, see below. */
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres_by_quadpt.orthoquad", true);
+        problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres_by_quadpt.orthoquad", true);
+
+
+        /* Create the problem object */
+        CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  &cell_factory,
+                                                  &problem_defn,
+                                                  "TestCardiacElectroMech3dTwistingCube");
+
 
 
         /* Now call `Solve`. This will take a while to run, so watch progress using the log file to estimate when

@@ -73,6 +73,22 @@ private:
      */
     AbstractMaterialLaw<DIM>* mpDefaultMaterialLaw;
 
+
+    /** Whether to read fibre-sheet information from file */
+    bool mReadFibreSheetInformationFromFile;
+
+    /**
+     * .ortho/.orthoquad file from which to read element-wise, or quadrature-point-wise
+     * fibre-sheet-normal-directions
+     */
+    std::string mFibreSheetDirectionsFile;
+
+    /**
+     * Whether the mFibreSheetDirectionsFile file gives the fibre-sheet info for each element
+     * or for each quadrature point
+     */
+    bool mFibreSheetDirectionsDefinedPerQuadraturePoint;
+
 public:
     /**
      * Constructor
@@ -132,6 +148,24 @@ public:
      */
     void SetMechanicsSolveTimestep(double timestep);
 
+
+    /**
+     *  Set a variable fibre-sheet-normal direction (matrices), from file.
+     *  If the second parameter is false, there should be one fibre-sheet definition for each element; otherwise
+     *  there should be one fibre-sheet definition for each *quadrature point* in the mesh.
+     *  In the first case, the file should be a standard .ortho file (ie each line has the fibre dir, sheet dir,
+     *  normal dir for that element), in the second it should have .orthoquad as the format.
+     *
+     *  If this method is not called, the default fibre-sheet directions are used - ie fibres parallel to
+     *  X-axis, sheets parallel to Y-axis.
+     *
+     *  @param fibreSheetDirectionsFile the file containing the fibre/sheet directions
+     *  @param definedPerQuadPoint whether the fibre-sheet definitions are for each quadrature point in the mesh
+     *   (if not, one for each element is assumed).
+     */
+    void SetVariableFibreSheetDirectionsFile(std::string fibreSheetDirectionsFile, bool definedPerQuadPoint);
+
+
     /**
      *  Get the contraction model
      */
@@ -175,6 +209,35 @@ public:
     bool GetDeformationAffectsCellModels()
     {
         return mDeformationAffectsCellModels;
+    }
+
+    /**
+     *  Whether the fibre-sheet info should be read from file (if not the defaults should be used).
+     */
+    bool ReadFibreSheetDirectionsFromFile()
+    {
+        return mReadFibreSheetInformationFromFile;
+    }
+
+    /**
+     *  Get the fibre-sheet file (should only be called if ReadFibreSheetDirectionsFromFile() returns true).
+     */
+    std::string GetFibreSheetDirectionsFile()
+    {
+        assert(mReadFibreSheetInformationFromFile);
+        assert(mFibreSheetDirectionsFile!="");
+        return mFibreSheetDirectionsFile;
+    }
+
+    /**
+     *  Get whether the fibre-sheet info is defined for each quadrature point in the mesh (if not,
+     *  if it defined for each element in the mesh). (Should only be called if
+     *  ReadFibreSheetDirectionsFromFile() returns true).
+     */
+    bool GetFibreSheetDirectionsDefinedPerQuadraturePoint()
+    {
+        assert(mReadFibreSheetInformationFromFile);
+        return mFibreSheetDirectionsDefinedPerQuadraturePoint;
     }
 
     /**

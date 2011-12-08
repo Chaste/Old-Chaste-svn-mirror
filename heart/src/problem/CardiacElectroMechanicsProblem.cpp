@@ -239,8 +239,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
         mNoElectricsOutput(false),
         mIsWatchedLocation(false),
         mWatchedElectricsNodeIndex(UNSIGNED_UNSET),
-        mWatchedMechanicsNodeIndex(UNSIGNED_UNSET),
-        mFibreSheetDirectionsFile("")
+        mWatchedMechanicsNodeIndex(UNSIGNED_UNSET)
 {
     // Do some initial set up...
     // However, NOTE, we don't use either the passed in meshes or the problem_definition.
@@ -395,9 +394,10 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMechanicsSolver = dynamic_cast<AbstractNonlinearElasticitySolver<DIM>*>(mpCardiacMechSolver);
     assert(mpMechanicsSolver);
 
-    if(mFibreSheetDirectionsFile!="")
+    if(mpProblemDefinition->ReadFibreSheetDirectionsFromFile())
     {
-       mpCardiacMechSolver->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile, mFibreSheetDirectionsDefinedPerQuadraturePoint);
+       mpCardiacMechSolver->SetVariableFibreSheetDirections(mpProblemDefinition->GetFibreSheetDirectionsFile(),
+                                                            mpProblemDefinition->GetFibreSheetDirectionsDefinedPerQuadraturePoint());
     }
 
     // set up mesh pair and determine the fine mesh elements and corresponding weights for each
@@ -786,12 +786,6 @@ void CardiacElectroMechanicsProblem<DIM>::SetWatchedPosition(c_vector<double,DIM
     mWatchedLocation = watchedLocation;
 }
 
-template<unsigned DIM>
-void CardiacElectroMechanicsProblem<DIM>::SetVariableFibreSheetDirectionsFile(std::string fibreSheetDirectionsFile, bool definedPerQuadraturePoint)
-{
-    mFibreSheetDirectionsFile = fibreSheetDirectionsFile;
-    mFibreSheetDirectionsDefinedPerQuadraturePoint = definedPerQuadraturePoint;
-}
 
 template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& CardiacElectroMechanicsProblem<DIM>::rGetDeformedPosition()
