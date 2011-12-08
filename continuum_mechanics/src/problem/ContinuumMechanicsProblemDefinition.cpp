@@ -209,6 +209,17 @@ c_vector<double,DIM> ContinuumMechanicsProblemDefinition<DIM>::EvaluateTractionF
     return (*mpTractionBoundaryConditionFunction)(rX,t);
 }
 
+template<unsigned DIM>
+void ContinuumMechanicsProblemDefinition<DIM>::Validate()
+{
+    if(mDirichletNodes.size()==0)
+    {
+        EXCEPTION("No Dirichlet boundary conditions (eg fixed displacement or fixed flow) have been set");
+    }
+}
+
+
+
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////

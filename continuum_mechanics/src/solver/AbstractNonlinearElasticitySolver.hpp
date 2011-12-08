@@ -1240,11 +1240,6 @@ AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(Quadra
     {
         mpOutputFileHandler = new OutputFileHandler(mOutputDirectory);
     }
-
-    if( !(mrProblemDefinition.IsMaterialLawSet()))
-    {
-        EXCEPTION("No material law has been set");
-    }
 }
 
 template<unsigned DIM>
@@ -1278,6 +1273,9 @@ void AbstractNonlinearElasticitySolver<DIM>::Solve(double tol,
                                                    unsigned maxNumNewtonIterations,
                                                    bool quitIfNoConvergence)
 {
+    // check the problem definition is set up correctly (and fully).
+    mrProblemDefinition.Validate();
+
     // If the problem includes specified pressures on deformed surfaces (as opposed
     // to specified tractions), the code needs to compute normals, and they need
     // to be consistently all facing outward (or all facing inward). Check the undeformed

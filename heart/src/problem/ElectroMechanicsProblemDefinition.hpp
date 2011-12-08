@@ -85,8 +85,13 @@ public:
 
     /**
      * Set the contraction model to be used (throughout the tissue).
+     *
+     * Note the timestep should be set to a (typical) ODE time-step even if the contraction
+     * model is not going to solve ODEs.
+     *
      * @param contractionModel contraction model (from the enumeration ContractionModelName)
      * @param timestep timestep to be used in solving (ODE-based) contraction models.
+     *
      */
     void SetContractionModel(ContractionModelName contractionModel, double timestep);
 
@@ -98,11 +103,26 @@ public:
     void SetUseDefaultCardiacMaterialLaw(CompressibilityType compressibilityType);
 
     /**
-     * Set how the deformation should affect the electro-physiology
+     * Set if and how the deformation should affect the electro-physiology.
+     *
      * @param deformationAffectsConductivity Whether the deformation should affect the electrical
      *   physiological conductivity (or whether this effect is neglected)
      * @param deformationAffectsCellModels Whether the deformation should affect the cardiac cell
      *   models, for example if there are stretch-activated channels in the cell model.
+     *
+     * Several important things to note:
+     *   (i) this can't be called if fibre-sheet directions have been defined from file for each quadrature
+     *  point (as opposed to each mechanics element) - this is because if the stretch is to be passed back to
+     *  the electric mesh nodes, the fibre direction has to be defined at those nodes
+     *   (ii) currently the set-up stage (computing mechanics mesh elements and weights for electrics mesh
+     *  nodes) is inefficiently implemented - setup will be very slow for big meshes
+     *   (iii) if deformationAffectsCellModels is true, the cell model ought to be one for which
+     *   AbstractCardiacCell::SetStretch() has been implemented to do something (i.e. not generated automatically
+     *   from CellML).
+     *   (iv) deformationAffectsConductivity is not currently allowed in the compressible material law case
+     *   as the effect of the determinant of the deformation gradient on the conductivity has not currently been
+     *   implemented.
+     *
      */
     void SetDeformationAffectsElectrophysiology(bool deformationAffectsConductivity, bool deformationAffectsCellModels);
 
@@ -117,10 +137,7 @@ public:
      */
     ContractionModelName GetContractionModel()
     {
-        if(mContractionModelOdeTimeStep < 0.0)
-        {
-            EXCEPTION("Contraction model hasn't been set yet");
-        }
+        assert(mContractionModelOdeTimeStep>0.0); // if this fails SetContractionModel() probably hasn't been called - call Validate() to check
         return mContractionModel;
     }
 
@@ -129,10 +146,7 @@ public:
      */
     double GetContractionModelOdeTimestep()
     {
-        if(mContractionModelOdeTimeStep < 0.0)
-        {
-            EXCEPTION("Contraction model hasn't been set yet");
-        }
+        assert(mContractionModelOdeTimeStep>0.0); // if this fails SetContractionModel() probably hasn't been called - call Validate() to check
         return mContractionModelOdeTimeStep;
     }
 
@@ -141,10 +155,7 @@ public:
      */
     double GetMechanicsSolveTimestep()
     {
-        if(mMechanicsSolveTimestep < 0.0)
-        {
-            EXCEPTION("Timestep for mechanics solve hasn't been set yet");
-        }
+        assert(mMechanicsSolveTimestep>0.0); // if this fails SetMechanicsSolveTimestep() probably hasn't been called - call Validate() to check
         return mMechanicsSolveTimestep;
     }
 
@@ -165,6 +176,12 @@ public:
     {
         return mDeformationAffectsCellModels;
     }
+
+    /**
+     * Check all variables are set appropriately. Exceptions are thrown if any are not.
+     * Derived classes can override but should call this version as well.
+     */
+    virtual void Validate();
 };
 
 #endif // ELECTROMECHANICSPROBLEMDEFINITION_HPP_

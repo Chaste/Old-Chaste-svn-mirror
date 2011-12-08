@@ -80,6 +80,11 @@ public:
      */
     SolidMechanicsProblemDefinition(QuadraticMesh<DIM>& rMesh);
 
+    /** Destructor */
+    virtual ~SolidMechanicsProblemDefinition()
+    {
+    }
+
 
     /**
      * Set a material law for the entire body (ie the homogeneous case). If compressibilityType==INCOMPRESSIBLE,
@@ -108,13 +113,11 @@ public:
      */
     bool IsHomogeneousMaterial();
 
-    /** Whether any material laws have been set. */
-    bool IsMaterialLawSet();
 
     /**
      * Get whether the material is incompressible or compressible.
-     * SetMaterialLaw() must be called before calling this. (This can be
-     * be checked by calling IsMaterialLawSet()).
+     * SetMaterialLaw() must be called before calling this. (Which can be checked
+     * by calling Validate()).
      */
     CompressibilityType GetCompressibilityType();
 
@@ -151,6 +154,13 @@ public:
      * @param rFixedNodeLocation corresponding locations
      */
     void SetFixedNodes(std::vector<unsigned>& rFixedNodes, std::vector<c_vector<double,DIM> >& rFixedNodeLocation);
+
+    /**
+     * Check all variables are set appropriately. Exceptions are thrown if any are not.
+     * Derived classes can override but should call this version as well.
+     */
+    virtual void Validate();
+
 };
 
 

@@ -97,11 +97,6 @@ void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType co
     }
 }
 
-template<unsigned DIM>
-bool SolidMechanicsProblemDefinition<DIM>::IsMaterialLawSet()
-{
-    return (mIncompressibleMaterialLaws.size()!=0)  ||  (mCompressibleMaterialLaws.size()!=0);
-}
 
 template<unsigned DIM>
 void SolidMechanicsProblemDefinition<DIM>::SetMaterialLaw(CompressibilityType compressibilityType,
@@ -212,6 +207,17 @@ void SolidMechanicsProblemDefinition<DIM>::CheckCastSuccess(CompressibilityType 
     }
 }
 
+
+template<unsigned DIM>
+void SolidMechanicsProblemDefinition<DIM>::Validate()
+{
+    ContinuumMechanicsProblemDefinition<DIM>::Validate();
+
+    if((mIncompressibleMaterialLaws.size()==0)  &&  (mCompressibleMaterialLaws.size()==0))
+    {
+        EXCEPTION("No material law has been set");
+    }
+}
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////

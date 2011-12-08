@@ -130,6 +130,12 @@ public:
      */
     ContinuumMechanicsProblemDefinition(QuadraticMesh<DIM>& rMesh);
 
+    /** Destructor */
+    virtual ~ContinuumMechanicsProblemDefinition()
+    {
+    }
+
+
     /**
      *  Set the density
      *  @param density
@@ -261,6 +267,12 @@ public:
      * @param t current time
      */
     c_vector<double,DIM> EvaluateTractionFunction(c_vector<double,DIM>& rX, double t);
+
+    /**
+     * Check all variables are set appropriately. Exceptions are thrown if any are not.
+     * Derived classes can override but should call this version as well.
+     */
+    virtual void Validate();
 };
 
 

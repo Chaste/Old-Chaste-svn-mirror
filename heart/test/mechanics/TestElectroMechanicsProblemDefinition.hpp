@@ -41,9 +41,18 @@ public:
 
         ElectroMechanicsProblemDefinition<2> problem_defn(mesh);
 
-        TS_ASSERT_THROWS_THIS(problem_defn.GetContractionModel(), "Contraction model hasn't been set yet");
-        TS_ASSERT_THROWS_THIS(problem_defn.GetContractionModelOdeTimestep(), "Contraction model hasn't been set yet");
-        TS_ASSERT_THROWS_THIS(problem_defn.GetMechanicsSolveTimestep(), "Timestep for mechanics solve hasn't been set yet");
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+
+
+        TS_ASSERT_THROWS_THIS(problem_defn.Validate(), "Timestep for mechanics solve hasn't been set yet");
+
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+        TS_ASSERT_EQUALS(problem_defn.GetMechanicsSolveTimestep(), 1.0);
+
+        TS_ASSERT_THROWS_THIS(problem_defn.Validate(), "Contraction model hasn't been set yet");
 
         problem_defn.SetContractionModel(NASH2004, 0.01);
         TS_ASSERT_EQUALS(problem_defn.GetContractionModel(), NASH2004);
@@ -60,12 +69,12 @@ public:
         problem_defn.SetDeformationAffectsElectrophysiology(true,false);
         TS_ASSERT_EQUALS(problem_defn.GetDeformationAffectsConductivity(), true);
         TS_ASSERT_EQUALS(problem_defn.GetDeformationAffectsCellModels(), false);
+
+        TS_ASSERT_THROWS_THIS(problem_defn.Validate(),"Deformation affecting the conductivity is currently not implemented fully for compressible problems");
+
         problem_defn.SetDeformationAffectsElectrophysiology(false,true);
         TS_ASSERT_EQUALS(problem_defn.GetDeformationAffectsConductivity(), false);
         TS_ASSERT_EQUALS(problem_defn.GetDeformationAffectsCellModels(), true);
-
-        problem_defn.SetMechanicsSolveTimestep(1.0);
-        TS_ASSERT_EQUALS(problem_defn.GetMechanicsSolveTimestep(), 1.0);
     }
 };
 

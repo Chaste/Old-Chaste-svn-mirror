@@ -90,6 +90,30 @@ void ElectroMechanicsProblemDefinition<DIM>::SetMechanicsSolveTimestep(double ti
     mMechanicsSolveTimestep = timestep;
 }
 
+template<unsigned DIM>
+void ElectroMechanicsProblemDefinition<DIM>::Validate()
+{
+    SolidMechanicsProblemDefinition<DIM>::Validate();
+
+    if(mMechanicsSolveTimestep < 0.0)
+    {
+        EXCEPTION("Timestep for mechanics solve hasn't been set yet");
+    }
+
+    if(mContractionModelOdeTimeStep < 0.0)
+    {
+        EXCEPTION("Contraction model hasn't been set yet");
+    }
+
+    if(mDeformationAffectsConductivity && this->GetCompressibilityType()==COMPRESSIBLE)
+    {
+        // the conductivity depends on the deformation gradient and also scales in some way with
+        // J=det(F), which is not equal to 1 in the compressible case. The F dependence
+        // is implemented but the J dependence is not yet.
+        EXCEPTION("Deformation affecting the conductivity is currently not implemented fully for compressible problems");
+    }
+}
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

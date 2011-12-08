@@ -80,6 +80,8 @@ public:
 
         ContinuumMechanicsProblemDefinition<2> problem_defn(mesh);
 
+        TS_ASSERT_THROWS_THIS(problem_defn.Validate(), "No Dirichlet boundary conditions (eg fixed displacement or fixed flow) have been set");
+
         TS_ASSERT_DELTA(problem_defn.GetDensity(), 1.0, 1e-12);
 
         TS_ASSERT_EQUALS(problem_defn.GetBodyForceType(), CONSTANT_BODY_FORCE);
@@ -178,6 +180,13 @@ public:
 
         TS_ASSERT_DELTA(problem_defn.EvaluateTractionFunction(X,t)(0), 5.0,  1e-12);
         TS_ASSERT_DELTA(problem_defn.EvaluateTractionFunction(X,t)(1), 55.0, 1e-12);
+
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+        problem_defn.SetZeroDirichletNodes(fixed_nodes); // note, this functionality is all tested properly below
+
+        // should not throw anything
+        problem_defn.Validate();
     }
 
     // Test the functionality specific to SolidMechanicsProblemDefinition
@@ -255,6 +264,7 @@ public:
         ///////////////////////////////////////
         // Set an incompressible material law
         ///////////////////////////////////////
+        TS_ASSERT_THROWS_THIS(problem_defn.Validate(), "No material law has been set");
 
         // set a homogeneous law
         MooneyRivlinMaterialLaw<2> incomp_mooney_rivlin_law(1.0);
@@ -323,8 +333,12 @@ public:
             TS_ASSERT_EQUALS(problem_defn.GetCompressibleMaterialLaw(i), &comp_mooney_rivlin_law_2);
         }
 
+        // should not throw anything
+        problem_defn.Validate();
+
         TS_ASSERT_THROWS_THIS(problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&comp_mooney_rivlin_law),"Compressibility type was declared as INCOMPRESSIBLE but a compressible material law was given");
         TS_ASSERT_THROWS_THIS(problem_defn.SetMaterialLaw(COMPRESSIBLE,&incomp_mooney_rivlin_law),"Incompressibility type was declared as COMPRESSIBLE but an incompressible material law was given");
+
     }
 
     void TestStokesFlowProblemDefinition() throw(Exception)
@@ -401,6 +415,8 @@ public:
         TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[4](0), StokesFlowProblemDefinition<2>::FREE, 1e-12);
         TS_ASSERT_DELTA(problem_defn.rGetDirichletNodeValues()[4](1), 1.5, 1e-12);
 
+        // should not throw anything
+        problem_defn.Validate();
     }
 };
 

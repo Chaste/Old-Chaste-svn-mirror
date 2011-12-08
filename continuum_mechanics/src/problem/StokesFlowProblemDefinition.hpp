@@ -55,6 +55,11 @@ public:
     {
     }
 
+    /** Destructor */
+    virtual ~StokesFlowProblemDefinition()
+    {
+    }
+
     /**
      * Set the viscosity
      * @param mu viscosity
@@ -103,6 +108,14 @@ public:
 
         this->mDirichletNodes = rPrescribedFlowNodes;
         this->mDirichletNodeValues = rPrescribedFlow;
+    }
+
+    /**
+     * Check all variables are set appropriately. Exceptions are thrown if any are not.
+     * Derived classes can override but should call this version as well.
+     */
+    virtual void Validate()
+    {
     }
 };
 

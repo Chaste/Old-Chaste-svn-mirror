@@ -448,12 +448,13 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::Solve()
 {
-
     // initialise the meshes and mechanics solver
     if(mpCardiacMechSolver==NULL)
     {
         Initialise();
     }
+
+    mpProblemDefinition->Validate();
 
     boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,1> > p_bcc(new BoundaryConditionsContainer<DIM,DIM,1>);
     p_bcc->DefineZeroNeumannOnMeshBoundary(mpElectricsMesh, 0);
