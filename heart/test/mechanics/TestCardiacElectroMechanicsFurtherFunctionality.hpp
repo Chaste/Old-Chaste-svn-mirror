@@ -307,9 +307,9 @@ public:
     }
 
     // Run a where the domain in long and thin, and held squashed in the X-direction, by applying
-    // boundary conditions on both sides. Run with and without deformation set to affect the
-    // conductivity - in the latter as the conductivity will be increased in the X-direction,
-    // the wave should travel a little bit faster.
+    // traction on far side. Run with and without deformation affecting the conductivity - in
+    // the latter as the conductivity will be increased in the X-direction, the wave should
+    // travel a little bit faster.
     void TestDeformationAffectingConductivity() throw(Exception)
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
@@ -340,23 +340,35 @@ public:
                 fixed_nodes.push_back(i);
                 fixed_node_locations.push_back(new_position);
             }
-
-            if(fabs(mechanics_mesh.GetNode(i)->rGetLocation()[0] - tissue_init_width)<1e-6)
-            {
-                c_vector<double,2> new_position;
-                new_position(0) = 0.95*tissue_init_width;
-                new_position(1) = SolidMechanicsProblemDefinition<2>::FREE;
-                fixed_nodes.push_back(i);
-                fixed_node_locations.push_back(new_position);
-            }
-
         }
+
+
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        std::vector<c_vector<double,2> > tractions;
+        c_vector<double,2> traction;
+        traction(0) = -0.75; // solve failures occur if this gets much larger..
+        traction(1) =  0.0;
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mechanics_mesh.GetBoundaryElementIteratorBegin();
+             iter != mechanics_mesh.GetBoundaryElementIteratorEnd();
+             ++iter)
+        {
+            if (fabs((*iter)->CalculateCentroid()[0] - tissue_init_width) < 1e-6)
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+                tractions.push_back(traction);
+            }
+        }
+        assert(boundary_elems.size() == 1u);
+
 
         ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
         problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
         problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
         problem_defn.SetFixedNodes(fixed_nodes, fixed_node_locations);
-        problem_defn.SetMechanicsSolveTimestep(1.0);
+        problem_defn.SetMechanicsSolveTimestep(0.5);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
+
 
         unsigned num_stimulated_nodes[2];
 
@@ -374,7 +386,9 @@ public:
                 dir = "TestCardiacEmDeformationAffectingConductivity";
             }
 
-            // small enough so that the wavefront doesn't reach the other side..
+            // Small enough end-time so that the wavefront doesn't reach the other side..
+            // NOTE: the solve fails for longer end-times... nonlinear solver struggles to
+            // find solution. See #1962.
             HeartConfig::Instance()->SetSimulationDuration(5.0);
 
             CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
