@@ -49,7 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VoltageInterpolaterOntoMechanicsMesh.hpp"
 
 
-
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
 {
@@ -260,9 +259,9 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     assert(HeartConfig::Instance()->GetSimulationDuration()>0.0);
     assert(HeartConfig::Instance()->GetPdeTimeStep()>0.0);
 
-    // create the monodomain problem. Note the we use this to set up the cells,
-    // get an initial condition (voltage) vector, and get an solver. We won't
-    // ever call solve on the MonodomainProblem
+    // Create the monodomain problem.
+    // **NOTE** WE ONLY USE THIS TO: set up the cells, get an initial condition
+    // (voltage) vector, and get an solver. We won't ever call solve on the MonodomainProblem
     assert(pCellFactory != NULL);
     mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
 
@@ -414,14 +413,23 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         mpMeshPair->SetUpBoxesOnCoarseMesh();
     }
 
+
+    if(mpProblemDefinition->GetDeformationAffectsCellModels() || mpProblemDefinition->GetDeformationAffectsConductivity())
+    {
+        // initialise the stretches saved for each mechanics element
+        mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
+
+        // initialise the store of the F in each mechanics element (one constant value of F) in each
+        mDeformationGradientsForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),identity_matrix<double>(DIM));
+    }
+
+
     if(mpProblemDefinition->GetDeformationAffectsCellModels())
     {
         // compute the coarse elements which contain each fine node -- for transferring stretch from
         // mechanics solve electrics cell models
         mpMeshPair->ComputeCoarseElementsForFineNodes(false);
 
-        // initialise the stretches saved for each mechanics element
-        mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
     }
 
     if(mpProblemDefinition->GetDeformationAffectsConductivity())
@@ -429,9 +437,6 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         // compute the coarse elements which contain each fine element centroid -- for transferring F from
         // mechanics solve to electrics mesh elements
         mpMeshPair->ComputeCoarseElementsForFineElementCentroids(false);
-
-        // initialise the store of the F in each mechanics element (one constant value of F) in each
-        mDeformationGradientsForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),identity_matrix<double>(DIM));
 
         // tell the abstract tissue class that the conductivities need to be modified, passing in this class
         // (which is of type AbstractConductivityModifier)
@@ -528,12 +533,24 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         ////  solver (MEF)
         ////
         //////////////////////////////////////////////////////////////////////////////////////
-        if(mpProblemDefinition->GetDeformationAffectsCellModels())
+        if(mpProblemDefinition->GetDeformationAffectsCellModels() || mpProblemDefinition->GetDeformationAffectsConductivity())
         {
-            //  Determine the stretch in each mechanics element (later: determine stretch, and
-            //  deformation gradient)
-            mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(mDeformationGradientsForEachMechanicsElement, mStretchesForEachMechanicsElement);
+            //  Determine the stretch and deformation gradient on each element.
+            //
+            //  If mpProblemDefinition->GetDeformationAffectsCellModels()==true:
+            //  Stretch will be passed to the cell models.
+            //
+            //  If mpProblemDefinition->GetDeformationAffectsConductivity()==true:
+            //  The deformation gradient needs to be set up but does not need to be passed to the tissue
+            //  so that F is used to compute the conductivity. Instead this is
+            //  done through the line "mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);" line above, which means
+            //  rGetModifiedConductivityTensor() will be called on this class by the tissue, which then uses the F
 
+            mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(mDeformationGradientsForEachMechanicsElement, mStretchesForEachMechanicsElement);
+        }
+
+        if( mpProblemDefinition->GetDeformationAffectsCellModels() )
+        {
             //  Set the stretches on each of the cell models
             for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow();
                          global_index < mpElectricsMesh->GetDistributedVectorFactory()->GetHigh();
@@ -543,10 +560,6 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 double stretch = mStretchesForEachMechanicsElement[containing_elem];
                 mpMonodomainProblem->GetTissue()->GetCardiacCell(global_index)->SetStretch(stretch);
             }
-
-            // the deformation gradient does not need to be passed to the tissue so that F is used to compute the conductivity, instead this is
-            // done through the "mpMonodomainProblem->GetMonodomainTissue()->SetConductivityModifier(this);" line above, which means
-            // rGetModifiedConductivityTensor() will be called on this class by the tissue, which then uses the F
         }
 
         p_electrics_solver->SetTimeStep(HeartConfig::Instance()->GetPdeTimeStep());

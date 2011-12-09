@@ -112,7 +112,9 @@ public:
         problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetMechanicsSolveTimestep(1.0);
-        problem_defn.SetDeformationAffectsElectrophysiology(true,true);
+
+        // Set deformation not affecting conductivity, but affecting cell models.
+        problem_defn.SetDeformationAffectsElectrophysiology(false,true);
 
         CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
                                                   &electrics_mesh,
@@ -143,22 +145,20 @@ public:
         assert((conductivities(0)-conductivities(1))<1e-8);
         double default_conductivity = conductivities(0);
 
-
-        // test directly that the conductivity is being computed using the deformation
+        // test directly that the conductivity hasn't been modified
         for(unsigned i=0; i<electrics_mesh.GetNumElements(); i++)
         {
-            // sigma = F^{-1} sigma_undef F^{-T}, F=diag(1.2, 1.0/1.2), sigma = diag(1.75,1.75).
             const c_matrix<double,2,2>& r_tensor = problem.mpMonodomainProblem->GetMonodomainTissue()->rGetIntracellularConductivityTensor(i);
-            TS_ASSERT_DELTA(r_tensor(0,0), default_conductivity/(1.2*1.2), 1e-9);
-            TS_ASSERT_DELTA(r_tensor(0,1), 0.0,                            1e-9);
-            TS_ASSERT_DELTA(r_tensor(1,0), 0.0,                            1e-9);
-            TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity*(1.2*1.2), 1e-9);
+            TS_ASSERT_DELTA(r_tensor(0,0), default_conductivity, 1e-9);
+            TS_ASSERT_DELTA(r_tensor(0,1), 0.0,                  1e-9);
+            TS_ASSERT_DELTA(r_tensor(1,0), 0.0,                  1e-9);
+            TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity, 1e-9);
         }
 
 
         // Note after one timestep the tissue will have returned to the resting state as there are no
         // forces and no way at the moment of passing fixed-displacement boundary conditions down to the mech
-        // solver.
+        // solver. *Note: the 'no way at the moment' part of this statement is now out-of-date*
         problem.Solve();
 
         // Get the voltage at the start and end of the simulation, check the stretch was passed down to the
@@ -185,9 +185,9 @@ public:
         VecDestroy(end_voltage);
     }
 
-    // Similar to first part of above test, except the deformation isn't just constant stretch here, it is
-    // different in the two elements of the mechanics mesh
-    void TestWithMechanoElectricFeedbackHeterogeneousStretch() throw (Exception)
+    // Similar to first part of above test, except the deformation isn't just constant stretch, and
+    // also here we say that the deformation DOES affect conductivity.
+    void TestWithMefAndAlteredConductivitesHeterogeneousStretch() throw (Exception)
     {
         // irrelevant, not going to call solve
         PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(0.0);
@@ -277,6 +277,138 @@ public:
                 TS_ASSERT_DELTA(r_tensor(1,1), default_conductivity*inverse_C(1,1), 1e-9);
             }
         }
+
+
+        problem.Solve();
+
+        // Get the voltage at the start and end of the simulation, check the stretch was passed down to the
+        // cell model and caused increased voltage -- same as in above test - we are basically testing
+        // that MEF works when conductivities are altered too.
+
+        Hdf5DataReader reader("TestNobleSacActivatedByStretchTissue/electrics", "voltage");
+        unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
+        TS_ASSERT_EQUALS(num_timesteps, 2u);
+
+        Vec start_voltage = PetscTools::CreateVec(36);
+        Vec end_voltage = PetscTools::CreateVec(36);
+        reader.GetVariableOverNodes(start_voltage, "V", 0);
+        reader.GetVariableOverNodes(end_voltage, "V", 1);
+        ReplicatableVector start_voltage_repl(start_voltage);
+        ReplicatableVector end_voltage_repl(end_voltage);
+
+        for(unsigned i=0; i<start_voltage_repl.GetSize(); i++)
+        {
+            TS_ASSERT_LESS_THAN(start_voltage_repl[i], -90.0);
+            TS_ASSERT_LESS_THAN(-90, end_voltage_repl[i]);
+        }
+
+        VecDestroy(start_voltage);
+        VecDestroy(end_voltage);
+    }
+
+    // Run a where the domain in long and thin, and held squashed in the X-direction, by applying
+    // boundary conditions on both sides. Run with and without deformation set to affect the
+    // conductivity - in the latter as the conductivity will be increased in the X-direction,
+    // the wave should travel a little bit faster.
+    void TestDeformationAffectingConductivity() throw(Exception)
+    {
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+
+        double tissue_init_width = 0.5;
+
+        TetrahedralMesh<2,2> electrics_mesh;
+        electrics_mesh.ConstructRegularSlabMesh(0.0125, tissue_init_width, 0.025);
+
+        QuadraticMesh<2> mechanics_mesh;
+        mechanics_mesh.ConstructRegularSlabMesh(0.025, tissue_init_width, 0.025);
+
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > fixed_node_locations;
+
+        // fix the node at the origin so that the solution is well-defined (ie unique)
+        fixed_nodes.push_back(0);
+        fixed_node_locations.push_back(zero_vector<double>(2));
+
+        // for the rest of the nodes, if they lie on X=0 or X=L, fix x but leave y free.
+        for(unsigned i=1 /*not 0*/; i<mechanics_mesh.GetNumNodes(); i++)
+        {
+            if(fabs(mechanics_mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            {
+                c_vector<double,2> new_position;
+                new_position(0) = 0.0;
+                new_position(1) = SolidMechanicsProblemDefinition<2>::FREE;
+                fixed_nodes.push_back(i);
+                fixed_node_locations.push_back(new_position);
+            }
+
+            if(fabs(mechanics_mesh.GetNode(i)->rGetLocation()[0] - tissue_init_width)<1e-6)
+            {
+                c_vector<double,2> new_position;
+                new_position(0) = 0.95*tissue_init_width;
+                new_position(1) = SolidMechanicsProblemDefinition<2>::FREE;
+                fixed_nodes.push_back(i);
+                fixed_node_locations.push_back(new_position);
+            }
+
+        }
+
+        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetFixedNodes(fixed_nodes, fixed_node_locations);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+
+        unsigned num_stimulated_nodes[2];
+
+        for(unsigned i=0; i<2; i++)
+        {
+            std::string dir;
+            if(i==0)
+            {
+                problem_defn.SetDeformationAffectsElectrophysiology(false,false);
+                dir = "TestCardiacEmDeformationNotAffectingConductivity";
+            }
+            else
+            {
+                problem_defn.SetDeformationAffectsElectrophysiology(true,false);
+                dir = "TestCardiacEmDeformationAffectingConductivity";
+            }
+
+            // small enough so that the wavefront doesn't reach the other side..
+            HeartConfig::Instance()->SetSimulationDuration(5.0);
+
+            CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
+                                                      &electrics_mesh,
+                                                      &mechanics_mesh,
+                                                      &cell_factory,
+                                                      &problem_defn,
+                                                      dir);
+
+            problem.Solve();
+
+            Hdf5DataReader reader(dir+"/electrics","voltage");
+            unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
+            Vec voltage = PetscTools::CreateVec(electrics_mesh.GetNumNodes());
+            reader.GetVariableOverNodes(voltage, "V", num_timesteps-1);
+
+            ReplicatableVector voltage_repl(voltage);
+
+            // count the number of nodes that were stimulated at the last timestep
+            num_stimulated_nodes[i] = 0;
+            for(unsigned j=0; j<voltage_repl.GetSize(); j++)
+            {
+                if(voltage_repl[j]>0.0)
+                {
+                    num_stimulated_nodes[i]++;
+                }
+            }
+            VecDestroy(voltage);
+        }
+
+        // check the number of stimulated nodes is greater in the second case,
+        // where conductivity is affected by the deformation
+        TS_ASSERT_EQUALS(num_stimulated_nodes[0], 90u);
+        TS_ASSERT_EQUALS(num_stimulated_nodes[1], 93u);
     }
 
 
