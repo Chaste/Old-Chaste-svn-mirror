@@ -77,6 +77,7 @@ class CardiacElectroMechanicsProblem
 {
 
 friend class TestCardiacElectroMechanicsProblem;
+friend class TestCardiacElectroMechanicsFurtherFunctionality;
 
 protected :
     /** Either COMPRESSIBLE or INCOMPRESSIBLE */
