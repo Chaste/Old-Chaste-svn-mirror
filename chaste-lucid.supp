@@ -74,20 +74,72 @@
    fun:(below main)
 }
 
-# Leak caused by the above bug
+# Leaks caused by the above bug
 {
-   leak due to boost bug
+   leak due to boost bug (1)
    Memcheck:Leak
-   fun:_Znw*
+   fun:_Znwj
    fun:_ZNSs4_Rep9_S_createEjjRKSaIcE 
    fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
    fun:_ZNSsC1EPKcRKSaIcE
-   fun:_GLOBAL__sub_I_ArchiveLocationInfo.cpp
+   ...
+   fun:_GLOBAL__*I_ArchiveLocationInfo.cpp
+   ...
    fun:call_init
    fun:_dl_init
 }
-
-
+{
+   leak due to boost bug (2)
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   ...
+   fun:_ZN19ArchiveLocationInfo19SetArchiveDirectoryERK10FileFinder
+   fun:_ZN13ArchiveOpener*
+}
+{
+   leak due to boost bug (3)
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   fun:_ZNSs4_Rep8_M_cloneERKSaIcEj
+   fun:_ZNSs7reserveEj
+   fun:_ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_EPKS3_RKS6_
+   fun:_ZN27CellBasedSimulationArchiver*
+}
+{
+   leak due to boost bug (4)
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN20OdeSystemInformation*Initialise*
+}
+{
+   leak due to boost bug (5)
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:*WntConcentration*
+}
+{
+   leak due to boost bug (6)
+   Memcheck:Leak
+   fun:malloc
+   fun:backtrace_symbols
+   ...
+   fun:abort
+   ...
+   fun:_ZSt9terminatev
+   fun:__cxa_pure_virtual
+   ...
+   fun:__cxa_finalize
+   ...
+   fun:_dl_fini
+}
 
 # PETSc/OpenMPI
 ###############
@@ -197,9 +249,9 @@
    fun:_ZN14vtkInformation11ExpandTableEv
    fun:_ZN14vtkInformation15SetAsObjectBaseEP17vtkInformationKeyP13vtkObjectBase
    ...
-   fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   fun:_ZN32vtkStreamingDemandDrivenPipeline*
    ...
-   fun:_ZN12vtkXMLWriter5WriteEv
+   fun:_ZN12vtkXMLWriter*
    fun:*MeshWriter*
 }
 
@@ -230,7 +282,7 @@
 {
    VTK-information delete via garbage-collector
    Memcheck:Cond
-   fun:_ZN14vtkInformationD0Ev
+   fun:_ZN14vtkInformationD*Ev
    ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
    ...
@@ -240,37 +292,24 @@
    ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
    ...
-   fun:*MeshWriter*
+   fun:*V*Mesh*er*
 }
 
 {
    VTK-information delete
    Memcheck:Cond
-   fun:_ZN14vtkInformationD0Ev
+   fun:_ZN14vtkInformationD*Ev
    ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
    ...
    fun:_ZN13vtkDataObject14SetInformationEP14vtkInformation
-   fun:_ZN13vtkDataObjectD2Ev
+   fun:_ZN13vtkDataObjectD*Ev
    ...
    fun:_ZN19vtkUnstructuredGridD0Ev
    ...
    fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
    ...
-   fun:*MeshWriter*
-}
-
-{
-   VTK-information delete via garbage-collector 2 (may be unnecessary now)
-   Memcheck:Cond
-   fun:_ZN14vtkInformationD0Ev
-   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   ...
-   fun:_ZN23vtkGarbageCollectorImpl16CollectComponentEPNS_13ComponentTypeE
-   fun:_ZN23vtkGarbageCollectorImpl15CollectInternalEP13vtkObjectBase
-   fun:_ZN19vtkGarbageCollector7CollectEP13vtkObjectBase
-   fun:_ZN9vtkObject18UnRegisterInternalEP13vtkObjectBasei
-   fun:_ZN13VtkMesh*
+   fun:*V*Mesh*er*
 }
 
 {  
@@ -285,6 +324,7 @@
    fun:_ZN23vtkDemandDrivenPipeline14ProcessRequestEP14vtkInformationPP20vtkInformationVectorS3_
    ...
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
+   ...
    fun:_ZN13VtkMeshReader*
 }
 
@@ -296,6 +336,17 @@
    fun:_ZN32vtkStreamingDemandDrivenPipeline21PropagateUpdateExtentEi
    fun:_ZN32vtkStreamingDemandDrivenPipeline6UpdateEi
    fun:_ZN12vtkXMLWriter5WriteEv
+}
+
+{
+   VTK ZLib
+   Memcheck:Cond
+   fun:inflateReset2
+   fun:inflateInit2_
+   fun:inflateInit_
+   fun:uncompress
+   fun:_ZN21vtkZLibDataCompressor16UncompressBufferEPKhmPhm
+   fun:_ZN17vtkDataCompressor10UncompressEPKhmPhm
 }
 
 # CVODE
