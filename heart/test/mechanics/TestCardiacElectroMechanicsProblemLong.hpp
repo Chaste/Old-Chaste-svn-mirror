@@ -269,6 +269,222 @@ public:
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[20](1),-0.0038, 0.0002);
     }
 
+    // runs 5 different 3d tests with fibres read to be in various directions, and
+    // checks contraction occurs in the right directions (and bulging occurs in the
+    // other directions)
+    void TestFibreRead() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; ///\todo #1913
+
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,3> cell_factory(-5000*1000);
+
+        double tissue_initial_size = 0.05;
+        TetrahedralMesh<3,3> electrics_mesh;
+        electrics_mesh.ConstructRegularSlabMesh(0.01/*stepsize*/, tissue_initial_size/*length*/, tissue_initial_size/*width*/, tissue_initial_size);
+
+        QuadraticMesh<3> mechanics_mesh;
+        mechanics_mesh.ConstructRegularSlabMesh(0.05, tissue_initial_size, tissue_initial_size, tissue_initial_size /*as above with a different stepsize*/);
+
+        std::vector<unsigned> fixed_nodes
+            = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh, 2, 0.0);
+
+
+        HeartConfig::Instance()->SetSimulationDuration(10.0);
+
+        ElectroMechanicsProblemDefinition<3> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
+        problem_defn.SetZeroDisplacementNodes(fixed_nodes);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(COMPRESSIBLE);
+
+        // This is how the fibres files that are used in the simulations are created.
+        // alongX.ortho is:  fibres in X axis, sheet in XY
+        //    -- same as default directions: should give shortening in X direction
+        //       and identical results to default fibre setting
+        // alongY1.ortho is: fibres in Y axis, sheet in YX
+        // alongY2.ortho is: fibres in Y axis, sheet in YZ
+        //    -- as material law is transversely isotropic, these two should
+        //       give identical results, shortening in Y-direction
+        // alongZ.ortho is:  fibres in Z axis, (sheet in XZ)
+        //    -- should shorten in Z-direction
+        OutputFileHandler handler("FibreFiles");
+        out_stream p_X_file  = handler.OpenOutputFile("alongX.ortho");
+        out_stream p_Y1_file = handler.OpenOutputFile("alongY1.ortho");
+        out_stream p_Y2_file = handler.OpenOutputFile("alongY2.ortho");
+        out_stream p_Z_file  = handler.OpenOutputFile("alongZ.ortho");
+        *p_X_file  << mechanics_mesh.GetNumElements() << "\n";
+        *p_Y1_file << mechanics_mesh.GetNumElements() << "\n";
+        *p_Y2_file << mechanics_mesh.GetNumElements() << "\n";
+        *p_Z_file  << mechanics_mesh.GetNumElements() << "\n";
+        for(unsigned i=0; i<mechanics_mesh.GetNumElements(); i++)
+        {
+            //double X = mechanics_mesh.GetElement(i)->CalculateCentroid()(0);
+            *p_X_file  << "1 0 0 0 1 0 0 0 1\n";
+            *p_Y1_file << "0 1 0 1 0 0 0 0 1\n";
+            *p_Y2_file << "0 1 0 0 0 1 1 0 0\n";
+            *p_Z_file  << "0 0 1 1 0 0 0 1 0\n";
+        }
+        p_X_file->close();
+        p_Y1_file->close();
+        p_Y2_file->close();
+        p_Z_file->close();
+
+
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+
+        //////////////////////////////////////////////////////////////////
+        // Solve with no fibres read.
+        //////////////////////////////////////////////////////////////////
+        std::vector<c_vector<double,3> > r_deformed_position_no_fibres;
+        {
+            HeartConfig::Instance()->SetSimulationDuration(20.0);
+
+            CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
+                                                      &electrics_mesh,
+                                                      &mechanics_mesh,
+                                                      &cell_factory,
+                                                      &problem_defn,
+                                                      "TestCardiacEmFibreRead");
+
+
+            problem.Solve();
+            r_deformed_position_no_fibres = problem.rGetDeformedPosition();
+        }
+
+        //////////////////////////////////////////////////////////////////
+        // Solve with fibres read: fibres in X-direction
+        //////////////////////////////////////////////////////////////////
+        std::vector<c_vector<double,3> > r_deformed_position_fibres_alongX;
+        {
+            HeartConfig::Instance()->SetSimulationDuration(20.0);
+            problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/alongX.ortho", false);
+
+            CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
+                                                      &electrics_mesh,
+                                                      &mechanics_mesh,
+                                                      &cell_factory,
+                                                      &problem_defn,
+                                                      "TestCardiacEmFibreRead");
+
+
+            problem.Solve();
+            r_deformed_position_fibres_alongX = problem.rGetDeformedPosition();
+        }
+
+        // test the two results are identical
+        for(unsigned i=0; i<r_deformed_position_no_fibres.size(); i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(r_deformed_position_no_fibres[i](j), r_deformed_position_fibres_alongX[i](j), 1e-8);
+            }
+        }
+
+        // check node 7 starts is the far corner
+        assert(fabs(mechanics_mesh.GetNode(7)->rGetLocation()[0] - tissue_initial_size)<1e-8);
+        assert(fabs(mechanics_mesh.GetNode(7)->rGetLocation()[1] - tissue_initial_size)<1e-8);
+        assert(fabs(mechanics_mesh.GetNode(7)->rGetLocation()[2] - tissue_initial_size)<1e-8);
+
+        // Test that contraction occurred in the X-direction
+        TS_ASSERT_LESS_THAN(r_deformed_position_fibres_alongX[7](0), tissue_initial_size);
+        TS_ASSERT_LESS_THAN(tissue_initial_size, r_deformed_position_fibres_alongX[7](1));
+        TS_ASSERT_LESS_THAN(tissue_initial_size, r_deformed_position_fibres_alongX[7](2));
+
+        // hardcoded test to check nothing changes
+        TS_ASSERT_DELTA(r_deformed_position_fibres_alongX[7](0), 0.0484, 1e-4);
+        TS_ASSERT_DELTA(r_deformed_position_fibres_alongX[7](1), 0.0508, 1e-4);
+
+        ////////////////////////////////////////////////////////////////////
+        // Solve with fibres read: fibres in Y-direction, sheet in YX plane
+        ////////////////////////////////////////////////////////////////////
+        std::vector<c_vector<double,3> > r_deformed_position_fibres_alongY1;
+        {
+            HeartConfig::Instance()->SetSimulationDuration(20.0);
+            problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/alongY1.ortho", false);
+
+            CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
+                                                      &electrics_mesh,
+                                                      &mechanics_mesh,
+                                                      &cell_factory,
+                                                      &problem_defn,
+                                                      "TestCardiacEmFibreRead");
+
+
+            problem.Solve();
+            r_deformed_position_fibres_alongY1 = problem.rGetDeformedPosition();
+        }
+
+
+        ////////////////////////////////////////////////////////////////////
+        // Solve with fibres read: fibres in Y-direction, sheet in YZ plane
+        ////////////////////////////////////////////////////////////////////
+        std::vector<c_vector<double,3> > r_deformed_position_fibres_alongY2;
+        {
+            HeartConfig::Instance()->SetSimulationDuration(20.0);
+            problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/alongY2.ortho", false);
+
+            CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
+                                                      &electrics_mesh,
+                                                      &mechanics_mesh,
+                                                      &cell_factory,
+                                                      &problem_defn,
+                                                      "TestCardiacEmFibreRead");
+
+
+            problem.Solve();
+            r_deformed_position_fibres_alongY2 = problem.rGetDeformedPosition();
+        }
+
+
+        // test the two results are identical
+        for(unsigned i=0; i<r_deformed_position_no_fibres.size(); i++)
+        {
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_DELTA(r_deformed_position_fibres_alongY1[i](j), r_deformed_position_fibres_alongY2[i](j), 1e-8);
+            }
+        }
+
+        // Test that contraction occurred in the Y-direction
+        TS_ASSERT_LESS_THAN(tissue_initial_size, r_deformed_position_fibres_alongY1[7](0));
+        TS_ASSERT_LESS_THAN(r_deformed_position_fibres_alongY1[7](1), tissue_initial_size);
+        TS_ASSERT_LESS_THAN(tissue_initial_size, r_deformed_position_fibres_alongY1[7](2));
+
+        // hardcoded test to check nothing changes
+        TS_ASSERT_DELTA(r_deformed_position_fibres_alongY1[7](1), 0.0486, 1e-4);
+        TS_ASSERT_DELTA(r_deformed_position_fibres_alongY1[7](0), 0.0505, 1e-4);
+
+
+        //////////////////////////////////////////////////////////////////
+        // Solve with fibres read: fibres in Z-direction
+        //////////////////////////////////////////////////////////////////
+        std::vector<c_vector<double,3> > r_deformed_position_fibres_alongZ;
+        {
+            HeartConfig::Instance()->SetSimulationDuration(20.0);
+            problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/alongZ.ortho", false);
+
+            CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
+                                                      &electrics_mesh,
+                                                      &mechanics_mesh,
+                                                      &cell_factory,
+                                                      &problem_defn,
+                                                      "TestCardiacEmFibreRead");
+
+
+            problem.Solve();
+            r_deformed_position_fibres_alongZ = problem.rGetDeformedPosition();
+        }
+
+        // Test that contraction occurred in the X-direction
+        TS_ASSERT_LESS_THAN(tissue_initial_size, r_deformed_position_fibres_alongZ[7](0));
+        TS_ASSERT_LESS_THAN(tissue_initial_size, r_deformed_position_fibres_alongZ[7](1));
+        TS_ASSERT_LESS_THAN(r_deformed_position_fibres_alongZ[7](2), tissue_initial_size);
+
+        // hardcoded test to check nothing changes
+        TS_ASSERT_DELTA(r_deformed_position_fibres_alongZ[7](2), 0.0456, 1e-4);
+        TS_ASSERT_DELTA(r_deformed_position_fibres_alongZ[7](0), 0.0503, 1e-4);
+    }
+
 
 //    void Test3dWithNoble98SacAndImpact() throw(Exception)
 //    {
