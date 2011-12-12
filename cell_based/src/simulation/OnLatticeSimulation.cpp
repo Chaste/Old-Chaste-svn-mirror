@@ -48,7 +48,7 @@ OnLatticeSimulation<DIM>::OnLatticeSimulation(AbstractCellPopulation<DIM>& rCell
         EXCEPTION("OnLatticeSimulations require a subclass of AbstractOnLatticeCellPopulation.");
     }
 
-    this->mDt = 1.0/120.0; // 30 seconds
+    this->mDt = 0.1; // 6 minutes
 }
 
 template<unsigned DIM>
@@ -74,6 +74,15 @@ c_vector<double, DIM> OnLatticeSimulation<DIM>::CalculateCellDivisionVector(Cell
 {
     ///\todo do something for Potts models here
     return zero_vector<double>(DIM);
+}
+
+template<unsigned DIM>
+void OnLatticeSimulation<DIM>::WriteVisualizerSetupFile()
+{
+    if (dynamic_cast<PottsBasedCellPopulation<DIM>*>(&this->mrCellPopulation))
+    {
+       *this->mpVizSetupFile << "PottsSimulation\n";
+    }
 }
 
 template<unsigned DIM>
@@ -171,6 +180,7 @@ void OnLatticeSimulation<DIM>::SetOutputCellVelocities(bool outputCellVelocities
 {
     mOutputCellVelocities = outputCellVelocities;
 }
+
 
 template<unsigned DIM>
 void OnLatticeSimulation<DIM>::UpdateCellPopulation()

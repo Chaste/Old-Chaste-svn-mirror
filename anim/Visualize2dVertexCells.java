@@ -493,7 +493,7 @@ public class Visualize2dVertexCells implements ActionListener, AdjustmentListene
                     {
                 	    showLastStep = true;
                     }
-                    if (parameter.equals("Potts")) 
+                    if (parameter.equals("PottsSimulation")) 
                     {
                 	    drawPotts = true;
                 	    drawCells = false;
@@ -960,7 +960,7 @@ class CustomVertexCanvas2D extends Canvas implements MouseMotionListener
     
     int width;
     int height;
-    int node_radius = 3;
+    int node_radius = 2;
     
     BufferedImage buffered_image = null;
     Graphics2D g2 = null;

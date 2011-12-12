@@ -105,6 +105,12 @@ protected:
      */
     virtual c_vector<double, DIM> CalculateCellDivisionVector(CellPtr pParentCell);
 
+    /**
+     * Overridden WriteVisualizerSetupFile() method.
+     */
+    virtual void WriteVisualizerSetupFile();
+
+
 public:
 
     /**
