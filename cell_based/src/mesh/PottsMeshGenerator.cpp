@@ -311,8 +311,8 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                 bool on_north_edge = (node_index%(numNodesAcross*numNodesUp)>(numNodesAcross*numNodesUp-numNodesAcross-1));
                 bool on_west_edge = (node_index%numNodesAcross == 0);
                 bool on_east_edge = (node_index%numNodesAcross == numNodesAcross - 1);
-                bool on_front_edge = (node_index < numNodesAcross*numNodesUp-1);
-                bool on_back_edge = (node_index > numNodesAcross*numNodesUp*numNodesDeep-numNodesAcross*numNodesUp-1);
+                bool on_front_edge = (node_index < numNodesAcross*numNodesUp);
+                bool on_back_edge = (node_index > numNodesAcross*numNodesUp*(numNodesDeep-1)-1);
 
 
                 if(isPeriodicInX)
@@ -502,8 +502,8 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                 bool on_north_edge = (node_index%(numNodesAcross*numNodesUp)>(numNodesAcross*numNodesUp-numNodesAcross-1));
                 bool on_west_edge = (node_index%numNodesAcross== 0);
                 bool on_east_edge = (node_index%numNodesAcross == numNodesAcross - 1);
-                bool on_front_edge = (node_index < numNodesAcross*numNodesUp-1);
-                bool on_back_edge = (node_index > numNodesAcross*numNodesUp*numNodesDeep-numNodesAcross*numNodesUp-1);
+                bool on_front_edge = (node_index < numNodesAcross*numNodesUp);
+                bool on_back_edge = (node_index > numNodesAcross*numNodesUp*(numNodesDeep-1)-1);
 
 
                 if(isPeriodicInX)
@@ -520,6 +520,39 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                         on_east_edge = false;
                     }
                 }
+
+                if(isPeriodicInY)
+                {
+                    if(on_north_edge)
+                    {
+                        von_neumann_neighbour_indices_vector[0] = node_index - numNodesAcross*(numNodesUp-1);
+                        on_north_edge = false;
+                    }
+
+                    if(on_south_edge)
+                    {
+                        von_neumann_neighbour_indices_vector[2] = node_index + numNodesAcross*(numNodesUp-1);
+                        on_south_edge = false;
+                    }
+                }
+
+                if(isPeriodicInZ)
+                {
+                    if(on_front_edge)
+                    {
+                        von_neumann_neighbour_indices_vector[4] = node_index + numNodesAcross*numNodesUp*(numNodesDeep-1);
+                        on_front_edge = false;
+                    }
+
+                    if(on_back_edge)
+                    {
+                        von_neumann_neighbour_indices_vector[5] = node_index - numNodesAcross*numNodesUp*(numNodesDeep-1);
+                        on_back_edge = false;
+                    }
+                }
+
+
+
 
                 // Create a vector of booleans for which neighbours are available
                 // Use the order N, W, S, E, F, B
