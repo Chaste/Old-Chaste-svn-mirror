@@ -66,6 +66,8 @@ public:
      * @param startAtBottomLeft  If true then the mesh starts in the bottom left corner
      *     of the domain rather than the centre, used for simple tests (defaults to false)
      * @param isPeriodicInX  If true then the mesh is periodic in the x dimension (defaults to false)
+     * @param isPeriodicInY  If true then the mesh is periodic in the y dimension (defaults to false)
+     * @param isPeriodicInZ  If true then the mesh is periodic in the y dimension (defaults to false)
      */
     PottsMeshGenerator(unsigned numNodesAcross,
                        unsigned numElementsAcross,
@@ -77,7 +79,9 @@ public:
                        unsigned numElementsDeep=1u,
                        unsigned elementDepth=1u,
                        bool startAtBottomLeft = false,
-                       bool isPeriodicInX = false);
+                       bool isPeriodicInX = false,
+                       bool isPeriodicInY = false,
+                       bool isPeriodicInZ = false);
 
     /**
      * Null constructor for derived classes to call.

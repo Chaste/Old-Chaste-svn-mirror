@@ -551,7 +551,7 @@ public:
 
     void TestGetMooreNeighbouringNodeIndices2d()
     {
-        /* Create a 2 simple potts-based mesh with one element, one of which is periodic in the x dimension
+        /* Create a 2 simple potts-based mesh with one element, one of which is periodic in all dimension s
          * Numbering the nodes as follows:
          *
          *     6----7----8
@@ -563,14 +563,14 @@ public:
         PottsMeshGenerator<2> generator(3, 1, 3, 3, 1, 3);
         PottsMesh<2>* p_mesh = generator.GetMesh();
 
-        PottsMeshGenerator<2> periodic_generator(3, 1, 3, 3, 1, 3, 1, 1, 1, false, true); // Last variable is periodicity
-        PottsMesh<2>* p_x_periodic_mesh = periodic_generator.GetMesh();
+        PottsMeshGenerator<2> periodic_generator(3, 1, 3, 3, 1, 3, 1, 1, 1, false, true, true, true); // Last 3 variables are periodicity
+        PottsMesh<2>* p_periodic_mesh = periodic_generator.GetMesh();
 
         // Test bottom left node
         std::set<unsigned> neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(0);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        std::set<unsigned> periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(0);
-        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
+        std::set<unsigned> periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(0);
+        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         std::set<unsigned> expected_neighbouring_sites;
         expected_neighbouring_sites.insert(1);
@@ -579,13 +579,16 @@ public:
         TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
         expected_neighbouring_sites.insert(2);
         expected_neighbouring_sites.insert(5);
+        expected_neighbouring_sites.insert(6);
+        expected_neighbouring_sites.insert(7);
+        expected_neighbouring_sites.insert(8);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
         // Test non-corner bottom nodes
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(1);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 5u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(1);
-        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(1);
+        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         expected_neighbouring_sites.clear();
         expected_neighbouring_sites.insert(0);
@@ -594,13 +597,16 @@ public:
         expected_neighbouring_sites.insert(4);
         expected_neighbouring_sites.insert(5);
         TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+        expected_neighbouring_sites.insert(6);
+        expected_neighbouring_sites.insert(7);
+        expected_neighbouring_sites.insert(8);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
         // Test bottom right node
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(2);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(2);
-        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(2);
+        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
 
         expected_neighbouring_sites.clear();
@@ -610,12 +616,15 @@ public:
         TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
         expected_neighbouring_sites.insert(0);
         expected_neighbouring_sites.insert(3);
+        expected_neighbouring_sites.insert(6);
+        expected_neighbouring_sites.insert(7);
+        expected_neighbouring_sites.insert(8);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
         // Test non-corner left nodes
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(3);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 5u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(3);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(3);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
 
@@ -634,7 +643,7 @@ public:
         // Test centre node
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 8u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(4);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         expected_neighbouring_sites.clear();
@@ -650,7 +659,7 @@ public:
         // Test non-corner right nodes
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(5);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 5u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(5);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(5);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         expected_neighbouring_sites.clear();
@@ -668,14 +677,17 @@ public:
         // Test top left node
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(6);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(6);
-        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(6);
+        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         expected_neighbouring_sites.clear();
         expected_neighbouring_sites.insert(3);
         expected_neighbouring_sites.insert(4);
         expected_neighbouring_sites.insert(7);
         TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+        expected_neighbouring_sites.insert(0);
+        expected_neighbouring_sites.insert(1);
+        expected_neighbouring_sites.insert(2);
         expected_neighbouring_sites.insert(5);
         expected_neighbouring_sites.insert(8);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
@@ -683,8 +695,8 @@ public:
         // Test non-corner top nodes
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(7);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 5u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(7);
-        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(7);
+        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         expected_neighbouring_sites.clear();
         expected_neighbouring_sites.insert(3);
@@ -693,19 +705,25 @@ public:
         expected_neighbouring_sites.insert(6);
         expected_neighbouring_sites.insert(8);
         TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+        expected_neighbouring_sites.insert(0);
+        expected_neighbouring_sites.insert(1);
+        expected_neighbouring_sites.insert(2);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
         // Test top right node
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(8);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(8);
-        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(8);
+        TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 8u);
 
         expected_neighbouring_sites.clear();
         expected_neighbouring_sites.insert(4);
         expected_neighbouring_sites.insert(5);
         expected_neighbouring_sites.insert(7);
         TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+        expected_neighbouring_sites.insert(0);
+        expected_neighbouring_sites.insert(1);
+        expected_neighbouring_sites.insert(2);
         expected_neighbouring_sites.insert(3);
         expected_neighbouring_sites.insert(6);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
@@ -729,13 +747,13 @@ public:
         PottsMeshGenerator<3> generator(3, 1, 3, 3, 1, 3, 3, 1, 3);
         PottsMesh<3>* p_mesh = generator.GetMesh();
 
-        PottsMeshGenerator<3> periodic_generator(3, 1, 3, 3, 1, 3, 3, 1, 3, false, true); // Last variable is periodicity
-        PottsMesh<3>* p_x_periodic_mesh = periodic_generator.GetMesh();
+        PottsMeshGenerator<3> periodic_generator(3, 1, 3, 3, 1, 3, 3, 1, 3, false, true, true,true); // Last 3 variables are periodicity
+        PottsMesh<3>* p_periodic_mesh = periodic_generator.GetMesh();
 
         // Test bottom left node
         std::set<unsigned> neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(0);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 7u);
-        std::set<unsigned> periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(0);
+        std::set<unsigned> periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(0);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 11u)
 
 
@@ -757,7 +775,7 @@ public:
         // Test middle bottom
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 17u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(4);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 17u)
 
         expected_neighbouring_sites.clear();
@@ -784,7 +802,7 @@ public:
         // Test middle middle node
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(13);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 26u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(13);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(13);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 26u)
 
         expected_neighbouring_sites.clear();
@@ -820,7 +838,7 @@ public:
         // Test non-corner left node
         neighbouring_sites = p_mesh->GetMooreNeighbouringNodeIndices(21);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 11u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetMooreNeighbouringNodeIndices(21);
+        periodic_neighbouring_sites = p_periodic_mesh->GetMooreNeighbouringNodeIndices(21);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 17u)
 
         expected_neighbouring_sites.clear();
@@ -847,7 +865,7 @@ public:
 
     void TestGetVonNeumannNeighbouringNodeIndices2d()
 	{
-		/* * Create a 2 simple potts-based mesh with one element, one of which is periodic in the x dimension
+		/* * Create a 2 simple potts-based mesh with one element, one of which is periodic in all the dimensions.
 		 * Numbering the nodes as follows:
 		 *
 		 *     6----7----8
@@ -858,52 +876,55 @@ public:
 		 */
         PottsMeshGenerator<2> generator(3, 1, 3, 3, 1, 3);
 		PottsMesh<2>* p_mesh = generator.GetMesh();
-		PottsMeshGenerator<2> periodic_generator(3, 1, 3, 3, 1, 3, 1, 1, 1, false, true); // Last veriable is periodicity
-		PottsMesh<2>* p_x_periodic_mesh = periodic_generator.GetMesh();
+		PottsMeshGenerator<2> periodic_generator(3, 1, 3, 3, 1, 3, 1, 1, 1, false, true, true, true); // Last 3 variables are periodicity
+		PottsMesh<2>* p_periodic_mesh = periodic_generator.GetMesh();
 
 		// Test bottom left node
 		std::set<unsigned> neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(0);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 2u);
-		std::set<unsigned> periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(0);
-		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 3u);
+		std::set<unsigned> periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(0);
+		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		std::set<unsigned> expected_neighbouring_sites;
 		expected_neighbouring_sites.insert(1);
 		expected_neighbouring_sites.insert(3);
 		TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
 		expected_neighbouring_sites.insert(2);
+		expected_neighbouring_sites.insert(6);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
 		// Test non-corner bottom nodes
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(1);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(1);
-		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 3u);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(1);
+		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
 		expected_neighbouring_sites.insert(0);
 		expected_neighbouring_sites.insert(2);
 		expected_neighbouring_sites.insert(4);
 		TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+		expected_neighbouring_sites.insert(7);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
 		// Test bottom right node
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(2);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 2u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(2);
-		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 3u);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(2);
+		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
 		expected_neighbouring_sites.insert(1);
 		expected_neighbouring_sites.insert(5);
 		TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
 		expected_neighbouring_sites.insert(0);
+		expected_neighbouring_sites.insert(8);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
 		// Test non-corner left nodes
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(3);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(3);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(3);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
@@ -917,7 +938,7 @@ public:
 		// Test centre node
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(4);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 4u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(4);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
@@ -931,7 +952,7 @@ public:
 		// Test non-corner right nodes
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(5);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(5);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(5);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
@@ -945,46 +966,49 @@ public:
 		// Test top left node
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(6);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 2u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(6);
-		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 3u);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(6);
+		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
 		expected_neighbouring_sites.insert(3);
 		expected_neighbouring_sites.insert(7);
 		TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+		expected_neighbouring_sites.insert(0);
 		expected_neighbouring_sites.insert(8);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
 		// Test non-corner top nodes
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(7);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(7);
-		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 3u);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(7);
+		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
 		expected_neighbouring_sites.insert(4);
 		expected_neighbouring_sites.insert(6);
 		expected_neighbouring_sites.insert(8);
 		TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+		expected_neighbouring_sites.insert(1);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 
 		// Test top right node
 		neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(8);
 		TS_ASSERT_EQUALS(neighbouring_sites.size(), 2u);
-		periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(8);
-		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 3u);
+		periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(8);
+		TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
 		expected_neighbouring_sites.clear();
 		expected_neighbouring_sites.insert(5);
 		expected_neighbouring_sites.insert(7);
 		TS_ASSERT_EQUALS(neighbouring_sites, expected_neighbouring_sites);
+		expected_neighbouring_sites.insert(2);
 		expected_neighbouring_sites.insert(6);
 		TS_ASSERT_EQUALS(periodic_neighbouring_sites, expected_neighbouring_sites);
 	}
 
     void TestGetVonNeumannNeighbouringNodeIndices3d()
     {
-        /* Create a 2 simple potts-based mesh with one element, one of which is periodic in the x dimension
+        /* Create a 2 simple potts-based mesh with one element, one of which is periodic in all dimensions.
          * Numbering the nodes as follows:
          *
          *     6------7------8           15-----16-----17            24-----25-----26
@@ -997,13 +1021,13 @@ public:
          */
         PottsMeshGenerator<3> generator(3, 1, 3, 3, 1, 3, 3, 1, 3);
         PottsMesh<3>* p_mesh = generator.GetMesh();
-        PottsMeshGenerator<3> periodic_generator(3, 1, 3, 3, 1, 3, 3, 1, 3, false, true);
-        PottsMesh<3>* p_x_periodic_mesh = periodic_generator.GetMesh();
+        PottsMeshGenerator<3> periodic_generator(3, 1, 3, 3, 1, 3, 3, 1, 3, false, true, true, true); // Last 3 variables are periodicity
+        PottsMesh<3>* p_periodic_mesh = periodic_generator.GetMesh();
 
         // Test bottom left node
         std::set<unsigned> neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(0);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        std::set<unsigned> periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(0);
+        std::set<unsigned> periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(0);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         std::set<unsigned> expected_neighbouring_sites;
@@ -1017,7 +1041,7 @@ public:
         // Test non-corner bottom nodes
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(1);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 4u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(1);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(1);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         expected_neighbouring_sites.clear();
@@ -1031,7 +1055,7 @@ public:
         // Test bottom right node
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(2);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(2);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(2);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         expected_neighbouring_sites.clear();
@@ -1045,7 +1069,7 @@ public:
         // Test non-corner left nodes
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(3);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 4u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(3);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(3);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
 
         expected_neighbouring_sites.clear();
@@ -1060,7 +1084,7 @@ public:
         // Test centre node on the first slice
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 5u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(4);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(4);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
 
         expected_neighbouring_sites.clear();
@@ -1076,7 +1100,7 @@ public:
         // Test non-corner right nodes
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(5);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 4u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(5);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(5);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
 
         expected_neighbouring_sites.clear();
@@ -1091,7 +1115,7 @@ public:
         // Test top left node
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(6);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(6);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(6);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         expected_neighbouring_sites.clear();
@@ -1105,7 +1129,7 @@ public:
         // Test non-corner top node
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(7);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 4u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(7);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(7);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         expected_neighbouring_sites.clear();
@@ -1119,7 +1143,7 @@ public:
         // Test top right node
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(8);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 3u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(8);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(8);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         expected_neighbouring_sites.clear();
@@ -1133,7 +1157,7 @@ public:
         // Test middle middle node
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(13);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 6u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(13);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(13);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 6u);
 
         expected_neighbouring_sites.clear();
@@ -1149,7 +1173,7 @@ public:
         // Test centre node on the top
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(22);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 5u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(22);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(22);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 5u);
 
         expected_neighbouring_sites.clear();
@@ -1164,7 +1188,7 @@ public:
         // Test top on the front
         neighbouring_sites = p_mesh->GetVonNeumannNeighbouringNodeIndices(19);
         TS_ASSERT_EQUALS(neighbouring_sites.size(), 4u);
-        periodic_neighbouring_sites = p_x_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(19);
+        periodic_neighbouring_sites = p_periodic_mesh->GetVonNeumannNeighbouringNodeIndices(19);
         TS_ASSERT_EQUALS(periodic_neighbouring_sites.size(), 4u);
 
         expected_neighbouring_sites.clear();

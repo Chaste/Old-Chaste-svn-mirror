@@ -32,7 +32,7 @@ template<unsigned DIM>
 PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned numElementsAcross, unsigned elementWidth,
 											unsigned numNodesUp, unsigned numElementsUp, unsigned elementHeight,
 											unsigned numNodesDeep, unsigned numElementsDeep, unsigned elementDepth,
-											bool startAtBottomLeft, bool isPeriodicInX)
+											bool startAtBottomLeft, bool isPeriodicInX, bool isPeriodicInY ,bool isPeriodicInZ)
 {
     assert(numElementsAcross > 0);
     assert(numElementsUp > 0);
@@ -190,7 +190,6 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                         moore_neighbour_indices_vector[1] = node_index + 2*numNodesAcross - 1;
                         moore_neighbour_indices_vector[2] = node_index + numNodesAcross - 1;
                         moore_neighbour_indices_vector[3] = node_index - 1;
-                        on_west_edge = false;
                     }
 
                     if(on_east_edge)
@@ -198,8 +197,54 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                         moore_neighbour_indices_vector[5] = node_index - 2*numNodesAcross + 1;
                         moore_neighbour_indices_vector[6] = node_index - numNodesAcross + 1;
                         moore_neighbour_indices_vector[7] = node_index + 1;
-                        on_east_edge = false;
                     }
+                }
+
+                if(isPeriodicInY)
+                {
+                    if(on_north_edge)
+                    {
+                        moore_neighbour_indices_vector[0] = node_index - numNodesAcross*(numNodesUp-1);
+                        moore_neighbour_indices_vector[1] = moore_neighbour_indices_vector[0] - 1;
+                        moore_neighbour_indices_vector[7] = moore_neighbour_indices_vector[0] + 1;
+
+                        if(on_west_edge)
+                        {
+                            moore_neighbour_indices_vector[1] = moore_neighbour_indices_vector[0] + numNodesAcross - 1;
+                        }
+                        if(on_east_edge)
+                        {
+                            moore_neighbour_indices_vector[7] = moore_neighbour_indices_vector[0] - numNodesAcross + 1;
+                        }
+                    }
+
+                    if(on_south_edge)
+                    {
+                        moore_neighbour_indices_vector[4] = node_index + numNodesAcross*(numNodesUp-1);
+                        moore_neighbour_indices_vector[3] = moore_neighbour_indices_vector[4] - 1;
+                        moore_neighbour_indices_vector[5] = moore_neighbour_indices_vector[4] + 1;
+
+                        if(on_west_edge)
+                        {
+                            moore_neighbour_indices_vector[3] = moore_neighbour_indices_vector[4] + numNodesAcross - 1;
+                        }
+                        if(on_east_edge)
+                        {
+                            moore_neighbour_indices_vector[5] = moore_neighbour_indices_vector[4] - numNodesAcross + 1;
+                        }
+                    }
+                }
+
+
+                if(isPeriodicInX)
+                {
+                    on_east_edge = false;
+                    on_west_edge = false;
+                }
+                if(isPeriodicInY)
+                {
+                    on_south_edge = false;
+                    on_north_edge = false;
                 }
 
                 // Create a vector of booleans for which neighbours are available
@@ -394,6 +439,20 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                     }
                 }
 
+                if(isPeriodicInY)
+                {
+                    if(on_north_edge)
+                    {
+                        von_neumann_neighbour_indices_vector[0] = node_index - numNodesAcross*(numNodesUp-1);
+                        on_north_edge = false;
+                    }
+
+                    if(on_south_edge)
+                    {
+                        von_neumann_neighbour_indices_vector[2] = node_index + numNodesAcross*(numNodesUp-1);
+                        on_south_edge = false;
+                    }
+                }
 
                 // Create a vector of booleans for which neighbours are available
                 // Use the order N, W, S, E
