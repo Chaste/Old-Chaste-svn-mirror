@@ -65,10 +65,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * simulation test. We have encountered some of these header files in previous cell-based
  * Chaste tutorials. */
 #include "CellsGenerator.hpp"
-#include "CryptCellsGenerator.hpp"
-#include "WntConcentration.hpp"
-#include "SloughingCellKiller.hpp"
-#include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
 /* The next header file defines the cell-cycle model,one with stochastic cell-cycle times. */
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
