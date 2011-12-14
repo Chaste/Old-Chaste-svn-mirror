@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ContactInhibitionOffLatticeSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "CellwiseData.hpp"
-#include "Debug.hpp"
 #include "ContactInhibitionCellCycleModel.hpp"
 
 template<unsigned DIM>
