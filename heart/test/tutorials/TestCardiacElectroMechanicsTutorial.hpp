@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  * The tutorial explains how electro-mechanics problems can be solved in Chaste. The reader should certainly read
  * the electro-physiological tutorials before this tutorial, and really they should have also had a look at
- * the tutorial on solving general solid mechanics problems.
+ * the tutorial(s) on solving general solid mechanics problems.
  *
  * The equations of cardiac electro-mechanics are written down in Section 4.2 of the PDF on equations and
  * finite element implementations in ChasteGuides -> Miscellaneous information. '''Note:''' By default we do
@@ -64,6 +64,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * The part of the boundary that is fixed in space
  *  * The contraction model [the model which takes in electrical variables (voltage or calcium typically), and
  *  returns cellular active tension]
+ *  * Whether the tissue should be treated as compressible or incompressible. (Although likely technically
+ *  incompressible at appropriate scales, cardiac tissue is often treated as compressible due to blood
+ *  squeezed out of the coronary vessels during contraction).
  *  * The material law [the strain-energy function]
  *  * Mechanics timesteps: mechanics update timestep, contraction model ode timestep. (see note 4 below)
  *
@@ -77,15 +80,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * the printing timestep.
  *  * ''Fibres:'' In electro-physiological simulations the fibre direction is in the X-direction
  * by default, but if isotropic conductivities are used the fibre direction won't be used. In mechanics
- * solves, the fibres will always be used as it determines the direction of contraction. It will be the
- * X-direction unless a fibre file is given. If the material law is transversly isotropic, the problem is
- * independent of sheet & normal directions. If the material law is anisotropic, the problem is
- * dependent of sheet & normal directions.
+ * solves, the fibres will always be used as it determines the direction of contraction. It defaults to the
+ * X-direction, so this is the direction the tissue will contract, unless a fibre file is given.
+ * If the material law is transversely isotropic, the problem is independent of sheet & normal directions.
+ * If the material law is anisotropic, the problem is dependent of sheet & normal directions.
  *  * ''Timesteps:'' Should-divide rules are: (a) ode_timestep should-divide pde_timestep should-divide
  *  mechanics_update_timestep and (b) contraction_model_ode_timestep should-divide mechanics_update_timestep.
  * 
  * '''Another important note:''' mechanics problems are not currently implemented to scale in parallel yet. This
- * is work in progress...
+ * is work in progress.
  *
  * The basic includes are */
 #include <cxxtest/TestSuite.h>
@@ -102,37 +105,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * == IMPORTANT: using HYPRE ==
  *
+ * Mechanics solves being nonlinear are expensive, so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
+ * on larger problems. Also:
+ *
  * Mechanics solves involve solving a nonlinear system, which is broken down into a sequence of linear solves.
  * When running '''incompressible''' problems '''in 3D, or with more elements than in the first test below''',
  * it is vital to change the linear solver to use HYPRE, an algebraic multigrid solver.
  * Without HYRPE, the linear solve (i) may become very very slow; or
- * (ii) may not converge, in which case the nonlinear solve will (probably) not converge. HYPRE is (currently) not a
- * pre-requisite for installing Chaste, hence this is not (currently) the default linear solver for mechanics problems,
- * although this will change in the future. HYPRE should be considered a pre-requisite for large mechanics problems,
- * if incompressibility is used. You can run the first test below without HYPRE, but it is certainly recommended for the second test.
+ * (ii) may not converge, in which case the nonlinear solve will (probably) not converge. See the comments on using
+ * HYPRE in the solid mechanics tutorial.
  *
- * To use HYRPE in mechanics solves, you need to have Petsc installed with HYPRE. However, if you followed installation
- * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
- *
- * To switch on HYPRE, open the file `pde/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
- * #define MECH_USE_HYPRE
- * near the top of the file (currently: line 59).
- *
- * Mechanics solves being nonlinear are expensive, so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
- * on larger problems.
- *
- * Note: Petsc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
- *
- */
-
-/* == Simple 2d test ==
+ * == Simple 2d test ==
  *
  * This test shows how to use the `CardiacElectroMechProbRegularGeom` class, which
- * inherits from the more general class `CardiacElectroMechanicsProblem` class but
+ * inherits from a more general class, `CardiacElectroMechanicsProblem`, and
  * sets up a square or cubic geometry for you. Using
  * `CardiacElectroMechProbRegularGeom` is not really recommended, as the functionality
- * is allows is very limited, it is better to use `CardiacElectroMechanicsProblem`, which
- * is shown in the following two test. We use `CardiacElectroMechProbRegularGeom`
+ * it allows is very limited - it is better to use `CardiacElectroMechanicsProblem`, which
+ * is shown in the following two tests. We use `CardiacElectroMechProbRegularGeom`
  * in this first tutorial just to illustrate a simulation with a few lines (four!) of code.
  */
 class TestCardiacElectroMechanicsTutorial : public CxxTest::TestSuite
@@ -170,8 +160,8 @@ public:
                                                      1.0,  // mechanics solve timestep
                                                      0.01, // contraction model ode timestep
                                                      "TestCardiacElectroMechanicsExample" /* output directory */);
-        /* The contraction model chosen above is KERCHOFFS2003 (Kerchoffs, Journal of Engineering Mathematics, 2003). Other possibilities
-         * are 'NHS' (Niederer, Hunter, Smith, 2006), and 'NASH2004' (Nash, Progress in biophysics and molecular biology, 2004).
+        /* The contraction model chosen above is 'KERCHOFFS2003' (Kerchoffs, Journal of Engineering Mathematics, 2003). Other possibilities
+         * are 'NHS' (Niederer, Hunter, Smith, 2006), and 'NASH2004' (Nash, Progress in Biophysics and Molecular Biology, 2004).
          *
          * Two meshes are created, one with five elements in each direction for the mechanics (so 5*5*2 triangles in total),
          * and a finer one for the electrics.
@@ -186,18 +176,19 @@ public:
          */
         problem.Solve();
         
-        /* Go to the output directory. There should be log file (which can be used to watch progress), and a 
-         * directory for the electrics output and the mechanics output. The electrics directory is not the same
-         * as when running an electrics solve: the basic HDF5 data is there but there is no there is no meshalyzer
-         * output, and there is always cmgui output of the ''electrics solution downsampled onto the mechanics mesh''.
+        /* Go to the output directory. There should be log file (which, note, can be used to watch progress
+         * during a simulation), and a directory for the electrics output and the mechanics output. The electrics
+         * directory is not the same as when running an electrics solve: the basic HDF5 data is there but
+         * there is no meshalyzer output, and there is always cmgui output of the ''electrics solution downsampled
+         * onto the mechanics mesh''.
          * The deformation output directory contains the deformed solution each timestep in several simple
-         * matlab-readable files, and a cmgui output directory. The latter has a script for automatically loading
+         * Mtlab-readable files, and a cmgui output directory. The latter has a script for automatically loading
          * all the results.
          * 
          * Visualise the results by calling `cmgui LoadSolutions.com` in the directory
          * `TestCardiacElectroMechanicsExample/deformation/cmgui` . The electrics data can be visualised on the
          * deforming mesh by using the scene (and spectrum) editor. (See cmgui website for information on how
-         * to use cmgui, but very briefy: graphics -> scene editor -> select surfaces -> add, then check 'Data'. Then
+         * to use Cmgui, but very briefly: graphics -> scene editor -> select surfaces -> add, then check 'Data'. Then
          * graphics -> Spectrum editor -> min=-90, max=50.).
          *
          * To observe the tissue relaxing you can re-run the simulation with an end time of more than 350ms.
@@ -205,7 +196,6 @@ public:
     }
 
     /* Let us repeat the above test using `CardiacElectroMechanicsProblem`. */
-
     void TestCardiacElectroMechanicsExampleAgain() throw(Exception)
     {
         /* These two lines are as above */
@@ -231,16 +221,23 @@ public:
          * the  class `ElectroMechanicsProblemDefinition`, which inherits from `SolidMechanicsProblemDefinition`
          * (and therefore has the same functionality), as well as a few electro-mechanics specific methods.
          *
-         * We will need to pass in some nodes to be fixed in space: collect the nodes on X=0 using a helper function.
+         * We choose to fix the nodes on X=0. For this the `NonlinearElasticityTools` class
+         * is helpful. The static method called below returns all nodes for which the X value
+         * (indicated by the '0' ('0' for X, '1' for Y, '2' for Z)) is equal to 0.0.
          */
         std::vector<unsigned> fixed_nodes
             = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh, 0, 0.0); // all the X=0.0 nodes
 
         /* Create the problem definition class, tell it about the fixed nodes, the contraction model to be used,
-         * that we want to use the default cardiac material law (as mentioned above, pole-zero), and the mechanics
+         * that we want to use the default cardiac material law, and the mechanics
          * solve timestep (how often the mechanics is solved). An error would occur if we failed to provide
          * information about any of these. Optional other things that could have been set are gravity, tractions,
          * and whether to use M.E.F.
+         *
+         * The material law used below is the default incompressible material law, the Pole-Zero law. This is
+         * defined in `continuum_mechanics/src/problem/material_laws/NashHunterPoleZeroLaw`. (All material
+         * laws are in this folder). Note that the parameters values in this law are such that the
+         * material law is transversely isotropic, so sheet and normal directions do not matter.
          */
         ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
         problem_defn.SetContractionModel(KERCHOFFS2003,0.01/*contraction model ODE timestep*/);
@@ -264,15 +261,17 @@ public:
          * of problem, and a completely different type of solver - the incompressible problem involves
          * solving for displacement and pressure, and mixed formulations and saddle-point problems,
          * the compressible problem does not. The default compressible material law is an exponential
-         * law. To pass in your own choice of material law, call `SetMaterialLaw()`
+         * law. To pass in your own choice of material law, call `SetMaterialLaw()`. Compressible problems
+         * are far less computationally-demanding.
          */
         CompressibleMooneyRivlinMaterialLaw<2> law(2.0,1.0); // random (non-cardiac) material law
         problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
         /* As mentioned above, by default the deformation does '''not''' couple back to the electrics.
          * The stretch is not passed to the cell model to allow for stretch-activated channels (M.E.F.),
-         * and the deformation is not used in altering the conductivity tensor (this effect can be neglected
+         * and the deformation is not used in altering the conductivity tensor (the latter simplifications has
+         * little effect in
          * in simple propagation problems - see "A numerical method for cardiac mechano-electric simulations",
-         * Annals of Biomedical Engineering. To set the solver to use either of these, do, for example */
+         * Annals of Biomedical Engineering). To set the solver to use either of these, do, for example */
         problem_defn.SetDeformationAffectsElectrophysiology(false /*deformation affects conductivity*/, true /*deformation affects cell models*/);
         /* before calling `problem.Solve()`. Note that (i) the electrics solve will slow down, since the linear system matrix now
          * varies with time (as conductivities depend on deformation), and has to be recomputed after every mechanics update; and
@@ -282,7 +281,7 @@ public:
          * Finally, `SetNoElectricsOutput` is a method that is sometimes useful with a fine electrics mesh. */ 
         problem.SetNoElectricsOutput();
 
-        /* The final position of the nodes can be obtained as follows (note: same interface in described in the solid mechanics tutorials). */
+        /* The final position of the nodes can be obtained as follows (same interface in described in the solid mechanics tutorials). */
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[5](0), 0.090464, 1e-4); 
         /* Ignore these tests, they are they to check nothing has changed in this tutorial */
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
@@ -300,8 +299,8 @@ public:
      * 
      * The third test is a longer running 3d test - the 'dont' in the name of the test
      * means it isn't run automatically. To run, remove the 'dont'. It is worth running
-     * with `build=GccOpt_ndebug`; and '''see the comments about HYPRE above.''' (or use 
-     * compressible version).
+     * with `build=GccOpt_ndebug`; and see the comments about HYPRE above if you change
+     * this to an incompressible solve.
      * 
      * This test shows how to do 3d simulations (trivial changes), and how to pass in 
      * fibre directions for the mechanics mesh.
@@ -320,9 +319,7 @@ public:
         QuadraticMesh<3> mechanics_mesh;
         mechanics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1, 0.1 /*as above with a different stepsize*/);
 
-        /* We choose to fix the nodes on Z=0. For this the `NonlinearElasticityTools` class
-         * is helpful. The static method called below returns all nodes for which the Z value
-         * (indicated by the '2' ('0' for X, '1' for Y)) is equal to 0.0. */
+        /* Collect the nodes on Z=0 */
         std::vector<unsigned> fixed_nodes
             = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh, 2, 0.0);
 
@@ -336,7 +333,7 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         problem_defn.SetMechanicsSolveTimestep(1.0);
 
-        /* The default fibre direction is the X-direction (and the default sheet plane is the XY plane). Here we show
+        /* The default fibre direction is the X-direction (and the default sheet plane is the XY plane). Now we show
          * how this can be changed.
          *
          * Fibre files should be .ortho type files (not .axi), since the sheet direction is used in the default material
