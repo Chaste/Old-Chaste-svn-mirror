@@ -40,9 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * = Solving solid mechanics problems =
  *
  * In this tutorial we show how Chaste can be used to solve solid mechanics problems.
- * We assume the reader has some familiarity with solid mechanics problems. Note that the
- * the equations of nonlinear elasticity are given in the PDF on equations
- * and finite element implementations (see ChasteGuides --> Miscellaneous information). It is also best
+ * We assume the reader has some familiarity with solid mechanics problems (the
+ * equations of nonlinear elasticity are given in the PDF on equations
+ * and finite element implementations (see ChasteGuides --> Miscellaneous information)). It is also best
  * to have had a look at the solving linear PDEs tutorials.
  *
  * In brief, there several facets to solid mechanics models:
@@ -65,7 +65,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * Specify the BODY FORCE -- this is a force density acting throughout the body (eg. acceleration due to gravity),
  *  and also the mass density.
  *  * Specify some DISPLACEMENT BOUNDARY CONDITIONS -- some part of the boundary must have the displacement specified on it
- *  * Specify TRACTION BOUNDARY CONDITIONS (if non-zero) on the rest of the boundary -- tractions are pressures applied
+ *  * Specify TRACTION BOUNDARY CONDITIONS (if non-zero) on the rest of the boundary -- tractions are forces per unit area applied
  *  the rest of the surface of the deformable object.
  *
  *  '''VERY IMPORTANT NOTE:''' Make sure you read the comment about HYPRE below before going to 3D or refining the meshes in these tests.
@@ -218,16 +218,15 @@ public:
         TS_ASSERT_DELTA(r_deformed_positions[node_index](0),  0.7980, 1e-3);
         TS_ASSERT_DELTA(r_deformed_positions[node_index](1), -0.1129, 1e-3);
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u);
-
+    }
         /* ''Exercise'': convert to a compressible solver and compare the resultant deformations.
          * The next tutorial describes how to solve for a compressible deformation,
          * but the changes are essentially trivial: `IncompressibleNonlinearElasticitySolver` needs to be changed to
          * `CompressibleNonlinearElasticitySolver`, the line `problem_defn.SetMaterialLaw(..)` needs changing, and
          * the material law itself should be of type `AbstractCompressibleMaterialLaw`. An example is
          * `CompressibleMooneyRivlinMaterialLaw`. Also `solver.rGetPressures()` doesn't exist (or make sense)
-         * when the solver is `CompressibleNonlinearElasticitySolver`.
+         * when the solver is an `CompressibleNonlinearElasticitySolver`.
          */
-    }
 
     /*
      * == Incompressible deformation: 2D shape hanging under gravity with a balancing traction ==
@@ -300,7 +299,7 @@ public:
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 3 rather than 4 this time
 
         /* Visualise as before by going to the output directory and doing
-         * `x=load('solution.nodes'); plot(x(:,1),x(:,2),'m*')` in Matlab/octave, or using Cmgui.
+         * `x=load('solution.nodes'); plot(x(:,1),x(:,2),'m*')` in Matlab/octave, or by using Cmgui.
          * The effect of the traction should be clear (especially when compared to
          * the results of the first test).
          *

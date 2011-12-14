@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* == Introduction ==
  *
  * In this second solid mechanics tutorial, we illustrate some other possibilities: using tractions
- * that are definde with a function, or tractions that depend on the deformed body (eg normal pressure
+ * that are defined with a function, or tractions that depend on the deformed body (eg normal pressure
  * boundary conditions), specifying non-zero displacement boundary conditions, and then
  * displacement boundary conditions only in some directions, and doing compressible solves.
  *
@@ -245,10 +245,17 @@ public:
      * changing between the solves.
      *
      * Note: for other examples of compressible solves, including problems with an exact solution, see the
-     * file continuum_mechanics/test/TestCompressibleNonlinearElasticitySolver.hpp
+     * file `continuum_mechanics/test/TestCompressibleNonlinearElasticitySolver.hpp`
      */
     void TestSolvingCompressibleProblem() throw (Exception)
     {
+        /* Incompressible problems will run in parallel but not scale well. For compressible problems,
+         * at the moment, the Petsc preconditioner that is used is one that sequential-only, hence we
+         * can't run compressible solves in parallel, which the following macro avoids. Implementation
+         * of parallel mechanics is currently work in progress.
+         */
+        EXIT_IF_PARALLEL;
+
         /* All mechanics problems must take in quadratic meshes, but the mesh files for
          * (standard) linear meshes in Triangles/Tetgen can be automatically converted
          * to quadratic meshes, by simply doing the following. (The mesh loaded here is a disk
