@@ -237,6 +237,7 @@ void PottsBasedCellPopulation<DIM>::UpdateCellLocations(double dt)
         // Find a random available neighbouring node to overwrite current site
         std::set<unsigned> neighbouring_node_indices = mrMesh.GetMooreNeighbouringNodeIndices(node_index);
         unsigned neighbour_location_index;
+
         if (!neighbouring_node_indices.empty())
         {
             unsigned num_neighbours = neighbouring_node_indices.size();
@@ -258,10 +259,10 @@ void PottsBasedCellPopulation<DIM>::UpdateCellLocations(double dt)
 
         std::set<unsigned> containing_elements = p_node->rGetContainingElementIndices();
         std::set<unsigned> neighbour_containing_elements = GetNode(neighbour_location_index)->rGetContainingElementIndices();
-
-        // Only calculate Hamiltonian and update elements if the nodes are from different elements
-        if (   ( *containing_elements.begin() != *neighbour_containing_elements.begin() )
-            && ( !containing_elements.empty() || !neighbour_containing_elements.empty() ) )
+        // Only calculate Hamiltonian and update elements if the nodes are from different elements, or one is from the medium
+        if (  (  *containing_elements.begin() != *neighbour_containing_elements.begin() && !containing_elements.empty() && !neighbour_containing_elements.empty() )
+                || ( !containing_elements.empty() && neighbour_containing_elements.empty() )
+                || ( containing_elements.empty() && !neighbour_containing_elements.empty() ) )
         {
             double delta_H = 0.0; // This is H_1-H_0.
 

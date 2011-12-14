@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SurfaceAreaConstraintPottsUpdateRule.hpp"
 #include "AdhesionPottsUpdateRule.hpp"
 #include "DifferentialAdhesionPottsUpdateRule.hpp"
+#include "ChemotaxisPottsUpdateRule.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "PottsBasedCellPopulation.hpp"
@@ -683,7 +684,7 @@ public:
     }
 
 
-    void TestDifferentialArchiveAdhesionPottsUpdateRule() throw(Exception)
+    void TestArchiveDifferentialAdhesionPottsUpdateRule() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "AdhesionPottsUpdateRule.arch";
@@ -722,6 +723,81 @@ public:
             TS_ASSERT_DELTA((static_cast<DifferentialAdhesionPottsUpdateRule<2>*>(p_update_rule))->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-6);
             TS_ASSERT_DELTA((static_cast<DifferentialAdhesionPottsUpdateRule<2>*>(p_update_rule))->GetLabelledCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-6);
             TS_ASSERT_DELTA((static_cast<DifferentialAdhesionPottsUpdateRule<2>*>(p_update_rule))->GetCellBoundaryAdhesionEnergyParameter(), 0.7, 1e-6);
+
+            // Tidy up
+            delete p_update_rule;
+        }
+    }
+
+
+    void TestChemotaxisPottsUpdateRuleIn2d() throw (Exception)
+    {
+        // Create a simple 2D PottsMesh with 2 elements
+        PottsMeshGenerator<2> generator(4, 1, 2, 4, 1, 2);
+        PottsMesh<2>* p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+
+        // Create cell population
+        PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+        // Create an update law system
+        ChemotaxisPottsUpdateRule<2> chemotaxis_update;
+
+        // Test EvaluateHamiltonianContribution()
+
+        // target site above current site
+        double contribution = chemotaxis_update.EvaluateHamiltonianContribution(10, 14, cell_population);
+        TS_ASSERT_DELTA(contribution, -0.2, 1e-6);
+
+        // target site below current site
+        contribution = chemotaxis_update.EvaluateHamiltonianContribution(6, 2, cell_population);
+        TS_ASSERT_DELTA(contribution, 0.2, 1e-6);
+
+        // target site diagonally above current site (to right)
+        contribution = chemotaxis_update.EvaluateHamiltonianContribution(10, 15, cell_population);
+        TS_ASSERT_DELTA(contribution, -0.4, 1e-6);
+
+        // target site diagonally above current site (to left)
+        contribution = chemotaxis_update.EvaluateHamiltonianContribution(10, 13, cell_population);
+        TS_ASSERT_DELTA(contribution, 0.0, 1e-6);
+
+    }
+
+    void TestArchiveChemotaxisPottsUpdateRule() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "ChemotaxisPottsUpdateRule.arch";
+
+        {
+            ChemotaxisPottsUpdateRule<2> update_rule;
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Set member variables
+            // Currently none to test
+
+            // Serialize via pointer to most abstract class possible
+            AbstractPottsUpdateRule<2>* const p_update_rule = &update_rule;
+            output_arch << p_update_rule;
+        }
+
+        {
+            AbstractPottsUpdateRule<2>* p_update_rule;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_update_rule;
+
+            // Test the member data
+            // Currently none to test
 
             // Tidy up
             delete p_update_rule;
@@ -776,7 +852,7 @@ public:
 		std::string adhesion_update_results_dir = output_file_handler.GetOutputDirectoryFullPath();
 		TS_ASSERT_EQUALS(system(("diff " + adhesion_update_results_dir + "adhesion_update_results.parameters cell_based/test/data/TestPottsUpdateRules/adhesion_update_results.parameters").c_str()), 0);
 
-        // Test with VolumeConstraintPottsUpdateRule
+        // Test with DifferentialAdhesionPottsUpdateRule
         DifferentialAdhesionPottsUpdateRule<2> differential_adhesion_update;
         differential_adhesion_update.SetLabelledCellLabelledCellAdhesionEnergyParameter(0.3);
         differential_adhesion_update.SetLabelledCellCellAdhesionEnergyParameter(0.4);
@@ -792,6 +868,18 @@ public:
 
         std::string differential_adhesion_update_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + differential_adhesion_update_results_dir + "differential_adhesion_update_results.parameters cell_based/test/data/TestPottsUpdateRules/differential_adhesion_update_results.parameters").c_str()), 0);
+
+        // Test with DifferentialAdhesionPottsUpdateRule
+        ChemotaxisPottsUpdateRule<2> chemotaxis_update;
+
+        TS_ASSERT_EQUALS(chemotaxis_update.GetIdentifier(), "ChemotaxisPottsUpdateRule-2");
+
+        out_stream chemotaxis_update_parameter_file = output_file_handler.OpenOutputFile("chemotaxis_update_results.parameters");
+        chemotaxis_update.OutputUpdateRuleInfo(chemotaxis_update_parameter_file);
+        chemotaxis_update_parameter_file->close();
+
+        std::string chemotaxis_update_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + chemotaxis_update_results_dir + "chemotaxis_update_results.parameters cell_based/test/data/TestPottsUpdateRules/chemotaxis_update_results.parameters").c_str()), 0);
 	}
 };
 

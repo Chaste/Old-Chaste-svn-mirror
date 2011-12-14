@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VolumeConstraintPottsUpdateRule.hpp"
 #include "AdhesionPottsUpdateRule.hpp"
 #include "DifferentialAdhesionPottsUpdateRule.hpp"
+#include "ChemotaxisPottsUpdateRule.hpp"
 #include "PlaneBasedCellKiller.hpp"
 #include "OnLatticeSimulation.hpp"
 #include "OffLatticeSimulation.hpp"
@@ -353,12 +354,11 @@ public:
         // Set up cell-based simulation
         OnLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("TestSimplePottsSpheroid");
-        simulator.SetDt(0.1);
         simulator.SetEndTime(1.0);
 
         // Create update rules and pass to the simulation
         MAKE_PTR(VolumeConstraintPottsUpdateRule<3>, p_volume_constraint_update_rule);
-        p_volume_constraint_update_rule->SetMatureCellTargetVolume(16);
+        p_volume_constraint_update_rule->SetMatureCellTargetVolume(8);
         simulator.AddPottsUpdateRule(p_volume_constraint_update_rule);
         MAKE_PTR(AdhesionPottsUpdateRule<3>, p_adhesion_update_rule);
         simulator.AddPottsUpdateRule(p_adhesion_update_rule);
@@ -373,6 +373,47 @@ public:
         TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
     }
+
+    void TestPottsChemotaxis() throw (Exception)
+    {
+        // Create a simple 3D PottsMesh
+        PottsMeshGenerator<3> generator(12, 1, 2, 6, 1, 2, 6, 1, 2, false, true, true, true);
+        PottsMesh<3>* p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
+
+        // Create cell population
+        PottsBasedCellPopulation<3> cell_population(*p_mesh, cells);
+
+        // Set up cell-based simulation
+        OnLatticeSimulation<3> simulator(cell_population);
+        simulator.SetOutputDirectory("TestPottsChemotaxis");
+        simulator.SetSamplingTimestepMultiple(10);
+        simulator.SetEndTime(50.0);
+
+        // Create update rules and pass to the simulation
+        MAKE_PTR(VolumeConstraintPottsUpdateRule<3>, p_volume_constraint_update_rule);
+        p_volume_constraint_update_rule->SetMatureCellTargetVolume(8);
+        simulator.AddPottsUpdateRule(p_volume_constraint_update_rule);
+        MAKE_PTR(AdhesionPottsUpdateRule<3>, p_adhesion_update_rule);
+        simulator.AddPottsUpdateRule(p_adhesion_update_rule);
+        MAKE_PTR(ChemotaxisPottsUpdateRule<3>, p_chemotaxis_update_rule);
+        simulator.AddPottsUpdateRule(p_chemotaxis_update_rule);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Check that the same number of cells
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 1u);
+
+        // Test no births or deaths
+        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
+        TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
+    }
+
 
     void TestRandomIterationOverUpdateRules() throw (Exception)
     {
@@ -512,15 +553,15 @@ public:
         // Check some results
         PottsElement<2>* element_0 = static_cast <PottsBasedCellPopulation<2>*>(&simulator.rGetCellPopulation())->GetElement(0u);
         TS_ASSERT_EQUALS(element_0->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 33u);
-        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 57u);
-        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 78u);
+        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 47u);
+        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 58u);
+        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 17u);
 
         PottsElement<2>* element_1 = static_cast <PottsBasedCellPopulation<2>*>(&simulator.rGetCellPopulation())->GetElement(1u);
         TS_ASSERT_EQUALS(element_1->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 80u);
-        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 72u);
-        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 74u);
+        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 55u);
+        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 77u);
+        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 84u);
     }
 
     void TestSave() throw (Exception)
@@ -578,15 +619,15 @@ public:
         // These results are from time 20.0 in TestStandardResultForArchivingTestBelow()
         PottsElement<2>* element_0 = static_cast <PottsBasedCellPopulation<2>*>(&p_simulator2->rGetCellPopulation())->GetElement(0u);
         TS_ASSERT_EQUALS(element_0->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 33u);
-        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 57u);
-        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 78u);
+        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 47u);
+        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 58u);
+        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 17u);
 
         PottsElement<2>* element_1 = static_cast <PottsBasedCellPopulation<2>*>(&p_simulator2->rGetCellPopulation())->GetElement(1u);
         TS_ASSERT_EQUALS(element_1->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 80u);
-        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 72u);
-        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 74u);
+        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 55u);
+        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 77u);
+        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 84u);
 
         // Tidy up
         delete p_simulator1;
