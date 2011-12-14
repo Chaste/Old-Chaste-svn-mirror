@@ -210,11 +210,11 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
 
                         if(on_west_edge)
                         {
-                            moore_neighbour_indices_vector[1] = moore_neighbour_indices_vector[0] + numNodesAcross - 1;
+                            moore_neighbour_indices_vector[1] = moore_neighbour_indices_vector[1] + numNodesAcross;
                         }
                         if(on_east_edge)
                         {
-                            moore_neighbour_indices_vector[7] = moore_neighbour_indices_vector[0] - numNodesAcross + 1;
+                            moore_neighbour_indices_vector[7] = moore_neighbour_indices_vector[7] - numNodesAcross;
                         }
                     }
 
@@ -226,11 +226,11 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
 
                         if(on_west_edge)
                         {
-                            moore_neighbour_indices_vector[3] = moore_neighbour_indices_vector[4] + numNodesAcross - 1;
+                            moore_neighbour_indices_vector[3] = moore_neighbour_indices_vector[3] + numNodesAcross;
                         }
                         if(on_east_edge)
                         {
-                            moore_neighbour_indices_vector[5] = moore_neighbour_indices_vector[4] - numNodesAcross + 1;
+                            moore_neighbour_indices_vector[5] = moore_neighbour_indices_vector[5] - numNodesAcross;
                         }
                     }
                 }
@@ -314,7 +314,6 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                 bool on_front_edge = (node_index < numNodesAcross*numNodesUp);
                 bool on_back_edge = (node_index > numNodesAcross*numNodesUp*(numNodesDeep-1)-1);
 
-
                 if(isPeriodicInX)
                 {
                     if(on_west_edge)
@@ -330,8 +329,6 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                         moore_neighbour_indices_vector[19] = moore_neighbour_indices_vector[1] + numNodesAcross*numNodesUp;
                         moore_neighbour_indices_vector[20] = moore_neighbour_indices_vector[2] + numNodesAcross*numNodesUp;
                         moore_neighbour_indices_vector[21] = moore_neighbour_indices_vector[3] + numNodesAcross*numNodesUp;
-
-                        on_west_edge = false;
                     }
 
                     if(on_east_edge)
@@ -347,10 +344,172 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
                         moore_neighbour_indices_vector[23] = moore_neighbour_indices_vector[5] + numNodesAcross*numNodesUp;
                         moore_neighbour_indices_vector[24] = moore_neighbour_indices_vector[6] + numNodesAcross*numNodesUp;
                         moore_neighbour_indices_vector[25] = moore_neighbour_indices_vector[7] + numNodesAcross*numNodesUp;
-                        on_east_edge = false;
                     }
                 }
 
+                if(isPeriodicInY)
+                {
+                    if(on_north_edge)
+                    {
+                        moore_neighbour_indices_vector[0] = node_index - numNodesAcross*(numNodesUp-1);
+                        moore_neighbour_indices_vector[1] = moore_neighbour_indices_vector[0] - 1;
+                        moore_neighbour_indices_vector[7] = moore_neighbour_indices_vector[0] + 1;
+
+                        moore_neighbour_indices_vector[10] = moore_neighbour_indices_vector[1] - numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[9] = moore_neighbour_indices_vector[0] - numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[16] = moore_neighbour_indices_vector[7] - numNodesAcross*numNodesUp;
+
+                        moore_neighbour_indices_vector[19] = moore_neighbour_indices_vector[1] + numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[18] = moore_neighbour_indices_vector[0] + numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[25] = moore_neighbour_indices_vector[7] + numNodesAcross*numNodesUp;
+
+                        if(on_west_edge)
+                        {
+                            moore_neighbour_indices_vector[1] = moore_neighbour_indices_vector[1] + numNodesAcross;
+                            moore_neighbour_indices_vector[10] = moore_neighbour_indices_vector[10] + numNodesAcross;
+                            moore_neighbour_indices_vector[19] = moore_neighbour_indices_vector[19] + numNodesAcross;
+                        }
+                        if(on_east_edge)
+                        {
+                            moore_neighbour_indices_vector[7] = moore_neighbour_indices_vector[7] - numNodesAcross;
+                            moore_neighbour_indices_vector[16] = moore_neighbour_indices_vector[16] - numNodesAcross;
+                            moore_neighbour_indices_vector[25] = moore_neighbour_indices_vector[25] - numNodesAcross;
+                        }
+                    }
+
+                    if(on_south_edge)
+                    {
+                        moore_neighbour_indices_vector[4] = node_index + numNodesAcross*(numNodesUp-1);
+                        moore_neighbour_indices_vector[3] = moore_neighbour_indices_vector[4] - 1;
+                        moore_neighbour_indices_vector[5] = moore_neighbour_indices_vector[4] + 1;
+
+                        moore_neighbour_indices_vector[12] = moore_neighbour_indices_vector[3] - numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[13] = moore_neighbour_indices_vector[4] - numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[14] = moore_neighbour_indices_vector[5] - numNodesAcross*numNodesUp;
+
+                        moore_neighbour_indices_vector[21] = moore_neighbour_indices_vector[3] + numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[22] = moore_neighbour_indices_vector[4] + numNodesAcross*numNodesUp;
+                        moore_neighbour_indices_vector[23] = moore_neighbour_indices_vector[5] + numNodesAcross*numNodesUp;
+
+                        if(on_west_edge)
+                        {
+                            moore_neighbour_indices_vector[3] = moore_neighbour_indices_vector[3] + numNodesAcross;
+                            moore_neighbour_indices_vector[12] = moore_neighbour_indices_vector[12] + numNodesAcross;
+                            moore_neighbour_indices_vector[21] = moore_neighbour_indices_vector[21] + numNodesAcross;
+                        }
+                        if(on_east_edge)
+                        {
+                            moore_neighbour_indices_vector[5] = moore_neighbour_indices_vector[5] - numNodesAcross;
+                            moore_neighbour_indices_vector[14] = moore_neighbour_indices_vector[14] - numNodesAcross;
+                            moore_neighbour_indices_vector[23] = moore_neighbour_indices_vector[23] - numNodesAcross;
+                        }
+                    }
+                }
+
+                if(isPeriodicInZ)
+                {
+                    if(on_back_edge)
+                    {
+                        moore_neighbour_indices_vector[17] = node_index - numNodesAcross*numNodesUp*(numNodesDeep-1);
+                        moore_neighbour_indices_vector[20] = moore_neighbour_indices_vector[17] - 1;
+                        moore_neighbour_indices_vector[24] = moore_neighbour_indices_vector[17] + 1;
+
+                        moore_neighbour_indices_vector[21] = moore_neighbour_indices_vector[20] - numNodesAcross;
+                        moore_neighbour_indices_vector[22] = moore_neighbour_indices_vector[17] - numNodesAcross;
+                        moore_neighbour_indices_vector[23] = moore_neighbour_indices_vector[24] - numNodesAcross;
+
+                        moore_neighbour_indices_vector[19] = moore_neighbour_indices_vector[20] + numNodesAcross;
+                        moore_neighbour_indices_vector[18] = moore_neighbour_indices_vector[17] + numNodesAcross;
+                        moore_neighbour_indices_vector[25] = moore_neighbour_indices_vector[24] + numNodesAcross;
+
+                        if(on_west_edge)
+                        {
+                            moore_neighbour_indices_vector[19] = moore_neighbour_indices_vector[19] + numNodesAcross;
+                            moore_neighbour_indices_vector[20] = moore_neighbour_indices_vector[20] + numNodesAcross;
+                            moore_neighbour_indices_vector[21] = moore_neighbour_indices_vector[21] + numNodesAcross;
+                        }
+                        if(on_east_edge)
+                        {
+                            moore_neighbour_indices_vector[23] = moore_neighbour_indices_vector[23] - numNodesAcross;
+                            moore_neighbour_indices_vector[24] = moore_neighbour_indices_vector[24] - numNodesAcross;
+                            moore_neighbour_indices_vector[25] = moore_neighbour_indices_vector[25] - numNodesAcross;
+                        }
+
+                        if(on_south_edge)
+                        {
+                            moore_neighbour_indices_vector[21] = moore_neighbour_indices_vector[21] + numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[22] = moore_neighbour_indices_vector[22] + numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[23] = moore_neighbour_indices_vector[23] + numNodesAcross*numNodesUp;
+                        }
+
+                        if(on_north_edge)
+                        {
+                            moore_neighbour_indices_vector[18] = moore_neighbour_indices_vector[18] - numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[19] = moore_neighbour_indices_vector[19] - numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[25] = moore_neighbour_indices_vector[25] - numNodesAcross*numNodesUp;
+                        }
+                    }
+
+                    if(on_front_edge)
+                    {
+                        moore_neighbour_indices_vector[8] = node_index + numNodesAcross*numNodesUp*(numNodesDeep-1);
+                        moore_neighbour_indices_vector[11] = moore_neighbour_indices_vector[8] - 1;
+                        moore_neighbour_indices_vector[15] = moore_neighbour_indices_vector[8] + 1;
+
+                        moore_neighbour_indices_vector[12] = moore_neighbour_indices_vector[11] - numNodesAcross;
+                        moore_neighbour_indices_vector[13] = moore_neighbour_indices_vector[8] - numNodesAcross;
+                        moore_neighbour_indices_vector[14] = moore_neighbour_indices_vector[15] - numNodesAcross;
+
+                        moore_neighbour_indices_vector[10] = moore_neighbour_indices_vector[11] + numNodesAcross;
+                        moore_neighbour_indices_vector[9] = moore_neighbour_indices_vector[8] + numNodesAcross;
+                        moore_neighbour_indices_vector[16] = moore_neighbour_indices_vector[15] + numNodesAcross;
+
+                        if(on_west_edge)
+                        {
+                            moore_neighbour_indices_vector[10] = moore_neighbour_indices_vector[10] + numNodesAcross;
+                            moore_neighbour_indices_vector[11] = moore_neighbour_indices_vector[11] + numNodesAcross;
+                            moore_neighbour_indices_vector[12] = moore_neighbour_indices_vector[12] + numNodesAcross;
+                        }
+                        if(on_east_edge)
+                        {
+                            moore_neighbour_indices_vector[14] = moore_neighbour_indices_vector[14] - numNodesAcross;
+                            moore_neighbour_indices_vector[15] = moore_neighbour_indices_vector[15] - numNodesAcross;
+                            moore_neighbour_indices_vector[16] = moore_neighbour_indices_vector[16] - numNodesAcross;
+                        }
+
+                        if(on_south_edge)
+                        {
+                            moore_neighbour_indices_vector[12] = moore_neighbour_indices_vector[12] + numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[13] = moore_neighbour_indices_vector[13] + numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[14] = moore_neighbour_indices_vector[14] + numNodesAcross*numNodesUp;
+                        }
+
+                        if(on_north_edge)
+                        {
+                            moore_neighbour_indices_vector[9] = moore_neighbour_indices_vector[9] - numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[10] = moore_neighbour_indices_vector[10] - numNodesAcross*numNodesUp;
+                            moore_neighbour_indices_vector[16] = moore_neighbour_indices_vector[16] - numNodesAcross*numNodesUp;
+                        }
+                    }
+
+
+                }
+
+                if(isPeriodicInX)
+                {
+                    on_east_edge = false;
+                    on_west_edge = false;
+                }
+                if(isPeriodicInY)
+                {
+                    on_south_edge = false;
+                    on_north_edge = false;
+                }
+                if(isPeriodicInZ)
+                {
+                    on_front_edge = false;
+                    on_back_edge = false;
+                }
 
 
                 // Create a vector of booleans for which neighbours are available
