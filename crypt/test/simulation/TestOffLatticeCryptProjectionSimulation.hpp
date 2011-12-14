@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTOFFLATTICESIMULATIONFORCRYPT_HPP_
-#define TESTOFFLATTICESIMULATIONFORCRYPT_HPP_
+#ifndef TESTOFFLATTICECRYPTPROJECTIONSIMULATION_HPP_
+#define TESTOFFLATTICECRYPTPROJECTIONSIMULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 #include "SmartPointers.hpp"
 
-class TestOffLatticeSimulationForCrypt : public AbstractCellBasedTestSuite
+class TestOffLatticeCryptProjectionSimulation : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -241,4 +241,4 @@ public:
     }
 };
 
-#endif /*TESTOFFLATTICESIMULATIONFORCRYPT_HPP_*/
+#endif /*TESTOFFLATTICECRYPTPROJECTIONSIMULATION_HPP_*/

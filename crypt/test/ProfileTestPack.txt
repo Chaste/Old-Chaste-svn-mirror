@@ -1,2 +1,2 @@
-simulation/Test2DCryptRepresentativeSimulation.hpp
-simulation/Test2DVertexCryptRepresentativeSimulation.hpp
+simulation/Test2DMeshBasedCryptRepresentativeSimulation.hpp
+simulation/Test2DVertexBasedCryptRepresentativeSimulation.hpp

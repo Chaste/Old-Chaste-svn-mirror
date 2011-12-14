@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-#ifndef TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
-#define TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_
+#ifndef TESTRUNNINGMESHBASEDCRYPTSIMULATIONSTUTORIAL_HPP_
+#define TESTRUNNINGMESHBASEDCRYPTSIMULATIONSTUTORIAL_HPP_
 
 /*
  * = Examples showing how to run crypt simulations on periodic meshes with different cell-cycle models =
@@ -117,7 +117,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
  * and defines some test methods.
  */
-class TestRunningCryptSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningMeshBasedCryptSimulationsTutorial : public CxxTest::TestSuite
 {
 public:
     /* EMPTYLINE
@@ -309,4 +309,4 @@ public:
      *
      * The results of this test can be visualized as in Test 1, with the correct output directory.
      */
-#endif /*TESTRUNNINGCRYPTSIMULATIONSTUTORIAL_HPP_*/
+#endif /*TESTRUNNINGMESHBASEDCRYPTSIMULATIONSTUTORIAL_HPP_*/

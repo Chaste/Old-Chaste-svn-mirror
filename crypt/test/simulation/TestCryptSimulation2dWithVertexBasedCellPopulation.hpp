@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTVERTEXCRYPTSIMULATION2D_HPP_
-#define TESTVERTEXCRYPTSIMULATION2D_HPP_
+#ifndef TESTCRYPTSIMULATION2DWITHVERTEXBASEDCELLPOPULATION_HPP_
+#define TESTCRYPTSIMULATION2DWITHVERTEXBASEDCELLPOPULATION_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "SmartPointers.hpp"
 
-class TestVertexCryptSimulation2d : public AbstractCellBasedTestSuite
+class TestCryptSimulation2dWithVertexBasedCellPopulation : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -845,4 +845,4 @@ public:
     }
 };
 
-#endif /*TESTVERTEXCRYPTSIMULATION2D_HPP_*/
+#endif /*TESTCRYPTSIMULATION2DWITHVERTEXBASEDCELLPOPULATION_HPP_*/

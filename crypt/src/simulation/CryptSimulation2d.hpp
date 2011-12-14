@@ -40,13 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A 2D crypt simulation object. For more details on the crypt geometry, see the
- * paper by van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
+ * papers by van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x] and
+ * Osborne et al (2010) [doi:10.1098/rsta.2010.0173].
  */
 class CryptSimulation2d : public OffLatticeSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of private functions e.g. DoCellBirth()
-    friend class TestCryptSimulation2d;
-    friend class TestVertexCryptSimulation2d;
+    friend class TestCryptSimulation2dWithMeshBasedCellPopulation;
+    friend class TestCryptSimulation2dWithVertexBasedCellPopulation;
 
 protected:
 

@@ -41,6 +41,16 @@ CryptSimulation2d::CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
       mWriteBetaCatenin(false),
       mUsingMeshBasedCellPopulation(false)
 {
+    /* Throw an exception message if not using a  MeshBasedCellPopulation or a VertexBasedCellPopulation.
+     * This is to catch NodeBasedCellPopulations as AbstactOnLatticeBasedCellPopulations are caught in
+     * the OffLatticeSimulation constructor.
+     */
+    if ( (dynamic_cast<VertexBasedCellPopulation<2>*>(&rCellPopulation) == NULL)
+         &&(dynamic_cast<MeshBasedCellPopulation<2>*>(&rCellPopulation) == NULL) )
+    {
+        EXCEPTION("CryptSimulation2d is to be used with MeshBasedCellPopulation or VertexBasedCellPopulation (or subclasses) only");
+    }
+
     if (dynamic_cast<MeshBasedCellPopulation<2>*>(&mrCellPopulation))
     {
         mUsingMeshBasedCellPopulation = true;
