@@ -186,6 +186,9 @@ public:
         problem_defn.SetFixedNodes(fixed_nodes, fixed_node_locations);
         problem_defn.SetMechanicsSolveTimestep(1.0);
 
+        // coverage, this file is just X-direction fibres
+        problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/2by2mesh_fibres.ortho", false);
+
         HeartConfig::Instance()->SetSimulationDuration(10.0);
 
         CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
