@@ -40,10 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * = Solving solid mechanics problems =
  *
  * In this tutorial we show how Chaste can be used to solve solid mechanics problems.
- * We assume the reader has some familiarity with solid mechanics problems
- * (note: the equations of nonlinear elasticity are given in the PDF on equations
- * and finite element implementations (see ChasteGuides --> Miscellaneous information)). It is also best
- * to have read the solving linear PDEs tutorials.
+ * We assume the reader has some familiarity with solid mechanics problems. Note that the
+ * the equations of nonlinear elasticity are given in the PDF on equations
+ * and finite element implementations (see ChasteGuides --> Miscellaneous information). It is also best
+ * to have had a look at the solving linear PDEs tutorials.
  *
  * In brief, there several facets to solid mechanics models:
  *  * Time-dependent problems versus static problems
@@ -52,8 +52,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  * The type of material behaviour (elastic, visco-elastic, etc..)
  *  * Specification of geometry, material law, body force, displacement boundary conditions, and traction boundary conditions
  *
- * The solvers currently implemented are STATIC (time-independent) and use NONLINEAR ELASTICITY. The main solver
- * solves for an INCOMPRESSIBLE deformation, although there is now a COMPRESSIBLE solver. The material behaviour is
+ * The solvers currently implemented are STATIC (time-independent) and use NONLINEAR ELASTICITY. There are solvers for
+ * both INCOMPRESSIBLE and COMPRESSIBLE deformations. The material behaviour is
  * assumed to be ELASTIC (stress is just a function of strain, not strain-rate etc), and in particular HYPER-ELASTIC
  * (stress is a function of strain via a 'strain energy function', for which stress is obtained by differentiating the
  * strain energy function with respect to strain).
@@ -61,8 +61,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * To solve a mechanics problem we need to
  *  * Choose the solver (compressible or incompressible)
  *  * Specify the geometry (ie the mesh)
- *  * Specify the material law (ie the strain-energy function)
- *  * Specify the BODY FORCE -- this is a force density acting throughout the body (eg. acceleration due to gravity)
+ *  * Specify the material law (ie the strain-energy function) (incompressible or compressible as appropriate).
+ *  * Specify the BODY FORCE -- this is a force density acting throughout the body (eg. acceleration due to gravity),
+ *  and also the mass density.
  *  * Specify some DISPLACEMENT BOUNDARY CONDITIONS -- some part of the boundary must have the displacement specified on it
  *  * Specify TRACTION BOUNDARY CONDITIONS (if non-zero) on the rest of the boundary -- tractions are pressures applied
  *  the rest of the surface of the deformable object.
@@ -92,7 +93,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 
-
 /*
  *
  * == Simple incompressible deformation: 2D shape hanging under gravity ==
@@ -101,18 +101,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestSolvingElasticityProblemsTutorial : public CxxTest::TestSuite
 {
 public:
-    /* In the first test we use INCOMPRESSIBLE nonlinear elasticity. For such problems there is a constraint
-     * on the deformation, which results in a pressure field (a Lagrange multiplier) which needs to be solved
-     * for together with the deformation.
+    /* In the first test we use INCOMPRESSIBLE nonlinear elasticity. For incompressible elasticity, there
+     * is a constraint on the deformation, which results in a pressure field (a Lagrange multiplier)
+     * which is solved for together with the deformation.
      *
      * All the mechanics solvers solve for the deformation using the finite element method with QUADRATIC
-     * basis functions for the deformation: this necessitates the use of a `QuadraticMesh` (such meshes have
-     * extra nodes that aren't vertices of elements, in this case midway along each edge). The displacement
+     * basis functions for the deformation. This necessitates the use of a `QuadraticMesh` - such meshes have
+     * extra nodes that aren't vertices of elements, in this case midway along each edge. The displacement
      * is solved for at ''each node'' in the mesh (including internal [non-vertex] nodes), whereas the pressure
      * is only solved for at each vertex. (In FEM terms, quadratic interpolation for displacement, linear
      * interpolation for pressure, which is required for stability).
-     *
-     * Note: 1D incompressible solves are meaningless and therefore not allowed.
      *
      */
     void TestSimpleIncompressibleProblem() throw(Exception)
@@ -150,25 +148,25 @@ public:
          *
          * We need to get a `std::vector` of all the node indices that we want to fix. The `NonlinearElasticityTools`
          * has a static method for helping do this: the following gets all the nodes for which Y=1.0. The second
-         * argument (the '1') indicates Y (eg, `GetNodesByComponentValue(mesh, 0, 10)` would correspond to X=10).
+         * argument (the '1') indicates Y . (So, for example, `GetNodesByComponentValue(mesh, 0, 10)` would get the nodes on X=10).
          */
         std::vector<unsigned> fixed_nodes = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh, 1, 1.0);
 
         /*
          * Before creating the solver we create a `SolidMechanicsProblemDefinition` object,  which contains
-         * everything that defines the problem (except mesh and material law): ie body force,
+         * everything that defines the problem: mesh, material law, body force,
          * the fixed nodes and their locations, any traction boundary conditions, and the density
          * (which multiplies the body force, otherwise isn't used).
          */
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
 
-        /* Set the material problem on the problem definition object */
+        /* Set the material problem on the problem definition object, saying that the problem, and
+         * the material law, is incompressible. All material law files can be found in
+         * `continuum_mechanics/src/problem/material_laws`. */
         problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
 
-        /*
-         * Set the fixed nodes, choosing zero displacement for these nodes (see later for how
-         * to provide locations for the fixed nodes).
-         */
+        /* Set the fixed nodes, choosing zero displacement for these nodes (see later for how
+         * to provide locations for the fixed nodes). */
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
         /* Set the body force and the density. (Note that the second line isn't technically
          * needed, as internally the density is initialised to 1)
@@ -176,14 +174,14 @@ public:
         problem_defn.SetBodyForce(body_force);
         problem_defn.SetDensity(1.0);
 
-        /* Now we create the (incompressible) solver, passing in the mesh, problem definition, law,
+        /* Now we create the (incompressible) solver, passing in the mesh, problem definition
          * and output directory
          */
         IncompressibleNonlinearElasticitySolver<2> solver(mesh,
                                                           problem_defn,
                                                           "SimpleIncompressibleElasticityTutorial");
 
-        /* .. and call `Solve()` */
+        /* .. and to compute the solution, just call `Solve()` */
         solver.Solve();
 
 
@@ -207,24 +205,34 @@ public:
 
 
         /* The recommended visualiser is Cmgui. This method can be used to convert all the output files to Cmgui format.
-         * They are placed in `SimpleIncompressibleElasticityTutorial/cmgui`. A script is created to easily load the data: in a
+         * They are placed in `[OUTPUT_DIRECTORY]/cmgui`. A script is created to easily load the data: in a
          * terminal cd to this directory and call `cmgui LoadSolutions.com`. (In this directory, the initial position is given by
          * solution_0.exnode, the deformed by solution_1.exnode).
          */
         solver.CreateCmguiOutput();
+
         /* These are just to check that nothing has been accidentally changed in this test.
-         * We use Newton's method (with damping) to solve the nonlinear problem. In this test
+         * Newton's method (with damping) was used to solve the nonlinear problem, and we check that
          * 4 iterations were needed to converge.
          */
         TS_ASSERT_DELTA(r_deformed_positions[node_index](0),  0.7980, 1e-3);
         TS_ASSERT_DELTA(r_deformed_positions[node_index](1), -0.1129, 1e-3);
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 4u);
+
+        /* ''Exercise'': convert to a compressible solver and compare the resultant deformations.
+         * The next tutorial describes how to solve for a compressible deformation,
+         * but the changes are essentially trivial: `IncompressibleNonlinearElasticitySolver` needs to be changed to
+         * `CompressibleNonlinearElasticitySolver`, the line `problem_defn.SetMaterialLaw(..)` needs changing, and
+         * the material law itself should be of type `AbstractCompressibleMaterialLaw`. An example is
+         * `CompressibleMooneyRivlinMaterialLaw`. Also `solver.rGetPressures()` doesn't exist (or make sense)
+         * when the solver is `CompressibleNonlinearElasticitySolver`.
+         */
     }
 
     /*
      * == Incompressible deformation: 2D shape hanging under gravity with a balancing traction ==
      *
-     * We now repeat the above test but include a traction, on the bottom surface (Y=0). We apply this
+     * We now repeat the above test but include a traction on the bottom surface (Y=0). We apply this
      * in the inward direction so that is counters (somewhat) the effect of gravity.
      */
     void TestIncompressibleProblemWithTractions() throw(Exception)
@@ -245,7 +253,7 @@ public:
          * apply non-zero tractions, put them in a `std::vector`, and create a corresponding `std::vector` of the tractions
          * for each of the boundary elements. Note that the each traction is a 2D vector with dimensions of pressure.
          *
-         * Declare the data structures
+         * First, declare the data structures:
          */
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         std::vector<c_vector<double,2> > tractions;
@@ -291,9 +299,10 @@ public:
         /* Another quick check */
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 3u); // 3 rather than 4 this time
 
-        /* Visualise as before by going to `IncompressibleElasticityWithTractionsTutorial` and doing
-         * `x=load('solution.nodes'); plot(x(:,1),x(:,2),'m*')`. The effect of the traction should be
-         * clear (especially when compared to the results of the first test).
+        /* Visualise as before by going to the output directory and doing
+         * `x=load('solution.nodes'); plot(x(:,1),x(:,2),'m*')` in Matlab/octave, or using Cmgui.
+         * The effect of the traction should be clear (especially when compared to
+         * the results of the first test).
          *
          * Create Cmgui output
          */
@@ -308,21 +317,23 @@ public:
      *
      * == IMPORTANT: Using HYPRE ==
      *
-     * When running '''incompressible''' problems in 3D, or with more elements, it is vital to change the linear solver to use HYPRE, an algebraic multigrid
-     * solver. Without HYRPE, the linear solve (i) may become very very slow; or (ii) may not converge, in which case the nonlinear
-     * solve will (probably) not converge. HYPRE is (currently) not a pre-requisite for installing Chaste, hence this is not (currently)
-     * the default linear solver for mechanics problems, although this will change in the future. HYPRE should be considered
-     * a pre-requisite for large mechanics problems.
-     *
-     * To use HYRPE in mechanics solves, you need to have Petsc installed with HYPRE. However, if you followed installation
-     * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
-     *
-     * To switch on HYPRE, open the file `pde/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
-     * #define MECH_USE_HYPRE
-     * near the top of the file (currently: line 53).
-     *
      * Mechanics solves being nonlinear are expensive, so it is recommended you also use `build=GccOpt_ndebug` (when running scons)
      * on larger problems.
+     *
+     * When running '''incompressible''' problems in 3D, or with more elements, it is vital to also change the linear solver to use HYPRE, an algebraic multigrid
+     * solver. Without HYRPE, the linear solve (i) may become very very slow; or (ii) may not converge, in which case the nonlinear
+     * solve will (probably) not converge. HYPRE is (currently) not a pre-requisite for installing Chaste, hence this is not (currently)
+     * the default linear solver for incompressible mechanics problems, although this will change in the future.
+     *
+     * ''HYPRE should be considered a pre-requisite for large incompressible mechanics problems.''
+     *
+     * To use HYRPE, you need to have Petsc installed with HYPRE. However, if you followed installation
+     * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
+     *
+     * To switch on HYPRE, open the file `continuum_mechanics/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
+     * #define MECH_USE_HYPRE
+     * near the top of the file (currently: line 53).
+     * (There are other things that can be uncommented here, which provide more verbose mechanics output).
      *
      * Note: Petsc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
      *

@@ -39,7 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* == Introduction ==
  *
- * In this second solid mechanics tutorial, we illustrate some other possibilities.
+ * In this second solid mechanics tutorial, we illustrate some other possibilities: using tractions
+ * that are definde with a function, or tractions that depend on the deformed body (eg normal pressure
+ * boundary conditions), specifying non-zero displacement boundary conditions, and then
+ * displacement boundary conditions only in some directions, and doing compressible solves.
  *
  * These includes are the same as before
  */
@@ -71,8 +74,7 @@ public:
      *
      * We now consider a more complicated example. We prescribe particular new locations for the nodes
      * on the Dirichlet boundary, and also show how to prescribe a traction that is given in functional form
-     * rather than prescribed for each boundary element. We also discuss how to set up a heterogeneous material
-     * law.
+     * rather than prescribed for each boundary element.
      */
     void TestIncompressibleProblemMoreComplicatedExample() throw(Exception)
     {
@@ -84,14 +86,7 @@ public:
          * The material law needs to inherit from `AbstractIncompressibleMaterialLaw`,
          * and there are a few implemented, see `pde/src/problem` */
         ExponentialMaterialLaw<2> law(1.0, 0.5); // First parameter is 'a', second 'b', in W=a*exp(b(I1-3))
-        /* It is possible to specify different material laws for each element in the mesh (for example
-         * for using different stiffnesses in different regions). To do this, create a
-         * `std::vector<AbstractMaterialLaw<DIM>*>` and fill it in with the material law for each element, and pass
-         * into the problem definition object using the same function as before. (The material laws will be
-         * checked at run-time to see if they are of the correct type, ie `AbstractIncompressibleMaterialLaw`
-         * or `AbstractCompressibleMaterialLaw`
-         *
-         * Now specify the fixed nodes, and their new locations. Create `std::vector`s for each. */
+        /* Now specify the fixed nodes, and their new locations. Create `std::vector`s for each. */
         std::vector<unsigned> fixed_nodes;
         std::vector<c_vector<double,2> > locations;
         /* Loop over the mesh nodes */
@@ -134,7 +129,7 @@ public:
         problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetFixedNodes(fixed_nodes, locations);
         /* Now call `SetTractionBoundaryConditions`, which takes in a vector of
-         * boundary elements as in the previous test; however this time the second argument
+         * boundary elements as in the previous test. However this time the second argument
          * is a ''function pointer'' (just the name of the function) to a
          * function returning traction in terms of position (and time [see below]).
          * This function is defined above, before the tests. It has to take in a `c_vector` (position)
@@ -159,7 +154,7 @@ public:
 
         /* Another quick check */
         TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 6u);
-        /* Visualise with `x=load('solution.nodes'); plot(x(:,1),x(:,2),'b*')`
+        /* Visualise as before.`
          *
          * '''Advanced:''' Note that the function `MyTraction` takes in time, which it didn't use. In the above it would have been called
          * with t=0. The current time can be set using `SetCurrentTime()`. The idea is that the user may want to solve a
@@ -236,7 +231,7 @@ public:
                                                           "ElasticitySlidingBcsExample");
         solver.Solve();
 
-        /* Check the node at (1,0) has moved but y=0 */
+        /* Check the node at (1,0) has moved but has stayed on Y=0 */
         TS_ASSERT_LESS_THAN(1.0, solver.rGetDeformedPosition()[10](0));
         TS_ASSERT_DELTA(solver.rGetDeformedPosition()[10](1), 0.0, 1e-3);
     }
@@ -250,7 +245,7 @@ public:
      * changing between the solves.
      *
      * Note: for other examples of compressible solves, including problems with an exact solution, see the
-     * file pde/test/TestCompressibleNonlinearElasticitySolver.hpp
+     * file continuum_mechanics/test/TestCompressibleNonlinearElasticitySolver.hpp
      */
     void TestSolvingCompressibleProblem() throw (Exception)
     {
@@ -286,7 +281,7 @@ public:
          * and these are collected here. (Minor, subtle, comment: we don't bother here checking Y>-0.9,
          * so the surface elements collected here include the ones on the Dirichlet boundary. This doesn't
          * matter as the Dirichlet boundary conditions to the nonlinear system and essentially overwrite
-         * an Neumann related effects.
+         * an Neumann-related effects).
          */
         std::vector<BoundaryElement<1,2>*> boundary_elems;
         for (TetrahedralMesh<2,2>::BoundaryElementIterator iter
@@ -325,7 +320,7 @@ public:
         solver.Solve();
 
         /* Now we call add additional boundary conditions, and call `Solve() again. Firstly: these
-         * Neumnann conditions here are not specified traction boundary conditions (such BCs are specified
+         * Neumann conditions here are not specified traction boundary conditions (such BCs are specified
          * on the undeformed body), but instead, the (more natural) specification of a pressure
          * exactly in the ''normal direction on the deformed body''. We have to provide a set of boundary
          * elements of the mesh, and a pressure to act on those elements. The solver will automatically
@@ -342,7 +337,7 @@ public:
         /* Call `Solve()` again, so now solving with fixed nodes, gravity, and pressure. The solution from
          * the previous solve will be used as the initial guess. Although at the moment the solution from the
          * previous call to `Solve()` will be over-written, calling `Solve()` repeatedly may be useful for
-         * some problems: sometimes, Newton's method will fail to converge for given force/pressures etc, and can
+         * some problems: sometimes, Newton's method will fail to converge for given force/pressures etc, and it can
          * be (very) helpful to ''increment'' the loading. For example, set the gravity to be (0,-9.81/3), solve,
          * then set it to be (0,-2*9.81/3), solve again, and finally set it to be (0,-9.81) and solve for a
          * final time
