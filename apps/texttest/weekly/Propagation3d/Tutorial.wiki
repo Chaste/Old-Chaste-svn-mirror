@@ -19,7 +19,7 @@ cd Propagation3d
 }}}
 
 In this folder you will find the following files:
- * `ChasteParameters.xml` -- this file describes the simulation, and can be used to override the [https://chaste.comlab.ox.ac.uk/docs/HeartConfigDefaults_8hpp.html default parameter values] (in releases of the executable up to and including version 2.0, the default parameters were read in from another xml file, `ChasteDefaults.xml`).
+ * `ChasteParameters.xml` -- this file describes the simulation, and can be used to override the [//docs/HeartConfigDefaults_8hpp.html default parameter values] (in releases of the executable up to and including version 2.0, the default parameters were read in from another xml file, `ChasteDefaults.xml`).
  * `ChasteParameters_2_1.xsd` -- XML schema for input validation (in general never has to be altered or touched).
 
 Run the simulation by doing
