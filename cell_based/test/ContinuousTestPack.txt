@@ -65,4 +65,5 @@ tutorial/TestCreatingAndUsingANewCellPropertyTutorial.hpp
 tutorial/TestCreatingAndUsingANewForceTutorial.hpp
 tutorial/TestRunningPottsBasedSimulationsTutorial.hpp
 tutorial/TestRunningTumourSpheroidSimulationsTutorial.hpp
+tutorial/TestRunningVertexBasedSimulationsTutorial.hpp
 tutorial/TestVisualizingWithParaviewTutorial.hpp
