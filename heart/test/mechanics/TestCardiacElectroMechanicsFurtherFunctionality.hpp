@@ -306,76 +306,50 @@ public:
         VecDestroy(end_voltage);
     }
 
-    // Run a where the domain in long and thin, and held squashed in the X-direction, by applying
-    // traction on far side. Run with and without deformation affecting the conductivity - in
-    // the latter as the conductivity will be increased in the X-direction, the wave should
-    // travel a little bit faster.
+    // Run a where the domain in long and thin, and held squashed in the X-direction, by Dirichlet
+    // boundary conditions on every node. Run with and without deformation affecting the
+    // conductivity - in the latter as the conductivity will be increased in the X-direction, the
+    // wave should travel a little bit faster.
     void TestDeformationAffectingConductivity() throw(Exception)
     {
-        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+        unsigned num_stimulated_nodes[2];
 
-        double tissue_init_width = 0.5;
-
-        TetrahedralMesh<2,2> electrics_mesh;
-        electrics_mesh.ConstructRegularSlabMesh(0.0125, tissue_init_width, 0.025);
-
-        QuadraticMesh<2> mechanics_mesh;
-        mechanics_mesh.ConstructRegularSlabMesh(0.025, tissue_init_width, 0.025);
-
-        std::vector<unsigned> fixed_nodes;
-        std::vector<c_vector<double,2> > fixed_node_locations;
-
-        // fix the node at the origin so that the solution is well-defined (ie unique)
-        fixed_nodes.push_back(0);
-        fixed_node_locations.push_back(zero_vector<double>(2));
-
-        // for the rest of the nodes, if they lie on X=0 or X=L, fix x but leave y free.
-        for(unsigned i=1 /*not 0*/; i<mechanics_mesh.GetNumNodes(); i++)
+        for(unsigned sim=0; sim<2; sim++)
         {
-            if(fabs(mechanics_mesh.GetNode(i)->rGetLocation()[0])<1e-6)
+            PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
+
+            double tissue_init_width = 0.5;
+
+            TetrahedralMesh<2,2> electrics_mesh;
+            electrics_mesh.ConstructRegularSlabMesh(0.0125, tissue_init_width, 0.025);
+
+            QuadraticMesh<2> mechanics_mesh;
+            mechanics_mesh.ConstructRegularSlabMesh(0.025, tissue_init_width, 0.025);
+
+            // Fix every single node, to the deformation x=alpha X, y = Y/alpha
+            std::vector<unsigned> fixed_nodes;
+            std::vector<c_vector<double,2> > fixed_node_locations;
+
+            for(unsigned i=0; i<mechanics_mesh.GetNumNodes(); i++)
             {
+                double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
+                double Y = mechanics_mesh.GetNode(i)->rGetLocation()[1];
+
                 c_vector<double,2> new_position;
-                new_position(0) = 0.0;
-                new_position(1) = SolidMechanicsProblemDefinition<2>::FREE;
+                new_position(0) = 0.8*X;
+                new_position(1) = Y/0.8;
                 fixed_nodes.push_back(i);
                 fixed_node_locations.push_back(new_position);
             }
-        }
 
+            ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+            problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
+            problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+            problem_defn.SetFixedNodes(fixed_nodes, fixed_node_locations);
+            problem_defn.SetMechanicsSolveTimestep(0.5);
 
-        std::vector<BoundaryElement<1,2>*> boundary_elems;
-        std::vector<c_vector<double,2> > tractions;
-        c_vector<double,2> traction;
-        traction(0) = -0.75; // solve failures occur if this gets much larger..
-        traction(1) =  0.0;
-        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mechanics_mesh.GetBoundaryElementIteratorBegin();
-             iter != mechanics_mesh.GetBoundaryElementIteratorEnd();
-             ++iter)
-        {
-            if (fabs((*iter)->CalculateCentroid()[0] - tissue_init_width) < 1e-6)
-            {
-                BoundaryElement<1,2>* p_element = *iter;
-                boundary_elems.push_back(p_element);
-                tractions.push_back(traction);
-            }
-        }
-        assert(boundary_elems.size() == 1u);
-
-
-        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
-        problem_defn.SetContractionModel(KERCHOFFS2003,1.0);
-        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
-        problem_defn.SetFixedNodes(fixed_nodes, fixed_node_locations);
-        problem_defn.SetMechanicsSolveTimestep(0.5);
-        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
-
-
-        unsigned num_stimulated_nodes[2];
-
-        for(unsigned i=0; i<2; i++)
-        {
             std::string dir;
-            if(i==0)
+            if(sim==0)
             {
                 problem_defn.SetDeformationAffectsElectrophysiology(false,false);
                 dir = "TestCardiacEmDeformationNotAffectingConductivity";
@@ -387,8 +361,6 @@ public:
             }
 
             // Small enough end-time so that the wavefront doesn't reach the other side..
-            // NOTE: the solve fails for longer end-times... nonlinear solver struggles to
-            // find solution. See #1962.
             HeartConfig::Instance()->SetSimulationDuration(5.0);
 
             CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
@@ -398,8 +370,22 @@ public:
                                                       &problem_defn,
                                                       dir);
 
+
+            problem.Initialise();
+
+            // hack into the mechanics solver and set up the solution to be true solution
+            // because the solution is quite far from the initial guess.
+            for(unsigned i=0; i<mechanics_mesh.GetNumNodes(); i++)
+            {
+                double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
+                double Y = mechanics_mesh.GetNode(i)->rGetLocation()[1];
+                problem.mpMechanicsSolver->rGetCurrentSolution()[2*i]   = 0.8*X - X;
+                problem.mpMechanicsSolver->rGetCurrentSolution()[2*i+1] = Y/0.8 - Y;
+            }
+
             problem.Solve();
 
+            // count the number of nodes that were stimulated at the last timestep
             Hdf5DataReader reader(dir+"/electrics","voltage");
             unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
             Vec voltage = PetscTools::CreateVec(electrics_mesh.GetNumNodes());
@@ -407,13 +393,12 @@ public:
 
             ReplicatableVector voltage_repl(voltage);
 
-            // count the number of nodes that were stimulated at the last timestep
-            num_stimulated_nodes[i] = 0;
-            for(unsigned j=0; j<voltage_repl.GetSize(); j++)
+            num_stimulated_nodes[sim] = 0;
+            for(unsigned i=0; i<voltage_repl.GetSize(); i++)
             {
-                if(voltage_repl[j]>0.0)
+                if(voltage_repl[i]>0.0)
                 {
-                    num_stimulated_nodes[i]++;
+                    num_stimulated_nodes[sim]++;
                 }
             }
             VecDestroy(voltage);
@@ -422,7 +407,8 @@ public:
         // check the number of stimulated nodes is greater in the second case,
         // where conductivity is affected by the deformation
         TS_ASSERT_EQUALS(num_stimulated_nodes[0], 90u);
-        TS_ASSERT_EQUALS(num_stimulated_nodes[1], 93u);
+        TS_ASSERT_EQUALS(num_stimulated_nodes[1], 108u);
+
     }
 
 
