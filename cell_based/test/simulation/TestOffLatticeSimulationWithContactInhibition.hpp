@@ -77,11 +77,11 @@ public:
           	ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
             p_cycle_model->SetCellProliferativeType(STEM);
             p_cycle_model->SetDimension(2);
-            p_cycle_model->SetBirthTime(0.0);
-            p_cycle_model->SetQuiescentVolumeFraction(0.5);
+            p_cycle_model->SetBirthTime(-10.0);
+            p_cycle_model->SetQuiescentVolumeFraction(0.7);
             p_cycle_model->SetEquilibriumVolume(1.0);
-            p_cycle_model->SetStemCellG1Duration(0.5);
-            p_cycle_model->SetTransitCellG1Duration(0.5);
+            p_cycle_model->SetStemCellG1Duration(0.1);
+            p_cycle_model->SetTransitCellG1Duration(0.1);
 
             CellPtr p_cell(new Cell(p_state, p_cycle_model));
             p_cell->InitialiseCellCycleModel();
@@ -108,32 +108,32 @@ public:
           // Create a contact inhibition simulator
           ContactInhibitionOffLatticeSimulation<2> simulator(cell_population);
           simulator.SetOutputDirectory("TestOffLatticeBoxWithContactInhibition");
-          simulator.SetEndTime(100.0);
+          simulator.SetEndTime(15.0);
           simulator.AddForce(p_force);
 
           // Create some boundary conditions and pass them to the simulation
           c_vector<double,2> point = zero_vector<double>(2);
           c_vector<double,2> normal = zero_vector<double>(2);
-          point(0) = -3.0;
+          point(0) = -2.0;
           point(1) = 0.0;
           normal(0) = -1.0;
           normal(1) = 0.0;
           MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // y>0
           simulator.AddCellPopulationBoundaryCondition(p_bc1);
-          point(0) = 3.0;
+          point(0) = 2.5;
           point(1) = 0.0;
           normal(0) = 1.0;
           normal(1) = 0.0;
           MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // y<2
           simulator.AddCellPopulationBoundaryCondition(p_bc2);
           point(0) = 0.0;
-          point(1) = -3.0;
+          point(1) = -1.0;
           normal(0) = 0.0;
           normal(1) = -1.0;
           MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y<2
           simulator.AddCellPopulationBoundaryCondition(p_bc3);
           point(0) = 0.0;
-          point(1) = 3.0;
+          point(1) = 2.0;
           normal(0) = 0.0;
           normal(1) = 1.0;
           MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2
@@ -149,7 +149,7 @@ public:
           		 ++cell_iter)
 			{
 				unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
-				TS_ASSERT_LESS_THAN(cell_population.GetVolumeOfVoronoiElement(node_index), 0.51);
+				TS_ASSERT_LESS_THAN(cell_population.GetVolumeOfVoronoiElement(node_index), 0.71);
 			}
 
           // Tidy up
