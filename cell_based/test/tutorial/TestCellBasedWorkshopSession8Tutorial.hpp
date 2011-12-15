@@ -35,32 +35,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-#ifndef TESTCREATINGANDUSINGANEWCELLCYCLEMODELTUTORIAL_HPP_
-#define TESTCREATINGANDUSINGANEWCELLCYCLEMODELTUTORIAL_HPP_
+#ifndef TESTCREATINGANDUSINGACONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_
+#define TESTCREATINGANDUSINGACONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_
 
 /*
- * = An example showing how to use the contact inhibition cell cycle model with the contact inhibition simulator =
+ * = An example showing how to use the contact inhibition cell cycle model (with the contact inhibition simulator) =
  *
  * == Introduction ==
  *
- * In this tutorial, we will show how to use a simple implementation of the contact inhibition cell-cycle mode.
- * We consider a 2-D configuration in which cells are trapped in a box. Firstly, all the cells are contact
- * inhibited and we study the effect of modifying the value of the critical volume for which cells stop
- * proliferating on the cell density. Secondly, we consider a mix of normal cells (contact inhibited) and
- * tumour cells (not inhibited) and study the progression of the tumour cells.
+ * In this tutorial, we will show how to use a simple implementation of the contact inhibition cell-cycle mode,
+ * that stops cells division when the volume of the cell is smaller than a critical value.
+ * We consider 2-D configurations for which cells are trapped in a square box. Firstly, all the cells are contact
+ * inhibited and we study the effect of the critical volume upon the global cell density. Secondly, we consider
+ * a mix of normal cells (contact inhibited) and tumour cells (not inhibited) and study the growth of the
+ * tumour cells within the box.
  *
  *
  * == Including header files ==
  *
- * We begin by including the necessary header file. */
+ * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
-
-/* The next two headers are used in archiving, and only need to be included
- * if we wish to be able to archive (save or load) the new cell-cycle model object
- * in a cell-based simulation (in this case, these headers must be included before
- * any other serialization headers). */
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 /* The next header includes the Boost shared_ptr smart pointer, and defines some useful
  * macros to save typing when using it. */
@@ -69,11 +63,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /*
- * The next header file define the contact inhibition cell-cycle model that inherits from 'AbstractSimpleCellCycleModel'.
- * The duration of G1 phase depends on the deviation from a target volume (or area/length in 2D/1D). The target
- * volume is indicated in the user's Test file, and stored in 'CellwiseData', a singleton class made easily
- * accessible. This model allows for quiescence imposed by transient periods of high stress, followed by
- * relaxation. In this cell cycle model, quiescence is implemented only by extending the G1 phase. If a cell
+ * The next header file defines the contact inhibition cell-cycle model that inherits from "AbstractSimpleCellCycleModel".
+ * The duration of the G1 phase depends on the deviation from a target volume (or area/length in 2D/1D): if the volume is
+ * lower than a given fraction of the target volume, the G1 phase continues. The target volume and the critical fraction
+ * are indicated in the user's Test file, and compared to the real volumes stored in "CellwiseData", a singleton class.
+ * This model allows for quiescence imposed by transient periods of high stress, followed by relaxation. Note that
+ * in this cell cycle model, quiescence is implemented only by extending the G1 phase. Therefore, if a cell
  * is compressed during G2 or S phases then it will still divide, and thus cells whose volumes are smaller
  * than the given threshold may still divide.
  */
@@ -81,11 +76,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /*
  * The next header is the simulation class corresponding to the contact inhibition cell-cycle model. The essential
- * difference with other simulators is that the CellWiseData is updated with the volues of the volumes of each cell.
+ * difference with other simulators is that "CellWiseData" is updated with the volumes of the Voronoi elements representing
+ *  each cell.
  */
 #include "ContactInhibitionOffLatticeSimulation.hpp"
-/* The remaining header files define classes that will be used in the cell population
- * simulation test. */
+/* The remaining header files define classes that will be also be used and are presented in other tutorials. */
 #include "MeshBasedCellPopulation.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -97,9 +92,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "PlaneBoundaryCondition.hpp"
 
-
-
-
+/* We first define the global test class that inherits from "CxxTest::TestSuite". */
 
 class TestSimpleCellCycleModels : public CxxTest::TestSuite
 {
@@ -117,7 +110,7 @@ public:
          * ''singleton'' class; this means one and only
          * one of each of this object is instantiated at any time, and that single
          * object is accessible from anywhere in the code. As a result, we do not need
-         * to keep passing round the current time. */
+         * to keep passing around the current time. */
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
 
@@ -156,20 +149,21 @@ public:
             cells.push_back(p_cell);
         }
 
-    	/* We now create of cell population, that takes the mesh (for the position) and the vector of cell pointers
-    	 * (for the cycle and state).
+    	/* We now create a cell population, that takes several inputs: the mesh (for the position) and
+    	 * the vector of cell pointers (for cycles and states).
+    	 *
     	 */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* Next, we create a force (springs) to be applied between cells with a given cut-off length.
+        /* Next, we create a force (springs) to be applied between cells and set up a
+         * cut-off length beyond which cells stop interacting.
          *
          */
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
         p_force->SetCutOffLength(1.5);
 
-        /*  To store the volumes of the cells that are used for the contact inhibition, we use CellWiseData.
-         * This is a singleton class that is easily accessible during the simulation to get the volumes.
-         * Here, we just initialize it with one variable and associate it with the cell population:
+        /*  To keep track of the volumes of the cells that are used in the contact inhibition cell-cycle,
+         *  we use the singleton class "CellWiseData". Here, we just initialise it with one variable and associate it with the cell population:
          */
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
@@ -181,7 +175,7 @@ public:
         }
 
         /*  Then, we define the contact inhibition simulator, that automatically updates the volumes of the cells
-         * in CellWiseData. We also set up the output directory, the end time and pass the forces to the simulator.
+         * in "CellWiseData". We also set up the output directory, the end time and pass the forces to the simulator.
          *
          */
         ContactInhibitionOffLatticeSimulation<2> simulator(cell_population);
@@ -189,8 +183,9 @@ public:
         simulator.SetEndTime(100.0);
         simulator.AddForce(p_force);
 
-        /*  To study the behaviour of the cells with varying volume, we trap them in a box. To do that, we
-		 * use 4 plane boundary conditions and pass it to the simulator:
+        /*  To study the behaviour of the cells with varying volume, we trap them in a box, i.e., between
+		 *  4 plane boundary conditions. These planes are indicated by a point and a normal and then passed
+		 *  to the simulator:
 		 */
 		c_vector<double,2> point = zero_vector<double>(2);
 		c_vector<double,2> normal = zero_vector<double>(2);
@@ -250,9 +245,9 @@ public:
      */
     void TestBoxMixContactInhibitionCellCycleModel()
        {
-    	/* Set up SimulationTime
-    	 *
-    	 */
+    	  /* Set up SimulationTime
+    	   *
+    	   */
            SimulationTime* p_simulation_time = SimulationTime::Instance();
            p_simulation_time->SetStartTime(0.0);
 
@@ -269,7 +264,7 @@ public:
            std::vector<CellPtr> cells;
 
            /* Create cell cycle. The difference here is that one of the cell is not contact inhibited, but rather
-            * has a stochastic duration generation cell-cycle model.
+            * is define by a stochastic duration generation cell-cycle model.
             *
             */
            for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -310,7 +305,7 @@ public:
            MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
            p_force->SetCutOffLength(1.5);
 
-           /* Create a singleton class to store the volume of the cells and initialize it
+           /* Create a singleton class to store the volume of the cells and initialise it
             *
             */
            CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -370,4 +365,4 @@ public:
 
        }
 };
-#endif /*TESTCREATINGANDUSINGANEWCELLCYCLEMODELTUTORIAL_HPP_*/
+#endif /*TESTCREATINGANDUSINGACONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_*/
