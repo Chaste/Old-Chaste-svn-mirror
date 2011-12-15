@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * == Introduction ==
  *
  * In this tutorial, we will show how to use a simple implementation of the contact inhibition cell-cycle mode,
- * that stops cells division when the volume of the cell is smaller than a critical value.
+ * that stops cell division when the volume of the cell is smaller than a critical value.
  * We consider 2-D configurations for which cells are trapped in a square box. Firstly, all the cells are contact
  * inhibited and we study the effect of the critical volume upon the global cell density. Secondly, we consider
  * a mix of normal cells (contact inhibited) and tumour cells (not inhibited) and study the growth of the
@@ -63,10 +63,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 /*
- * The next header file defines the contact inhibition cell-cycle model that inherits from "AbstractSimpleCellCycleModel".
+ * The next header file defines the contact inhibition cell-cycle model that inherits from {{{AbstractSimpleCellCycleModel}}}.
  * The duration of the G1 phase depends on the deviation from a target volume (or area/length in 2D/1D): if the volume is
  * lower than a given fraction of the target volume, the G1 phase continues. The target volume and the critical fraction
- * are indicated in the user's Test file, and compared to the real volumes stored in "CellwiseData", a singleton class.
+ * are indicated in the user's Test file, and compared to the real volumes stored in {{{CellwiseData}}}, a singleton class.
  * This model allows for quiescence imposed by transient periods of high stress, followed by relaxation. Note that
  * in this cell cycle model, quiescence is implemented only by extending the G1 phase. Therefore, if a cell
  * is compressed during G2 or S phases then it will still divide, and thus cells whose volumes are smaller
@@ -76,7 +76,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /*
  * The next header is the simulation class corresponding to the contact inhibition cell-cycle model. The essential
- * difference with other simulators is that "CellWiseData" is updated with the volumes of the Voronoi elements representing
+ * difference with other simulators is that {{{CellWiseData}}} is updated with the volumes of the Voronoi elements representing
  *  each cell.
  */
 #include "ContactInhibitionOffLatticeSimulation.hpp"
@@ -92,7 +92,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "PlaneBoundaryCondition.hpp"
 
-/* We first define the global test class that inherits from "CxxTest::TestSuite". */
+/* We first define the global test class that inherits from {{{CxxTest::TestSuite}}}. */
 
 class TestSimpleCellCycleModels : public CxxTest::TestSuite
 {
@@ -163,7 +163,7 @@ public:
         p_force->SetCutOffLength(1.5);
 
         /*  To keep track of the volumes of the cells that are used in the contact inhibition cell-cycle,
-         *  we use the singleton class "CellWiseData". Here, we just initialise it with one variable and associate it with the cell population:
+         *  we use the singleton class {{{CellWiseData}}}. Here, we just initialise it with one variable and associate it with the cell population:
          */
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
@@ -175,7 +175,7 @@ public:
         }
 
         /*  Then, we define the contact inhibition simulator, that automatically updates the volumes of the cells
-         * in "CellWiseData". We also set up the output directory, the end time and pass the forces to the simulator.
+         * in {{{CellWiseData}}}. We also set up the output directory, the end time and pass the forces to the simulator.
          *
          */
         ContactInhibitionOffLatticeSimulation<2> simulator(cell_population);
