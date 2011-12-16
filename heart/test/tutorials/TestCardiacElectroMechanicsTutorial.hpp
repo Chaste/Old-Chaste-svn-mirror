@@ -101,6 +101,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "CompressibleMooneyRivlinMaterialLaw.hpp"
+#include "NobleVargheseKohlNoble1998WithSac.hpp"
+#include "Hdf5ToMeshalyzerConverter.hpp"
+#include "ZeroStimulusCellFactory.hpp"
 
 /*
  * == IMPORTANT: using HYPRE ==
@@ -260,9 +263,12 @@ public:
          * 'INCOMPRESSIBLE's to 'COMPRESSIBLE'. (Note that this leads to a completely different type
          * of problem, and a completely different type of solver - the incompressible problem involves
          * solving for displacement and pressure, and mixed formulations and saddle-point problems,
-         * the compressible problem does not. The default compressible material law is an exponential
-         * law. To pass in your own choice of material law, call `SetMaterialLaw()`. Compressible problems
-         * are far less computationally-demanding.
+         * the compressible problem does not. Compressible problems  are far less computationally-demanding).
+         * A compressible example is given later in this tutorial.
+         *
+         * The default incompressible material law is the pole-zero law, and the default
+         * compressible material law is an exponential law. To pass in your own choice of
+         * material law, call `SetMaterialLaw()`, as in a normal solid mechanics simulation.
          */
         CompressibleMooneyRivlinMaterialLaw<2> law(2.0,1.0); // random (non-cardiac) material law
         problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
@@ -273,10 +279,11 @@ public:
          * in simple propagation problems - see "A numerical method for cardiac mechano-electric simulations",
          * Annals of Biomedical Engineering). To set the solver to use either of these, do, for example */
         problem_defn.SetDeformationAffectsElectrophysiology(false /*deformation affects conductivity*/, true /*deformation affects cell models*/);
-        /* before calling `problem.Solve()`. Note that (i) the electrics solve will slow down, since the linear system matrix now
-         * varies with time (as conductivities depend on deformation), and has to be recomputed after every mechanics update; and
-         * (ii) if you want a cell model that includes SAC you have to implement one. There is a single example of this in
-         * the code base at the moment, see  `heart/src/odes/ionicmodels/NobleVargheseKohlNoble1998WithSac.hpp`.*
+        /* before calling `problem.Solve()`. Deformation affecting cell models is described in more detail
+         * later in this tutorial. For deformation affecting conductivity, note that the electrics solve will
+         * slow down, since the linear system matrix now varies with time (as conductivities depend
+         * on deformation), and has to be recomputed after every mechanics update. The set-up cost in this
+         * case requires optimisation, also.
          *
          * Finally, `SetNoElectricsOutput` is a method that is sometimes useful with a fine electrics mesh. */
         problem.SetNoElectricsOutput();
@@ -303,7 +310,7 @@ public:
      * this to an incompressible solve.
      *
      * This test shows how to do 3d simulations (trivial changes), and how to pass in
-     * fibre directions for the mechanics mesh.
+     * fibre directions for the mechanics mesh. It also uses a compressible law.
      */
     void dontTestTwistingCube() throw(Exception)
     {
@@ -339,12 +346,54 @@ public:
          * Fibre files should be .ortho type files (not .axi), since the sheet direction is used in the default material
          * law (see file formats documentation if you haven't come across these files, basically .axi files specify the
          * fibre directions; .ortho the fibre sheet and normal directions). For mechanics problems, the .ortho file
-         * can be used to either define the fibre information PER-ELEMENT or PER-QUADRATURE-POINT (ie all the quad points
-         * in all the elements). The latter provides a higher resolution description of fibres. Here we use the latter, just
-         * because it is the harder case. The `true` below the problem class tells the class the fibres are defined per quad
-         * point. To see how this data file was generated, see below. */
-        problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres_by_quadpt.orthoquad", true);
+         * can be used to either define the fibre information PER-ELEMENT or PER-QUADRATURE-POINT (ie all the quadrature points
+         * in all the elements). The latter provides a higher resolution description of fibres.
+         * 
+         * In this tutorial, we will generate both types of fibre files, using our own choice of fibre fibre for the cubic tissue.
+         * To generate a fibre file prescribing fibres that depend on the X-coordinate, one fibre definition per element, 
+         * we can do: 
+         */
+        OutputFileHandler handler("TutorialFibreFiles");      
+        out_stream p_file = handler.OpenOutputFile("5by5by5_fibres.ortho");
+        
+        *p_file << mechanics_mesh.GetNumElements() << "\n"; // first line is number of entries
+        for(unsigned i=0; i<mechanics_mesh.GetNumElements(); i++)
+        {
+            double X = mechanics_mesh.GetElement(i)->CalculateCentroid()(0);
+            double theta = M_PI/3 - 10*X*2*M_PI/3; // 60 degrees when X=0, -60 when X=0.1;
+            *p_file <<  "0 " << cos(theta)  << " " << sin(theta)  // first three entries are fibre direction
+                    << " 0 " << -sin(theta) << " " << cos(theta)  // next three are sheet direction
+                    << " 1 0 0\n";                                // then normal to sheet direction
+        }
+        p_file->close();
+        /* This will generate a file, TutorialFibreFiles/5by5by5_fibres.ortho. Note that out_streams are essentially
+         * pointers to a C++ ofstream.
+         * 
+         * More advanced: we can also generate the same type of file, but where there is one line for each quadrature point. 
+         * By default there are, per element, 3 quadrature points in each direction, so in this 3D problem there are
+         * (3^3)*num_elem quadrature points. Here's how we can obtain their positions, and therefore set-up the analagous 
+         * fibre file, which we name similarly to the above but change the extension. */
+        out_stream p_file2 = handler.OpenOutputFile("5by5by5_fibres.orthoquad");
 
+        GaussianQuadratureRule<3> quad_rule(3); // the second 3 is is the number of quad points in each direction
+        QuadraturePointsGroup<3> quad_points(mechanics_mesh, quad_rule);
+
+        *p_file2 << quad_points.Size() << "\n";
+        for(unsigned i=0; i<quad_points.Size(); i++)
+        {
+            double X = quad_points.Get(i)(0);
+            double theta = M_PI/3 - 10*X*2*M_PI/3;
+            *p_file2 <<  "0 " << cos(theta)  << " " << sin(theta)
+                     << " 0 " << -sin(theta) << " " << cos(theta)
+                     << " 1 0 0\n";
+        }
+        p_file2->close();
+
+
+        /* In user code you could now copy the files from CHASTE_TESTOUTPUT into the main Chaste directory (eg by doing
+         * `system("cp ...");` These fibre files have already been copied into the repository. Let's load the `.orthoquad` file.
+         */
+        problem_defn.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres.orthoquad", true);
 
         /* Create the problem object */
         CardiacElectroMechanicsProblem<3> problem(COMPRESSIBLE,
@@ -357,30 +406,156 @@ public:
 
 
         /* Now call `Solve`. This will take a while to run, so watch progress using the log file to estimate when
-         * it will finish. `build=GccOpt_ndebug` will speed this up by a factor of about 5.
+         * it will finish. `build=GccOpt_ndebug` will speed this up by a factor of about 5. Visualise in Cmgui as usual.
          */
         problem.Solve();
+    }
 
+    /* == Mechano-electric feedback, and alternative boundary conditions ==
+     * 
+     * Let us now run a simulation with mechano-electric feedback (MEF), and with different boundary conditions.
+     */
+    void TestWithMef() throw(Exception)
+    {
+        /* If we want to use MEF, where the stretch (in the fibre-direction) couples back to the cell
+         * model and is used in stretch-activated channels (SACs), we can't just let Chaste convert
+         * from cellml to C++ code as usual (see electro-physiology tutorials on how cell model files
+         * are autogenerated from CellML during compilation), since these files don't use stretch and don't
+         * have SACs. We have to use pycml to create a cell model class for us, rename and save it, and
+         * manually add the SAC current.
+         *
+         * There is one example of this already in the code-base, which we will use it the following
+         * simulation. It is the Noble 98 model, which a SAC added that depends linearly on stretches (>1).
+         * It is found in the file NobleVargheseKohlNoble1998WithSac.hpp, and is called
+         * CML_noble_varghese_kohl_noble_1998_basic_with_sac.
+         *
+         * To add a SAC current to (or otherwise alter) your favourite cell model, you have to do the following.
+         * Auto-generate the C++ code, by running the following on the cellml file:
+         * `./python/ConvertCellModel.py heart/src/odes/cellml/LuoRudy1991.cellml`
+         * (see ChasteGuides/CodeGenerationFromCellML#Usingthehelperscript if you want further
+         * documentation on this script).
+         *
+         * Copy and rename the resultant .hpp and .cpp files (which can be found in the same folder as the
+         * input cellml). For example, rename everything to `LuoRudy1991WithSac`. Then alter the class
+         * to overload the method `AbstractCardiacCell::SetStretch(double stretch)` to store the stretch,
+         * and then implement the SAC in the `GetIIonic()` method.  `CML_noble_varghese_kohl_noble_1998_basic_with_sac`
+         * provides an example of the changes that need to be made.
+         *
+         * Let us create a cell factory returning these Noble98 SAC cells, but with no stimulus - the
+         * SAC switching on will lead be to activation.
+         */
+        ZeroStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory;
 
-        /* The way the fibre file was created is given here. After defining the mechanics mesh, do: */
-        //GaussianQuadratureRule<3> quad_rule(3);
-        //QuadraturePointsGroup<3> quad_points(mechanics_mesh, quad_rule);
-        //std::cout << quad_points.Size() << "\n";
-        //for(unsigned i=0; i<quad_points.Size(); i++)
-        //{
-        //    ////std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << quad_points.Get(i)(2) << " ";
-        //    double x = quad_points.Get(i)(0);
-        //    double theta = M_PI/3 - 10*x*2*M_PI/3; // 60 degrees when x=0, -60 when x=0.1;
-        //    std::cout <<  "0 " << cos(theta)  << " " << sin(theta)
-        //              << " 0 " << -sin(theta) << " " << cos(theta)
-        //              << " 1 0 0\n";
-        //}
-        /* For creating a fibre file with fibres '''for each element instead''', we could have done */
-        //for(unsigned i=0; i<mechanics_mesh.GetNumElements(); i++)
-        //{
-        //    double X = mechanics_mesh.GetElement(i)->CalculateCentroid()(0);
-        //    //etc
-        //}
+        /* Construct two meshes are before, in 2D */
+        TetrahedralMesh<2,2> electrics_mesh;
+        electrics_mesh.ConstructRegularSlabMesh(0.01/*stepsize*/, 0.1/*length*/, 0.1/*width*/, 0.1/*depth*/);
+
+        QuadraticMesh<2> mechanics_mesh;
+        mechanics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1, 0.1 /*as above with a different stepsize*/);
+
+        /* Collect the fixed nodes. This time we directly specify the new locations. We say the
+         * nodes on X=0 are to be fixed, setting the deformed x=0, but leaving y to be free
+         * (sliding boundary conditions). This functionality is described in more detail in the
+         * solid mechanics tutorials.
+         */
+        std::vector<unsigned> fixed_nodes;
+        std::vector<c_vector<double,2> > fixed_node_locations;
+
+        fixed_nodes.push_back(0);
+        fixed_node_locations.push_back(zero_vector<double>(2));
+
+        for(unsigned i=1; i<mechanics_mesh.GetNumNodes(); i++)
+        {
+            double X = mechanics_mesh.GetNode(i)->rGetLocation()[0];
+            if(fabs(X) < 1e-6) // ie, if X==0
+            {
+                c_vector<double,2> new_position;
+                new_position(0) = 0.0;
+                new_position(1) = ElectroMechanicsProblemDefinition<2>::FREE;
+
+                fixed_nodes.push_back(i);
+                fixed_node_locations.push_back(new_position);
+            }
+        }
+
+        /* Now specify tractions on the top and bottom surfaces. For full descriptions of how
+         * to apply tractions see the solid mechanics tutorials. Here, we collect the boundary
+         * elements on the bottom and top surfaces, and apply inward tractions - this will have the
+         * effect of stretching the tissue in the X-direction.
+         */
+        std::vector<BoundaryElement<1,2>*> boundary_elems;
+        std::vector<c_vector<double,2> > tractions;
+
+        c_vector<double,2> traction;
+
+        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = mechanics_mesh.GetBoundaryElementIteratorBegin();
+             iter != mechanics_mesh.GetBoundaryElementIteratorEnd();
+             ++iter)
+        {
+            if (fabs((*iter)->CalculateCentroid()[1] - 0.0) < 1e-6) // if Y=0
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+
+                traction(0) =  0.0; // kPa, since the contraction model and material law use kPa for stiffnesses
+                traction(1) =  1.0; // kPa, since the contraction model and material law use kPa for stiffnesses
+                tractions.push_back(traction);
+            }
+            if (fabs((*iter)->CalculateCentroid()[1] - 0.1) < 1e-6) // if Y=0.1
+            {
+                BoundaryElement<1,2>* p_element = *iter;
+                boundary_elems.push_back(p_element);
+
+                traction(0) =  0.0;
+                traction(1) = -1.0;
+                tractions.push_back(traction);
+            }
+        }
+
+        /* Now set up the problem. We will use a compressible approach. */
+        ElectroMechanicsProblemDefinition<2> problem_defn(mechanics_mesh);
+        problem_defn.SetContractionModel(KERCHOFFS2003,0.01/*contraction model ODE timestep*/);
+        problem_defn.SetUseDefaultCardiacMaterialLaw(INCOMPRESSIBLE);
+        problem_defn.SetMechanicsSolveTimestep(1.0);
+        /* Set the fixed node and traction info. */
+        problem_defn.SetFixedNodes(fixed_nodes, fixed_node_locations);
+        problem_defn.SetTractionBoundaryConditions(boundary_elems, tractions);
+
+        /* Now say that the deformation should affect the electro-physiology */
+        problem_defn.SetDeformationAffectsElectrophysiology(false /*deformation affects conductivity*/, true /*deformation affects cell models*/);
+
+        /* Set the end time, create the problem, and solve */
+        HeartConfig::Instance()->SetSimulationDuration(50.0);
+
+        CardiacElectroMechanicsProblem<2> problem(INCOMPRESSIBLE,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  &cell_factory,
+                                                  &problem_defn,
+                                                  "TestCardiacElectroMechanicsWithMef");
+        problem.Solve();
+
+        /* Visualise as usual, using Cmgui. By visualising the voltage on the deforming mesh, you can see that the
+         * voltage gradually increases due to the SAC, since the tissue is stretched, until the threshold is reached
+         * and activation occurs.
+         *
+         * For MEF simulations, we may want to visualise the electrical results on the electrics mesh using
+         * meshalyzer, for example to more easily visualise action potentials. This isn't (and currently
+         * can't be) created by `CardiacElectroMechanicsProblem`. We can use a converter as follows
+         * to post-process:
+         */
+        Hdf5ToMeshalyzerConverter<2,2> converter("TestCardiacElectroMechanicsWithMef/electrics", "voltage", &electrics_mesh, false);
+        /* Some final notes. If you want to apply time-dependent traction boundary conditions, this is possible by
+         * specifying the traction in functional form - see solid mechanics tutorials. Similarly,
+         * specifying a pressure to act in the normal direction on the deformed body is also possible (tractions
+         * have a fixed direction).
+         *
+         * Sometimes the nonlinear solver doesn't converge, and will give an error. This can be due to either
+         * a non-physical (or not very physical) situation, or just because the current guess is quite far
+         * from the solution and the solver can't find the solution (this can occur in nonlinear elasticity
+         * problems if the loading is large, for example). Current work in progress is on making the solver
+         * more robust, and also on parallelising the solver.
+         */
     }
 };
 
