@@ -536,7 +536,11 @@ public:
                                                   "TestCardiacElectroMechanicsWithMef");
         problem.Solve();
 
-        /* Visualise as usual, using Cmgui. By visualising the voltage on the deforming mesh, you can see that the
+        /* Nothing exciting happens in the simulation as it is currently written. To get some interesting occurring,
+         * alter the SAC conductance in the cell model from 0.035 to 0.35 (mirco-Siemens).
+         * (look for the line `const double g_sac = 0.035` in `NobleVargheseKohlNoble1998WithSac.hpp`).
+         *
+         * Rerun and visualise as usual, using Cmgui. By visualising the voltage on the deforming mesh, you can see that the
          * voltage gradually increases due to the SAC, since the tissue is stretched, until the threshold is reached
          * and activation occurs.
          *
