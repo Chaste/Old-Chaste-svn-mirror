@@ -228,6 +228,7 @@ public:
             {
                 unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
                 TS_ASSERT_LESS_THAN(cell_population.GetVolumeOfVoronoiElement(node_index), 0.51);
+                PRINT_VARIABLE(cell_population.GetVolumeOfVoronoiElement(node_index));
             }
 
         /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */

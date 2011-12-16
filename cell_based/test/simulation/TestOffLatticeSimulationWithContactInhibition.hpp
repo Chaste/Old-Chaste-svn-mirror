@@ -52,7 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "OutputFileHandler.hpp"
 #include "MutableMesh.hpp"
-#include "PlaneBoundaryCondition.hpp"
 #include "Warnings.hpp"
 
 class TestContactInhibitionOffLatticeSimulation : public CxxTest::TestSuite
@@ -66,7 +65,7 @@ public:
           p_simulation_time->SetStartTime(0.0);
 
           // Create a simple mesh
-          HoneycombMeshGenerator generator(2, 2, 1);
+          HoneycombMeshGenerator generator(2, 2, 0);
           MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
           // Create cell state
@@ -75,7 +74,7 @@ public:
 
           for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
           {
-              ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+            ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
             p_cycle_model->SetCellProliferativeType(STEM);
             p_cycle_model->SetDimension(2);
             p_cycle_model->SetBirthTime(-10.0);
@@ -108,49 +107,22 @@ public:
 
           // Create a contact inhibition simulator
           ContactInhibitionOffLatticeSimulation<2> simulator(cell_population);
-          simulator.SetOutputDirectory("TestOffLatticeBoxWithContactInhibition");
-          simulator.SetEndTime(15.0);
+          simulator.SetOutputDirectory("TestOffLatticeWithContactInhibition");
+          simulator.SetEndTime(1.0);
           simulator.AddForce(p_force);
 
-          // Create some boundary conditions and pass them to the simulation
-          c_vector<double,2> point = zero_vector<double>(2);
-          c_vector<double,2> normal = zero_vector<double>(2);
-          point(0) = -2.0;
-          point(1) = 0.0;
-          normal(0) = -1.0;
-          normal(1) = 0.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>-2
-          simulator.AddCellPopulationBoundaryCondition(p_bc1);
-          point(0) = 2.5;
-          point(1) = 0.0;
-          normal(0) = 1.0;
-          normal(1) = 0.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<2.5
-          simulator.AddCellPopulationBoundaryCondition(p_bc2);
-          point(0) = 0.0;
-          point(1) = -1.0;
-          normal(0) = 0.0;
-          normal(1) = -1.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>-1
-          simulator.AddCellPopulationBoundaryCondition(p_bc3);
-          point(0) = 0.0;
-          point(1) = 2.0;
-          normal(0) = 0.0;
-          normal(1) = 1.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2
-          simulator.AddCellPopulationBoundaryCondition(p_bc4);
-
           // Run simulation
-          simulator.Solve();
+          TS_ASSERT_THROWS_NOTHING(simulator.Solve());
 
-          // Test that the volumes of the cells are correct
+          // Test that the volumes of the cells are correct in CellWiseData
           cell_population.CreateVoronoiTessellation();
+
           for (MeshBasedCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
                    cell_iter != cell_population.End();
                    ++cell_iter)
             {
                 unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
-                TS_ASSERT_LESS_THAN(cell_population.GetVolumeOfVoronoiElement(node_index), 0.71);
+                TS_ASSERT_DELTA(cell_population.GetVolumeOfVoronoiElement(node_index), p_data->GetValue(*cell_iter,0),1e-4);
             }
 
           // Tidy up
@@ -168,7 +140,7 @@ public:
 			p_simulation_time->SetStartTime(0.0);
 
 			// Create a simple mesh
-			HoneycombMeshGenerator generator(2, 2, 1);
+			HoneycombMeshGenerator generator(2, 2, 0);
 			MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
 			// Create cell state
@@ -220,8 +192,8 @@ public:
 
             CellBasedSimulationArchiver<2, ContactInhibitionOffLatticeSimulation<2> >::Save(&simulator);
 
-            TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 16u);
-            TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->GetNumRealCells(), 16u);
+            TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 4u);
+            TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->GetNumRealCells(), 4u);
 
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.01, 1e-9);
             CellPtr p_cell = simulator.rGetCellPopulation().GetCellUsingLocationIndex(3);
@@ -236,8 +208,8 @@ public:
 
             p_simulator->SetEndTime(0.2);
 
-            TS_ASSERT_EQUALS(p_simulator->rGetCellPopulation().GetNumRealCells(), 16u);
-            TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation())))->GetNumRealCells(), 16u);
+            TS_ASSERT_EQUALS(p_simulator->rGetCellPopulation().GetNumRealCells(), 4u);
+            TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation())))->GetNumRealCells(), 4u);
 
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.01, 1e-9);
             CellPtr p_cell2 = p_simulator->rGetCellPopulation().GetCellUsingLocationIndex(3);
