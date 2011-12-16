@@ -26,27 +26,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ContactInhibitionOffLatticeSimulation.hpp"
+#include "VolumeTrackedMeshBasedSimulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
 #include "CellwiseData.hpp"
 #include "ContactInhibitionCellCycleModel.hpp"
 #include "CellBasedEventHandler.hpp"
 
 template<unsigned DIM>
-ContactInhibitionOffLatticeSimulation<DIM>::ContactInhibitionOffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
+VolumeTrackedMeshBasedSimulation<DIM>::VolumeTrackedMeshBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                                                                   bool deleteCellPopulationInDestructor,
                                                                   bool initialiseCells)
     : OffLatticeSimulation<DIM>(rCellPopulation, deleteCellPopulationInDestructor, initialiseCells)
 {
+//    if (!dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
+//    {
+//        EXCEPTION("VolumeTrackedMeshBasedSimulation require a subclass of MeshBasedCellPopulation.");
+//    }
 }
 
 template<unsigned DIM>
-ContactInhibitionOffLatticeSimulation<DIM>::~ContactInhibitionOffLatticeSimulation()
+VolumeTrackedMeshBasedSimulation<DIM>::~VolumeTrackedMeshBasedSimulation()
 {
 }
 
 template<unsigned DIM>
-void ContactInhibitionOffLatticeSimulation<DIM>::PostSolve()
+void VolumeTrackedMeshBasedSimulation<DIM>::PostSolve()
 {
     assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
 
@@ -74,10 +78,10 @@ void ContactInhibitionOffLatticeSimulation<DIM>::PostSolve()
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class ContactInhibitionOffLatticeSimulation<1>;
-template class ContactInhibitionOffLatticeSimulation<2>;
-template class ContactInhibitionOffLatticeSimulation<3>;
+template class VolumeTrackedMeshBasedSimulation<1>;
+template class VolumeTrackedMeshBasedSimulation<2>;
+template class VolumeTrackedMeshBasedSimulation<3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(ContactInhibitionOffLatticeSimulation)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VolumeTrackedMeshBasedSimulation)

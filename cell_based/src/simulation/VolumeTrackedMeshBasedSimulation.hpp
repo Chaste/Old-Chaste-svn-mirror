@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef CONTACTINHIBITIONOFFLATTICESIMULATION_HPP_
-#define CONTACTINHIBITIONOFFLATTICESIMULATION_HPP_
+#ifndef VOLUMETRACKEDMESHBASEDSIMULATION_HPP_
+#define VOLUMETRACKEDMESHBASEDSIMULATION_HPP_
 
 #include <map>
 #include "ChasteSerialization.hpp"
@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //\todo implement other populations
 
 template<unsigned DIM>
-class ContactInhibitionOffLatticeSimulation : public OffLatticeSimulation<DIM>
+class VolumeTrackedMeshBasedSimulation : public OffLatticeSimulation<DIM>
 {
 private :
 
@@ -79,18 +79,18 @@ public:
      *     free up memory (defaults to false)
      * @param initialiseCells whether to initialise cells (defaults to true, set to false when loading from an archive)
      */
-     ContactInhibitionOffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
+     VolumeTrackedMeshBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                                    bool deleteCellPopulationInDestructor=false,
                                    bool initialiseCells=true);
 
      /**
       * Destructor.
       */
-    ~ContactInhibitionOffLatticeSimulation();
+    ~VolumeTrackedMeshBasedSimulation();
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(ContactInhibitionOffLatticeSimulation)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VolumeTrackedMeshBasedSimulation)
 
 namespace boost
 {
@@ -98,7 +98,7 @@ namespace serialization
 {
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const ContactInhibitionOffLatticeSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const VolumeTrackedMeshBasedSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     const AbstractCellPopulation<DIM> * p_cell_population = &(t->rGetCellPopulation());
     ar & p_cell_population;
@@ -106,14 +106,14 @@ inline void save_construct_data(
 
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, ContactInhibitionOffLatticeSimulation<DIM> * t, const unsigned int file_version)
+    Archive & ar, VolumeTrackedMeshBasedSimulation<DIM> * t, const unsigned int file_version)
 {
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
 
-    ::new(t)ContactInhibitionOffLatticeSimulation<DIM>(*p_cell_population, true, false);
+    ::new(t)VolumeTrackedMeshBasedSimulation<DIM>(*p_cell_population, true, false);
 }
 }
 } // namespace ...
 
-#endif /*CONTACTINHIBITIONOFFLATTICESIMULATION_HPP_*/
+#endif /*VOLUMETRACKEDMESHBASEDSIMULATION_HPP_*/

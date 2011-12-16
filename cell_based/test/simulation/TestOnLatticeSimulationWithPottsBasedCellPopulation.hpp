@@ -123,7 +123,7 @@ public:
 
         // Try to set up off lattice simulation
         TS_ASSERT_THROWS_THIS(OffLatticeSimulation<2> simulator(potts_based_cell_population),
-            "OnLatticeSimulations require a subclass of AbstractOffLatticeCellPopulation.");
+            "OffLatticeSimulations require a subclass of AbstractOffLatticeCellPopulation.");
     }
 
     void TestPottsMonolayerWithNoBirthOrDeath() throw (Exception)

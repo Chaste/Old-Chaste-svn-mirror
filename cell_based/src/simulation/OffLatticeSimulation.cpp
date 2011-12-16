@@ -48,7 +48,7 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
 {
     if (!dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(&rCellPopulation))
     {
-        EXCEPTION("OnLatticeSimulations require a subclass of AbstractOffLatticeCellPopulation.");
+        EXCEPTION("OffLatticeSimulations require a subclass of AbstractOffLatticeCellPopulation.");
     }
 
     // Different time steps are used for cell-centre and vertex-based simulations
