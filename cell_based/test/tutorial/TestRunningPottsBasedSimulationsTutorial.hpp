@@ -89,13 +89,14 @@ class TestRunningPottsBasedSimulationsTutorial : public CxxTest::TestSuite
 public:
     /* EMPTYLINE
     *
-    * == Test 1 - a basic vertex-based simulation ==
+    * == Test 1 - a basic Potts-based simulation ==
     *
     * EMPTYLINE
     *
     * In the first test, we run a simple Potts-based simulation, in which we create a monolayer
     * of cells, using a Potts mesh. Each cell is assigned a fixed cell-cycle model.
     */
+
     void TestMonolayerFixedCellCycle() throw(Exception)
     {
         /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
