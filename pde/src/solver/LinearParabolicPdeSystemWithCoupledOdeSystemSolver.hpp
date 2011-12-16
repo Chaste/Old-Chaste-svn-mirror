@@ -216,11 +216,6 @@ public:
      * @param numTimeStepsElapsed the number of timesteps that have elapsed
      */
     void WriteVtkResultsToFile(Vec solution, unsigned numTimeStepsElapsed);
-
-    /**
-     * @return mInitialCondition
-     */
-    Vec GetInitialCondition();
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -464,6 +459,10 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     {
         EXCEPTION("SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
     }
+    if (!this->mInitialCondition)
+    {
+        EXCEPTION("SetInitialCondition() must be called prior to SolveAndWriteResultsToFile()");
+    }
 
 #ifdef CHASTE_VTK
     // Create a .pvd output file
@@ -474,7 +473,8 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << "    <Collection>\n";
 
     // Write initial condition to VTK
-    WriteVtkResultsToFile(this->mInitialCondition, 0);
+    Vec initial_condition = this->mInitialCondition;
+    WriteVtkResultsToFile(initial_condition, 0);
 
     // The helper class TimeStepper deals with issues such as small final timesteps so we don't have to
     TimeStepper stepper(this->mTstart, this->mTend, mSamplingTimeStep);
@@ -489,6 +489,10 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         Vec soln = this->Solve();
 
         // Reset the initial condition for the next timestep
+        if (this->mInitialCondition != initial_condition)
+        {
+            VecDestroy(this->mInitialCondition);
+        }
         this->mInitialCondition = soln;
 
         // Move forward in time
@@ -497,6 +501,13 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         // Write solution to VTK
         WriteVtkResultsToFile(soln, stepper.GetTotalTimeStepsTaken());
     }
+    
+    // Restore saved initial condition to avoid user confusion!
+    if (this->mInitialCondition != initial_condition)
+    {
+        VecDestroy(this->mInitialCondition);
+    }
+    this->mInitialCondition = initial_condition;
 
     // Close .pvd output file
     *mpVtkMetaFile << "    </Collection>\n";
@@ -585,12 +596,6 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     *mpVtkMetaFile << numTimeStepsElapsed;
     *mpVtkMetaFile << ".vtu\"/>\n";
 #endif // CHASTE_VTK
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-Vec LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::GetInitialCondition()
-{
-    return this->mInitialCondition;
 }
 
 #endif /*LINEARPARABOLICPDESYSTEMWITHCOUPLEDODESYSTEMSOLVER_HPP_*/
