@@ -116,7 +116,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * it is vital to change the linear solver to use HYPRE, an algebraic multigrid solver.
  * Without HYRPE, the linear solve (i) may become very very slow; or
  * (ii) may not converge, in which case the nonlinear solve will (probably) not converge. See the comments on using
- * HYPRE in the solid mechanics tutorial.
+ * HYPRE in the first solid mechanics tutorial.
  *
  * == Simple 2d test ==
  *
@@ -125,7 +125,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * sets up a square or cubic geometry for you. Using
  * `CardiacElectroMechProbRegularGeom` is not really recommended, as the functionality
  * it allows is very limited - it is better to use `CardiacElectroMechanicsProblem`, which
- * is shown in the following two tests. We use `CardiacElectroMechProbRegularGeom`
+ * is shown in the following tests. We use `CardiacElectroMechProbRegularGeom`
  * in this first tutorial just to illustrate a simulation with a few lines (four!) of code.
  */
 class TestCardiacElectroMechanicsTutorial : public CxxTest::TestSuite
@@ -144,8 +144,8 @@ public:
          */
         HeartConfig::Instance()->SetSimulationDuration(40.0);
 
-        /* The main solver class for electro-mechanics, equivalent to `MonodomainProblem` or `BidomainProblem`
-         * is `CardiacElectroMechanicsProblem`. We will show how to use this class in the next test. The
+        /* The main solver class for electro-mechanics, equivalent to `MonodomainProblem` or `BidomainProblem`,
+         * is `CardiacElectroMechanicsProblem`. We will show how to use this class in later tests. The
          * subclass of `CardiacElectroMechanicsProblem` called `CardiacElectroMechProbRegularGeom`
          * can be used to quickly set up simulations on a square geometry. It is only present for
          * convenience, and doesn't allow for much flexibility or configurability. The constructor of this
@@ -173,7 +173,7 @@ public:
          * law is the default incompressible material law (pole-zero), the fibre direction is by default
          * the X-direction, and the fixed nodes are automatically set be those satisfying X=0, ie
          * the left-hand edge. No surface tractions are set. To do something more general, `CardiacElectroMechanicsProblem`
-         * must be used, which is discussed in the second test.
+         * must be used.
          *
          * All we now have to do is call Solve.
          */
@@ -182,8 +182,8 @@ public:
         /* Go to the output directory. There should be log file (which, note, can be used to watch progress
          * during a simulation), and a directory for the electrics output and the mechanics output. The electrics
          * directory is not the same as when running an electrics solve: the basic HDF5 data is there but
-         * there is no meshalyzer output, and there is always cmgui output of the ''electrics solution downsampled
-         * onto the mechanics mesh''.
+         * there is no meshalyzer output, and there is always cmgui output, including the electrics solution downsampled
+         * onto the mechanics mesh.
          * The deformation output directory contains the deformed solution each timestep in several simple
          * Mtlab-readable files, and a cmgui output directory. The latter has a script for automatically loading
          * all the results.
@@ -198,10 +198,12 @@ public:
          */
     }
 
-    /* Let us repeat the above test using `CardiacElectroMechanicsProblem`. */
+    /* == Same simulation, this time using `CardiacElectroMechanicsProblem` ==
+     *
+     * Let us repeat the above test using `CardiacElectroMechanicsProblem`. */
     void TestCardiacElectroMechanicsExampleAgain() throw(Exception)
     {
-        /* These two lines are as above */
+        /* This lines is as above */
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-5000*1000);
 
         /* Create two meshes, one for the electrics, one for the mechanics, covering the same
@@ -231,13 +233,11 @@ public:
         std::vector<unsigned> fixed_nodes
             = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh, 0, 0.0); // all the X=0.0 nodes
 
-        /* Create the problem definition class, tell it about the fixed nodes, the contraction model to be used,
+        /* Now we create the problem definition class, tell it about the fixed nodes, the contraction model to be used,
          * that we want to use the default cardiac material law, and the mechanics
          * solve timestep (how often the mechanics is solved). An error would occur if we failed to provide
          * information about any of these. Optional other things that could have been set are gravity, tractions,
-         * and whether to use M.E.F.
-         *
-         * The material law used below is the default incompressible material law, the Pole-Zero law. This is
+         * and whether to use mechano-electric feedback. The material law used below is the default incompressible material law, the Pole-Zero law. This is
          * defined in `continuum_mechanics/src/problem/material_laws/NashHunterPoleZeroLaw`. (All material
          * laws are in this folder). Note that the parameters values in this law are such that the
          * material law is transversely isotropic, so sheet and normal directions do not matter.
@@ -258,8 +258,9 @@ public:
                                                   "TestCardiacElectroMechanicsExample2");
 
         problem.Solve();
-
-        /* Some comments: to use compressibility instead of incompressibility, just change the two
+        /* Visualise as above.
+         *
+         * Some comments: to use compressibility instead of incompressibility, just change the two
          * 'INCOMPRESSIBLE's to 'COMPRESSIBLE'. (Note that this leads to a completely different type
          * of problem, and a completely different type of solver - the incompressible problem involves
          * solving for displacement and pressure, and mixed formulations and saddle-point problems,
@@ -268,7 +269,7 @@ public:
          *
          * The default incompressible material law is the pole-zero law, and the default
          * compressible material law is an exponential law. To pass in your own choice of
-         * material law, call `SetMaterialLaw()`, as in a normal solid mechanics simulation.
+         * material law, call `SetMaterialLaw()`, as in a normal solid mechanics simulation. For example:
          */
         CompressibleMooneyRivlinMaterialLaw<2> law(2.0,1.0); // random (non-cardiac) material law
         problem_defn.SetMaterialLaw(COMPRESSIBLE,&law);
@@ -283,7 +284,7 @@ public:
          * later in this tutorial. For deformation affecting conductivity, note that the electrics solve will
          * slow down, since the linear system matrix now varies with time (as conductivities depend
          * on deformation), and has to be recomputed after every mechanics update. The set-up cost in this
-         * case requires optimisation, also.
+         * case currently requires optimisation, also.
          *
          * Finally, `SetNoElectricsOutput` is a method that is sometimes useful with a fine electrics mesh. */
         problem.SetNoElectricsOutput();
@@ -343,9 +344,9 @@ public:
         /* The default fibre direction is the X-direction (and the default sheet plane is the XY plane). Now we show
          * how this can be changed.
          *
-         * Fibre files should be .ortho type files (not .axi), since the sheet direction is used in the default material
-         * law (see file formats documentation if you haven't come across these files, basically .axi files specify the
-         * fibre directions; .ortho the fibre sheet and normal directions). For mechanics problems, the .ortho file
+         * Fibre files should be .ortho files, not .axi file (see file formats documentation if you haven't come across these files,
+         * basically .axi files specify the fibre directions; .ortho the fibre sheet and normal directions).
+         * For mechanics problems, the .ortho file
          * can be used to either define the fibre information PER-ELEMENT or PER-QUADRATURE-POINT (ie all the quadrature points
          * in all the elements). The latter provides a higher resolution description of fibres.
          * 
@@ -371,7 +372,7 @@ public:
          * 
          * More advanced: we can also generate the same type of file, but where there is one line for each quadrature point. 
          * By default there are, per element, 3 quadrature points in each direction, so in this 3D problem there are
-         * (3^3)*num_elem quadrature points. Here's how we can obtain their positions, and therefore set-up the analagous 
+         * (3^3^)*num_elem quadrature points. Here's how we can obtain their positions, and set-up the analogous
          * fibre file, which we name similarly to the above but change the extension. */
         out_stream p_file2 = handler.OpenOutputFile("5by5by5_fibres.orthoquad");
 
@@ -425,15 +426,15 @@ public:
          * manually add the SAC current.
          *
          * There is one example of this already in the code-base, which we will use it the following
-         * simulation. It is the Noble 98 model, which a SAC added that depends linearly on stretches (>1).
-         * It is found in the file NobleVargheseKohlNoble1998WithSac.hpp, and is called
-         * CML_noble_varghese_kohl_noble_1998_basic_with_sac.
+         * simulation. It is the Noble 98 model, with a SAC added that depends linearly on stretches (>1).
+         * It is found in the file !NobleVargheseKohlNoble1998WithSac.hpp, and is called
+         * `CML_noble_varghese_kohl_noble_1998_basic_with_sac`.
          *
          * To add a SAC current to (or otherwise alter) your favourite cell model, you have to do the following.
          * Auto-generate the C++ code, by running the following on the cellml file:
          * `./python/ConvertCellModel.py heart/src/odes/cellml/LuoRudy1991.cellml`
-         * (see ChasteGuides/CodeGenerationFromCellML#Usingthehelperscript if you want further
-         * documentation on this script).
+         * (see [wiki:ChasteGuides/CodeGenerationFromCellML#Usingthehelperscript ChasteGuides/CodeGenerationFromCellML#Usingthehelperscript]
+         *  if you want further documentation on this script).
          *
          * Copy and rename the resultant .hpp and .cpp files (which can be found in the same folder as the
          * input cellml). For example, rename everything to `LuoRudy1991WithSac`. Then alter the class
