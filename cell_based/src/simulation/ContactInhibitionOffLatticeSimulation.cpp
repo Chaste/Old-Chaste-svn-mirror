@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "ContactInhibitionCellCycleModel.hpp"
 #include "CellBasedEventHandler.hpp"
-#include "Debug.hpp"
 
 template<unsigned DIM>
 ContactInhibitionOffLatticeSimulation<DIM>::ContactInhibitionOffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
