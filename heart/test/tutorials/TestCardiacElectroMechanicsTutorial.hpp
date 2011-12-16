@@ -561,6 +561,19 @@ public:
          * problems if the loading is large, for example). Current work in progress is on making the solver
          * more robust, and also on parallelising the solver.
          */
+
+        /* Ignore the following, it is just to check nothing has changed. */
+        Hdf5DataReader reader("TestCardiacElectroMechanicsWithMef/electrics", "voltage");
+        unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
+        Vec voltage = PetscTools::CreateVec(electrics_mesh.GetNumNodes());
+        reader.GetVariableOverNodes(voltage, "V", num_timesteps-1);
+        ReplicatableVector voltage_repl(voltage);
+        for(unsigned i=0; i<voltage_repl.GetSize(); i++)
+        {
+            TS_ASSERT_DELTA(voltage_repl[i], -81.9142, 1e-3);
+        }
+        VecDestroy(voltage);
+
     }
 };
 
