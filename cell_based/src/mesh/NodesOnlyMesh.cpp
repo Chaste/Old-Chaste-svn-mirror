@@ -56,11 +56,11 @@ void NodesOnlyMesh<SPACE_DIM>::ConstructNodesWithoutMesh(const AbstractMesh<SPAC
 template<unsigned SPACE_DIM>
 void NodesOnlyMesh<SPACE_DIM>::Clear()
 {
-	// Call Clear() on the parent class
-	MutableMesh<SPACE_DIM,SPACE_DIM>::Clear();
+    // Call Clear() on the parent class
+    MutableMesh<SPACE_DIM,SPACE_DIM>::Clear();
 
-	// Clear the cell radii
-	mCellRadii.clear();
+    // Clear the cell radii
+    mCellRadii.clear();
 }
 
 template<unsigned SPACE_DIM>
@@ -98,7 +98,7 @@ void NodesOnlyMesh<SPACE_DIM>::ReMesh(NodeMap& map)
             old_node_locations.push_back(this->mNodes[i]->rGetLocation());
             if (copy_radii)
             {
-            	old_cell_radii.push_back(mCellRadii[i]);
+                old_cell_radii.push_back(mCellRadii[i]);
             }
 
             new_index++;

@@ -43,95 +43,95 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
                 0,
                 pIntracellularStimulus)
     {
-		mpSystemInfo = OdeSystemInformation<CorriasBuistSMCModified>::Instance();
-		mScaleFactorCarbonMonoxide = 1.0; // initialise to 1 --> no effect
-		mFakeIccStimulusPresent = true;//by default we use the fake ICC stimulus
+        mpSystemInfo = OdeSystemInformation<CorriasBuistSMCModified>::Instance();
+        mScaleFactorCarbonMonoxide = 1.0; // initialise to 1 --> no effect
+        mFakeIccStimulusPresent = true;//by default we use the fake ICC stimulus
 
-		/* parameters */
-		Cm = 77.0*1e-6;// 77 pF --> microF
+        /* parameters */
+        Cm = 77.0*1e-6;// 77 pF --> microF
 
-		Asurf_in_cm_square = Cm / HeartConfig::Instance()->GetCapacitance();
-		Asurf = Asurf_in_cm_square / 0.01;//cm2 --> mm2 /*cell surface area (mm2)*/
+        Asurf_in_cm_square = Cm / HeartConfig::Instance()->GetCapacitance();
+        Asurf = Asurf_in_cm_square / 0.01;//cm2 --> mm2 /*cell surface area (mm2)*/
 
-		VolCell   =      3.5e-6;      /*cell volume (mm3)*/
-		hCa       =      2.014e-4;    /*conc for half inactivation of fCa */
-		sCa       =      1.31e-05;    /*slope factor for inactivation of fCa */
+        VolCell   =      3.5e-6;      /*cell volume (mm3)*/
+        hCa       =      2.014e-4;    /*conc for half inactivation of fCa */
+        sCa       =      1.31e-05;    /*slope factor for inactivation of fCa */
 
-		/* concentrations */
-		Ki         =     164.0;       /*intra K conc (mM)*/
-		Nai        =     10.0;        /*intra Na conc (mM)*/
-		ACh        =     1e-05;       /*acetylcholine conc (mM)*/
-		CaiRest    =     0.9e-04;     /*baseline Ca conc (mM)*/
+        /* concentrations */
+        Ki         =     164.0;       /*intra K conc (mM)*/
+        Nai        =     10.0;        /*intra Na conc (mM)*/
+        ACh        =     1e-05;       /*acetylcholine conc (mM)*/
+        CaiRest    =     0.9e-04;     /*baseline Ca conc (mM)*/
 
-		/* maximum conductances*/
-		gLVA_max    =    2.33766E-05; /*max conductance of ILVA*/                 // (0.18 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gCaL_max    =    0.008441558; /*max conductance of ICaL*/                 // (65.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gBK_max     =    0.005935065; /*max conductance of IBK)*/                 // (45.7 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gKb_max     =    1.87013E-06; /*max conductance of IKb*/                  // (0.0144 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gKA_max     =    0.001168831; /*max conductance of IKA*/                  // (9.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gKr_max     =    0.004545455; /*max conductance of IKr*/                  // (35.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gNa_max     =    0.00038961;  /*max conductance of INa*/                  // (3.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gnsCC_max   =    0.006493506; /*max conductance of InsCC*/                // (50.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		gcouple     =     1.3*1e-6 / Asurf; /* coupling conductance bewteen fake ICC and SMC*/        // 1.3 nS * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        /* maximum conductances*/
+        gLVA_max    =    2.33766E-05; /*max conductance of ILVA*/                 // (0.18 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gCaL_max    =    0.008441558; /*max conductance of ICaL*/                 // (65.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gBK_max     =    0.005935065; /*max conductance of IBK)*/                 // (45.7 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gKb_max     =    1.87013E-06; /*max conductance of IKb*/                  // (0.0144 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gKA_max     =    0.001168831; /*max conductance of IKA*/                  // (9.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gKr_max     =    0.004545455; /*max conductance of IKr*/                  // (35.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gNa_max     =    0.00038961;  /*max conductance of INa*/                  // (3.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gnsCC_max   =    0.006493506; /*max conductance of InsCC*/                // (50.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        gcouple     =     1.3*1e-6 / Asurf; /* coupling conductance bewteen fake ICC and SMC*/        // 1.3 nS * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
 
-		JCaExt_max   =   0.31705;     /*max flux of CaSR (mM/ms)*/
+        JCaExt_max   =   0.31705;     /*max flux of CaSR (mM/ms)*/
 
-		/* Temperature corrections */
-		Q10Ca        =   2.1;         /*(dim)*/
-		Q10K         =   1.5;         /*(dim)*/ //1.365
-		Q10Na        =   2.45;        /*(dim)*/
-		Texp         =   297.0;       /*(degK)*/
+        /* Temperature corrections */
+        Q10Ca        =   2.1;         /*(dim)*/
+        Q10K         =   1.5;         /*(dim)*/ //1.365
+        Q10Na        =   2.45;        /*(dim)*/
+        Texp         =   297.0;       /*(degK)*/
 
-		 Ca_o   =         2.5;         // mM
-		 K_o     =        7.0;         // mM
-		 Na_o    =        137.0;       // mM
+         Ca_o   =         2.5;         // mM
+         K_o     =        7.0;         // mM
+         Na_o    =        137.0;       // mM
 
-		/* Nernst parameters */
-		 R        =       8314.4;      // pJ/nmol/K
-		 T        =       310.0;       // degK
-		 F        =       96484.6;     // nC/nmol
-		 FoRT     =       0.03743;     // 1/mV
-		 RToF     =       26.7137;     // mV
+        /* Nernst parameters */
+         R        =       8314.4;      // pJ/nmol/K
+         T        =       310.0;       // degK
+         F        =       96484.6;     // nC/nmol
+         FoRT     =       0.03743;     // 1/mV
+         RToF     =       26.7137;     // mV
 
-	    T_correct_Ca = pow(Q10Ca,(T-Texp)/10.0);/*temperature correction for Ca (dim)*/
-	    T_correct_K = pow(Q10K,(T-Texp)/10.0);  /*temperature correction for K (dim)*/
-	    T_correct_Na = pow(Q10Na,(T-Texp)/10.0);/*temperature correction for Na (dim)*/
-	    T_correct_gBK = gBK_max + 1.1*(T-Texp)*1e-6/Asurf; /*temperature correction for gBK*/  // (nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        T_correct_Ca = pow(Q10Ca,(T-Texp)/10.0);/*temperature correction for Ca (dim)*/
+        T_correct_K = pow(Q10K,(T-Texp)/10.0);  /*temperature correction for K (dim)*/
+        T_correct_Na = pow(Q10Na,(T-Texp)/10.0);/*temperature correction for Na (dim)*/
+        T_correct_gBK = gBK_max + 1.1*(T-Texp)*1e-6/Asurf; /*temperature correction for gBK*/  // (nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
 
-	    /* Nernst potentials */
-	    EK = RToF*log(K_o/Ki);                  /*Nernst potential for K (mV)*/
-	    ENa = RToF*log(Na_o/Nai);               /*Nernst potential for Na (mV)*/
-	    EnsCC = -28.0;                          /*Nernst potential for nsCC (mV)*/
+        /* Nernst potentials */
+        EK = RToF*log(K_o/Ki);                  /*Nernst potential for K (mV)*/
+        ENa = RToF*log(Na_o/Nai);               /*Nernst potential for Na (mV)*/
+        EnsCC = -28.0;                          /*Nernst potential for nsCC (mV)*/
 
         Init();
 
     }
-    
+
     CorriasBuistSMCModified::~CorriasBuistSMCModified()
     {
     }
-    
+
     void CorriasBuistSMCModified::VerifyStateVariables()
     {}
 
     void CorriasBuistSMCModified::SetCarbonMonoxideScaleFactor(double scaleFactor)
     {
-    	mScaleFactorCarbonMonoxide = scaleFactor;
+        mScaleFactorCarbonMonoxide = scaleFactor;
     }
 
     void CorriasBuistSMCModified::SetFakeIccStimulusPresent(bool present)
     {
-    	mFakeIccStimulusPresent = present;
+        mFakeIccStimulusPresent = present;
     }
 
     bool CorriasBuistSMCModified::GetFakeIccStimulusPresent()
     {
-    	return mFakeIccStimulusPresent;
+        return mFakeIccStimulusPresent;
     }
 
     double  CorriasBuistSMCModified::GetCarbonMonoxideScaleFactor()
     {
-    	return mScaleFactorCarbonMonoxide;
+        return mScaleFactorCarbonMonoxide;
     }
 
     double CorriasBuistSMCModified::GetIIonic(const std::vector<double>* pStateVariables)
@@ -280,8 +280,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         //see whether we are running this in isolaation (and we need the fake ICC stimulus) or coupled to a real ICC model
         if (mFakeIccStimulusPresent)
         {
-        	//for single cell simulations where we want the fake ICC stimulus in
-        	i_stim = (local_time < t_ICCpeak) ? (gcouple * delta_VICC) : ((local_time >= t_ICCpeak) && (local_time <= t_ICCplateau)) ? (gcouple * delta_VICC * (1.0 / (1.0 + exp((local_time - 8000.0) / 1000.0)))) : ((local_time > t_ICCplateau) && (local_time < t_ICC_stimulus)) ? (gcouple * V_decay * (1.0 / (1.0 + exp((local_time - 8000.0) / 150.0)))) : 0.0; // current_units
+            //for single cell simulations where we want the fake ICC stimulus in
+            i_stim = (local_time < t_ICCpeak) ? (gcouple * delta_VICC) : ((local_time >= t_ICCpeak) && (local_time <= t_ICCplateau)) ? (gcouple * delta_VICC * (1.0 / (1.0 + exp((local_time - 8000.0) / 1000.0)))) : ((local_time > t_ICCplateau) && (local_time < t_ICC_stimulus)) ? (gcouple * V_decay * (1.0 / (1.0 + exp((local_time - 8000.0) / 150.0)))) : 0.0; // current_units
         }
         else
         {
@@ -298,9 +298,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         }
         else
         {
-        	voltage_derivative = (-1.0 / 0.01) * (-i_stim + Iion);//microA/mm2---> microA/cm2
-        	//std::cout<<rY[0]<<std::endl;
-        	assert(!std::isnan(voltage_derivative));
+            voltage_derivative = (-1.0 / 0.01) * (-i_stim + Iion);//microA/mm2---> microA/cm2
+            //std::cout<<rY[0]<<std::endl;
+            assert(!std::isnan(voltage_derivative));
         }
 
         rDY[0] =  voltage_derivative;/* Vm */
@@ -318,12 +318,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         rDY[12] = (inf_xa2 - rY[12])/tau_xa2;
         rDY[13] = (-(ICaL+ILVA)*Asurf/(2.0*F*VolCell)-JCaExt); /* intracellular calcium *1000 M-> mM; /1000 F units*/
     }
-    
+
 template<>
 void OdeSystemInformation<CorriasBuistSMCModified>::Initialise(void)
 {
     // Time units: time_units
-    // 
+    //
     this->mSystemName = "SMC_model_Martincode";
 
     this->mVariableNames.push_back("Vm_SM");

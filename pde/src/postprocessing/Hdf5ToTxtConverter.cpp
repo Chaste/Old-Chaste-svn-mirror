@@ -61,26 +61,26 @@ Hdf5ToTxtConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToTxtConverter(std::string input
         // Loop over variables
         for (unsigned var_index=0; var_index<this->mNumVariables; var_index++)
         {
-        	std::string variable_name = this->mpReader->GetVariableNames()[var_index];
+            std::string variable_name = this->mpReader->GetVariableNames()[var_index];
 
-        	// Create a .txt file for this time step and this variable
-        	std::stringstream file_name;
-        	file_name << fileBaseName << "_" << variable_name << "_" << time_step << ".txt";
-        	out_stream p_file = handler.OpenOutputFile(file_name.str());
+            // Create a .txt file for this time step and this variable
+            std::stringstream file_name;
+            file_name << fileBaseName << "_" << variable_name << "_" << time_step << ".txt";
+            out_stream p_file = handler.OpenOutputFile(file_name.str());
 
             this->mpReader->GetVariableOverNodes(data, variable_name, time_step);
             repl_data.ReplicatePetscVector(data);
 
-        	assert(repl_data.GetSize() == num_nodes);
+            assert(repl_data.GetSize() == num_nodes);
 
-        	if (PetscTools::AmMaster())
-        	{
-        	    for (unsigned i=0; i<num_nodes; i++)
-        	    {
-        	        *p_file << repl_data[i] << "\n";
-        	    }
-        	}
-        	p_file->close();
+            if (PetscTools::AmMaster())
+            {
+                for (unsigned i=0; i<num_nodes; i++)
+                {
+                    *p_file << repl_data[i] << "\n";
+                }
+            }
+            p_file->close();
         }
     }
 

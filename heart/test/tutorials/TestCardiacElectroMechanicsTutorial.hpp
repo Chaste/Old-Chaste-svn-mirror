@@ -40,9 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /*
  * = Cardiac Electro-mechanical Problems =
- * 
+ *
  * == Introduction ==
- * 
+ *
  * The tutorial explains how electro-mechanics problems can be solved in Chaste. The reader should certainly read
  * the electro-physiological tutorials before this tutorial, and really they should have also had a look at
  * the tutorial(s) on solving general solid mechanics problems.
@@ -86,7 +86,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * If the material law is anisotropic, the problem is dependent of sheet & normal directions.
  *  * ''Timesteps:'' Should-divide rules are: (a) ode_timestep should-divide pde_timestep should-divide
  *  mechanics_update_timestep and (b) contraction_model_ode_timestep should-divide mechanics_update_timestep.
- * 
+ *
  * '''Another important note:''' mechanics problems are not currently implemented to scale in parallel yet. This
  * is work in progress.
  *
@@ -165,7 +165,7 @@ public:
          *
          * Two meshes are created, one with five elements in each direction for the mechanics (so 5*5*2 triangles in total),
          * and a finer one for the electrics.
-         * 
+         *
          * This leaves the material law, fibres direction and fixed nodes from the list above: the material
          * law is the default incompressible material law (pole-zero), the fibre direction is by default
          * the X-direction, and the fixed nodes are automatically set be those satisfying X=0, ie
@@ -175,7 +175,7 @@ public:
          * All we now have to do is call Solve.
          */
         problem.Solve();
-        
+
         /* Go to the output directory. There should be log file (which, note, can be used to watch progress
          * during a simulation), and a directory for the electrics output and the mechanics output. The electrics
          * directory is not the same as when running an electrics solve: the basic HDF5 data is there but
@@ -184,7 +184,7 @@ public:
          * The deformation output directory contains the deformed solution each timestep in several simple
          * Mtlab-readable files, and a cmgui output directory. The latter has a script for automatically loading
          * all the results.
-         * 
+         *
          * Visualise the results by calling `cmgui LoadSolutions.com` in the directory
          * `TestCardiacElectroMechanicsExample/deformation/cmgui` . The electrics data can be visualised on the
          * deforming mesh by using the scene (and spectrum) editor. (See cmgui website for information on how
@@ -278,11 +278,11 @@ public:
          * (ii) if you want a cell model that includes SAC you have to implement one. There is a single example of this in
          * the code base at the moment, see  `heart/src/odes/ionicmodels/NobleVargheseKohlNoble1998WithSac.hpp`.*
          *
-         * Finally, `SetNoElectricsOutput` is a method that is sometimes useful with a fine electrics mesh. */ 
+         * Finally, `SetNoElectricsOutput` is a method that is sometimes useful with a fine electrics mesh. */
         problem.SetNoElectricsOutput();
 
         /* The final position of the nodes can be obtained as follows (same interface in described in the solid mechanics tutorials). */
-        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[5](0), 0.090464, 1e-4); 
+        TS_ASSERT_DELTA(problem.rGetDeformedPosition()[5](0), 0.090464, 1e-4);
         /* Ignore these tests, they are they to check nothing has changed in this tutorial */
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command = "diff " + test_output_directory
@@ -290,19 +290,19 @@ public:
                               + test_output_directory
                               + "/TestCardiacElectroMechanicsExample2/deformation/solution_40.nodes ";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-	
+
     }
 
 
 
     /* == Twisting cube: 3d example with varying fibre directions ==
-     * 
+     *
      * The third test is a longer running 3d test - the 'dont' in the name of the test
      * means it isn't run automatically. To run, remove the 'dont'. It is worth running
      * with `build=GccOpt_ndebug`; and see the comments about HYPRE above if you change
      * this to an incompressible solve.
-     * 
-     * This test shows how to do 3d simulations (trivial changes), and how to pass in 
+     *
+     * This test shows how to do 3d simulations (trivial changes), and how to pass in
      * fibre directions for the mechanics mesh.
      */
     void dontTestTwistingCube() throw(Exception)
@@ -315,7 +315,7 @@ public:
          * solve. */
         TetrahedralMesh<3,3> electrics_mesh;
         electrics_mesh.ConstructRegularSlabMesh(0.01/*stepsize*/, 0.1/*length*/, 0.1/*width*/, 0.1/*depth*/);
-    
+
         QuadraticMesh<3> mechanics_mesh;
         mechanics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1, 0.1 /*as above with a different stepsize*/);
 

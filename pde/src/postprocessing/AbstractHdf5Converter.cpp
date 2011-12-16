@@ -38,7 +38,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
       mpMesh(pMesh),
       mRelativeSubdirectory(subdirectoryName)
 {
-	// Store directory, mesh and filenames and create the reader
+    // Store directory, mesh and filenames and create the reader
     mpReader = new Hdf5DataReader(inputDirectory, mFileBaseName);
 
     // Create new directory in which to store everything
@@ -72,7 +72,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
         *p_file << "timestep " << timestep << std::endl;
         *p_file << "First timestep " << first_timestep << std::endl;
         *p_file << "Last timestep " << last_timestep << std::endl;
-		*p_file << ChasteBuildInfo::GetProvenanceString();
+        *p_file << ChasteBuildInfo::GetProvenanceString();
 
         p_file->close();
     }
@@ -88,7 +88,7 @@ AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>::~AbstractHdf5Converter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::string AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>::GetSubdirectory()
 {
-	return mRelativeSubdirectory;
+    return mRelativeSubdirectory;
 }
 
 /////////////////////////////////////////////////////////////////////

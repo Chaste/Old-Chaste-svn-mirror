@@ -184,7 +184,7 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         MatGetSubMatrix(system_matrix, B_local_rows, B_columns,
             MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
 #else
-	ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &B_columns);
+    ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &B_columns);
         MatGetSubMatrix(system_matrix, B_local_rows, B_columns, PETSC_DECIDE,
             MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
 #endif

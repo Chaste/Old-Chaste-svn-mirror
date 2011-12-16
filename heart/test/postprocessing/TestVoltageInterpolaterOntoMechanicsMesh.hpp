@@ -64,32 +64,32 @@ public:
         // as that is where the interpolater reads and writes to
         CopyToTestOutputDirectory("heart/test/data/Monodomain1d/MonodomainLR91_1d.h5",
                                   "TestVoltageInterpolater1d");
-                                  
+
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         QuadraticMesh<1> mech_mesh;
         TrianglesMeshReader<1,1> mesh_reader2("mesh/test/data/1D_0_to_1_10_elements_quadratic",2,1,false);
         mech_mesh.ConstructFromMeshReader(mesh_reader2);
-        
+
         // move the node at 0.1 to 0.105, so it is 30% between the electrics nodes
         // 0.10 and 0.11
         mech_mesh.GetNode(1)->rGetModifiableLocation()[0] = 0.103;
-        
-        VoltageInterpolaterOntoMechanicsMesh<1> interpolater(mesh, 
-                                                             mech_mesh, 
+
+        VoltageInterpolaterOntoMechanicsMesh<1> interpolater(mesh,
+                                                             mech_mesh,
                                                              "TestVoltageInterpolater1d",
                                                              "MonodomainLR91_1d");
 
         Hdf5DataReader fine_reader("TestVoltageInterpolater1d","MonodomainLR91_1d");
         DistributedVectorFactory factory1(mesh.GetNumNodes());
-        Vec voltage_fine = factory1.CreateVec(); 
+        Vec voltage_fine = factory1.CreateVec();
 
         Hdf5DataReader coarse_reader("TestVoltageInterpolater1d","voltage_mechanics_mesh");
         DistributedVectorFactory factory2(mech_mesh.GetNumNodes());
         Vec voltage_coarse = factory2.CreateVec();
-        
+
         TS_ASSERT_EQUALS(fine_reader.GetUnlimitedDimensionValues().size(), coarse_reader.GetUnlimitedDimensionValues().size());
 
         bool invalid = true;//see below
@@ -101,31 +101,31 @@ public:
         {
             fine_reader.GetVariableOverNodes(voltage_fine, "V", i);
             coarse_reader.GetVariableOverNodes(voltage_coarse, "V", i);
-            
+
             ReplicatableVector fine_repl(voltage_fine);
             ReplicatableVector coarse_repl(voltage_coarse);
-            
+
             TS_ASSERT_EQUALS(coarse_repl.GetSize(), mech_mesh.GetNumNodes());
-            
+
             TS_ASSERT_DELTA(fine_repl[0], coarse_repl[0], 1e-9);
             TS_ASSERT_DELTA(fine_repl[fine_repl.GetSize()-1], coarse_repl[coarse_repl.GetSize()-1], 1e-9);
-            
+
             // Check the value at the displaced node is interpolated correctly
             TS_ASSERT_DELTA(coarse_repl[1], fine_repl[10]*0.7 + 0.3*fine_repl[11], 1e-9);
- 
-            // check fine_repl[10] != fine_repl[11] *for some time*, else the above 
-            // check is invalid            
+
+            // check fine_repl[10] != fine_repl[11] *for some time*, else the above
+            // check is invalid
             if(fabs(fine_repl[10] - fine_repl[11]) > 1e-6)
             {
                 invalid = false;
             }
         }
         assert(!invalid);
-        
+
         VecDestroy(voltage_coarse);
         VecDestroy(voltage_fine);
     }
-    
+
     // the data in this test came from TestCardiacElectroMechanicsProblem::TestImplicitNhs2dOneMechanicsElement()
     void TestWith2dData(void) throw (Exception)
     {
@@ -135,34 +135,34 @@ public:
         // as that is where the interpolater reads and writes to
         CopyToTestOutputDirectory("heart/test/data/Monodomain2d.h5",
                                   "TestVoltageInterpolater2d");
-        
-        
+
+
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRegularSlabMesh(0.01, 0.05, 0.05);
 
         QuadraticMesh<2> mech_mesh(0.05, 0.05, 0.05);
-                
-        VoltageInterpolaterOntoMechanicsMesh<2> interpolater(mesh, 
-                                                             mech_mesh, 
+
+        VoltageInterpolaterOntoMechanicsMesh<2> interpolater(mesh,
+                                                             mech_mesh,
                                                              "TestVoltageInterpolater2d",
                                                              "Monodomain2d");
-       
-        
+
+
         Hdf5DataReader fine_reader("TestVoltageInterpolater2d","Monodomain2d");
         DistributedVectorFactory factory1(mesh.GetNumNodes());
-        Vec voltage_fine = factory1.CreateVec(); 
+        Vec voltage_fine = factory1.CreateVec();
         fine_reader.GetVariableOverNodes(voltage_fine, "V", 1); // time = first printed time is when the V varies most with space
         ReplicatableVector fine_repl(voltage_fine);
-           
+
         Hdf5DataReader coarse_reader("TestVoltageInterpolater2d","voltage_mechanics_mesh");
         DistributedVectorFactory factory2(mech_mesh.GetNumNodes());
         Vec voltage_coarse = factory2.CreateVec();
         coarse_reader.GetVariableOverNodes(voltage_coarse, "V", 1);
         ReplicatableVector coarse_repl(voltage_coarse);
-                   
+
         // the first four nodes in the coarse mesh mesh are the corners and correspond
         // to nodes 0,5,30 and 35 in the fine mesh
-        TS_ASSERT_DELTA(coarse_repl[0], fine_repl[0], 1e-9); 
+        TS_ASSERT_DELTA(coarse_repl[0], fine_repl[0], 1e-9);
         TS_ASSERT_DELTA(coarse_repl[1], fine_repl[5], 2e-9);
         TS_ASSERT_DELTA(coarse_repl[2], fine_repl[30], 1e-9);
         TS_ASSERT_DELTA(coarse_repl[3], fine_repl[35], 1e-9);

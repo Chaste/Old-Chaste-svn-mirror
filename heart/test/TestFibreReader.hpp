@@ -64,7 +64,7 @@ public:
     {
         FileFinder file_finder("heart/test/data/fibre_tests/random_fibres.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<2> fibre_reader(file_finder, ORTHO);
-        
+
         TS_ASSERT_EQUALS(fibre_reader.GetNumLinesOfData(), 4u);
 
         c_matrix<double, 2, 2> fibre_matrix;
@@ -82,7 +82,7 @@ public:
         correct_matrix(0,1) = 1.0;
         correct_matrix(1,0) = 1.0;
         TS_ASSERT_DELTA(UblasMatrixInfinityNorm<2>(fibre_matrix-correct_matrix), 0, 1e-9);
-        
+
         // Non-symmetrical test case, standard rotation matrix
         // [cos(theta)  sin(theta)]
         // [-sin(theta) cos(theta)]
@@ -117,7 +117,7 @@ public:
         TS_ASSERT_DELTA(fibre_vector(0), 0.6, 1e-9);
         TS_ASSERT_DELTA(fibre_vector(1), -0.8, 1e-9);
 
-        // next vector is not normalised, the false below prevents this being checked 
+        // next vector is not normalised, the false below prevents this being checked
         fibre_reader.GetNextFibreVector(fibre_vector, false);
         TS_ASSERT_DELTA(fibre_vector(0), 2, 1e-9);
         TS_ASSERT_DELTA(fibre_vector(1), 6, 1e-9);
@@ -128,7 +128,7 @@ public:
         // called too many times
         TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreVector(fibre_vector), "End of file")
     }
-    
+
 
     void TestFibreConvenienceMethodsForVtk()
     {
@@ -175,7 +175,7 @@ public:
             TS_ASSERT_DELTA(second[5][2], 1.0, 1e-10);//z
             TS_ASSERT_DELTA(third[5][0], 1.0, 1e-10);//x
             TS_ASSERT_DELTA(third[5][1], 0.0, 1e-10);//y
-            TS_ASSERT_DELTA(third[5][2], 0.0, 1e-10);//z                        
+            TS_ASSERT_DELTA(third[5][2], 0.0, 1e-10);//z
         }
     }
     void TestFibretoVtk()
@@ -210,7 +210,7 @@ public:
         }
         writer.WriteFilesUsingMesh(mesh);
         //Check that it has been written
-        OutputFileHandler handler("TestVtkMeshWriter", false); 
+        OutputFileHandler handler("TestVtkMeshWriter", false);
         std::ifstream vtk_file;
         std::string command = handler.GetOutputDirectoryFullPath()+"/simple_fibres.vtu";
         vtk_file.open(command.c_str());
@@ -269,7 +269,7 @@ public:
         FibreReader<2> fibre_reader7(finder7, AXISYM);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader7.GetNextFibreVector(fibre_vector), "A line is incomplete in");
     }
-    
+
     void TestAxiBinaryFileReader() throw (Exception)
     {
         // Read in a binary fibres file.
@@ -277,13 +277,13 @@ public:
         FibreReader<3> fibre_reader_bin(file_finder_bin, AXISYM);
         std::vector< c_vector<double, 3> > fibre_vector_bin;
         fibre_reader_bin.GetAllAxi(fibre_vector_bin);
-        
+
         // Read in the equivalent ascii fibres file.
         FileFinder file_finder("heart/test/data/fibre_tests/SimpleAxisymmetric2.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, AXISYM);
         std::vector< c_vector<double, 3> > fibre_vector;
         fibre_reader.GetAllAxi(fibre_vector);
-        
+
         TS_ASSERT_EQUALS(fibre_vector_bin.size(), fibre_vector.size());
         for (unsigned i=0; i<fibre_vector_bin.size(); i++)
         {
@@ -291,7 +291,7 @@ public:
             {
                 TS_ASSERT_DELTA(fibre_vector_bin[i][j], fibre_vector[i][j], 1e-9);
             }
-        }        
+        }
     }
 
     void TestOrthoBinaryFileReader() throw (Exception)
@@ -303,7 +303,7 @@ public:
         std::vector< c_vector<double, 3> > second_vector_bin;
         std::vector< c_vector<double, 3> > third_vector_bin;
         fibre_reader_bin.GetAllOrtho(fibre_vector_bin, second_vector_bin, third_vector_bin);
-        
+
         // Read in the equivalent ascii fibres file.
         FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader(file_finder, ORTHO);
@@ -311,7 +311,7 @@ public:
         std::vector< c_vector<double, 3> > second_vector;
         std::vector< c_vector<double, 3> > third_vector;
         fibre_reader.GetAllOrtho(fibre_vector, second_vector, third_vector);
-        
+
         TS_ASSERT_EQUALS(fibre_vector_bin.size(),  fibre_vector.size());
         TS_ASSERT_EQUALS(second_vector_bin.size(), fibre_vector.size());
         TS_ASSERT_EQUALS(third_vector_bin.size(),  fibre_vector.size());
@@ -325,7 +325,7 @@ public:
                 TS_ASSERT_DELTA(second_vector_bin[i][j], second_vector[i][j], 1e-9);
                 TS_ASSERT_DELTA(third_vector_bin[i][j], third_vector[i][j], 1e-9);
             }
-        }        
+        }
     }
 };
 

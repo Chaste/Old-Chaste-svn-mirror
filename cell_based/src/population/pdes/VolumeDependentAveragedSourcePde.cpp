@@ -33,8 +33,8 @@ template<unsigned DIM>
 VolumeDependentAveragedSourcePde<DIM>::VolumeDependentAveragedSourcePde(AbstractCellPopulation<DIM>& rCellPopulation, double coefficient)
     : AveragedSourcePde<DIM>(rCellPopulation, coefficient)
 {
-	assert(dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
-	mpStaticCastCellPopulation = static_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
+    assert(dynamic_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
+    mpStaticCastCellPopulation = static_cast<NodeBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
 }
 
 template<unsigned DIM>
@@ -52,25 +52,25 @@ void VolumeDependentAveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM
          cell_iter != this->mrCellPopulation.End();
          ++cell_iter)
     {
-    	unsigned elem_index = 0;
-		const ChastePoint<DIM>& r_position_of_cell = this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
+        unsigned elem_index = 0;
+        const ChastePoint<DIM>& r_position_of_cell = this->mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
 
-		if (pCellPdeElementMap != NULL)
-		{
-			elem_index = (*pCellPdeElementMap)[*cell_iter];
-		}
-		else
-		{
-			elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
-		}
+        if (pCellPdeElementMap != NULL)
+        {
+            elem_index = (*pCellPdeElementMap)[*cell_iter];
+        }
+        else
+        {
+            elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
+        }
 
-		unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+        unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
-		// Uptake normalised to 1 for unit cell
-		double radius = mpStaticCastCellPopulation->rGetMesh().GetCellRadius(node_index);
-		double cell_weight = radius*radius;
+        // Uptake normalised to 1 for unit cell
+        double radius = mpStaticCastCellPopulation->rGetMesh().GetCellRadius(node_index);
+        double cell_weight = radius*radius;
 
-		bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
+        bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
         if (!cell_is_apoptotic)
         {
             this->mCellDensityOnCoarseElements[elem_index] += cell_weight;

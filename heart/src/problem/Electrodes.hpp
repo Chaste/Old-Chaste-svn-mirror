@@ -146,11 +146,11 @@ public:
     /** Constructor.
      * Needs only a reference to a mesh.
      * All other parameters from the HeartConfig class
-     * 
+     *
      *  @param rMesh The mesh, assumed to be a cuboid.
      */
     Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh); // implemented in cpp
-    
+
     /**
      *  Get the boundary conditions container in which is set up the Neumann
      *  fluxes for the first electrode, and the opposite fluxes for the second
@@ -175,19 +175,19 @@ public:
      * @param time  the current time
      */
     bool SwitchOn(double time);
-    
+
     /** Get the time the electrodes are switched on */
     double GetSwitchOnTime()
     {
         return mStartTime;
     }
-    
+
     /** Get the time the electrodes are switched off */
     double GetSwitchOffTime()
     {
         return mEndTime;
     }
-    
+
     /** Whether the second electrode is grounded or not */
     bool HasGroundedElectrode()
     {

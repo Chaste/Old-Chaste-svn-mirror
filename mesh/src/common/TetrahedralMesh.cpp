@@ -1074,7 +1074,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
             {
                 throw e; // Triangle has produced a zero-area element (due to very long edges)
             }
-            
+
             // when (SPACE_DIM == 3);
             // Tetgen is feeding us lies
         }

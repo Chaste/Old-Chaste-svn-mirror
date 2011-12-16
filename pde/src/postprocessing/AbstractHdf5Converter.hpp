@@ -43,7 +43,7 @@ class AbstractHdf5Converter
 {
 protected:
 
-	/** Pointer to reader of the file to be converted. */
+    /** Pointer to reader of the file to be converted. */
     Hdf5DataReader* mpReader;
 
     /** Number of variables to output. Read from the reader. */
@@ -68,9 +68,9 @@ public:
 
     /**
      * Constructor, which does the conversion and writes the .info file.
-     * 
+     *
      * @note This method is collective, and must be called by al processes.
-     * 
+     *
      * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
      * @param fileBaseName The base name of the data file.
      * @param pMesh Pointer to the mesh.

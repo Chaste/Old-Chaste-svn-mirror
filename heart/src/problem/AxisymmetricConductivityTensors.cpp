@@ -99,15 +99,15 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
         this->mTensors.reserve(this->mpMesh->GetNumLocalElements());
 
         c_matrix<double, SPACE_DIM, SPACE_DIM> conductivity_matrix(zero_matrix<double>(SPACE_DIM,SPACE_DIM));
-        
+
         unsigned local_element_index = 0;
 
         int previous_global_index=-1;
-        
+
         for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = this->mpMesh->GetElementIteratorBegin();
              it != this->mpMesh->GetElementIteratorEnd();
              ++it)
-        {            
+        {
             if (this->mUseFibreOrientation)
             {
                 int current_fibre_global_index = (int) it->GetIndex();
@@ -115,16 +115,16 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
                 // Assumption about ElementIterator returning elements in ascending order is wrong
                 // if this fails
                 assert(current_fibre_global_index > previous_global_index);
-                
+
                 for (int fibre_index=previous_global_index; fibre_index<current_fibre_global_index-1; fibre_index++)
                 {
                     this->mFileReader->GetNextFibreVector(fibre_vector);
                 }
-                
+
                 previous_global_index = current_fibre_global_index;
             }
-            
-            
+
+
             /*
              *  For every element of the mesh we compute its tensor like (from
              * "Laminar Arrangement of VentricularMyocites Influences Electrical
@@ -174,7 +174,7 @@ void AxisymmetricConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetra
 
             this->mTensors.push_back( conductivity_matrix(1,1) * identity_matrix<double>(SPACE_DIM) +
                                       (conductivity_matrix(0,0) - conductivity_matrix(1,1)) * outer_prod(fibre_vector,fibre_vector));
-                                      
+
             local_element_index++;
         }
 

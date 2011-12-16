@@ -212,7 +212,7 @@ public:
 
         // Run simulation and output cell velocities
         simulator.Solve();
-        
+
         // Check cell velocities file
         OutputFileHandler handler("TestOutputCellVelocities", false);
 
@@ -416,7 +416,7 @@ public:
         // Pass an update rule to the simulation
         MAKE_PTR(DiffusionCaUpdateRule<2>, p_update_rule);
         simulator.AddCaUpdateRule(p_update_rule);
-        
+
         // Pass another update rule to the simulation
         MAKE_PTR_ARGS(AdvectionCaUpdateRule<2>, p_update_rule2, (7, 2.0));
         simulator.AddCaUpdateRule(p_update_rule2);
@@ -697,7 +697,7 @@ public:
         simulator.SetOutputDirectory("TestCaDiffusionOfLargeNumberOfCells");
         simulator.SetDt(0.1);
         simulator.SetEndTime(5.0);
-        
+
         // Pass an update rule to the simulation
         MAKE_PTR(DiffusionCaUpdateRule<2>, p_update_rule);
         simulator.AddCaUpdateRule(p_update_rule);

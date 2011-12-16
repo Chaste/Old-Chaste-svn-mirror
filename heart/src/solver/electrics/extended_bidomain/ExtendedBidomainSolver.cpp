@@ -187,7 +187,7 @@ ExtendedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::ExtendedBidomainSolver(
     : AbstractExtendedBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pTissue,pBoundaryConditions)
 {
     // Tell Tissue there's no need to replicate ionic caches
-	pTissue->SetCacheReplication(false);
+    pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
 
     // create assembler

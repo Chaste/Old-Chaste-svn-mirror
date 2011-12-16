@@ -54,7 +54,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
      * As long as they are kept as member variables here for as long as they are
      * required in the solvers it should all work OK.
      */
-     
+
     if (HeartConfig::Instance()->GetUseReactionDiffusionOperatorSplitting())
     {
         return new OperatorSplittingMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,

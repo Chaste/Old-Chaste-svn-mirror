@@ -52,15 +52,15 @@ public:
         std::string arg_as_string(argv[0]);
         std::string final_part_of_string = arg_as_string.substr(arg_as_string.length()-30,arg_as_string.length());
         TS_ASSERT_EQUALS("TestCommandLineArgumentsRunner",final_part_of_string);
-        
+
         // Now test OptionExists() and GetValueCorrespondingToOption()
         //
         // The following tests would require the following arguments to be passed
-        // in: 
+        // in:
         // ./global/build/debug/TestCommandLineArgumentsRunner -myoption -myintval 24 -mydoubleval 3.14 -3.14 -m2intval -42 -mystrings Baboons Monkeys Gibbons -mystring more_baboons
-        // 
-        // To test the methods we overwrite the arg_c and arg_v contained in the 
-        // singleton with the arguments that were needed.        
+        //
+        // To test the methods we overwrite the arg_c and arg_v contained in the
+        // singleton with the arguments that were needed.
         int new_argc = 15;
         char new_argv0[] = "..";
         char new_argv1[] = "-myoption";
@@ -77,7 +77,7 @@ public:
         char new_argv12[] = "Gibbons";
         char new_argv13[] = "-mystring";
         char new_argv14[] = "more_baboons";
-        
+
         char** new_argv = new char*[15];
         new_argv[0] = new_argv0;
         new_argv[1] = new_argv1;
@@ -109,13 +109,13 @@ public:
         TS_ASSERT( ! CommandLineArguments::Instance()->OptionExists("-asddsgijdfgokgfgurgher"));
 
         TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->OptionExists("-42"),
-        		"A command line option must begin with '-' followed by a non-numeric character.");
+                "A command line option must begin with '-' followed by a non-numeric character.");
 
         TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->GetStringsCorrespondingToOption("-myoption"),
-        		"No value(s) given after command line option '-myoption'");
+                "No value(s) given after command line option '-myoption'");
 
         TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->GetStringsCorrespondingToOption("-mynonsense"),
-        		"Command line option '-mynonsense' does not exist");
+                "Command line option '-mynonsense' does not exist");
 
 
         // Test GetValueCorrespondingToOption()
@@ -171,13 +171,13 @@ public:
         TS_ASSERT_EQUALS(unsigned_args[0],24u);
 
         std::vector<int> int_args = CommandLineArguments::Instance()->GetIntsCorrespondingToOption("-m2intval");
-		TS_ASSERT_EQUALS(int_args.size(), 1u);
-		TS_ASSERT_EQUALS(int_args[0],-42);
+        TS_ASSERT_EQUALS(int_args.size(), 1u);
+        TS_ASSERT_EQUALS(int_args[0],-42);
 
         // Fool the arguments into thinking that the options end at 5 entries to check an exception:
         new_argc = 5;
         TS_ASSERT_THROWS_THIS(CommandLineArguments::Instance()->GetValueCorrespondingToOption("-mydoubleval"),
-        		"No value(s) given after command line option '-mydoubleval'");
+                "No value(s) given after command line option '-mydoubleval'");
 
         delete new_argv;
 

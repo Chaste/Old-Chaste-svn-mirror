@@ -50,7 +50,7 @@ class AbstractPottsUpdateRule; // Circular definition
  *
  * Contains a group of cells and maintains the associations
  * between CellPtrs and elements in a specialised PottsMesh class.
- * 
+ *
  * The code currently requires the PottsMesh object to be fixed,
  * in the sense that no new nodes or elements can be added.
  */
@@ -227,7 +227,7 @@ public:
      * Add a new cell to the cell population.
      *
      * @param pNewCell  the cell to add
-     * @param rCellDivisionVector  this parameter is not yet used in this class (see #1737) 
+     * @param rCellDivisionVector  this parameter is not yet used in this class (see #1737)
      * @param pParentCell pointer to a parent cell (if required)
      * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
@@ -284,11 +284,11 @@ public:
      * Overridden WriteResultsToFiles() method.
      */
     void WriteResultsToFiles();
-                
-    /** 
+
+    /**
      * Overridden WriteCellVolumeResultsToFile() method.
      */
-    void WriteCellVolumeResultsToFile();   
+    void WriteCellVolumeResultsToFile();
 
     /**
      * Overridden GenerateCellResultsAndWriteToFiles() method.
@@ -332,7 +332,7 @@ public:
 
     /**
      * Overridden GetNeighbouringNodeIndices() method.
-     * 
+     *
      * This method currently returns an exception as the two types of neighbourhood
      * (Moore and Von Neumann) are defined in the PottsMesh.
      *
@@ -343,7 +343,7 @@ public:
 
     /**
      * Set mTemperature.
-     * 
+     *
      * @param temperature the temperature of the system
      */
     void SetTemperature(double temperature);
@@ -355,7 +355,7 @@ public:
 
     /**
      * Set mNumSweepsPerTimestep.
-     * 
+     *
      * @param numSweepsPerTimestep the number of MonteCarlo sweeps of the mesh performed each timestep
      */
     void SetNumSweepsPerTimestep(unsigned numSweepsPerTimestep);
@@ -364,7 +364,7 @@ public:
      * @return mNumSweepsPerTimestep
      */
     unsigned GetNumSweepsPerTimestep();
-    
+
     /**
      * Create a Element tessellation of the mesh for use in visualising the mesh.
      */

@@ -980,7 +980,7 @@ void Hdf5DataWriter::AdvanceAlongUnlimitedDimension()
 
     /*
      * Extend the dataset.
-     * 
+     *
      * If the user provided an estimate for the length of the
      * unlimited dimension, allocate all that space.
      */

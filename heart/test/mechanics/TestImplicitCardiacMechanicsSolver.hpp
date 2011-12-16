@@ -214,7 +214,7 @@ public:
 
         std::vector<double>& lambda = solver.rGetFibreStretches();
 
-//// removing this test, its a pain to maintain as it requires refitting the cubic 
+//// removing this test, its a pain to maintain as it requires refitting the cubic
 //        // the lambdas should be less than 1 (ie compression), and also
 //        // should be near the same for any particular value of Y, ie the
 //        // same along any fibre. Lambda should decrease nonlinearly.
@@ -361,7 +361,7 @@ public:
         // call with TS_ASSERT_THROWS_CONTAINS with any disallowed contraction models here:
     }
 
-    
+
     void TestComputeDeformationGradientAndStretchesEachElement() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
@@ -375,7 +375,7 @@ public:
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         IncompressibleImplicitSolver2d solver(KERCHOFFS2003,mesh,problem_defn,"");
-        
+
         // compute the stretches, they should be 1
         std::vector<double> stretches(mesh.GetNumElements());
         std::vector<c_matrix<double,2,2> > deformation_gradients(mesh.GetNumElements());
@@ -385,8 +385,8 @@ public:
         {
             stretches[i] = 13482.534578;
             deformation_gradients[i](0,0)
-             = deformation_gradients[i](0,1) 
-               = deformation_gradients[i](1,0)  
+             = deformation_gradients[i](0,1)
+               = deformation_gradients[i](1,0)
                  = deformation_gradients[i](1,1) = 7777.777727777777777;
         }
 
@@ -398,7 +398,7 @@ public:
             double err = MatrixNorm(deformation_gradients[i]-identity_matrix<double>(2));
             TS_ASSERT_DELTA(err, 0.0, 1e-10);
         }
-        
+
 
         // get the current solution (displacement), and contract in the non-fibre direction
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -409,9 +409,9 @@ public:
 
         // stretches should still be 1, F should be equal to [1,0;0,0.9]
         solver.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
-        
+
         c_matrix<double,2,2> correct_F = identity_matrix<double>(2);
-        correct_F(1,1) = 0.9; 
+        correct_F(1,1) = 0.9;
         for(unsigned i=0; i<stretches.size(); i++)
         {
             TS_ASSERT_DELTA(stretches[i], 1.0, 1e-6);
@@ -428,7 +428,7 @@ public:
 
         // stretches should now be 0.8, F should be equal to [0.8,0;0,0.9]
         solver.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
-        correct_F(0,0) = 0.8; 
+        correct_F(0,0) = 0.8;
         for(unsigned i=0; i<stretches.size(); i++)
         {
             TS_ASSERT_DELTA(stretches[i], 0.8, 1e-3);
@@ -448,14 +448,14 @@ public:
         // need to leave the mesh as unfixed as possible
         std::vector<unsigned> fixed_nodes(2);
         fixed_nodes[0] = 0;
-        fixed_nodes[1] = 1; 
+        fixed_nodes[1] = 1;
 
         SolidMechanicsProblemDefinition<2> problem_defn(mesh);
         problem_defn.SetMaterialLaw(INCOMPRESSIBLE,&law);
         problem_defn.SetZeroDisplacementNodes(fixed_nodes);
 
         IncompressibleImplicitSolver2d solver(NHS, mesh, problem_defn, "ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint");
-        
+
         TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
         solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.orthoquad", true);
 
@@ -484,9 +484,9 @@ public:
 
         std::vector<double>& lambda = solver.rGetFibreStretches();
         TS_ASSERT_DELTA(lambda[34], 0.9693, 1e-3);
-    }  
-        
-        
+    }
+
+
 
 //    //
 //    // This test compares the implicit solver with the old dead explicit solver in

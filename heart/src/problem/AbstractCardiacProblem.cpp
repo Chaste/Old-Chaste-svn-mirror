@@ -167,8 +167,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     mpCellFactory->SetMesh( mpMesh );
     HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
-    HeartEventHandler::BeginEvent(HeartEventHandler::INITIALISE);    
-    
+    HeartEventHandler::BeginEvent(HeartEventHandler::INITIALISE);
+
     // If the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here
     if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
     {
@@ -327,7 +327,7 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacProblem<ELEMENT_DIM
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdaptivityController(
-        bool useAdaptivity, 
+        bool useAdaptivity,
         AbstractTimeAdaptivityController* pController)
 {
     if (useAdaptivity)
@@ -338,7 +338,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetUseTimeAdapti
     else
     {
         mpTimeAdaptivityController = NULL;
-    } 
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -460,7 +460,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             // Free memory
             delete mpSolver;
             mpSolver=NULL;
-            if (initial_condition != mSolution) 
+            if (initial_condition != mSolution)
             {
                 /*
                  * A PETSc Vec is a pointer, so we *don't* need to free the memory if it is
@@ -472,7 +472,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
                  */
                 VecDestroy(initial_condition);
             }
-            
+
 #ifndef NDEBUG
             PetscTools::ReplicateException(true);
 #endif
@@ -552,7 +552,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         {
             // Convert simulation data to Meshalyzer format
             Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
-            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
+                    HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
             std::string subdirectory_name = converter.GetSubdirectory();
             HeartConfig::Instance()->Write(false, subdirectory_name);
         }
@@ -561,7 +561,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         {
             // Convert simulation data to Cmgui format
             Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
-            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, GetHasBath());
+                    HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, GetHasBath());
             std::string subdirectory_name = converter.GetSubdirectory();
             HeartConfig::Instance()->Write(false, subdirectory_name);
         }
@@ -570,7 +570,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         {
             // Convert simulation data to VTK format
             Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
-            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, false, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
+                    HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, false, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
             std::string subdirectory_name = converter.GetSubdirectory();
             HeartConfig::Instance()->Write(false, subdirectory_name);
         }
@@ -579,7 +579,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         {
             // Convert simulation data to parallel VTK (pvtu) format
             Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(),
-            		HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, true, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
+                    HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, true, HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering());
             std::string subdirectory_name = converter.GetSubdirectory();
             HeartConfig::Instance()->Write(false, subdirectory_name);
         }

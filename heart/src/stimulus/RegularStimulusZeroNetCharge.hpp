@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Provides a periodic square-wave stimulus, where the total net charge is zero for every stimulus.
  *
  * i.e.,
- * 			  ------
- *           |		|
- * 			 |		|
+ *               ------
+ *           |        |
+ *              |        |
  *  ---------       |     -------------
  *                  |     |
  *                  |     |

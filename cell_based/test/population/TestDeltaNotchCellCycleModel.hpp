@@ -232,7 +232,7 @@ public:
         DeltaNotchCellCycleModel* p_model2 = static_cast<DeltaNotchCellCycleModel*> (p_model->CreateCellCycleModel());
 
         // Check correct initializations
-		TS_ASSERT_EQUALS(p_model2->GetBirthTime(),2);
+        TS_ASSERT_EQUALS(p_model2->GetBirthTime(),2);
         TS_ASSERT_EQUALS(p_model2->GetDimension(), 2u);
         TS_ASSERT_EQUALS(p_model2->GetGeneration(), 2u);
         TS_ASSERT_EQUALS(p_model2->GetMaxTransitGenerations(), 10u);

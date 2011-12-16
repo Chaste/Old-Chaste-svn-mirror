@@ -89,19 +89,19 @@ std::vector<double> PropagationPropertiesCalculator::CalculateAllActionPotential
 }
 
 std::vector<std::vector<double> > PropagationPropertiesCalculator::CalculateAllActionPotentialDurationsForNodeRange(
-		const double percentage,
-		unsigned lowerNodeIndex,
-		unsigned upperNodeIndex,
-		double threshold)
+        const double percentage,
+        unsigned lowerNodeIndex,
+        unsigned upperNodeIndex,
+        double threshold)
 {
     std::vector<std::vector<double> > output_data;
     output_data.reserve(upperNodeIndex-lowerNodeIndex+1);
     unsigned num_nodes_per_data_block = 100; // number of nodes
     unsigned num_complete_blocks = (upperNodeIndex-lowerNodeIndex) / num_nodes_per_data_block;
-    unsigned size_last_block = (upperNodeIndex-lowerNodeIndex) % num_nodes_per_data_block; 
+    unsigned size_last_block = (upperNodeIndex-lowerNodeIndex) % num_nodes_per_data_block;
 
-    for (unsigned block_num=0; 
-         block_num<num_complete_blocks+1; 
+    for (unsigned block_num=0;
+         block_num<num_complete_blocks+1;
          block_num++)
     {
         unsigned num_nodes_to_read;
@@ -145,7 +145,7 @@ std::vector<std::vector<double> > PropagationPropertiesCalculator::CalculateAllA
         }
     }
     return output_data;
-}                                                                     
+}
 
 double PropagationPropertiesCalculator::CalculatePeakMembranePotential(unsigned globalNodeIndex)
 {

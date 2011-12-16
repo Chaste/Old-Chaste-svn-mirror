@@ -281,7 +281,7 @@ public:
 //        std::cout << " [running np=" << PetscTools::GetNumProcs() << " rank=" << PetscTools::GetMyRank() << "]\n" << std::flush;
 //    }
 };
- 
+
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(DistributedVectorFactory)

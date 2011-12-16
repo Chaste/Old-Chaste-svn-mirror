@@ -330,7 +330,7 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
                      ++iter)
                 {
                     bcc.AddDirichletBoundaryCondition(p_mesh->GetNode(*iter), p_bc, 0, false);
-                }        
+                }
             }
             else // apply BC at boundary nodes of (population-level or coarse) mesh
             {
@@ -376,8 +376,8 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
         if (using_coarse_pde_mesh)
         {
             // When using a coarse PDE mesh, we must set up the source terms before solving the PDE.
-        	// pass in mCellPdeElementMap to speed up finding cells.
-        	this->UpdateCellPdeElementMap();
+            // pass in mCellPdeElementMap to speed up finding cells.
+            this->UpdateCellPdeElementMap();
             p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(p_mesh, &mCellPdeElementMap);
 
             SimpleLinearEllipticSolver<DIM,DIM> solver(p_mesh, p_pde_and_bc->GetPde(), &bcc);
@@ -427,9 +427,9 @@ void CellBasedPdeHandler<DIM>::SolvePdeAndWriteResultsToFile(unsigned samplingTi
                 // Find the element in the coarse mesh that contains this cell. CellElementMap has been updated so use this.
                 unsigned elem_index = mCellPdeElementMap[*cell_iter];
                 Element<DIM,DIM>* p_element = mpCoarsePdeMesh->GetElement(elem_index);
-    
+
                 const ChastePoint<DIM>& node_location = mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
-    
+
                 c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(node_location);
                 for (unsigned i=0; i<DIM+1; i++)
                 {

@@ -168,7 +168,7 @@ protected:
     /**
      * Method for determining how cell division occurs. This method returns a vector
      * which is then passed into the CellPopulation method AddCell().
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -261,7 +261,7 @@ public:
 
     /**
      * Set mpCellBasedPdeHandler
-     * 
+     *
      * @param pCellBasedPdeHandler pointer to a CellBasedPdeHandler object
      */
     void SetCellBasedPdeHandler(CellBasedPdeHandler<DIM>* pCellBasedPdeHandler);

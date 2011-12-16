@@ -345,7 +345,7 @@ public:
         solver.SetTimeStep(0.01);
 
         TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
-        		"SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
+                "SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
 
         // Set sampling time step
         solver.SetSamplingTimeStep(0.1);

@@ -55,23 +55,23 @@ private:
         static const double magnitude = -445000.0;
 public:
         StimulatedCellFactory() : AbstractCardiacCellFactory<2>(),
-			mpStimulus ( new SimpleStimulus(magnitude, 1.0))/*amplitude, duration (ms)*/
+            mpStimulus ( new SimpleStimulus(magnitude, 1.0))/*amplitude, duration (ms)*/
     {
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-    	CellLuoRudy1991FromCellML* first_cell;
-    	if ((x < 0.005) )
-    	{
-    		 first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
-    	}
-    	else
-    	{
-    		 first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
-    	}
-    	return first_cell;
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        CellLuoRudy1991FromCellML* first_cell;
+        if ((x < 0.005) )
+        {
+             first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
+        }
+        else
+        {
+             first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
+        }
+        return first_cell;
     }
 };
 
@@ -82,14 +82,14 @@ private:
         static const double magnitude = 0.0;
 public:
         UnStimulatedCellFactory() : AbstractCardiacCellFactory<2>(),
-			mpStimulus ( new SimpleStimulus(magnitude, 1.0))
+            mpStimulus ( new SimpleStimulus(magnitude, 1.0))
     {
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	CellLuoRudy1991FromCellML* second_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
-    	return second_cell;
+        CellLuoRudy1991FromCellML* second_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
+        return second_cell;
     }
 };
 
@@ -107,107 +107,107 @@ public:
 
     boost::shared_ptr<AbstractStimulusFunction> CreateStimulusForNode(unsigned nodeIndex)
     {
-    	double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
 
-    	boost::shared_ptr<SimpleStimulus> p_stimulus;
-    	if ((x <= 0.01))
-    	{
-    		p_stimulus.reset( new SimpleStimulus(25000, 0.5, 3.5) );
-    	}
-    	else if (x >= 0.09)
-    	{
-    		p_stimulus.reset( new SimpleStimulus(-25000, 0.5, 3.5) );
-    	}
-    	else
-    	{
-    	    p_stimulus.reset( new SimpleStimulus(0.0, 1.0, 0.1) );
-    	}
-    	return p_stimulus;
+        boost::shared_ptr<SimpleStimulus> p_stimulus;
+        if ((x <= 0.01))
+        {
+            p_stimulus.reset( new SimpleStimulus(25000, 0.5, 3.5) );
+        }
+        else if (x >= 0.09)
+        {
+            p_stimulus.reset( new SimpleStimulus(-25000, 0.5, 3.5) );
+        }
+        else
+        {
+            p_stimulus.reset( new SimpleStimulus(0.0, 1.0, 0.1) );
+        }
+        return p_stimulus;
     }
-};    
+};
 
 class TestArchivingExtendedBidomain : public CxxTest::TestSuite
 {
 
 public:
 
-	/**
-	 * Test of archiving an extended bidomain problem with intracellular stimulus.
-	 *
-	 * The test does the following:
-	 * - Set up and run a simulation for 3 ms and save everything to an archive.
-	 * - Load the simulation, check that all the member variables are in the correct state and run additional 2 ms.
-	 * - Run a new full 5 ms (3 + 2) simulation with the same setup.
-	 * - Compare hdf5 the hdf5 output from the full and the checkpointed simulations and check they are the same.
-	 *
-	 * in this test, an heterogeneous pattern pf Ggap is set up to check for proper archiving
-	 */
-	void TestArchivingProblemIntraStim() throw(Exception)
-	{
-		FileFinder archive_dir("extended_bidomain_problem_archive", RelativeTo::ChasteTestOutput);
-		std::string archive_file = "extended.arch";
+    /**
+     * Test of archiving an extended bidomain problem with intracellular stimulus.
+     *
+     * The test does the following:
+     * - Set up and run a simulation for 3 ms and save everything to an archive.
+     * - Load the simulation, check that all the member variables are in the correct state and run additional 2 ms.
+     * - Run a new full 5 ms (3 + 2) simulation with the same setup.
+     * - Compare hdf5 the hdf5 output from the full and the checkpointed simulations and check they are the same.
+     *
+     * in this test, an heterogeneous pattern pf Ggap is set up to check for proper archiving
+     */
+    void TestArchivingProblemIntraStim() throw(Exception)
+    {
+        FileFinder archive_dir("extended_bidomain_problem_archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "extended.arch";
 
-		mProbeNode = 15u;//for comparing node traces
+        mProbeNode = 15u;//for comparing node traces
 
-		//Run 3 ms and save
-		Run2DSimulationSaveAfterThreemilliSecondsIntraStim(archive_dir, archive_file);
-		//resume and run remaining 2 ms
-		LoadAndRunRemainingTwoMilliSecondsIntraStim(archive_dir, archive_file);
+        //Run 3 ms and save
+        Run2DSimulationSaveAfterThreemilliSecondsIntraStim(archive_dir, archive_file);
+        //resume and run remaining 2 ms
+        LoadAndRunRemainingTwoMilliSecondsIntraStim(archive_dir, archive_file);
 
-		//Now run, from scratch the same full extended bidomain simulation (5 ms)
-		RunFull2DSimulationIntraStim();
+        //Now run, from scratch the same full extended bidomain simulation (5 ms)
+        RunFull2DSimulationIntraStim();
 
         // check that full and checkpointed simulations generate the same hdf5 result
         TS_ASSERT(CompareFilesViaHdf5DataReader("Extended2DFull", "extended2d", true,
                                                 "Extended2DArchived", "extended2d", true,
                                                 1e-9));
-	}
+    }
 
 
-	/**
-	 * Test of archiving an extended bidomain problem with extracellular stimulus. 
-	 * This is the same as above but we check that the extracellular stimulus is archived properly
-	 */
-	void TestArchivingProblemExtraStim() throw(Exception)
-	{
-		FileFinder archive_dir("extended_bidomain_problem_archive_extrastim", RelativeTo::ChasteTestOutput);
-		std::string archive_file = "extended.arch";
+    /**
+     * Test of archiving an extended bidomain problem with extracellular stimulus.
+     * This is the same as above but we check that the extracellular stimulus is archived properly
+     */
+    void TestArchivingProblemExtraStim() throw(Exception)
+    {
+        FileFinder archive_dir("extended_bidomain_problem_archive_extrastim", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "extended.arch";
 
-		mProbeNode = 15u;//for comparing node traces
+        mProbeNode = 15u;//for comparing node traces
 
-		//Run 3 ms and save
-		Run2DSimulationSaveAfterThreemilliSecondsExtraStim(archive_dir, archive_file);
-		//resume and run remaining 2 ms
-		LoadAndRunRemainingTwoMilliSecondsExtraStim(archive_dir, archive_file);
+        //Run 3 ms and save
+        Run2DSimulationSaveAfterThreemilliSecondsExtraStim(archive_dir, archive_file);
+        //resume and run remaining 2 ms
+        LoadAndRunRemainingTwoMilliSecondsExtraStim(archive_dir, archive_file);
 
-		//Now run, from scratch the same full extended bidomain simulation (5 ms)
-		RunFull2DSimulationExtraStim();
+        //Now run, from scratch the same full extended bidomain simulation (5 ms)
+        RunFull2DSimulationExtraStim();
 
         // check that full and checkpointed simulations generate the same hdf5 result
-		TS_ASSERT(CompareFilesViaHdf5DataReader("Extended2DFullExtraStim", "extended2d", true,
+        TS_ASSERT(CompareFilesViaHdf5DataReader("Extended2DFullExtraStim", "extended2d", true,
                                                 "Extended2DArchivedExtraStim", "extended2d", true,
                                                 1e-9));
-	}
+    }
 private:
 
-	unsigned mProbeNode; //probe node in the original mesh numbering
+    unsigned mProbeNode; //probe node in the original mesh numbering
 
-	void SetupParameters() throw (Exception)
-	{
-    	HeartConfig::Instance()->Reset();
+    void SetupParameters() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.5, 0.5));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(5.0, 5.0));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1400.0);
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
         HeartConfig::Instance()->SetCapacitance(1.0);
         HeartConfig::Instance()->SetKSPSolver("gmres");
-		HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
-    	HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
-    	//Dumb partitioning is needed because we unarchive only with dumb partitioning (see #1199).
-    	//This does not affect the hdf5 file, but it does affect the numbering of the node for the traces (which we test here).
-    	HeartConfig::Instance()->SetMeshPartitioning("dumb");
-	}
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
+        //Dumb partitioning is needed because we unarchive only with dumb partitioning (see #1199).
+        //This does not affect the hdf5 file, but it does affect the numbering of the node for the traces (which we test here).
+        HeartConfig::Instance()->SetMeshPartitioning("dumb");
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //// Functions for archiving problems with intracellular stimulus
@@ -215,13 +215,13 @@ private:
 
     void RunFull2DSimulationIntraStim() throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
         HeartConfig::Instance()->SetSimulationDuration(5.0);
 
         StimulatedCellFactory stimulated_cell_factory;
         UnStimulatedCellFactory unstimulated_cell_factory;
-	
+
         HeartConfig::Instance()->SetOutputDirectory("Extended2DFull");
         HeartConfig::Instance()->SetOutputFilenamePrefix("extended2d");
 
@@ -242,7 +242,7 @@ private:
         heterogeneity_areas.push_back(p_cuboid_1);
         Ggap_values.push_back(0.1);
         extended_problem.SetGgapHeterogeneities(heterogeneity_areas, Ggap_values);
-	
+
         extended_problem.Initialise();
         extended_problem.Solve();
 
@@ -254,7 +254,7 @@ private:
 
     void Run2DSimulationSaveAfterThreemilliSecondsIntraStim(FileFinder archive_dir, std::string archive_file) throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
         HeartConfig::Instance()->SetSimulationDuration(3.0);
 
@@ -271,7 +271,7 @@ private:
         extended_problem.SetExtendedBidomainParameters(1400, 1500, 1600, 1.0 , 1.0, 0.0);
         //and the case where second cell has different intracellular conductivities.
         extended_problem.SetIntracellularConductivitiesForSecondCell(Create_c_vector(1.5,1.5));
-    
+
         //also put in non-default Ggap heterogeneity pattern to check for archiving
         std::vector<boost::shared_ptr<AbstractChasteRegion<2> > > heterogeneity_areas;
         std::vector<double> Ggap_values;
@@ -292,8 +292,8 @@ private:
         (*p_arch) & p_extended_problem; //archive
     }
 
-	void LoadAndRunRemainingTwoMilliSecondsIntraStim(FileFinder archive_dir, std::string archive_file) throw (Exception)
-	{
+    void LoadAndRunRemainingTwoMilliSecondsIntraStim(FileFinder archive_dir, std::string archive_file) throw (Exception)
+    {
         ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
         boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
@@ -332,18 +332,18 @@ private:
         unsigned size_first_cell, size_second_cell, size_extrastim, global_size_first_cell, global_size_second_cell, global_size_extrastim;
         for (unsigned proc = 0; proc < PetscTools::GetNumProcs(); proc++)
         {
-        	size_first_cell = p_problem->GetTissue()->rGetCellsDistributed().size();
-        	size_second_cell = p_extended_problem->GetExtendedBidomainTissue()->rGetSecondCellsDistributed().size();
-        	size_extrastim = p_extended_problem->GetExtendedBidomainTissue()->rGetExtracellularStimulusDistributed().size();
+            size_first_cell = p_problem->GetTissue()->rGetCellsDistributed().size();
+            size_second_cell = p_extended_problem->GetExtendedBidomainTissue()->rGetSecondCellsDistributed().size();
+            size_extrastim = p_extended_problem->GetExtendedBidomainTissue()->rGetExtracellularStimulusDistributed().size();
         }
-    	int mpi_ret_1 = MPI_Allreduce(&size_first_cell, &global_size_first_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    	int mpi_ret_2 = MPI_Allreduce(&size_second_cell, &global_size_second_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    	int mpi_ret_3 = MPI_Allreduce(&size_extrastim, &global_size_extrastim, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    	assert(mpi_ret_1 == MPI_SUCCESS);
-    	assert(mpi_ret_2 == MPI_SUCCESS);
-    	assert(mpi_ret_3 == MPI_SUCCESS);
+        int mpi_ret_1 = MPI_Allreduce(&size_first_cell, &global_size_first_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        int mpi_ret_2 = MPI_Allreduce(&size_second_cell, &global_size_second_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        int mpi_ret_3 = MPI_Allreduce(&size_extrastim, &global_size_extrastim, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        assert(mpi_ret_1 == MPI_SUCCESS);
+        assert(mpi_ret_2 == MPI_SUCCESS);
+        assert(mpi_ret_3 == MPI_SUCCESS);
 
-    	unsigned number_of_nodes = p_problem->GetTissue()->pGetMesh()->GetNumNodes();
+        unsigned number_of_nodes = p_problem->GetTissue()->pGetMesh()->GetNumNodes();
         TS_ASSERT_EQUALS(global_size_first_cell, number_of_nodes);
         TS_ASSERT_EQUALS(global_size_second_cell, number_of_nodes);
         TS_ASSERT_EQUALS(global_size_extrastim, number_of_nodes);
@@ -352,7 +352,7 @@ private:
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         p_problem->Solve();
         delete p_problem;
-	}
+    }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -362,14 +362,14 @@ private:
 
     void RunFull2DSimulationExtraStim() throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
         HeartConfig::Instance()->SetSimulationDuration(5.0);
 
         UnStimulatedCellFactory unstimulated_cell_factory_1;
         UnStimulatedCellFactory unstimulated_cell_factory_2;
         ExtracellularStimulusFactory extra_stim;
-		
+
         HeartConfig::Instance()->SetOutputDirectory("Extended2DFullExtraStim");
         HeartConfig::Instance()->SetOutputFilenamePrefix("extended2d");
 
@@ -390,7 +390,7 @@ private:
     }
     void Run2DSimulationSaveAfterThreemilliSecondsExtraStim(FileFinder archive_dir, std::string archive_file) throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
         HeartConfig::Instance()->SetSimulationDuration(3.0);
 
@@ -418,9 +418,9 @@ private:
         AbstractCardiacProblem<2,2,3>* const p_extended_problem = &extended_problem;
         (*p_arch) & p_extended_problem; //archive
     }
-    
+
     void LoadAndRunRemainingTwoMilliSecondsExtraStim(FileFinder archive_dir, std::string archive_file) throw (Exception)
-	{
+    {
         ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
         boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
@@ -452,18 +452,18 @@ private:
         unsigned size_first_cell, size_second_cell, size_extrastim, global_size_first_cell, global_size_second_cell, global_size_extrastim;
         for (unsigned proc = 0; proc < PetscTools::GetNumProcs(); proc++)
         {
-        	size_first_cell = p_problem->GetTissue()->rGetCellsDistributed().size();
-        	size_second_cell = p_extended_problem->GetExtendedBidomainTissue()->rGetSecondCellsDistributed().size();
-        	size_extrastim = p_extended_problem->GetExtendedBidomainTissue()->rGetExtracellularStimulusDistributed().size();
+            size_first_cell = p_problem->GetTissue()->rGetCellsDistributed().size();
+            size_second_cell = p_extended_problem->GetExtendedBidomainTissue()->rGetSecondCellsDistributed().size();
+            size_extrastim = p_extended_problem->GetExtendedBidomainTissue()->rGetExtracellularStimulusDistributed().size();
         }
-    	int mpi_ret_1 = MPI_Allreduce(&size_first_cell, &global_size_first_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    	int mpi_ret_2 = MPI_Allreduce(&size_second_cell, &global_size_second_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    	int mpi_ret_3 = MPI_Allreduce(&size_extrastim, &global_size_extrastim, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-    	assert(mpi_ret_1 == MPI_SUCCESS);
-    	assert(mpi_ret_2 == MPI_SUCCESS);
-    	assert(mpi_ret_3 == MPI_SUCCESS);
+        int mpi_ret_1 = MPI_Allreduce(&size_first_cell, &global_size_first_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        int mpi_ret_2 = MPI_Allreduce(&size_second_cell, &global_size_second_cell, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        int mpi_ret_3 = MPI_Allreduce(&size_extrastim, &global_size_extrastim, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        assert(mpi_ret_1 == MPI_SUCCESS);
+        assert(mpi_ret_2 == MPI_SUCCESS);
+        assert(mpi_ret_3 == MPI_SUCCESS);
 
-    	unsigned number_of_nodes = p_problem->GetTissue()->pGetMesh()->GetNumNodes();
+        unsigned number_of_nodes = p_problem->GetTissue()->pGetMesh()->GetNumNodes();
         TS_ASSERT_EQUALS(global_size_first_cell, number_of_nodes);
         TS_ASSERT_EQUALS(global_size_second_cell, number_of_nodes);
         TS_ASSERT_EQUALS(global_size_extrastim, number_of_nodes);
@@ -472,8 +472,8 @@ private:
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         p_problem->Solve();
         delete p_problem;
-	}
-	
+    }
+
 
 };
 #endif //TESTARCHIVINGEXTENDEDBIDOMAIN_HPP_

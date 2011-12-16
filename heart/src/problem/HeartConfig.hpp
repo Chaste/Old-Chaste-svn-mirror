@@ -853,8 +853,8 @@ public:
      * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
     void SetConductivityHeterogeneitiesEllipsoid(std::vector<ChasteEllipsoid<3> >& conductivityAreas,
-    		std::vector< c_vector<double,3> >& intraConductivities,
-    		std::vector< c_vector<double,3> >& extraConductivities);
+            std::vector< c_vector<double,3> >& intraConductivities,
+            std::vector< c_vector<double,3> >& extraConductivities);
     /**
      * @param rOutputDirectory  Full path to output directory (will be created if necessary)
      */

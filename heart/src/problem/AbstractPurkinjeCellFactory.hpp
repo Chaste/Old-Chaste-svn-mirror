@@ -42,11 +42,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class AbstractPurkinjeCellFactory : public AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
-	/** Saved pointer to the mixed dimension mesh */
-	MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* mpMixedDimensionMesh;
+    /** Saved pointer to the mixed dimension mesh */
+    MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* mpMixedDimensionMesh;
 
-	/** A set of local purkinje node indices */
-	std::set<unsigned> mLocalPurkinjeNodes;
+    /** A set of local purkinje node indices */
+    std::set<unsigned> mLocalPurkinjeNodes;
     /**
      * Must be overridden by subclasses to return a Purkinje cell object for the given node.
      * @param nodeIndex  Global node index.
@@ -56,12 +56,12 @@ protected:
 public:
 
     /* Constructor does nothing */
-	AbstractPurkinjeCellFactory();
+    AbstractPurkinjeCellFactory();
 
 
-	/** Overridden set mesh which must take a MixedDimensionMesh
-	 *  @param pMesh Pointer to the mesh. */
-	void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+    /** Overridden set mesh which must take a MixedDimensionMesh
+     *  @param pMesh Pointer to the mesh. */
+    void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Create a cell object for the given node.
@@ -72,7 +72,7 @@ public:
      *
      * @param nodeIndex  Global node index.
      */
-	AbstractCardiacCell* CreatePurkinjeCellForNode(unsigned nodeIndex);
+    AbstractCardiacCell* CreatePurkinjeCellForNode(unsigned nodeIndex);
 
     /**
      * May be overridden by subclasses to perform any necessary work after all Purkinje cells
@@ -83,15 +83,15 @@ public:
      * @param hi  Highest index owned by this process.
      */
     virtual void FinalisePurkinjeCellCreation(std::vector< AbstractCardiacCell* >* pPurkinjeCellsDistributed,
-											  unsigned lo, unsigned hi)
+                                              unsigned lo, unsigned hi)
     {
     }
 
     /**
-	 *  Get the mixed dimension mesh (for possible use in CreatePurkinjeCellForTissueNode()).
-	 *  Note: GetMesh() just returns a pointer to an AbstractTetrahedralMesh.
-	 */
-	MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* GetMixedDimensionMesh();
+     *  Get the mixed dimension mesh (for possible use in CreatePurkinjeCellForTissueNode()).
+     *  Note: GetMesh() just returns a pointer to an AbstractTetrahedralMesh.
+     */
+    MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* GetMixedDimensionMesh();
 };
 
 

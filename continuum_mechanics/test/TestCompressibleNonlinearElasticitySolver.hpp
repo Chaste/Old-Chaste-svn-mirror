@@ -185,8 +185,8 @@ public:
         TS_ASSERT_THROWS_THIS( CompressibleNonlinearElasticitySolver<3> another_solver(mesh,problem_defn,""), "SolidMechanicsProblemDefinition object contains incompressible material laws");
     }
 
-	// compare computed Jacobian against a numerically computed
-	// Jacobian
+    // compare computed Jacobian against a numerically computed
+    // Jacobian
     void TestAssembleSystem() throw (Exception)
     {
         EXIT_IF_PARALLEL; // #1913 currently, the compressible preconditioner is ICC, which is only supported in sequential

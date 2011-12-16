@@ -931,12 +931,12 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         //PCSetType(pc, PCSOR);
         PCSetType(pc, PCICC); /// \todo: #1913 this only works in sequential
         PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
-        
-		//needed for ICC preconditioner
-		//PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
 
-		//// for debugging only
-		//assert( PetscMatTools::CheckSymmetry(mJacobianMatrix) );
+        //needed for ICC preconditioner
+        //PetscOptionsSetValue("-pc_factor_shift_positive_definite", "");
+
+        //// for debugging only
+        //assert( PetscMatTools::CheckSymmetry(mJacobianMatrix) );
     }
     else
     {
@@ -971,7 +971,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
 
     #ifdef MECH_KSP_MONITOR
     PetscOptionsSetValue("-ksp_monitor","");
-	//PetscOptionsSetValue("-ksp_norm_type","natural");
+    //PetscOptionsSetValue("-ksp_norm_type","natural");
     #endif
 
     KSPSetFromOptions(solver);
@@ -990,9 +990,9 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     //}
     //std::cout << "\n\n";
 
-	// Set the linear system absolute tolerance.
-	// This is either the user provided value, or set to
-	// max {1e-6 * initial_residual, 1e-12}
+    // Set the linear system absolute tolerance.
+    // This is either the user provided value, or set to
+    // max {1e-6 * initial_residual, 1e-12}
     if (mKspAbsoluteTol < 0)
     {
         Vec temp = PetscTools::CreateVec(mNumDofs);
@@ -1006,7 +1006,7 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
         VecDestroy(temp);
         VecDestroy(temp2);
         VecDestroy(linsys_residual);
-    
+
         double ksp_rel_tol = 1e-6;
         double absolute_tol = ksp_rel_tol * initial_resid_norm;
         if(absolute_tol < 1e-12)

@@ -178,7 +178,7 @@ public:
 
         SphereGeometryBoundaryCondition<3> bc_3d(&population_3d, centre_3d, 0.4, 1e-4);
 
-        // Test that member variables were initialised correctly 
+        // Test that member variables were initialised correctly
         TS_ASSERT_DELTA(bc_3d.rGetCentreOfSphere()[0], centre_3d(0), 1e-4);
         TS_ASSERT_DELTA(bc_3d.rGetCentreOfSphere()[1], centre_3d(1), 1e-4);
         TS_ASSERT_DELTA(bc_3d.GetRadiusOfSphere(), 0.4, 1e-4);
@@ -248,7 +248,7 @@ public:
 
     void TestArchivingOfSphereGeometryBoundaryCondition() throw (Exception)
     {
-        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,
 1);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");

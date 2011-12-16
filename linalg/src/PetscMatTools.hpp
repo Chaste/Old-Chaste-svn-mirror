@@ -175,26 +175,26 @@ public:
      * @return rowIndex-th row of the matrix in distributed format
      */
     static Vec GetMatrixRowDistributed(Mat matrix, unsigned rowIndex);
-    
+
     /**
      * Check whether two matrices are equal to within a given tolerance.
-     * 
+     *
      * @param mat1  the first matrix
      * @param mat2  the second matrix
      * @param tol  the tolerance
      */
     static bool CheckEquality(const Mat mat1, const Mat mat2, double tol=1e-10);
-    
+
     /**
      * Check whether a matrix is symmetrix, to within a given tolerance, by
      * checking if it is (approximately) equal to its transpose.
-     * 
+     *
      * Note that while there is a PETSc method MatIsSymmetric, it won't work in
      * parallel on some PETSc versions:
      * "Matrix of type <mpiaij> does not support checking for symmetric!"
-     * 
+     *
      * Also checking for exact equality of the transpose can break on 32bit systems.
-     * 
+     *
      * @param matrix  the matrix to check
      * @param tol  the tolerance
      */

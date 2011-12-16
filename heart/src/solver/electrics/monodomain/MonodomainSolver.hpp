@@ -37,45 +37,45 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainAssembler.hpp"
 
 /**
- *  A monodomain solver, which uses various assemblers to set up the 
+ *  A monodomain solver, which uses various assemblers to set up the
  *  monodomain linear system.
- * 
- *  The discretised monodomain equation leads to the linear system (see FEM 
+ *
+ *  The discretised monodomain equation leads to the linear system (see FEM
  *  implementations document)
- * 
- *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf  
+ *
+ *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf
  *
  *  where chi is the surface-area to volume ratio, C the capacitance, dt the timestep
  *  M the mass matrix, K the stiffness matrix, V^{n} the vector of voltages at time n,
  *  F^{n} the vector of (chi*Iionic + Istim) at each node, and c_surf a vector
  *  arising from any surface stimuli (usually zero).
- * 
+ *
  *  This solver uses two assemblers, one to assemble the LHS matrix, (chi*C/dt) M  + K,
- *  and also to compute c_surf, and one to assemble the mass matrix M.   
- *  
- *  Also allows state variable interpolation (SVI) to be used on elements for which it 
- *  will be needed, if the appropriate HeartConfig boolean is set. 
+ *  and also to compute c_surf, and one to assemble the mass matrix M.
+ *
+ *  Also allows state variable interpolation (SVI) to be used on elements for which it
+ *  will be needed, if the appropriate HeartConfig boolean is set.
  *  See wiki page ChasteGuides/StateVariableInterpolation for more details on this.
  *  In this case the equation is
  *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf + c_correction
- *  and another assembler is used to create the c_correction. 
- */ 
+ *  and another assembler is used to create the c_correction.
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainSolver
   : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>
 {
 private:
-   
+
     /** Monodomain tissue class (collection of cells, and conductivities) */
     MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
-        
+
     /**
      *  Number of quadrature points per dimension (only saved so it can be
      *  passed to the assembler)
      */
-    unsigned mNumQuadPoints;       
+    unsigned mNumQuadPoints;
 
-    /** Boundary conditions */    
+    /** Boundary conditions */
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* mpBoundaryConditions;
 
     /** The monodomain assembler, used to set up the LHS matrix */
@@ -92,35 +92,35 @@ private:
 
     /** The mass matrix, used to computing the RHS vector */
     Mat mMassMatrix;
-    
+
     /** The vector multiplied by the mass matrix. Ie, if the linear system to
      *  be solved is Ax=b (excluding surface integrals), this vector is z where b=Mz.
      */
     Vec mVecForConstructingRhs;
 
 
-    /** 
+    /**
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the
-     *  LHS matrix, but sets up the RHS vector using the mass-matrix (constructed 
+     *  LHS matrix, but sets up the RHS vector using the mass-matrix (constructed
      *  using a separate assembler) multiplied by a vector
-     * 
+     *
      *  @param currentSolution  Solution at current time
      *  @param computeMatrix  Whether to compute the matrix of the linear system
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix);
-    
+
 public:
     /**
      *  Overloaded PrepareForSetupLinearSystem() methods which
      *  gets the cell models to solve themselves
-     * 
+     *
      *  @param currentSolution solution at current time
      */
     void PrepareForSetupLinearSystem(Vec currentSolution);
 
     /**
      *  Overloaded InitialiseForSolve
-     * 
+     *
      *  @param initialSolution initial solution
      */
     virtual void InitialiseForSolve(Vec initialSolution);
@@ -137,7 +137,7 @@ public:
                      MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                      BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                      unsigned numQuadPoints = 2);
-                     
+
     /**
      *  Destructor
      */

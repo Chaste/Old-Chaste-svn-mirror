@@ -50,7 +50,7 @@ void MixedDimensionMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(Abstrac
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ConstructFromMeshReader(rMeshReader);
     //Note that the above method may permute the node (for a parMETIS partition) after construction
     //We have to convert to the permuted form first
-    
+
     // Add cable elements
     mNumCableElements = rMeshReader.GetNumCableElements();
     //this->mCableElements.reserve(mNumCableElements);

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTRUNNINGBIDOMAINSIMULATIONSTUTORIAL_HPP_
 /*
  * = An example showing how to run bidomain simulations =
- * 
+ *
  * == Introduction ==
  *
  * In this tutorial we show how Chaste is used to run a standard bidomain simulation.
@@ -59,9 +59,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The above files are contained in the source release and can be located and studied. Cardiac cell
  * models are different: the C++ code is automatically generated from cellml files. To use a particular
  * cellml file, place it in heart/src/odes/cellml (there are several in here already). If the cellml
- * is called <CELLMODEL>.cellml, you need to include a (to-be-generated) file <CELLMODEL>.hpp, which will  
+ * is called <CELLMODEL>.cellml, you need to include a (to-be-generated) file <CELLMODEL>.hpp, which will
  * define a class called Cell<CELLMODEL>FromCellML.
- * For example, we will use the !LuoRudy1991 model, so we have to include the following, and 
+ * For example, we will use the !LuoRudy1991 model, so we have to include the following, and
  * later on use {{{CellLuoRudy1991FromCellML}}} as the cell model class.
  * See ["ChasteGuides/CodeGenerationFromCellML"] for more information on this process.
  */
@@ -79,9 +79,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * class has to inherit from {{{AbstractCardiacCellFactory<DIM>}}}, which means it must
  * implement the method {{{CreateCardiacCellForTissueNode(unsigned nodeNum)}}}, which returns
  * a pointer to an {{{AbstractCardiacCell}}}. Note, some concrete cell factories have
- * been defined, such as the {{{PlaneStimulusCellFactory}}} (see later tutorials), which 
- * could be used in the simulation, but for completeness we create our own cell factory in 
- * this test. For complicated problems with, say, heterogeneous cell types or particular stimuli, 
+ * been defined, such as the {{{PlaneStimulusCellFactory}}} (see later tutorials), which
+ * could be used in the simulation, but for completeness we create our own cell factory in
+ * this test. For complicated problems with, say, heterogeneous cell types or particular stimuli,
  * a new cell factory will have to be defined by the user for their particular problem.
  *
  * EMPTYLINE
@@ -125,8 +125,8 @@ public:
             /* Create a LR91 cell with the non-zero stimulus. This is a volume stimulus, ie
              * the function on the right-hand side of the first of the two bidomain equations.
              * An equal and opposite extra-cellular stimulus is implicitly enforced by the code,
-             * which corresponds to having zero on the right-hand side of the second of the 
-             * bidomain equations. 
+             * which corresponds to having zero on the right-hand side of the second of the
+             * bidomain equations.
              */
             return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
         }
@@ -158,12 +158,12 @@ public:
      */
     void TestSimpleSimulation() throw(Exception)
     {
-        /* The {{{HeartConfig}}} class is used to set various parameters (see the main ChasteGuides page 
+        /* The {{{HeartConfig}}} class is used to set various parameters (see the main ChasteGuides page
          * for information on default parameter values. Parameters in this file can be re-set
          * with {{{HeartConfig}}} if the user wishes, and other parameters such as end time must be set
          * using {{{HeartConfig}}}. Let us begin by setting the end time (in ms), the mesh to use, and the
          * output directory and filename-prefix. Note that the spatial units in cardiac Chaste is CENTIMETRES,
-         * so that mesh 2D_0_to_1mm_800_elements is a mesh over [0,0.1]x[0,0.1]. 
+         * so that mesh 2D_0_to_1mm_800_elements is a mesh over [0,0.1]x[0,0.1].
          */
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_800_elements");
@@ -189,14 +189,14 @@ public:
          */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
-        
+
         /* This is how to reset the surface-area-to-volume ratio and the capacitance.
          * (Here, we are actually just resetting them to their default values). */
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1400); // 1/cm
         HeartConfig::Instance()->SetCapacitance(1.0); // uF/cm^2
 
         /* This is how to set the ode timestep (the timestep used to solve the cell models)
-         * the pde timestep (the timestep used in solving the bidomain PDE), and the 
+         * the pde timestep (the timestep used in solving the bidomain PDE), and the
          * printing timestep (how often the output is written to file). The defaults are
          * all 0.01, here we increase the printing timestep.
          */
@@ -205,9 +205,9 @@ public:
         /* Now we call {{{Initialise()}}}... */
         bidomain_problem.Initialise();
 
-        /* Now we call Solve() to run the simulation. The output will be written to 
-         * /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format.  By default the 
-         * output will also be converted to meshalyzer format at the end of the simulation.  
+        /* Now we call Solve() to run the simulation. The output will be written to
+         * /tmp/USER_NAME/testoutput/BidomainTutorial in hdf5 format.  By default the
+         * output will also be converted to meshalyzer format at the end of the simulation.
          * Note that if you want to view the progress of longer simulations
          * go to the the output directory and look at the file
          * {{{progress_status.txt}}}, which will say the percentage of the
@@ -219,13 +219,13 @@ public:
          *
          * EMPTYLINE
          *
-         * Note: the easiest way to look at the resultant voltage values from the code 
+         * Note: the easiest way to look at the resultant voltage values from the code
          * (for the last timestep - the data for the previous timesteps is written to file
          * but not retained) is to use a {{{ReplicatableVector}}}.
          * {{{bidomain_problem.GetSolution())}}} returns a !PetSc vector
          * of the form (V_0, phi_0, V_1, phi_e_1, ... V_n, phi_e_n), and we can create a
-         * {{{ReplicatableVector}}} for easy access to this !PetSc vector's data. 
-         * (This won't be very efficient with huge problems in parallel - the next tutorial 
+         * {{{ReplicatableVector}}} for easy access to this !PetSc vector's data.
+         * (This won't be very efficient with huge problems in parallel - the next tutorial
          * will mention how to do parallel access).
          */
         ReplicatableVector res_repl(bidomain_problem.GetSolution());
@@ -233,20 +233,20 @@ public:
         {
         //    std::cout << res_repl[i] << "\n";
         }
-        
-        /* Behind the scenes there are some logging routines which find out how much time 
+
+        /* Behind the scenes there are some logging routines which find out how much time
          * has been spent in the major parts of the code (solving ODEs, assembling matrices etc.)
-         * The logging routines are in {{{HeartEventHandler}}} which is enabled by default.  
-         * If you think this is getting in the way, you can turn it off at the top of your test with 
+         * The logging routines are in {{{HeartEventHandler}}} which is enabled by default.
+         * If you think this is getting in the way, you can turn it off at the top of your test with
          * {{{HeartEventHandler::Disable()}}}.
          * In this test, we want to get information out of the {{{HeartEventHandler}}}.
          */
         /* {{{Headings()}}} prints a single (very long) line reminding us what catagories of events are being instrumented.*/
         HeartEventHandler::Headings();
-        /* {{{Report()}}} prints a single line with times spent in each catagory.  When run in parallel it prints one line of times per process and also lines for average 
+        /* {{{Report()}}} prints a single line with times spent in each catagory.  When run in parallel it prints one line of times per process and also lines for average
          * and maximum times.  (This can be useful if you need to identify a load imbalance.)*/
         HeartEventHandler::Report();
-        
+
     }
 };
 

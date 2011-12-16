@@ -172,9 +172,9 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
                     {
                         /*
                          * The following just does
-                         * 
+                         *
                          * mData[GetVectorIndex(a,b,c,d)] += rMatrix(a,N) * rTensor(N,b,c,d);
-                         * 
+                         *
                          * but more efficiently using iterators into the data vector, not
                          * using random access.
                          */
@@ -215,9 +215,9 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnSecondDimension(c
                     {
                         /*
                          * The following just does
-                         * 
+                         *
                          * mData[GetVectorIndex(a,b,c,d)] += rMatrix(b,N) * rTensor(a,N,c,d);
-                         * 
+                         *
                          * but more efficiently using iterators into the data vector, not
                          * using random access.
                          */
@@ -261,9 +261,9 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnThirdDimension(co
                     {
                         /*
                          * The following just does
-                         * 
+                         *
                          * mData[GetVectorIndex(a,b,c,d)] += rMatrix(c,N) * rTensor(a,b,N,d);
-                         * 
+                         *
                          * but more efficiently using iterators into the data vector, not
                          * using random access.
                          */
@@ -308,9 +308,9 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFourthDimension(c
                     {
                         /*
                          * The following just does
-                         * 
+                         *
                          * mData[GetVectorIndex(a,b,c,d)] += rMatrix(d,N) * rTensor(a,b,c,N);
-                         * 
+                         *
                          * but more efficiently using iterators into the data vector, not
                          * using random access.
                          */

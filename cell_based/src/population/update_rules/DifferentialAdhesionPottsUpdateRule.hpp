@@ -111,7 +111,7 @@ public:
      */
     virtual double GetCellBoundaryAdhesionEnergy(CellPtr pCell);
 
-	/**
+    /**
      * @return mLabelledCellLabelledCellAdhesionEnergyParameter
      */
     double GetLabelledCellLabelledCellAdhesionEnergyParameter();
@@ -140,7 +140,7 @@ public:
      */
     void SetLabelledCellCellAdhesionEnergyParameter(double labelledCellCellAdhesionEnergyParameter);
 
-	/**
+    /**
      * Set mLabelledCellBoundaryAdhesionEnergyParameter.
      *
      * @param labelledCellBoundaryAdhesionEnergyParameter the new value of mLabelledCellBoundaryAdhesionEnergyParameter

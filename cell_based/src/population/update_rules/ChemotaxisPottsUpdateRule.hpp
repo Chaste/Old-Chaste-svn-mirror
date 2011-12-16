@@ -68,17 +68,17 @@ public:
     ~ChemotaxisPottsUpdateRule();
 
     /**
-	 * Overridden EvaluateHamiltonianContribution() method
-	 *
-	 * Assigns a greater propensity for moving in an increasing x, y (and z) direction.
-	 *
-	 * @param currentNodeIndex The index of the current node/lattice site
-	 * @param targetNodeIndex The index of the target node/lattice site
-	 * @param rCellPopulation The cell population
-	 *
-	 * @return The difference in the Hamiltonian with the configuration of the target node
-	 * having the same spin as the current node with the current configuration. i.e H_1-H_0
-	 */
+     * Overridden EvaluateHamiltonianContribution() method
+     *
+     * Assigns a greater propensity for moving in an increasing x, y (and z) direction.
+     *
+     * @param currentNodeIndex The index of the current node/lattice site
+     * @param targetNodeIndex The index of the target node/lattice site
+     * @param rCellPopulation The cell population
+     *
+     * @return The difference in the Hamiltonian with the configuration of the target node
+     * having the same spin as the current node with the current configuration. i.e H_1-H_0
+     */
     double EvaluateHamiltonianContribution(unsigned currentNodeIndex,
                                            unsigned targetNodeIndex,
                                            PottsBasedCellPopulation<DIM>& rCellPopulation);

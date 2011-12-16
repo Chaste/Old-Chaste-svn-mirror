@@ -133,10 +133,10 @@ private:
      */
     void FindMaxAndMin();
 
-    /** 
+    /**
      * Overridden WriteCellVolumeResultsToFile() method.
      */
-    void WriteCellVolumeResultsToFile();    
+    void WriteCellVolumeResultsToFile();
 
     /**
      * Overridden WriteVtkResultsToFile() method.

@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  MonodomainTissue class.
- * 
- *  Essentially identical to AbstractCardiacTissue - see documentation for 
+ *
+ *  Essentially identical to AbstractCardiacTissue - see documentation for
  *  AbstractCardiacTissue.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
@@ -120,7 +120,7 @@ inline void load_construct_data(
 {
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
     ar & p_mesh;
-    
+
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
     // So make sure that it is archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();

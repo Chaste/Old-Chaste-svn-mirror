@@ -111,26 +111,26 @@ public:
     // Test get centroid
     void TestGetCentroidOfCellPopulation() throw(Exception)
     {
-    	// Create a simple mesh
-		unsigned num_cells_depth = 2;
-		unsigned num_cells_width = 2;
-		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
-		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a simple mesh
+        unsigned num_cells_depth = 2;
+        unsigned num_cells_width = 2;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Set up cells, one for each node.
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+        // Set up cells, one for each node.
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
-		// Create cell population
-		MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Check position of centroid
-		c_vector<double, 2> expected_centroid_position;
-		expected_centroid_position(0) = 0.75;
-		expected_centroid_position(1) = 0.25*pow(3,0.5);
-		TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(0), expected_centroid_position(0), 1e-4);
-		TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(1), expected_centroid_position(1), 1e-4)
+        // Check position of centroid
+        c_vector<double, 2> expected_centroid_position;
+        expected_centroid_position(0) = 0.75;
+        expected_centroid_position(1) = 0.25*pow(3,0.5);
+        TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(0), expected_centroid_position(0), 1e-4);
+        TS_ASSERT_DELTA(cell_population.GetCentroidOfCellPopulation()(1), expected_centroid_position(1), 1e-4)
     }
 
     void TestValidateMeshBasedCellPopulation()

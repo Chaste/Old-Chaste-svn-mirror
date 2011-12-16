@@ -85,7 +85,7 @@ public:
         NumericFileComparison comp(fibre_file,"heart/test/data/box_shaped_heart/box_heart.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
-    
+
     void TestExceptions()
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
@@ -124,9 +124,9 @@ public:
         fibre_generator.SetApexToBase(axis);
     }
 
-	void TestConstructStreeterOnLeftWedge() throw(Exception)
+    void TestConstructStreeterOnLeftWedge() throw(Exception)
     {
-		TrianglesMeshReader<3,3> mesh_reader("heart/test/data/human_wedge_mesh/HumanWedgeMesh");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/human_wedge_mesh/HumanWedgeMesh");
         std::string epi_face_file = "heart/test/data/human_wedge_mesh/epi.tri";
         std::string endo_face_file = "heart/test/data/human_wedge_mesh/endo.tri";
 
@@ -143,15 +143,15 @@ public:
         fibre_generator.GenerateOrthotropicFibreOrientation("human_wedge_mesh/", "HumanWedgeMeshLeft.ortho", true);
 
         OutputFileHandler handler("human_wedge_mesh", false);
-		std::string fibre_file = handler.GetOutputDirectoryFullPath() + "HumanWedgeMeshLeft.ortho";
+        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "HumanWedgeMeshLeft.ortho";
 
-		NumericFileComparison comp(fibre_file,"heart/test/data/human_wedge_mesh/HumanWedgeMeshLeft.ortho");
-		TS_ASSERT(comp.CompareFiles(1e-11));
+        NumericFileComparison comp(fibre_file,"heart/test/data/human_wedge_mesh/HumanWedgeMeshLeft.ortho");
+        TS_ASSERT(comp.CompareFiles(1e-11));
     }
 
-	void TestConstructStreeterOnRightWedge() throw(Exception)
+    void TestConstructStreeterOnRightWedge() throw(Exception)
     {
-		TrianglesMeshReader<3,3> mesh_reader("heart/test/data/human_wedge_mesh/HumanWedgeMesh");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/human_wedge_mesh/HumanWedgeMesh");
         std::string epi_face_file = "heart/test/data/human_wedge_mesh/epi.tri";
         std::string endo_face_file = "heart/test/data/human_wedge_mesh/endo.tri";
 
@@ -171,7 +171,7 @@ public:
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "HumanWedgeMeshRight.ortho";
 
         NumericFileComparison comp(fibre_file,"heart/test/data/human_wedge_mesh/HumanWedgeMeshRight.ortho");
-		TS_ASSERT(comp.CompareFiles(1e-11));
+        TS_ASSERT(comp.CompareFiles(1e-11));
     }
 
 };

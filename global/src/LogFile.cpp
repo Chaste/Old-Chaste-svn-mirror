@@ -68,7 +68,7 @@ void LogFile::Set(unsigned level, const std::string& rDirectory, const std::stri
     if (level > mMaxLoggingLevel)
     {
         EXCEPTION("Requested level " << level
-                  << " should have been less than or equal to " 
+                  << " should have been less than or equal to "
                   << mMaxLoggingLevel);
     }
     mLevel = level;

@@ -55,8 +55,8 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
 {
     if (this->mpConfig->IsMeshProvided() && this->mpConfig->GetLoadMesh())
     {
-        assert(this->mFibreFilePathNoExtension != "");        
-        
+        assert(this->mFibreFilePathNoExtension != "");
+
         switch (this->mpConfig->GetConductivityMedia())
         {
             case cp::media_type::Orthotropic:
@@ -103,7 +103,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
         try
         {
             assert(hetero_extra_conductivities.size()==0);
-            //initialise with the values of the default conductivity tensor 
+            //initialise with the values of the default conductivity tensor
             hetero_extra_conductivities.resize(num_local_elements, extra_conductivities);
         }
         catch(std::bad_alloc &r_bad_alloc)
@@ -124,7 +124,7 @@ void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
                                                                 extra_h_conductivities);
 
         unsigned local_element_index = 0;
-        
+
         for (typename AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>::ElementIterator iter = (this->mpMesh)->GetElementIteratorBegin();
              iter != (this->mpMesh)->GetElementIteratorEnd();
              ++iter)
@@ -171,7 +171,7 @@ const c_matrix<double, SPACE_DIM, SPACE_DIM>& BidomainTissue<SPACE_DIM>::rGetExt
     assert(mpExtracellularConductivityTensors);
     if(this->mpConductivityModifier==NULL)
     {
-    	return (*mpExtracellularConductivityTensors)[elementIndex];
+        return (*mpExtracellularConductivityTensors)[elementIndex];
     }
     else
     {

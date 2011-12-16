@@ -40,9 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A subclass of StochasticDurationGenerationBasedCellCycleModel
  * that includes a Delta-Notch ODE system.
- * 
+ *
  * For another example of a cell cycle model that is not *based on*
- * an ODE system, but that includes an ODE system, see 
+ * an ODE system, but that includes an ODE system, see
  * SingleOdeWntCellCycleModel (in Crypt).
  */
 class DeltaNotchCellCycleModel : public StochasticDurationGenerationBasedCellCycleModel, public CellCycleModelOdeHandler
@@ -68,7 +68,7 @@ public:
 
     /**
      * Default constructor calls base class.
-     * 
+     *
      * @param pOdeSolver An optional pointer to a cell-cycle model ODE solver object (allows the use of different ODE solvers)
      */
     DeltaNotchCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
@@ -87,7 +87,7 @@ public:
      * This overridden method sets up a new Delta-Notch ODE system.
      */
     void Initialise();
-    
+
     /**
      * Overridden UpdateCellCyclePhase() method.
      */

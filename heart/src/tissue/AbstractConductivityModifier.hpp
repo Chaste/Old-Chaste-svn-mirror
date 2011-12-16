@@ -41,14 +41,14 @@ class AbstractConductivityModifier
 {
 public:
     /** Constructor does nothing */
-	AbstractConductivityModifier()
-	{
-	}
+    AbstractConductivityModifier()
+    {
+    }
 
-	/** Destructor */
-	virtual ~AbstractConductivityModifier()
-	{
-	}
+    /** Destructor */
+    virtual ~AbstractConductivityModifier()
+    {
+    }
 
     /** Pure method which alters the given conductivity tensor
      *  @param elementIndex Index of current element

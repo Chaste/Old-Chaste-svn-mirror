@@ -169,9 +169,9 @@ class ExtendedBidomainProblem : public AbstractCardiacProblem<DIM,DIM, 3>
                  index != distr_solution.End();
                  ++index)
             {
-            	wrapped_voltages_to_be_written_first_stripe[index] = phi_i_first_cell_stripe[index] - phi_e_stripe[index];
-            	wrapped_voltages_to_be_written_second_stripe[index] = phi_i_second_cell_stripe[index] - phi_e_stripe[index];
-            	wrapped_voltages_to_be_written_third_stripe[index] = phi_e_stripe[index];
+                wrapped_voltages_to_be_written_first_stripe[index] = phi_i_first_cell_stripe[index] - phi_e_stripe[index];
+                wrapped_voltages_to_be_written_second_stripe[index] = phi_i_second_cell_stripe[index] - phi_e_stripe[index];
+                wrapped_voltages_to_be_written_third_stripe[index] = phi_e_stripe[index];
             }
             distr_solution.Restore();
             wrapped_voltages_to_be_written.Restore();
@@ -221,7 +221,7 @@ class ExtendedBidomainProblem : public AbstractCardiacProblem<DIM,DIM, 3>
 
         bool has_solution;
         archive & has_solution;
-	
+
         if (has_solution)
         {
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
@@ -236,33 +236,33 @@ class ExtendedBidomainProblem : public AbstractCardiacProblem<DIM,DIM, 3>
             Vec V_2 = this->mpMesh->GetDistributedVectorFactory()->CreateVec();
             Vec phie = this->mpMesh->GetDistributedVectorFactory()->CreateVec();
 
-        	reader.GetVariableOverNodes(V, "V", 0);
-        	reader.GetVariableOverNodes(V_2, "V_2", 0);
-			reader.GetVariableOverNodes(phie, "Phi_e", 0);
+            reader.GetVariableOverNodes(V, "V", 0);
+            reader.GetVariableOverNodes(V_2, "V_2", 0);
+            reader.GetVariableOverNodes(phie, "Phi_e", 0);
 
-			//from transmembrane voltages back to phi_i now...
-			DistributedVector vm_first_cell_distri = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(V);
-			DistributedVector vm_second_cell_distri = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(V_2);
-			DistributedVector phie_distri = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(phie);
+            //from transmembrane voltages back to phi_i now...
+            DistributedVector vm_first_cell_distri = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(V);
+            DistributedVector vm_second_cell_distri = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(V_2);
+            DistributedVector phie_distri = this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(phie);
 
-			DistributedVector::Stripe mSolution_phi_1(mSolution_distri,0);
-			DistributedVector::Stripe mSolution_phi_2(mSolution_distri,1);
-			DistributedVector::Stripe mSolution_phie(mSolution_distri,2);
+            DistributedVector::Stripe mSolution_phi_1(mSolution_distri,0);
+            DistributedVector::Stripe mSolution_phi_2(mSolution_distri,1);
+            DistributedVector::Stripe mSolution_phie(mSolution_distri,2);
 
-			for (DistributedVector::Iterator index = mSolution_distri.Begin();
-				 index != mSolution_distri.End();
-				 ++index)
-			{
-				mSolution_phi_1[index] = vm_first_cell_distri[index] + phie_distri[index];//phi_i = Vm + phi_e
-				mSolution_phi_2[index] = vm_second_cell_distri[index] + phie_distri[index];
-				mSolution_phie[index] = phie_distri[index];
-			}
+            for (DistributedVector::Iterator index = mSolution_distri.Begin();
+                 index != mSolution_distri.End();
+                 ++index)
+            {
+                mSolution_phi_1[index] = vm_first_cell_distri[index] + phie_distri[index];//phi_i = Vm + phi_e
+                mSolution_phi_2[index] = vm_second_cell_distri[index] + phie_distri[index];
+                mSolution_phie[index] = phie_distri[index];
+            }
             VecDestroy(V);
             VecDestroy(V_2);
-			VecDestroy(phie);
+            VecDestroy(phie);
 
-			mSolution_distri.Restore();
-		}
+            mSolution_distri.Restore();
+        }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
@@ -297,26 +297,26 @@ protected:
     bool mUserHasSetBidomainValuesExplicitly;
 
     /**Am for the first cell, set by the user and, if so,  set into the PDE*/
-	double mAmFirstCell;
+    double mAmFirstCell;
     /**Am for the second cell, set by the user and, if so,  set into the PDE*/
-	double mAmSecondCell;
+    double mAmSecondCell;
     /**Am for the gap junctions, set by the user and, if so,  set into the PDE*/
-	double mAmGap;
+    double mAmGap;
     /**Cm for the first cell, set by the user and, if so,  set into the PDE*/
-	double mCmFirstCell;
+    double mCmFirstCell;
     /**Cm for the second cell, set by the user and, if so,  set into the PDE*/
-	double mCmSecondCell;
-	/**Conductance, in mS of the gap junction conductance, set by the user and, if so,  set into the PDE (otherwise its default value is 0 */
-	double mGGap;
-	
-	/**
-	 * Vector of Ggap heterogeneity regions. Set by the user, it is passed on to the tissue object.
-	 * If empty (i.e., the user did not specify any heterogeneities) then the empty vector will still be passed to the tissue object, which, 
-	 * seeing the empty vector, will apply mGgap everywhere
-	 */
-	std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > > mGgapHeterogeneityRegions;
-	
-	/**Corresponding vector of values of Ggap for every heterogeneous region in mGgapHeterogeneityRegions*/
+    double mCmSecondCell;
+    /**Conductance, in mS of the gap junction conductance, set by the user and, if so,  set into the PDE (otherwise its default value is 0 */
+    double mGGap;
+
+    /**
+     * Vector of Ggap heterogeneity regions. Set by the user, it is passed on to the tissue object.
+     * If empty (i.e., the user did not specify any heterogeneities) then the empty vector will still be passed to the tissue object, which,
+     * seeing the empty vector, will apply mGgap everywhere
+     */
+    std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > > mGgapHeterogeneityRegions;
+
+    /**Corresponding vector of values of Ggap for every heterogeneous region in mGgapHeterogeneityRegions*/
     std::vector<double> mGgapHeterogenousValues;
 
 
@@ -440,12 +440,12 @@ public:
      *  Set the values of mCellHeterogeneityRegions and mGgapValues for the heterogeneities of Ggap.
      *  It just sets the member variables here that will later be passed on to the tissue object.
      *  It also checks that the two have the same size. Throws otherwise.
-     * 
+     *
      *  @param rGgapHeterogeneityRegions a vector of heterogeneity regions for gap junctions
      *  @param rGgapValues a vector (of the same size as rGgapHeterogeneityRegions) with the respective values of Ggap for every region.
-     */ 
+     */
     void SetGgapHeterogeneities ( std::vector<boost::shared_ptr<AbstractChasteRegion<DIM> > >& rGgapHeterogeneityRegions, std::vector<double>& rGgapValues);
-    
+
     /**
      * Sets a stimulus factory as the extracellular one.
      *

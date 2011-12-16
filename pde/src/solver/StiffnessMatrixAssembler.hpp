@@ -65,7 +65,7 @@ public:
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
     {
-    	return prod( trans(rGradPhi), rGradPhi );
+        return prod( trans(rGradPhi), rGradPhi );
     }
 
     /**

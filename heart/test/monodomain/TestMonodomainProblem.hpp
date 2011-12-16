@@ -110,7 +110,7 @@ public:
 
     // This is a test on a very small mesh (where there may be more processes than there are nodes)
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -119,7 +119,7 @@ public:
         DistributedTetrahedralMesh<1,1> mesh;
         //TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_1_element");
         mesh.ConstructLinearMesh(1);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
         if (!PetscTools::IsSequential())
@@ -134,7 +134,7 @@ public:
                 TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(),0u);
                 TS_ASSERT_EQUALS(mesh.GetNumLocalElements(),0u);
             }
-        }            
+        }
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dSimplest");
@@ -143,7 +143,7 @@ public:
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         monodomain_problem.SetMesh(&mesh);
-        
+
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -165,7 +165,7 @@ public:
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -227,7 +227,7 @@ public:
     }
 
 
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -273,7 +273,7 @@ public:
 
     // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -319,7 +319,7 @@ public:
         TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1din3d/").c_str()), 0);
     }
 
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -369,7 +369,7 @@ public:
     // Should behave like the 1D case, extrapolated.
     // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -460,8 +460,8 @@ public:
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
-    //    
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -626,7 +626,7 @@ public:
     }
 
 
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -817,17 +817,17 @@ public:
             std::string basename = filepath + "monodomain3d";
             std::stringstream vtu_path;
             vtu_path << basename << "_" << PetscTools::GetMyRank() << ".vtu";
-            
-            FileFinder pvtk_file(basename + ".pvtu", RelativeTo::Absolute); 
-            TS_ASSERT(pvtk_file.Exists()); 
-            FileFinder vtk_file(vtu_path.str(), RelativeTo::Absolute); 
-            TS_ASSERT(vtk_file.Exists()); 
+
+            FileFinder pvtk_file(basename + ".pvtu", RelativeTo::Absolute);
+            TS_ASSERT(pvtk_file.Exists());
+            FileFinder vtk_file(vtu_path.str(), RelativeTo::Absolute);
+            TS_ASSERT(vtk_file.Exists());
             FileFinder param_file(filepath  + "ChasteParameters.xml", RelativeTo::Absolute);
-            TS_ASSERT(param_file.Exists()); 
+            TS_ASSERT(param_file.Exists());
             FileFinder defaults_file(filepath  + "ChasteDefaults.xml", RelativeTo::Absolute);
-            TS_ASSERT(defaults_file.Exists()); 
+            TS_ASSERT(defaults_file.Exists());
             FileFinder info_file(basename  + "_times.info", RelativeTo::Absolute);
-            TS_ASSERT(info_file.Exists()); 
+            TS_ASSERT(info_file.Exists());
          }
 #endif //CHASTE_VTK
 
@@ -843,19 +843,19 @@ public:
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/cmgui_output/";
         //the mesh files...
-        
+
         std::string node_file1 = results_dir + "/monodomain3d.exnode";
         std::string node_file2 = "heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode";
         std::string elem_file1 = results_dir + "/monodomain3d.exelem";
         std::string elem_file2 = "heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem";
-        
+
         bool comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(node_file1,node_file2);
         TS_ASSERT(comparison_result);
         comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(elem_file1,elem_file2);
         TS_ASSERT(comparison_result);
         //TS_ASSERT(CompareCmguiFiles(node_file1,node_file2));
         //TS_ASSERT(CompareCmguiFiles(elem_file1,elem_file2));
-        
+
         //TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exelem heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem").c_str()), 0);
         //TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
         //...and one data file as example
@@ -875,11 +875,11 @@ public:
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output/";
-        
+
         VtkMeshReader<3,3> mesh_reader(results_dir + "monodomain3d.vtu");
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 1331U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 6000U);
-        
+
         std::vector<double> first_node = mesh_reader.GetNextNode();
         TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
@@ -889,8 +889,8 @@ public:
         TS_ASSERT_DELTA( next_node[0] , 0.01 , 1e-6 );
         TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
-        
-        //Last time step and midway time step for V_m 
+
+        //Last time step and midway time step for V_m
         std::vector<double> v_at_last, v_at_100;
         mesh_reader.GetPointData( "V_000100", v_at_100);
         TS_ASSERT_DELTA( v_at_100[0],    47.9573, 1e-3 );
@@ -991,7 +991,7 @@ public:
         TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),
                 "Either explicitly specify not to print output (call PrintOutput(false)) or "
                 "specify the output directory and filename prefix");
-        
+
         // Throws because can't open the results file
         std::string directory("UnwriteableFolder");
         HeartConfig::Instance()->SetOutputDirectory(directory);
@@ -1177,7 +1177,7 @@ public:
 
         monodomain_problem.Solve();
 
-        // The following lines check that the output is always in the same permutation 
+        // The following lines check that the output is always in the same permutation
         // order, regardless of whether it has been permuted internally.
 
         // In sequential mode, no permutation is applied
@@ -1194,10 +1194,10 @@ public:
         OutputFileHandler handler("MonoProblem2dOriginalPermutation/", false);
         //Note that without the "SetOutputUsingOriginalNodeOrdering" above the following would fail
         //since METIS partitioning will have changed the permutation
-        
+
         /*
          * Meshalyzer format
-         */        
+         */
         //Mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
                                 + "/output/MonodomainLR91_2d_mesh.pts   heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_mesh.pts").c_str() ), 0);
@@ -1209,7 +1209,7 @@ public:
 
         /*
          * Cmgui format
-         */        
+         */
         //Mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
                                 + "/cmgui_output/MonodomainLR91_2d.exnode  heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d.exnode").c_str() ), 0);
@@ -1224,12 +1224,12 @@ public:
          */
 #ifdef CHASTE_VTK
         // Read in a VTKUnstructuredGrid as a mesh
-        
+
         VtkMeshReader<2,2> mesh_reader(handler.GetOutputDirectoryFullPath()+"vtk_output/MonodomainLR91_2d.vtu");
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 221U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 400U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 400U);
-        
+
         std::vector<double> first_node = mesh_reader.GetNextNode();
         TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
@@ -1239,7 +1239,7 @@ public:
         TS_ASSERT_DELTA( next_node[0] , 0.01 , 1e-6 );
         TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
         TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
-        
+
         //Last time step V_m
         std::vector<double> v_at_last;
         mesh_reader.GetPointData( "V_000050", v_at_last);
@@ -1247,7 +1247,7 @@ public:
         TS_ASSERT_DELTA( v_at_last[110],  13.146, 1e-3 );
         TS_ASSERT_DELTA( v_at_last[220], -83.855, 1e-3 );
 
-#endif // CHASTE_VTK    
+#endif // CHASTE_VTK
 
     }
 

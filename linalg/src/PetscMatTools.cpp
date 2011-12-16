@@ -360,7 +360,7 @@ bool PetscMatTools::CheckEquality(const Mat mat1, const Mat mat2, double tol)
 {
     Mat y;
     MatDuplicate(mat2, MAT_COPY_VALUES, &y);
-    
+
     double minus_one = -1.0;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     // MatAYPX(*a, X, Y) does  Y = X + a*Y.
@@ -384,7 +384,7 @@ bool PetscMatTools::CheckSymmetry(const Mat matrix, double tol)
     Mat trans;
 #if PETSC_VERSION_MAJOR==2
     MatTranspose(matrix, &trans);
-#else        
+#else
     MatTranspose(matrix, MAT_INITIAL_MATRIX, &trans);
 #endif
     bool is_symmetric = PetscMatTools::CheckEquality(matrix, trans, tol);

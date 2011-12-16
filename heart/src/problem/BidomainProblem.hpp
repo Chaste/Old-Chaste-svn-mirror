@@ -59,10 +59,10 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 {
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    
+
     // #1082
-    friend class TestPCTwoLevelsBlockDiagonal;    
-    
+    friend class TestPCTwoLevelsBlockDiagonal;
+
     /**
      * Save the member variables to an archive.
      *
@@ -151,7 +151,7 @@ protected:
 
     /** Create a suitable bidomain solver */
     virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateSolver();
-    
+
 public:
     /**
      * Constructor
@@ -223,7 +223,7 @@ public:
      */
     void PreSolveChecks();
 
-   
+
 
     /**
      *  Called at beginning of each time step in the main time-loop in
@@ -242,11 +242,11 @@ public:
      * @param time  the current time
      */
     void OnEndOfTimestep(double time);
-    
+
     /**
      * Method to fill in a vector of additional stopping times consisting of the times when
      * the electrodes are to be turned on and off
-     * 
+     *
      * @param rAdditionalStoppingTimes reference to vector that will contain the on and off times
      *  for the electrodes
      */
@@ -271,17 +271,17 @@ public:
      */
     template<class Archive>
     void LoadExtraArchiveForBidomain(Archive & archive, unsigned version);
-    
+
     /**
      * Return whether this is a bidomain problem with bath or not
      */
     bool GetHasBath();
-    
+
     /**
      *  Set an electrode object (which provides boundary conditions). Only
      *  valid if there is a bath.
      */
-    void SetElectrodes();    
+    void SetElectrodes();
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last

@@ -85,7 +85,7 @@ public:
      * @param stopTime  The time the stimulus is removed (defaults to DBL_MAX if omitted)
      */
     RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime=DBL_MAX);
-    
+
     /**
      * Get the magnitude of stimulus at time 'time'
      *
@@ -93,7 +93,7 @@ public:
      * @return  Magnitude of stimulus
      */
     double GetStimulus(double time);
-    
+
     /**
      * @return the pacing cycle length or period of the stimulus.
      */
@@ -108,7 +108,7 @@ public:
      * @return the duration of the stimulus square wave.
      */
     double GetDuration();
-    
+
     /**
      * @return the start time of the stimulus square wave.
      */
@@ -116,7 +116,7 @@ public:
 
     /**
      * set the pacing cycle length ('period') of the stimulus.
-     * 
+     *
      * @param period  The stimulus pacing cycle length to use.
      */
     void SetPeriod(double period);

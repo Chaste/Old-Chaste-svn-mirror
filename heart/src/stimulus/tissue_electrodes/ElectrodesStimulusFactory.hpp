@@ -61,7 +61,7 @@ class ElectrodesStimulusFactory : public AbstractStimulusFactory<DIM>
 {
 protected:
 
-	friend class TestStimulusFactory;//for testing
+    friend class TestStimulusFactory;//for testing
 
     /**
      * Vector of pairs, each pair representing a pair of electrodes.
@@ -143,11 +143,11 @@ public:
      * @param rEnds the end of each stimulation (ms)
      */
     ElectrodesStimulusFactory(std::vector<std::pair<AbstractChasteRegion<DIM>*, AbstractChasteRegion<DIM>*> >& rElectrodePairs,
-							  std::vector<double>& rStimulusMagnitudes,
-							  std::vector<double>& rDurations,
-							  std::vector<double>& rPeriods,
-							  std::vector<double>& rStarts,
-							  std::vector<double>& rEnds);
+                              std::vector<double>& rStimulusMagnitudes,
+                              std::vector<double>& rDurations,
+                              std::vector<double>& rPeriods,
+                              std::vector<double>& rStarts,
+                              std::vector<double>& rEnds);
 
     /**
      * Creates an appropriate stimuus for each node as to abide compatibility conditions.

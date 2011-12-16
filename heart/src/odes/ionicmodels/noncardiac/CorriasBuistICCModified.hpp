@@ -77,130 +77,130 @@ private:
      */
     double mScaleFactorCarbonMonoxide;
 
-	/* Concentrations */
-	double Ca_o;/**<  mM */
-	double Cl_o;/**<  mM */
-	double K_o;/**<  mM */
-	double Na_o;/**<  mM */
+    /* Concentrations */
+    double Ca_o;/**<  mM */
+    double Cl_o;/**<  mM */
+    double K_o;/**<  mM */
+    double Na_o;/**<  mM */
 
-	/* Nernst parameters */
-	double R;/**<  pJ/nmol/K */
-	double T;/**<  degK */
-	double F;/**<  nC/nmol */
-	double FoRT;/**<  1/mV */
-	double RToF;/**<  mV */
+    /* Nernst parameters */
+    double R;/**<  pJ/nmol/K */
+    double T;/**<  degK */
+    double F;/**<  nC/nmol */
+    double FoRT;/**<  1/mV */
+    double RToF;/**<  mV */
 
-	double  Cm ;/**<  pF */
-	double Asurf_in_cm_square;/**< cm2 */
-	double  Asurf ;/**<  mm2 */
-	double  Cl_i  ;/**<  mM */
-	double  K_i   ;/**<  mM */
-	double  Na_i    ;/**<  mM */
-	double  P_cyto;/**<  dim */
-	double  Vol  ;/**<  mm3 */
-	double  fc ;/**<  dim */
-	double  fe  ;/**<  dim */
-	double  fm ;/**<  dim */
-	double  Q10Ca ;/**<  dim */
-	double  Q10K ;/**<  dim */
-	double  Q10Na  ;/**<  dim */
-	double  T_exp  ;/**<  degK */
+    double  Cm ;/**<  pF */
+    double Asurf_in_cm_square;/**< cm2 */
+    double  Asurf ;/**<  mm2 */
+    double  Cl_i  ;/**<  mM */
+    double  K_i   ;/**<  mM */
+    double  Na_i    ;/**<  mM */
+    double  P_cyto;/**<  dim */
+    double  Vol  ;/**<  mm3 */
+    double  fc ;/**<  dim */
+    double  fe  ;/**<  dim */
+    double  fm ;/**<  dim */
+    double  Q10Ca ;/**<  dim */
+    double  Q10K ;/**<  dim */
+    double  Q10Na  ;/**<  dim */
+    double  T_exp  ;/**<  degK */
 
-	double  G_max_BK  ;/**<  nS */
-	double  G_max_CaCl  ;/**<  nS */
-	double  G_max_ERG  ;/**<  nS */
-	double  G_max_Ltype ;/**<  nS */
-	double  G_max_NSCC  ;/**<  nS */
-	double  G_max_Na ;/**<  nS */
-	double  G_max_VDDR ;/**<  nS */
-	double  G_max_bk    ;/**<  nS */
-	double  G_max_kv11 ;/**<  nS */
-
-
-	double  J_max_PMCA  ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
-	double  J_max_PMCA_PU ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
-	double  J_ERleak   ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
-	double  J_max_leak ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
-	double  Jmax_IP3  ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
-	double  Jmax_NaCa ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
-	double  Jmax_serca   ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
-	double  Jmax_uni    ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
-
-	double  NaPerm_o_Kperm   ;/**<  dim */
-	double  L    ;/**<  dim */
-	double  P_ER  ;/**<  dim */
-	double  P_PU   ;/**<  dim */
-	double  P_mito ;/**<  dim */
-	double  b ;/**<  dim */
-	double  na ;/**<  dim */
-
-	double  K_Ca   ;/**<  mM */
-	double  K_Na ;/**<  mM */
-	double  K_act ;/**<  mM */
-	double  K_trans   ;/**<  mM */
-	double  k_serca ;/**<  mM */
-	double  conc   ;/**<  mM */
-	double  d_ACT   ;/**<  mM */
-	double  d_IP3 ;/**<  mM */
-	double  d_INH  ;/**<  mM */
-
-	double  tau_d_CaCl;/**<  ms(s) * 1000 (ms/s) = ms */
-	double  tau_d_NSCC ;/**<  ms(s) * 1000 (ms/s) = ms */
-	double  tauh;/**<  ms(s ) * 1000 (ms/s) = ms */
-
-	double  deltaPsi_B;/**<  mV */
-	double  deltaPsi_star;/**<  mV */
-	double  deltaPsi;/**<  mV */
+    double  G_max_BK  ;/**<  nS */
+    double  G_max_CaCl  ;/**<  nS */
+    double  G_max_ERG  ;/**<  nS */
+    double  G_max_Ltype ;/**<  nS */
+    double  G_max_NSCC  ;/**<  nS */
+    double  G_max_Na ;/**<  nS */
+    double  G_max_VDDR ;/**<  nS */
+    double  G_max_bk    ;/**<  nS */
+    double  G_max_kv11 ;/**<  nS */
 
 
-	 /////////////////////
-	 //Calculated constants
-	 ////////////////////
-	 /* Volumes */
-	 double V_cyto;              /**<  mm3 */
-	 double V_ER;                /**<  mm3 */
-	 double V_MITO;              /**<  mm3 */
-	 double V_PU;                /**<  mm3 */
+    double  J_max_PMCA  ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
+    double  J_max_PMCA_PU ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
+    double  J_ERleak   ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
+    double  J_max_leak ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
+    double  Jmax_IP3  ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
+    double  Jmax_NaCa ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
+    double  Jmax_serca   ;/**<  mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms */
+    double  Jmax_uni    ;/**<  1/ms    (1/s) * 1/1000 (ms/s) = 1/ms */
 
-	 /* Temperature corrections */
-	 double T_correction_Ca;     /**<  dim */
-	 double T_correction_K;      /**<  dim */
-	 double T_correction_Na;     /**<  dim */
-	 double T_correction_BK;     /**<  uA/mm2 */
+    double  NaPerm_o_Kperm   ;/**<  dim */
+    double  L    ;/**<  dim */
+    double  P_ER  ;/**<  dim */
+    double  P_PU   ;/**<  dim */
+    double  P_mito ;/**<  dim */
+    double  b ;/**<  dim */
+    double  na ;/**<  dim */
 
-	 /* Nernst potentials */
-	 double E_Na;                /**<  mV */
-	 double E_K;                 /**<  mV */
-	 double E_Cl;                /**<  mV */
-	 double E_NSCC;              /**<  mV */
+    double  K_Ca   ;/**<  mM */
+    double  K_Na ;/**<  mM */
+    double  K_act ;/**<  mM */
+    double  K_trans   ;/**<  mM */
+    double  k_serca ;/**<  mM */
+    double  conc   ;/**<  mM */
+    double  d_ACT   ;/**<  mM */
+    double  d_IP3 ;/**<  mM */
+    double  d_INH  ;/**<  mM */
 
-	 /* Activation gate time constants */
-	 double tau_d_ERG;           /**<  ms */
-	 double tau_d_Ltype;         /**<  ms */
-	 double tau_d_Na;            /**<  ms */
-	 double tau_d_VDDR;          /**<  ms */
-	 double tau_d_kv11;          /**<  ms */
+    double  tau_d_CaCl;/**<  ms(s) * 1000 (ms/s) = ms */
+    double  tau_d_NSCC ;/**<  ms(s) * 1000 (ms/s) = ms */
+    double  tauh;/**<  ms(s ) * 1000 (ms/s) = ms */
 
-	 /* Inactivation gate time constants */
-	 double tau_f_Ltype;         /**<  ms */
-	 double tau_f_Na;            /**<  ms */
-	 double tau_f_VDDR;          /**<  ms */
-	 double tau_f_ca_Ltype;      /**<  ms */
-	 double tau_f_kv11;          /**<  ms */
+    double  deltaPsi_B;/**<  mV */
+    double  deltaPsi_star;/**<  mV */
+    double  deltaPsi;/**<  mV */
 
-	 /* Speed ups */
-	 double e2FoRTdPsiMdPsiS;/**< speed-up constant*/
-	 double ebFoRTdPsiMdPsiS;/**< speed-up constant*/
+
+     /////////////////////
+     //Calculated constants
+     ////////////////////
+     /* Volumes */
+     double V_cyto;              /**<  mm3 */
+     double V_ER;                /**<  mm3 */
+     double V_MITO;              /**<  mm3 */
+     double V_PU;                /**<  mm3 */
+
+     /* Temperature corrections */
+     double T_correction_Ca;     /**<  dim */
+     double T_correction_K;      /**<  dim */
+     double T_correction_Na;     /**<  dim */
+     double T_correction_BK;     /**<  uA/mm2 */
+
+     /* Nernst potentials */
+     double E_Na;                /**<  mV */
+     double E_K;                 /**<  mV */
+     double E_Cl;                /**<  mV */
+     double E_NSCC;              /**<  mV */
+
+     /* Activation gate time constants */
+     double tau_d_ERG;           /**<  ms */
+     double tau_d_Ltype;         /**<  ms */
+     double tau_d_Na;            /**<  ms */
+     double tau_d_VDDR;          /**<  ms */
+     double tau_d_kv11;          /**<  ms */
+
+     /* Inactivation gate time constants */
+     double tau_f_Ltype;         /**<  ms */
+     double tau_f_Na;            /**<  ms */
+     double tau_f_VDDR;          /**<  ms */
+     double tau_f_ca_Ltype;      /**<  ms */
+     double tau_f_kv11;          /**<  ms */
+
+     /* Speed ups */
+     double e2FoRTdPsiMdPsiS;/**< speed-up constant*/
+     double ebFoRTdPsiMdPsiS;/**< speed-up constant*/
 
 
 public:
    /**
-	* Constructor
-	*
-	* @param pSolver is a pointer to the ODE solver
-	* @param pIntracellularStimulus is a pointer to the intracellular stimulus
-	*/
-	 CorriasBuistICCModified(boost::shared_ptr<AbstractIvpOdeSolver> pSolver, boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
+    * Constructor
+    *
+    * @param pSolver is a pointer to the ODE solver
+    * @param pIntracellularStimulus is a pointer to the intracellular stimulus
+    */
+     CorriasBuistICCModified(boost::shared_ptr<AbstractIvpOdeSolver> pSolver, boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /**
      * Destructor

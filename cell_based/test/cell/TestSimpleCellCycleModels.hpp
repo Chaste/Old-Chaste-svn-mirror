@@ -757,7 +757,7 @@ public:
             // We must set up SimulationTime to avoid memory leaks
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            
+
             // As usual, we archive via a pointer to the most abstract class possible
             AbstractCellCycleModel* const p_model = new FixedDurationGenerationBasedCellCycleModel;
 
@@ -802,7 +802,7 @@ public:
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "StochasticDurationGenerationBasedCellCycleModel.arch";
 
-        // We will also test that the random number generator is archived correctly 
+        // We will also test that the random number generator is archived correctly
         double random_number_test = 0.0;
 
         {
@@ -911,7 +911,7 @@ public:
         oxygen_concentration.push_back(1.0);
         CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // We will also test that the random number generator is archived correctly 
+        // We will also test that the random number generator is archived correctly
         double random_number_test = 0.0;
 
         {

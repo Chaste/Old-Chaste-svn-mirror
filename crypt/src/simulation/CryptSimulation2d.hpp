@@ -94,7 +94,7 @@ protected:
      * of the new node are returned. This is done by drawing a random
      * direction (0->2PI) and placing the parent and daughter nodes in
      * opposing directions along this axis.
-     * 
+     *
      * In the case of a VertexBasedCellPopulation, by default this method
      * returns the zero vector. If the parent cell is a stem cell, then
      * this method returns the vector (0,1). This is then used by the

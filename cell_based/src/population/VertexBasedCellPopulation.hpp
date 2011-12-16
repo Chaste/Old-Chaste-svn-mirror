@@ -172,7 +172,7 @@ public:
 
     /**
      * Overridden GetLocationOfCellCentre() method.
-     * 
+     *
      * Find the centre of mass of a given cell (assuming uniform density).
      * Note that, as there is no guarantee of convexity, this may lie
      * outside the VertexElement corresponding to the cell.

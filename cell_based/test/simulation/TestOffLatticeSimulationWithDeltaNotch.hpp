@@ -52,14 +52,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 class TestDeltaNotchOffLatticeSimulation : public AbstractCellBasedTestSuite
-{ 
+{
 private:
     double mLastStartTime;
     void setUp()
     {
         mLastStartTime = std::clock();
         AbstractCellBasedTestSuite::setUp();
-        
+
     }
     void tearDown()
     {
@@ -73,14 +73,14 @@ public:
     ///\todo: For mesh and vertex based
     void TestPostSolveNodeBased() throw(Exception)
     {
-    	EXIT_IF_PARALLEL;
+        EXIT_IF_PARALLEL;
 
-    	// Create a small population
-		HoneycombMeshGenerator generator(2, 2, 0);
-		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a small population
+        HoneycombMeshGenerator generator(2, 2, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-		NodesOnlyMesh<2> mesh;
-		mesh.ConstructNodesWithoutMesh(*p_mesh);
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(*p_mesh);
 
         // Create some cells, each with a cell-cycle model that incorporates a Delta-Notch ODE system
         std::vector<CellPtr> cells;
@@ -106,14 +106,14 @@ public:
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(p_mesh->GetNumNodes(), 3);
         p_data->SetCellPopulation(&cell_population);
-		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-			 cell_iter != cell_population.End();
-			 ++cell_iter)
-		{
-			p_data->SetValue(0.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
-			p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 1);
-			p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
-		}
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            p_data->SetValue(0.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
+            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 1);
+            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
+        }
 
         // Create and configure cell-based simulation
         DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
@@ -129,182 +129,182 @@ public:
         simulator.Solve();
 
         // Check levels in cell 0
-		TS_ASSERT_DELTA(p_data->GetValue(cells[0],0),0.9384,1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(cells[0],0),0.9384,1e-4);
         TS_ASSERT_DELTA(p_data->GetValue(cells[1],0),0.9990,1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(cells[2],0),0.9588,1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(cells[2],0),0.9588,1e-4);
 
         // Tidy up
         CellwiseData<2>::Destroy();
     }
 
     void TestPostSolveVertex() throw (Exception)
-	{
-    	EXIT_IF_PARALLEL;
+    {
+        EXIT_IF_PARALLEL;
 
-    	// Create a regular vertex mesh
-		HoneycombVertexMeshGenerator generator(2, 2);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a regular vertex mesh
+        HoneycombVertexMeshGenerator generator(2, 2);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Create some cells, each with a cell-cycle model that incorporates a delta-notch ODE system
-		std::vector<CellPtr> cells;
+        // Create some cells, each with a cell-cycle model that incorporates a delta-notch ODE system
+        std::vector<CellPtr> cells;
         MAKE_PTR(WildTypeCellMutationState, p_state);
-		for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-		{
-			DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
-			p_model->SetCellProliferativeType(DIFFERENTIATED);
-			p_model->SetDimension(2u);
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
+        {
+            DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            p_model->SetDimension(2u);
 
-			CellPtr p_cell(new Cell(p_state, p_model));
-			double birth_time = -RandomNumberGenerator::Instance()->ranf()*12.0;
-			p_cell->SetBirthTime(birth_time);
-			cells.push_back(p_cell);
-		}
+            CellPtr p_cell(new Cell(p_state, p_model));
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*12.0;
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
+        }
 
-		// Create cell-based population object
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell-based population object
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create and initialize CellwiseData
-		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-		p_data->SetNumCellsAndVars(p_mesh->GetNumElements(), 3);
-		p_data->SetCellPopulation(&cell_population);
+        // Create and initialize CellwiseData
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(p_mesh->GetNumElements(), 3);
+        p_data->SetCellPopulation(&cell_population);
 
-		// Set initial conditions
-		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-			 cell_iter != cell_population.End();
-			 ++cell_iter)
-		{
+        // Set initial conditions
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
             p_data->SetValue(0.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
             p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 1);
             p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
-		}
+        }
 
-		// Create and configure cell-based simulation
-		DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestDeltaNotchVertex2D");
-		simulator.SetEndTime(0.01);
+        // Create and configure cell-based simulation
+        DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestDeltaNotchVertex2D");
+        simulator.SetEndTime(0.01);
 
-		// Create force law and add to simulation
-		MAKE_PTR(NagaiHondaForce<2>, p_force);
-		simulator.AddForce(p_force);
+        // Create force law and add to simulation
+        MAKE_PTR(NagaiHondaForce<2>, p_force);
+        simulator.AddForce(p_force);
 
-		// Run simulation
-		simulator.Solve();
+        // Run simulation
+        simulator.Solve();
 
-		TS_ASSERT_DELTA(p_data->GetValue(cells[0],0),0.9386,5e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(cells[0],0),0.9386,5e-4);
                 TS_ASSERT_DELTA(p_data->GetValue(cells[1],0),0.9990,5e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(cells[2],0),0.9589,5e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(cells[2],0),0.9589,5e-4);
 
-		// Tidy up
-		CellwiseData<2>::Destroy();
-	}
+        // Tidy up
+        CellwiseData<2>::Destroy();
+    }
 
     void TestPostSolveMeshBased() throw (Exception)
-	{
-    	EXIT_IF_PARALLEL;
+    {
+        EXIT_IF_PARALLEL;
 
-		// Create a 2D honeycomb mesh
-		HoneycombMeshGenerator generator(2, 2, 0);
-		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a 2D honeycomb mesh
+        HoneycombMeshGenerator generator(2, 2, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Create some cells, each with a cell-cycle model that incorporates a Delta-Notch ODE system
-		std::vector<CellPtr> cells;
+        // Create some cells, each with a cell-cycle model that incorporates a Delta-Notch ODE system
+        std::vector<CellPtr> cells;
         MAKE_PTR(WildTypeCellMutationState, p_state);
-		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-		{
-			DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
-			p_model->SetCellProliferativeType(DIFFERENTIATED);
-			p_model->SetDimension(2);
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            p_model->SetDimension(2);
 
-			CellPtr p_cell(new Cell(p_state, p_model));
-			double birth_time = -RandomNumberGenerator::Instance()->ranf()*12.0;
-			p_cell->SetBirthTime(birth_time);
-			cells.push_back(p_cell);
-		}
+            CellPtr p_cell(new Cell(p_state, p_model));
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*12.0;
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
+        }
 
-		// Create cell population
-		MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create and initialize CellwiseData
-		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-		p_data->SetNumCellsAndVars(p_mesh->GetNumNodes(), 3);
-		p_data->SetCellPopulation(&cell_population);
-		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-			 cell_iter != cell_population.End();
-			 ++cell_iter)
-		{
-			p_data->SetValue(0.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
-			p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 1);
-			p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
-		}
+        // Create and initialize CellwiseData
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(p_mesh->GetNumNodes(), 3);
+        p_data->SetCellPopulation(&cell_population);
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            p_data->SetValue(0.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
+            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 1);
+            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
+        }
 
-		// Create and configure cell-based simulation
-		DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestDeltaNotchMeshBasedPostSolve");
-		simulator.SetEndTime(0.01);
+        // Create and configure cell-based simulation
+        DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestDeltaNotchMeshBasedPostSolve");
+        simulator.SetEndTime(0.01);
 
-		// Set up force law and add to simulation
-		MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-		p_force->SetCutOffLength(1.5);
-		simulator.AddForce(p_force);
+        // Set up force law and add to simulation
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        p_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_force);
 
-		// Run simulation
-		simulator.Solve();
+        // Run simulation
+        simulator.Solve();
 
         // Check levels in cell 0
-		TS_ASSERT_DELTA(p_data->GetValue(cells[0],0),0.9384,1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(cells[0],0),0.9384,1e-4);
         TS_ASSERT_DELTA(p_data->GetValue(cells[1],0),0.9990,1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(cells[2],0),0.9588,1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(cells[2],0),0.9588,1e-4);
 
-		// Tidy up
-		CellwiseData<2>::Destroy();
-	}
+        // Tidy up
+        CellwiseData<2>::Destroy();
+    }
 
     void TestArchiving() throw (Exception)
     {
-    	EXIT_IF_PARALLEL;
+        EXIT_IF_PARALLEL;
 
-    	// Create a regular vertex mesh
-		HoneycombVertexMeshGenerator generator(2, 2);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a regular vertex mesh
+        HoneycombVertexMeshGenerator generator(2, 2);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Create some cells, each with a cell-cycle model that incorporates a delta-notch ODE system
-		std::vector<CellPtr> cells;
+        // Create some cells, each with a cell-cycle model that incorporates a delta-notch ODE system
+        std::vector<CellPtr> cells;
         MAKE_PTR(WildTypeCellMutationState, p_state);
-		for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
-		{
-			DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
-			p_model->SetCellProliferativeType(DIFFERENTIATED);
-			p_model->SetDimension(2u);
+        for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
+        {
+            DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            p_model->SetDimension(2u);
 
-			CellPtr p_cell(new Cell(p_state, p_model));
-			double birth_time = -1.0;
-			p_cell->SetBirthTime(birth_time);
-			cells.push_back(p_cell);
-		}
+            CellPtr p_cell(new Cell(p_state, p_model));
+            double birth_time = -1.0;
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
+        }
 
-		// Create cell-based population object
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell-based population object
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create and initialize CellwiseData
-		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-		p_data->SetNumCellsAndVars(p_mesh->GetNumElements(), 3);
-		p_data->SetCellPopulation(&cell_population);
+        // Create and initialize CellwiseData
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(p_mesh->GetNumElements(), 3);
+        p_data->SetCellPopulation(&cell_population);
 
-		// Set initial conditions
-		for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-			 cell_iter != cell_population.End();
-			 ++cell_iter)
-		{
+        // Set initial conditions
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
             p_data->SetValue(0.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
             p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 1);
             p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
-		}
+        }
 
-		// Create and configure cell-based simulation
-		DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestDeltaNotchOffLatticeSimulationSaveAndLoad");
-		double end_time=0.01;
-		simulator.SetEndTime(end_time);
+        // Create and configure cell-based simulation
+        DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestDeltaNotchOffLatticeSimulationSaveAndLoad");
+        double end_time=0.01;
+        simulator.SetEndTime(end_time);
 
         // Create a force law and pass it to the simulation
         MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);

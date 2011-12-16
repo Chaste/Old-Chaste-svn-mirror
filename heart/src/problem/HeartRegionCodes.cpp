@@ -32,24 +32,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 HeartRegionType HeartRegionCode::GetValidTissueId()
 {
-    // Returns the identifier of the first region defined as tissue    
+    // Returns the identifier of the first region defined as tissue
     assert(!HeartConfig::Instance()->rGetTissueIdentifiers().empty());
     return *HeartConfig::Instance()->rGetTissueIdentifiers().begin();
 }
 
 HeartRegionType HeartRegionCode::GetValidBathId()
 {
-    // Returns the identifier of the first region defined as bath    
-    assert(!HeartConfig::Instance()->rGetBathIdentifiers().empty());    
+    // Returns the identifier of the first region defined as bath
+    assert(!HeartConfig::Instance()->rGetBathIdentifiers().empty());
     return *HeartConfig::Instance()->rGetBathIdentifiers().begin();
 }
 
 bool HeartRegionCode::IsRegionTissue(HeartRegionType regionId)
 {
-    return (HeartConfig::Instance()->rGetTissueIdentifiers().find(regionId) != HeartConfig::Instance()->rGetTissueIdentifiers().end());     
+    return (HeartConfig::Instance()->rGetTissueIdentifiers().find(regionId) != HeartConfig::Instance()->rGetTissueIdentifiers().end());
 }
 
 bool HeartRegionCode::IsRegionBath(HeartRegionType regionId)
 {
-    return (HeartConfig::Instance()->rGetBathIdentifiers().find(regionId) != HeartConfig::Instance()->rGetBathIdentifiers().end());     
+    return (HeartConfig::Instance()->rGetBathIdentifiers().find(regionId) != HeartConfig::Instance()->rGetBathIdentifiers().end());
 }

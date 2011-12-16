@@ -184,7 +184,7 @@ public:
                   + "heart/test/data/three_variables/extended_bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
-    
+
     // This test covers the case when the hdf5 file contains more than 3 variables
     void TestMeshalyzerConversionLotsOfVariables() throw(Exception)
     {
@@ -212,9 +212,9 @@ public:
         variable_names.push_back("I_Ca_tot");
         variable_names.push_back("I_tot");
         variable_names.push_back("I_Na_tot");
-        
+
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command;        
+        std::string command;
         for (unsigned i=0; i<variable_names.size(); i++)
         {
             // Compare the results files
@@ -223,14 +223,14 @@ public:
                       + "heart/test/data/many_variables/many_variables_" + variable_names[i] + ".dat";
             TS_ASSERT_EQUALS(system(command.c_str()), 0);
         }
-       
+
         // Compare the time information file
         command = "diff -a -I \"Created by Chaste\" " + test_output_directory + output_dir
                   + "/output/many_variables_times.info "
                   + "heart/test/data/many_variables/many_variables_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
-    
+
     // This test covers the case when the hdf5 file contains more than 3 variables
     void TestCmguiConversionLotsOfVariables() throw(Exception)
     {
@@ -250,9 +250,9 @@ public:
 
         // Convert
         Hdf5ToCmguiConverter<1,1> converter(output_dir, "many_variables", &mesh);
-      
+
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-     
+
         // Compare the results files
         std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/" + output_dir
                               + "/cmgui_output/many_variables_0.exnode "
@@ -335,7 +335,7 @@ public:
                                                + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
-    
+
     void TestBidomainWithBathCmguiConversion1D() throw(Exception)
     {
         std::string working_directory = "TestBidomainWithBathCmguiConversion1D";
@@ -359,13 +359,13 @@ public:
 
         // Compare the voltage file with a correct version that is known to visualize correctly in Cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        
+
         // Mesh file first, one exnode, one for bath and one for tissue
         std::string command_node_file = "diff -a -I \"Created by Chaste\" " + test_output_directory
                                         + working_directory +"/cmgui_output/bidomain_with_bath_1d.exnode"
                                         + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d.exnode";
         TS_ASSERT_EQUALS(system(command_node_file.c_str()), 0);
-        
+
         std::string command_tissue_element_file = "diff -a -I \"Created by Chaste\" " + test_output_directory
                                                   + working_directory +"/cmgui_output/tissue.exelem"
                                                   + " heart/test/data/CmguiData/bidomain_with_bath/tissue.exelem";
@@ -375,7 +375,7 @@ public:
                                                 + working_directory +"/cmgui_output/bath.exelem"
                                                 + " heart/test/data/CmguiData/bidomain_with_bath/bath.exelem";
         TS_ASSERT_EQUALS(system(command_bath_element_file.c_str()), 0);
-        
+
         // Then the data file
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory
                                               + working_directory +"/cmgui_output/bidomain_with_bath_1d_0.exnode"
@@ -386,8 +386,8 @@ public:
                                                + working_directory +"/cmgui_output/bidomain_with_bath_1d_1.exnode"
                                                + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
-    }   
-    
+    }
+
     void TestMonodomainCmguiConversion2D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain2D";

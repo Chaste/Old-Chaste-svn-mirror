@@ -62,7 +62,7 @@ class SimpleStimulus : public AbstractStimulusFunction
 private:
     /** The stimulus magnitude - units are:
      *    for single-cell problems - microA/cm^2
-     *    for (3d) tissue simulations - microA/cm^3 
+     *    for (3d) tissue simulations - microA/cm^3
      */
     double mMagnitudeOfStimulus;
     /** Duration of initial stimulus, typically in milliseconds */
@@ -77,7 +77,7 @@ public:
      *
      * @param magnitudeOfStimulus  The stimulus magnitude, with units
      *    for single-cell problems - microA/cm^2
-     *    for (3d) tissue simulations - microA/cm^3 
+     *    for (3d) tissue simulations - microA/cm^3
      * @param duration  Duration of initial stimulus milliseconds
      * @param timeOfStimulus  The time at which the stimulus starts (defaults to 0.0) milliseconds
      */

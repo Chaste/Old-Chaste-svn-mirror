@@ -691,7 +691,7 @@ public:
         // Tidy up
         CellwiseData<2>::Destroy();
     }
-    
+
     void TestNodeBasedCellPopulationOutputWriters3d()
     {
         // Set up SimulationTime (needed if VTK is used)

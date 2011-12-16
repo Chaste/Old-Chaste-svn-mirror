@@ -84,9 +84,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractUntemplatedCardiacProblem : boost::noncopyable
 {
 public:
-	/** Virtual destructor to make this class polymorphic */
-	virtual ~AbstractUntemplatedCardiacProblem()
-	{}
+    /** Virtual destructor to make this class polymorphic */
+    virtual ~AbstractUntemplatedCardiacProblem()
+    {}
 };
 
 /**
@@ -133,8 +133,8 @@ private:
         // We shouldn't ever have to save the old version
         assert(version >= 2);
 //        {
-//        	bool use_matrix_based_assembly = true;
-//        	archive & use_matrix_based_assembly;
+//            bool use_matrix_based_assembly = true;
+//            archive & use_matrix_based_assembly;
 //        }
 
         archive & mWriteInfo;
@@ -230,8 +230,8 @@ private:
 
         if (version < 2)
         {
-        	bool use_matrix_based_assembly;
-        	archive & use_matrix_based_assembly;
+            bool use_matrix_based_assembly;
+            archive & use_matrix_based_assembly;
         }
 
         archive & mWriteInfo;
@@ -424,11 +424,11 @@ protected:
     virtual AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateSolver() =0;
 
 protected:
-	/**
-	 * CardiacElectroMechanicsProblem needs access to #mpWriter.
-	 */
-	template<unsigned DIM>
-	friend class CardiacElectroMechanicsProblem;
+    /**
+     * CardiacElectroMechanicsProblem needs access to #mpWriter.
+     */
+    template<unsigned DIM>
+    friend class CardiacElectroMechanicsProblem;
     /**
      * The object to use to write results to disk.
      */

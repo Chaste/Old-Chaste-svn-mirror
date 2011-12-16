@@ -36,11 +36,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 ZeroNetChargeElectrodes<DIM>::ZeroNetChargeElectrodes(std::vector<std::pair<AbstractChasteRegion<DIM>*, AbstractChasteRegion<DIM>*> >& rElectrodePairs,
-														  std::vector<double>& rStimulusMagnitudes,
-														  std::vector<double>& rDurations,
-														  std::vector<double>& rPeriods,
-														  std::vector<double>& rStarts,
-														  std::vector<double>& rEnds)
+                                                          std::vector<double>& rStimulusMagnitudes,
+                                                          std::vector<double>& rDurations,
+                                                          std::vector<double>& rPeriods,
+                                                          std::vector<double>& rStarts,
+                                                          std::vector<double>& rEnds)
     : ElectrodesStimulusFactory<DIM>(rElectrodePairs, rStimulusMagnitudes, rDurations, rPeriods, rStarts, rEnds)
 {
 
@@ -55,21 +55,21 @@ ZeroNetChargeElectrodes<DIM>::~ZeroNetChargeElectrodes()
 template<unsigned DIM>
 boost::shared_ptr<AbstractStimulusFunction> ZeroNetChargeElectrodes<DIM>::CreateStimulusForNode(unsigned nodeIndex)
 {
-	boost::shared_ptr<RegularStimulusZeroNetCharge> p_stimulus;
+    boost::shared_ptr<RegularStimulusZeroNetCharge> p_stimulus;
     for (unsigned pair_index = 0; pair_index < this->mrElectrodePairs.size(); pair_index++)
     {
-		if (this->mrElectrodePairs[pair_index].first->DoesContain(this->mpMesh->GetNode(nodeIndex)->GetPoint()) )
-		{
-			p_stimulus.reset ( new RegularStimulusZeroNetCharge(this->mMagnitudesElectrode1[pair_index], this->mrDurations[pair_index], this->mrPeriods[pair_index], this->mrStarts[pair_index], this->mrEnds[pair_index]));
-		}
-		else if (this->mrElectrodePairs[pair_index].second->DoesContain(this->mpMesh->GetNode(nodeIndex)->GetPoint()) )
-		{
-			p_stimulus.reset ( new RegularStimulusZeroNetCharge(this->mMagnitudesElectrode2[pair_index], this->mrDurations[pair_index], this->mrPeriods[pair_index], this->mrStarts[pair_index], this->mrEnds[pair_index]));
-		}
-		else//no stimulus here
-		{
-			p_stimulus.reset ( new RegularStimulusZeroNetCharge(0.0, this->mrDurations[pair_index], this->mrPeriods[pair_index], this->mrStarts[pair_index], this->mrEnds[pair_index]) );
-		}
+        if (this->mrElectrodePairs[pair_index].first->DoesContain(this->mpMesh->GetNode(nodeIndex)->GetPoint()) )
+        {
+            p_stimulus.reset ( new RegularStimulusZeroNetCharge(this->mMagnitudesElectrode1[pair_index], this->mrDurations[pair_index], this->mrPeriods[pair_index], this->mrStarts[pair_index], this->mrEnds[pair_index]));
+        }
+        else if (this->mrElectrodePairs[pair_index].second->DoesContain(this->mpMesh->GetNode(nodeIndex)->GetPoint()) )
+        {
+            p_stimulus.reset ( new RegularStimulusZeroNetCharge(this->mMagnitudesElectrode2[pair_index], this->mrDurations[pair_index], this->mrPeriods[pair_index], this->mrStarts[pair_index], this->mrEnds[pair_index]));
+        }
+        else//no stimulus here
+        {
+            p_stimulus.reset ( new RegularStimulusZeroNetCharge(0.0, this->mrDurations[pair_index], this->mrPeriods[pair_index], this->mrStarts[pair_index], this->mrEnds[pair_index]) );
+        }
     }
     return p_stimulus;
 }

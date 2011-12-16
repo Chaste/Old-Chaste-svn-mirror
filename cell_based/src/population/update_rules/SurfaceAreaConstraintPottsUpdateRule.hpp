@@ -51,12 +51,12 @@ friend class TestPottsUpdateRules;
 
 private:
 
-	/**
-	 * Cell deformation energy parameter.
+    /**
+     * Cell deformation energy parameter.
      * Set to the default value 0.5 in the constructor.
      * \todo provide units
-	 */
-	double mDeformationEnergyParameter;
+     */
+    double mDeformationEnergyParameter;
 
     /**
      * \todo provide units #1829
@@ -72,7 +72,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractPottsUpdateRule<DIM> >(*this);
         archive & mDeformationEnergyParameter;
-    	archive & mMatureCellTargetSurfaceArea;
+        archive & mMatureCellTargetSurfaceArea;
     }
 
 public:
@@ -88,17 +88,17 @@ public:
     ~SurfaceAreaConstraintPottsUpdateRule();
 
     /**
-	 * Overridden EvaluateHamiltonianContribution() method
-	 *
-	 * Uses sum_elements gamma (A_i - A_i^T)^2.
-	 *
-	 * @param currentNodeIndex The index of the current node/lattice site
-	 * @param targetNodeIndex The index of the target node/lattice site
-	 * @param rCellPopulation The cell population
-	 *
-	 * @return The difference in the Hamiltonian with the configuration of the target node
-	 * having the same spin as the current node with the current configuration. i.e H_1-H_0
-	 */
+     * Overridden EvaluateHamiltonianContribution() method
+     *
+     * Uses sum_elements gamma (A_i - A_i^T)^2.
+     *
+     * @param currentNodeIndex The index of the current node/lattice site
+     * @param targetNodeIndex The index of the target node/lattice site
+     * @param rCellPopulation The cell population
+     *
+     * @return The difference in the Hamiltonian with the configuration of the target node
+     * having the same spin as the current node with the current configuration. i.e H_1-H_0
+     */
     double EvaluateHamiltonianContribution(unsigned currentNodeIndex,
                                            unsigned targetNodeIndex,
                                            PottsBasedCellPopulation<DIM>& rCellPopulation);

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A spherical cell population boundary condition class, which restricts nodes to lie
- * on the surface of a sphere in the domain. Although the name of this class suggests 
+ * on the surface of a sphere in the domain. Although the name of this class suggests
  * it is specific to 3D, it is actually also implemented in 2D, for which it is really
  * a circle geometry boundary condition.
  */

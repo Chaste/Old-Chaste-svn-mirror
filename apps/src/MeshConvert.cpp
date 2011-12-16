@@ -64,14 +64,14 @@ int main(int argc, char *argv[])
 #else
             ExecutableSupport::Print("Note: VTK reading is not supported");
 #endif
-            
+
             ExecutableSupport::Print("Opening "+base+" mesh file(s).");
-            
+
             std::auto_ptr<AbstractMeshReader<3,3> > p_mesh_reader = GenericMeshReader<3,3>(argv[1]);
             //We have to make a mesh so that we can get the node connectivity list back
             DistributedTetrahedralMesh<3,3> mesh;
             mesh.ConstructFromMeshReader(*p_mesh_reader);
-             
+
             //Find a dot
             std::string base_for_output=base;
             size_t pos = base.find('.');

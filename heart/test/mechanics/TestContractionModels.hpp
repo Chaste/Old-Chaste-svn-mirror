@@ -398,17 +398,17 @@ public :
 
         // NHS paper states physiological sarcomere length range to be 1.8-2.3 um, and is only valid for this range
         // especially at top end. Note disassociation rate of Ca_trop is length-dependent (by being tension dependent),
-        // this rate stops being negative if Ta/gamma*Tref > 1. But in case lambdadot=0 (=> Q=0, Ta=T0), 
+        // this rate stops being negative if Ta/gamma*Tref > 1. But in case lambdadot=0 (=> Q=0, Ta=T0),
         // then Ta/gamma*Tref = (z/zmax)*c(lambda), where c(lambda)=(1+4.9(lambda-1)/gamma. c(lambda)=1 if lambda=1.20408
-        //  ==> bad things will happen (?) around and above this..    
-        double stretch[3] = {0.9,1.0,1.1}; 
+        //  ==> bad things will happen (?) around and above this..
+        double stretch[3] = {0.9,1.0,1.1};
 
         for(unsigned run=0; run<3; run++)
         {
             boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
             CellLuoRudy1991FromCellML electrophys_model(p_solver, p_stimulus);
             unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("cytosolic_calcium_concentration");
-    
+
             NhsContractionModel cellmech_model;
 
             std::vector<double> times;
@@ -419,22 +419,22 @@ public :
             {
                 // solve electrophys model
                 electrophys_model.Compute(current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep());
-    
+
                 // get CaI
                 double Ca_I = electrophys_model.rGetStateVariables()[Ca_i_index];
                 cellmech_model.SetStretchAndStretchRate(stretch[run], 0.0);
-    
+
                 ContractionModelInputParameters input_parameters;
                 input_parameters.intracellularCalciumConcentration = Ca_I;
                 cellmech_model.SetInputParameters(input_parameters);
-    
+
                 // solve the cellular mechanics model
                 cellmech_model.RunDoNotUpdate(current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
                 cellmech_model.UpdateStateVariables();
-    
+
                 times.push_back(current_time);
                 active_tensions.push_back( cellmech_model.GetActiveTension() );
-    
+
             }
 
             if(run==0)
@@ -448,8 +448,8 @@ public :
         // different shape with N98 calcium instead of Lr91 calcium
 
         SimpleDataWriter writer("TestNhsIsometricTwitch", "nhs_forward.dat", data);
-        
-        // hardcoded test of final values for each of the stretches. 
+
+        // hardcoded test of final values for each of the stretches.
         TS_ASSERT_DELTA(data[1].back(), 1.2584, 1e-2);
         TS_ASSERT_DELTA(data[2].back(), 2.7161, 1e-2);
         TS_ASSERT_DELTA(data[3].back(), 5.0268, 1e-2);
@@ -513,39 +513,39 @@ public :
     void TestKerchoffs2003ContractionModelIsometricTwitch() throw(Exception)
     {
         std::vector<std::vector<double> > data;
-    
+
         // three stretches
         // stretches defined by giving sarcomere lengths of 1.6, 1.9, and
         // 2.2 (compared to resting length of 1.9), as defined in paper
         // mentioned above
-        double stretch[3] = {1.6/1.9/*=0.842*/, 1.0, 2.2/1.9/*=1.158*/}; 
+        double stretch[3] = {1.6/1.9/*=0.842*/, 1.0, 2.2/1.9/*=1.158*/};
 
         for(unsigned run=0; run<3; run++)
         {
             Kerchoffs2003ContractionModel kerchoffs_model;
             TS_ASSERT_EQUALS(kerchoffs_model.IsStretchDependent(), true);
             TS_ASSERT_EQUALS(kerchoffs_model.IsStretchRateDependent(), false);
-    
+
             EulerIvpOdeSolver euler_solver;
-    
+
             kerchoffs_model.SetStretchAndStretchRate(stretch[run],0.0);
-    
+
             ContractionModelInputParameters input_params;
             input_params.intracellularCalciumConcentration = DOUBLE_UNSET;
-    
+
             std::vector<double> times;
             std::vector<double> active_tensions;
-    
+
             TimeStepper stepper(0, 1000, 1.0);  //ms
             times.push_back(stepper.GetTime());
             active_tensions.push_back(kerchoffs_model.GetActiveTension());
-    
+
             while(!stepper.IsTimeAtEnd())
             {
-                // specify a step-change voltage since this model gets activated 
+                // specify a step-change voltage since this model gets activated
                 // at V=0 and deactivated at V=-70
-                // Specify 300ms of activity - the resultant force should be 
-                // non-zero for greater than 300ms.. 
+                // Specify 300ms of activity - the resultant force should be
+                // non-zero for greater than 300ms..
                 if( (stepper.GetTime()>100) && (stepper.GetTime()<400) )
                 {
                     input_params.voltage = 50;
@@ -555,16 +555,16 @@ public :
                     input_params.voltage = -90;
                 }
                 kerchoffs_model.SetInputParameters(input_params);
-    
+
                 kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.001);
                 kerchoffs_model.UpdateStateVariables();
-    
+
                 times.push_back(stepper.GetTime());
                 active_tensions.push_back(kerchoffs_model.GetActiveTension());
-    
+
                 stepper.AdvanceOneTimeStep();
             }
-    
+
             if(run==0)
             {
                 data.push_back(times);
@@ -635,7 +635,7 @@ public :
         data.push_back(active_tensions);
         SimpleDataWriter writer("TestKerchoffContractionModel", "linear_lam.dat", data, false);
 
-        // visualise to verify validity.. 
+        // visualise to verify validity..
 
         // hardcoded test, somewhere near the two peaks
         TS_ASSERT_DELTA(times[100], 100, 1e-2);

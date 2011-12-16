@@ -191,7 +191,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
         p_ave_thickness_file = handler.OpenOutputFile("averaged_thickness.data");
     }
 
-    
+
     //We expect that the apex to base has been set
     if (fabs(norm_2(mApexToBase)) < DBL_EPSILON)
     {

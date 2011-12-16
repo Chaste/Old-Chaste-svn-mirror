@@ -46,8 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FixedTimeAdaptivityController : public AbstractTimeAdaptivityController
 {
 private:
-    double mThresholdTime; 
- 
+    double mThresholdTime;
+
     double ComputeTimeStep(double currentTime, Vec currentSolution)
     {
         if(currentTime < mThresholdTime)
@@ -59,7 +59,7 @@ private:
             return 1;
         }
     }
-            
+
 
 public:
     FixedTimeAdaptivityController(double thresholdTime)
@@ -81,7 +81,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/3D_0_to_1mm_6000_elements");
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-600.0*1000);
-        
+
         //////////////////////////////////////////////////////////////////////////
         // run original simulation - no adaptivity, dt=0.01 all the way through
         //////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ public:
         MonodomainProblem<3> problem(&cell_factory);
         problem.Initialise();
         problem.Solve();
-        
+
         //HeartEventHandler::Headings();
         //HeartEventHandler::Report();
 
@@ -126,7 +126,7 @@ public:
         // compare
 
         TS_ASSERT_DELTA(min_non_adaptive, 22.0383, 1e-3);
-        TS_ASSERT_DELTA(max_non_adaptive, 29.0697, 1e-3);        
+        TS_ASSERT_DELTA(max_non_adaptive, 29.0697, 1e-3);
         TS_ASSERT_DELTA(min_adaptive, 19.8749, 1e-3);
         TS_ASSERT_DELTA(max_adaptive, 25.0398, 1e-3);
     }
@@ -161,7 +161,7 @@ public:
 
                 HeartEventHandler::Headings();
                 HeartEventHandler::Report();
-        
+
                 Vec solution = problem.GetSolution();
                 int index; //dummy
                 VecMin(solution, &index, &min_non_adaptive);
@@ -171,8 +171,8 @@ public:
                 TS_ASSERT_DELTA(min_non_adaptive, 22.0383, 1e-3);
                 TS_ASSERT_DELTA(max_non_adaptive, 29.0697, 1e-3);
             }
-    
-    
+
+
             //////////////////////////////////////////////////////////////////////////
             // run adaptive simulation - dt=0.01 for first 2ms, then dt=1
             //////////////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ public:
                 VecMin(adaptive_solution, &index, &min_adaptive);
                 VecMax(adaptive_solution, &index, &max_adaptive);
                 ///std::cout << "Adaptive:     range at final time: " << min_adaptive << "mV to " << max_adaptive << "mV\n";
-    
+
                 // compare
                 TS_ASSERT_DELTA(min_adaptive, 19.8749, 1e-3);
                 TS_ASSERT_DELTA(max_adaptive, 25.0398, 1e-3);

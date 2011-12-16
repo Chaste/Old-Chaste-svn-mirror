@@ -60,7 +60,7 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
                 EXCEPTION("The size of the fibre file does not match the number of elements in the mesh");
             }
         }
- 
+
         if (this->mUseNonConstantConductivities)
         {
             if(this->mpNonConstantConductivities->size() != this->mpMesh->GetNumLocalElements())
@@ -91,12 +91,12 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
                 // if this fails
                 assert(current_fibre_global_index > previous_global_index);
 
-                
+
                 for (int fibre_index=previous_global_index; fibre_index<current_fibre_global_index-1; fibre_index++)
                 {
-                    this->mFileReader->GetNextFibreSheetAndNormalMatrix(orientation_matrix);            
+                    this->mFileReader->GetNextFibreSheetAndNormalMatrix(orientation_matrix);
                 }
-                
+
                 previous_global_index = current_fibre_global_index;
             }
 
@@ -142,7 +142,7 @@ void OrthotropicConductivityTensors<ELEMENT_DIM, SPACE_DIM>::Init(AbstractTetrah
             c_matrix<double,SPACE_DIM,SPACE_DIM> temp;
             noalias(temp) = prod(orientation_matrix, conductivity_matrix);
             this->mTensors.push_back( prod(temp, trans(orientation_matrix) ) );
-            
+
             local_element_index++;
         }
         assert(this->mTensors.size() == this->mpMesh->GetNumLocalElements());

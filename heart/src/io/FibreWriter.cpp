@@ -34,9 +34,9 @@ FibreWriter<DIM>::FibreWriter(const std::string& rDirectory,
                               const std::string& rBaseName,
                               const bool clearOutputDir)
     : mBaseName(rBaseName),
-      mFileIsBinary(false)               
+      mFileIsBinary(false)
 {
-    mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir); 
+    mpOutputFileHandler = new OutputFileHandler(rDirectory, clearOutputDir);
 }
 
 template<unsigned DIM>
@@ -50,7 +50,7 @@ void FibreWriter<DIM>::WriteAllAxi(const std::vector< c_vector<double, DIM> >& f
 {
     // Write axi file
     out_stream p_axi_file = OpenFileAndWriteHeader(this->mBaseName + ".axi", fibres.size());
-  
+
     //Now give the fibre directions
     for (unsigned i=0; i<fibres.size();i++ )
     {
@@ -80,7 +80,7 @@ void FibreWriter<DIM>::WriteAllOrtho(const std::vector< c_vector<double, DIM> >&
     assert(second.size() == third.size());
     // Write ortho file
     out_stream p_file = OpenFileAndWriteHeader(this->mBaseName + ".ortho", fibres.size());
-    
+
     //Now give the fibre directions
     for (unsigned i=0; i<fibres.size();i++ )
     {
@@ -117,7 +117,7 @@ template<unsigned DIM>
 out_stream FibreWriter<DIM>::OpenFileAndWriteHeader(const std::string& rFileName, unsigned numItems)
 {
     out_stream p_fibre_file = this->mpOutputFileHandler->OpenOutputFile(rFileName);
-  
+
     //Header line says how many fibres are coming...
     *p_fibre_file << numItems;
     //... and whether the fibres are binary
@@ -136,7 +136,7 @@ out_stream FibreWriter<DIM>::OpenFileAndWriteHeader(const std::string& rFileName
 template<unsigned DIM>
 void FibreWriter<DIM>::SetWriteFileAsBinary()
 {
-    mFileIsBinary = true;   
+    mFileIsBinary = true;
 }
 
 template class FibreWriter<1>;

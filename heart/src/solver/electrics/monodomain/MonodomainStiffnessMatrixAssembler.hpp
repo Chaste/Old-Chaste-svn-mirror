@@ -34,13 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "AbstractCardiacTissue.hpp"
 
-/** 
+/**
  *  Implementation of AbstractFeVolumeIntegralAssembler which provides stiffness matrices
- *  required in monodomain problems: 
- *   
+ *  required in monodomain problems:
+ *
  *  K_{ij} = integral_{domain}  grad_phi_i(x)^T (sigma * grad_phi_j(x)) dV
- * 
- *  where phi_i is the i-th (linear) basis function 
+ *
+ *  where phi_i is the i-th (linear) basis function
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainStiffnessMatrixAssembler
@@ -49,7 +49,7 @@ class MonodomainStiffnessMatrixAssembler
 public:
     /** Implemented ComputeMatrixTerm(), defined in AbstractFeVolumeIntegralAssembler. See
      *  documentation in that class.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases.
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i).
      * @param rX The point in space.

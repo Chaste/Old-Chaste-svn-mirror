@@ -65,36 +65,36 @@ FibreReader<DIM>::~FibreReader()
 template<unsigned DIM>
 void FibreReader<DIM>::GetAllAxi(std::vector< c_vector<double, DIM> >& direction)
 {
-    assert(direction.empty());                                       
+    assert(direction.empty());
     if (mNumItemsPerLine != DIM)
     {
         EXCEPTION("Use GetAllOrtho when reading orthotropic fibres");
-    }   
+    }
     for (unsigned i=0; i<mNumLinesOfData; i++)
     {
         c_vector<double, DIM> temp_vector;
         GetNextFibreVector(temp_vector, false);
         direction.push_back(temp_vector);
     }
-}    
+}
 
 template<unsigned DIM>
-void FibreReader<DIM>::GetAllOrtho(std::vector< c_vector<double, DIM> >& first_direction, 
+void FibreReader<DIM>::GetAllOrtho(std::vector< c_vector<double, DIM> >& first_direction,
                                    std::vector< c_vector<double, DIM> >& second_direction,
                                    std::vector< c_vector<double, DIM> >& third_direction)
 {
-    assert(first_direction.empty());                                       
-    assert(second_direction.empty());                                       
-    assert(third_direction.empty());                                       
+    assert(first_direction.empty());
+    assert(second_direction.empty());
+    assert(third_direction.empty());
     if (mNumItemsPerLine != DIM*DIM)
     {
         EXCEPTION("Use GetAllAxi when reading axisymmetric fibres");
-    }   
+    }
     for (unsigned i=0; i<mNumLinesOfData; i++)
     {
         c_matrix<double, DIM, DIM> temp_matrix;
         GetNextFibreSheetAndNormalMatrix(temp_matrix, true);
-        
+
         //Note that although the matrix appears row-wise in the ascii .ortho file,
         //for convenience it is stored column-wise.
         matrix_column<c_matrix<double, DIM, DIM> > col0(temp_matrix, 0);
@@ -110,8 +110,8 @@ void FibreReader<DIM>::GetAllOrtho(std::vector< c_vector<double, DIM> >& first_d
             third_direction.push_back(col2);
         }
     }
- 
-}                        
+
+}
 template<unsigned DIM>
 void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix,
                                                         bool checkOrthogonality)
@@ -144,7 +144,7 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
 
     }
 
-    //The binary file and ascii file are row-major.  However, we store column major 
+    //The binary file and ascii file are row-major.  However, we store column major
     //matrices
     rFibreMatrix = trans(rFibreMatrix);
 
@@ -154,14 +154,14 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
         c_matrix<double,DIM,DIM>  temp = prod(trans(rFibreMatrix),rFibreMatrix);
         // check temp is equal to the identity
         for(unsigned i=0; i<DIM; i++)
-        {   
+        {
             for(unsigned j=0; j<DIM; j++)
             {
                 double val = (i==j ? 1.0 : 0.0);
 
                 if(fabs(temp(i,j)-val)>1e-4)
                 {
-                    EXCEPTION("Read fibre-sheet matrix, " << rFibreMatrix << " from file " 
+                    EXCEPTION("Read fibre-sheet matrix, " << rFibreMatrix << " from file "
                                   << " which is not orthogonal (tolerance 1e-4)");
                 }
             }
@@ -171,7 +171,7 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
 }
 
 template<unsigned DIM>
-void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector, 
+void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector,
                                           bool checkNormalised)
 {
     if (mNumItemsPerLine != DIM)
@@ -198,10 +198,10 @@ void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector,
         }
     }
 
-    
+
     if(checkNormalised && fabs(norm_2(rFibreVector)-1)>1e-4)
     {
-        EXCEPTION("Read vector " << rFibreVector << " from file " 
+        EXCEPTION("Read vector " << rFibreVector << " from file "
                       << mFilePath << " which is not normalised (tolerance 1e-4)");
     }
 }
@@ -278,14 +278,14 @@ void FibreReader<DIM>::ReadNumLinesOfDataFromFile()
         blank_line = (raw_line.find_first_not_of(" \t",0) == std::string::npos);
     }
     while (blank_line);
-    
+
     std::stringstream header_line(raw_line);
-    
+
     header_line >> mNumLinesOfData;
-    
-    std::string extras;   
+
+    std::string extras;
     header_line >> extras;
-    
+
     if (extras=="BIN")
     {
         mFileIsBinary = true;

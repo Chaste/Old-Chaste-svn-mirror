@@ -52,21 +52,21 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
 
         this->mpLinearSystem->FinaliseLhsMatrix();
         PetscMatTools::Finalise(mMassMatrix);
-        
+
         if (HeartConfig::Instance()->GetUseMassLumpingForPrecond() && !HeartConfig::Instance()->GetUseMassLumping())
         {
             this->mpLinearSystem->SetPrecondMatrixIsDifferentFromLhs();
-            
-            MonodomainAssembler<ELEMENT_DIM,SPACE_DIM> lumped_mass_assembler(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);            
+
+            MonodomainAssembler<ELEMENT_DIM,SPACE_DIM> lumped_mass_assembler(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
             lumped_mass_assembler.SetMatrixToAssemble(this->mpLinearSystem->rGetPrecondMatrix());
 
             HeartConfig::Instance()->SetUseMassLumping(true);
             lumped_mass_assembler.AssembleMatrix();
             HeartConfig::Instance()->SetUseMassLumping(false);
-            
+
             this->mpLinearSystem->FinalisePrecondMatrix();
         }
-        
+
     }
 
     HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);
@@ -94,7 +94,7 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
         dist_vec_matrix_based[index] = Am*Cm*V*PdeSimulationTime::GetPdeTimeStepInverse() + F;
     }
     dist_vec_matrix_based.Restore();
-    
+
     //////////////////////////////////////////
     // b = Mz
     //////////////////////////////////////////
@@ -109,7 +109,7 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
     /////////////////////////////////////////
     mpNeumannSurfaceTermsAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
     mpNeumannSurfaceTermsAssembler->AssembleVector();
-  
+
     /////////////////////////////////////////
     // apply correction term
     /////////////////////////////////////////
@@ -119,8 +119,8 @@ void MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
         // don't need to set current solution
         mpMonodomainCorrectionTermAssembler->AssembleVector();
     }
-  
-    // finalise 
+
+    // finalise
     this->mpLinearSystem->FinaliseRhsVector();
 }
 
@@ -196,10 +196,10 @@ MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MonodomainSolver(
     // Tell tissue there's no need to replicate ionic caches
     pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
-    
+
     if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
     {
-        mpMonodomainCorrectionTermAssembler 
+        mpMonodomainCorrectionTermAssembler
             = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mNumQuadPoints);
         //We are going to need those caches after all
         pTissue->SetCacheReplication(true);
@@ -221,7 +221,7 @@ MonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MonodomainSolver()
         VecDestroy(mVecForConstructingRhs);
         MatDestroy(mMassMatrix);
     }
-    
+
     if(mpMonodomainCorrectionTermAssembler)
     {
         delete mpMonodomainCorrectionTermAssembler;

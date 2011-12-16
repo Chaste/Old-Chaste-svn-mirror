@@ -38,8 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTBIDOMAINWITHBATHTUTORIAL_HPP_
 /*
  * = An example showing how to run a bidomain simulation for tissue contained in a perfusing bath =
- * 
- * In this tutorial we show how the changes the need to be made when running a simulation of 
+ *
+ * In this tutorial we show how the changes the need to be made when running a simulation of
  * cardiac tissue contained in a bath.
  *
  */
@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestRunningBidomainSimulationsTutorial : public CxxTest::TestSuite
 {
 public: // Tests should be public!
-    
+
     void TestWithBathAndElectrodes() throw (Exception)
     {
         /* First, set the end time and output info. In this simulation
@@ -76,7 +76,7 @@ public: // Tests should be public!
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
 
         /* Use the {{{PlaneStimulusCellFactory}}} to define a set
-         * of Luo-Rudy cells. We pass the stimulus magnitude as 0.0 
+         * of Luo-Rudy cells. We pass the stimulus magnitude as 0.0
          * as we don't want any stimulated cells
          */
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellMLBackwardEuler,2> cell_factory(0.0);
@@ -88,33 +88,33 @@ public: // Tests should be public!
         TrianglesMeshReader<2,2> reader("mesh/test/data/2D_0_to_1mm_400_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         /*
-         * In most simulations there is one valid tissue identifier and one valid bath identifier 
+         * In most simulations there is one valid tissue identifier and one valid bath identifier
          * (for elements).
-         * These can be obtained with   
+         * These can be obtained with
          *  * {{{mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidTissueId());}}}
          *  * {{{mesh.GetElement(i)->SetRegion(HeartRegionCode::GetValidBathId());}}}
-         * 
+         *
          * If we want heterogeneous conductivities outside the heart (for example for torso and blood)
          * then we will need different identifiers
          */
         std::set<unsigned> tissue_ids;
         static unsigned tissue_id=0;
         tissue_ids.insert(tissue_id);
-        
+
         std::set<unsigned> bath_ids;
         static unsigned bath_id1=1;
         bath_ids.insert(bath_id1);
         static unsigned bath_id2=2;
         bath_ids.insert(bath_id2);
-         
+
         HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
-         
+
         /* In bath problems, each element has an attribute which must be set
          * to 0 (cardiac tissue) or 1 (bath). This can be done by having an
-         * extra column in the element file (see the file formats documentation, 
-         * or for example 
+         * extra column in the element file (see the file formats documentation,
+         * or for example
          * mesh/test/data/1D_0_to_1_10_elements_with_two_attributes.ele,
          * and note that the header in this file has 1 at the end to indicate that
          * the file defines an attribute for each element. We have read in a mesh
@@ -144,20 +144,20 @@ public: // Tests should be public!
                 //IDs default to 0, but we want to be safe
                 mesh.GetElement(i)->SetRegion(tissue_id);
             }
-            
+
         }
 
-        /* 
+        /*
          * The external conductivity can set two ways:
          *  * the default conductivity in the bath is set with {{{SetBathConductivity(double)}}}
          *  * heterogeneous overides can be set with {{{SetBathMultipleConductivities(std::map<unsigned, double> )}}}
          */
-        
+
         HeartConfig::Instance()->SetBathConductivity(7.0);  //bath_id1 tags will take the default value (actually 7.0 is the default)
-        std::map<unsigned, double> multiple_bath_conductivities;        
+        std::map<unsigned, double> multiple_bath_conductivities;
         multiple_bath_conductivities[bath_id2] = 6.5;  // mS/cm
-     
-        HeartConfig::Instance()->SetBathMultipleConductivities(multiple_bath_conductivities);        
+
+        HeartConfig::Instance()->SetBathMultipleConductivities(multiple_bath_conductivities);
 
 
         /* Now we define the electrodes. First define the magnitude of the electrodes
@@ -178,7 +178,7 @@ public: // Tests should be public!
          * is not grounded, ie has an equal and opposite flux. The "0" indicates
          * that the electrodes should be applied to the bounding surfaces in the x-direction
          * (1 would be y-direction, 2 z-direction), which are X=0.0 and X=0.1 in the given mesh.
-         * (This explains why the full mesh ought to be rectangular/cuboid - the nodes on 
+         * (This explains why the full mesh ought to be rectangular/cuboid - the nodes on
          * x=xmin and x=xmax ought to be form two surfaces of equal area.
          */
         HeartConfig::Instance()->SetElectrodeParameters(false, 0, magnitude, start_time, duration);

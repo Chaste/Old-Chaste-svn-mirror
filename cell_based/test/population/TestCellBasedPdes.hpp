@@ -107,7 +107,7 @@ public:
 
         {
             AbstractLinearEllipticPde<2,2>* p_pde;
-    
+
             // Create an input archive and restore PDE object from archive
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
@@ -195,7 +195,7 @@ public:
 
         {
             AbstractLinearEllipticPde<2,2>* p_pde;
-    
+
             // Create an input archive and restore PDE object from archive
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
@@ -321,7 +321,7 @@ public:
 
         {
             AbstractLinearEllipticPde<2,2>* p_pde;
-    
+
             // Create an input archive and restore PDE object from archive
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
@@ -426,7 +426,7 @@ public:
 
         {
             AbstractLinearEllipticPde<2,2>* p_pde;
-    
+
             // Create an input archive and restore PDE object from archive
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();

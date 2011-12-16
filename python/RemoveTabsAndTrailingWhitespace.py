@@ -34,7 +34,7 @@ ii) remove any trailing whitespace - calls " sed -i 's/[ \\t]*$//' "
 import os, sys
 
 exts = ['.cpp', '.hpp']
-dir_ignores = ['build', 'cxxtest', 'testoutput', 'doc', 'projects']
+dir_ignores = ['build', 'cxxtest', 'testoutput', 'docs', 'doxygen', 'projects', 'data']
 tab_spaces = ' ' * 4
 chaste_dir = '.'
     

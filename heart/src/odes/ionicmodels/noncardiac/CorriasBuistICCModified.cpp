@@ -47,127 +47,127 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         mIP3Concentration = 0.0006;
         mScaleFactorSerca = 1.0;
         mScaleFactorCarbonMonoxide = 1.0; //initialise to 1 --> no effect
-		//IP3  =  0.00065;// mM  *** no longer used ***
+        //IP3  =  0.00065;// mM  *** no longer used ***
 
-		/////////////////////
-		//Constants
-		////////////////////
+        /////////////////////
+        //Constants
+        ////////////////////
 
-		/* Concentrations */
-		Ca_o = 2.5    ;// mM
-		Cl_o  =134.0  ;// mM
-		K_o   =7.0    ;// mM
-		Na_o  =137.0  ;// mM
+        /* Concentrations */
+        Ca_o = 2.5    ;// mM
+        Cl_o  =134.0  ;// mM
+        K_o   =7.0    ;// mM
+        Na_o  =137.0  ;// mM
 
-		/* Nernst parameters */
-		R =    8314.4 ;// pJ/nmol/K
-		T =    310.0  ;// degK
-		F =    96484.6;// nC/nmol
-		FoRT   =    0.03743;// 1/mV
-		RToF   =    26.7137;// mV
+        /* Nernst parameters */
+        R =    8314.4 ;// pJ/nmol/K
+        T =    310.0  ;// degK
+        F =    96484.6;// nC/nmol
+        FoRT   =    0.03743;// 1/mV
+        RToF   =    26.7137;// mV
 
-		Cm = 25.0*1e-6;// 25 pF --> microF
+        Cm = 25.0*1e-6;// 25 pF --> microF
 
-		Asurf_in_cm_square = Cm / HeartConfig::Instance()->GetCapacitance();
-		Asurf = Asurf_in_cm_square / 0.01;//cm2 --> mm2
+        Asurf_in_cm_square = Cm / HeartConfig::Instance()->GetCapacitance();
+        Asurf = Asurf_in_cm_square / 0.01;//cm2 --> mm2
 
-		Cl_i = 88.0   ;// mM
-		K_i  = 120.0  ;// mM
-		Na_i =  30.0   ;// mM
-		P_cyto = 0.7;// dim
-		Vol  =  1.0e-6 ;// mm3
-		fc = 0.01   ;// dim
-		fe = 0.01   ;// dim
-		fm = 0.0003 ;// dim
-		Q10Ca = 2.1;// dim
-		Q10K  = 1.5;// dim
-		Q10Na = 2.45   ;// dim
-		T_exp = 297.0  ;// degK
+        Cl_i = 88.0   ;// mM
+        K_i  = 120.0  ;// mM
+        Na_i =  30.0   ;// mM
+        P_cyto = 0.7;// dim
+        Vol  =  1.0e-6 ;// mm3
+        fc = 0.01   ;// dim
+        fe = 0.01   ;// dim
+        fm = 0.0003 ;// dim
+        Q10Ca = 2.1;// dim
+        Q10K  = 1.5;// dim
+        Q10Na = 2.45   ;// dim
+        T_exp = 297.0  ;// degK
 
-		G_max_BK     =   23.0 * 1e-6 / Asurf;//  9.2e-3  mS/mm2           (23.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_CaCl   =   10.1 * 1e-6 / Asurf; //4.04e-3  mS/mm2           (10.1 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_ERG    =   2.5 * 1e-6 / Asurf; //1.0e-3   mS/mm2           ( 2.5 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_Ltype  =   2.0 * 1e-6 / Asurf;//0.8e-3    mS/mm2           ( 2.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_NSCC   =   12.15 * 1e-6 / Asurf;//4.86e-3 mS/mm2           (12.15nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_Na     =   20.0 * 1e-6 / Asurf;//8.0e-3  mS/mm2           (20.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_VDDR   =   3.0 * 1e-6 / Asurf;//1.2e-3   mS/mm2           ( 3.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_bk     =   0.15 * 1e-6 / Asurf;//0.06e-3 mS/mm2           (0.15 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-		G_max_kv11   =   6.3 * 1e-6 / Asurf;//2.52e-3  mS/mm2           ( 6.3 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_BK     =   23.0 * 1e-6 / Asurf;//  9.2e-3  mS/mm2           (23.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_CaCl   =   10.1 * 1e-6 / Asurf; //4.04e-3  mS/mm2           (10.1 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_ERG    =   2.5 * 1e-6 / Asurf; //1.0e-3   mS/mm2           ( 2.5 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_Ltype  =   2.0 * 1e-6 / Asurf;//0.8e-3    mS/mm2           ( 2.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_NSCC   =   12.15 * 1e-6 / Asurf;//4.86e-3 mS/mm2           (12.15nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_Na     =   20.0 * 1e-6 / Asurf;//8.0e-3  mS/mm2           (20.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_VDDR   =   3.0 * 1e-6 / Asurf;//1.2e-3   mS/mm2           ( 3.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_bk     =   0.15 * 1e-6 / Asurf;//0.06e-3 mS/mm2           (0.15 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        G_max_kv11   =   6.3 * 1e-6 / Asurf;//2.52e-3  mS/mm2           ( 6.3 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
 
-		J_max_PMCA = 0.088464e-3 ;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
-		J_max_PMCA_PU =  0.33e-3;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
-		J_ERleak  = 1.666667e-3 ;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
-		J_max_leak = 0.0;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
-		Jmax_IP3  =  50000.0e-3  ;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
-		Jmax_NaCa = 0.05e-3;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
-		Jmax_serca = 1.8333e-3   ;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
-		Jmax_uni  = 5000.0e-3   ;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
+        J_max_PMCA = 0.088464e-3 ;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
+        J_max_PMCA_PU =  0.33e-3;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
+        J_ERleak  = 1.666667e-3 ;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
+        J_max_leak = 0.0;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
+        Jmax_IP3  =  50000.0e-3  ;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
+        Jmax_NaCa = 0.05e-3;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
+        Jmax_serca = 1.8333e-3   ;// mM/ms   (mM/s) * 1/1000 (s/ms) = mM/ms
+        Jmax_uni  = 5000.0e-3   ;// 1/ms    (1/s) * 1/1000 (ms/s) = 1/ms
 
-		NaPerm_o_Kperm = 1.056075    ;// dim
-		L = 50.0   ;// dim
-		P_ER  = 0.1;// dim
-		P_PU =  0.001  ;// dim
-		P_mito = 0.12871;// dim
-		b = 0.5;// dim
-		na = 2.8;// dim
+        NaPerm_o_Kperm = 1.056075    ;// dim
+        L = 50.0   ;// dim
+        P_ER  = 0.1;// dim
+        P_PU =  0.001  ;// dim
+        P_mito = 0.12871;// dim
+        b = 0.5;// dim
+        na = 2.8;// dim
 
-		K_Ca  = 0.003  ;// mM
-		K_Na  = 9.4;// mM
-		K_act = 0.00038;// mM
-		K_trans = 0.006  ;// mM
-		k_serca = 0.00042;// mM
-		conc  = 0.001  ;// mM
-		d_ACT = 0.001  ;// mM
-		d_IP3 = 0.00025;// mM
-		d_INH = 0.0014 ;// mM
+        K_Ca  = 0.003  ;// mM
+        K_Na  = 9.4;// mM
+        K_act = 0.00038;// mM
+        K_trans = 0.006  ;// mM
+        k_serca = 0.00042;// mM
+        conc  = 0.001  ;// mM
+        d_ACT = 0.001  ;// mM
+        d_IP3 = 0.00025;// mM
+        d_INH = 0.0014 ;// mM
 
-		tau_d_CaCl = 0.03e3 ;// ms(s) * 1000 (ms/s) = ms
-		tau_d_NSCC = 0.35e3 ;// ms(s) * 1000 (ms/s) = ms
-		tauh  = 4.0e3  ;// ms(s ) * 1000 (ms/s) = ms
+        tau_d_CaCl = 0.03e3 ;// ms(s) * 1000 (ms/s) = ms
+        tau_d_NSCC = 0.35e3 ;// ms(s) * 1000 (ms/s) = ms
+        tauh  = 4.0e3  ;// ms(s ) * 1000 (ms/s) = ms
 
-		deltaPsi_B = 50.0   ;// mV
-		deltaPsi_star =  91.0   ;// mV
-		deltaPsi  = 164.000044  ;// mV
+        deltaPsi_B = 50.0   ;// mV
+        deltaPsi_star =  91.0   ;// mV
+        deltaPsi  = 164.000044  ;// mV
 
-		 /////////////////////
-		 //Calculated constants
-		 ////////////////////
+         /////////////////////
+         //Calculated constants
+         ////////////////////
 
-		/* Volumes */
-		V_cyto = Vol*P_cyto;
-		V_MITO = Vol*P_mito;
-		V_PU = Vol*P_PU;
-		V_ER = Vol*P_ER;
+        /* Volumes */
+        V_cyto = Vol*P_cyto;
+        V_MITO = Vol*P_mito;
+        V_PU = Vol*P_PU;
+        V_ER = Vol*P_ER;
 
-		/* Temperature corrections */
-		T_correction_Ca = pow(Q10Ca, (T-T_exp)/10.0);
-		T_correction_K = pow(Q10K, (T-T_exp)/10.0);
-		T_correction_Na = pow(Q10Na, (T-T_exp)/10.0);
-		T_correction_BK = 1.1*(T-T_exp)*1e-6/Asurf;  //(nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+        /* Temperature corrections */
+        T_correction_Ca = pow(Q10Ca, (T-T_exp)/10.0);
+        T_correction_K = pow(Q10K, (T-T_exp)/10.0);
+        T_correction_Na = pow(Q10Na, (T-T_exp)/10.0);
+        T_correction_BK = 1.1*(T-T_exp)*1e-6/Asurf;  //(nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
 
-		/* Nernst potentials */
-		E_Na = RToF*log(Na_o/Na_i);
-		E_K = RToF*log(K_o/K_i);
-		E_Cl = RToF*log(Cl_i/Cl_o);
-		E_NSCC = RToF*log((K_o+Na_o*NaPerm_o_Kperm)/(K_i+Na_i*NaPerm_o_Kperm));
+        /* Nernst potentials */
+        E_Na = RToF*log(Na_o/Na_i);
+        E_K = RToF*log(K_o/K_i);
+        E_Cl = RToF*log(Cl_i/Cl_o);
+        E_NSCC = RToF*log((K_o+Na_o*NaPerm_o_Kperm)/(K_i+Na_i*NaPerm_o_Kperm));
 
-		/* Activation gate time constants s->ms */
-		tau_d_ERG = T_correction_K*0.003*1000.0;
-		tau_d_Ltype = T_correction_Ca*0.001*1000.0;
-		tau_d_Na = T_correction_Na*0.003*1000.0;
-		tau_d_VDDR = T_correction_Ca*0.006*1000.0;
-		tau_d_kv11 = T_correction_K*0.005*1000.0;
+        /* Activation gate time constants s->ms */
+        tau_d_ERG = T_correction_K*0.003*1000.0;
+        tau_d_Ltype = T_correction_Ca*0.001*1000.0;
+        tau_d_Na = T_correction_Na*0.003*1000.0;
+        tau_d_VDDR = T_correction_Ca*0.006*1000.0;
+        tau_d_kv11 = T_correction_K*0.005*1000.0;
 
-		/* Inactivation gate time constants s->ms */
-		tau_f_Ltype = T_correction_Ca*0.086*1000.0;
-		tau_f_Na = T_correction_Na*0.0016*1000.0;
-		tau_f_VDDR = T_correction_Ca*0.04*1000.0;
-		tau_f_ca_Ltype = T_correction_Ca*0.002*1000.0;
-		tau_f_kv11 = T_correction_K*0.005*1000.0;
+        /* Inactivation gate time constants s->ms */
+        tau_f_Ltype = T_correction_Ca*0.086*1000.0;
+        tau_f_Na = T_correction_Na*0.0016*1000.0;
+        tau_f_VDDR = T_correction_Ca*0.04*1000.0;
+        tau_f_ca_Ltype = T_correction_Ca*0.002*1000.0;
+        tau_f_kv11 = T_correction_K*0.005*1000.0;
 
-		/* Speed ups */
-		e2FoRTdPsiMdPsiS = exp(-2.0*FoRT*(deltaPsi-deltaPsi_star));
-		ebFoRTdPsiMdPsiS = exp(b*FoRT*(deltaPsi-deltaPsi_star));
+        /* Speed ups */
+        e2FoRTdPsiMdPsiS = exp(-2.0*FoRT*(deltaPsi-deltaPsi_star));
+        ebFoRTdPsiMdPsiS = exp(b*FoRT*(deltaPsi-deltaPsi_star));
 
 
         Init();
@@ -183,27 +183,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
     void CorriasBuistICCModified::SetSercaPumpScaleFactor(double scaleFactor)
     {
-    	mScaleFactorSerca = scaleFactor;
+        mScaleFactorSerca = scaleFactor;
     }
 
     void CorriasBuistICCModified::SetFractionOfVDDRInPU(double fraction)
     {
-    	mFractionOfVDDRInPU = fraction;
+        mFractionOfVDDRInPU = fraction;
     }
 
     void CorriasBuistICCModified::SetIP3Concentration(double concentration)
     {
-    	mIP3Concentration = concentration;
+        mIP3Concentration = concentration;
     }
 
     void CorriasBuistICCModified::SetCarbonMonoxideScaleFactor(double scaleFactor)
     {
-    	mScaleFactorCarbonMonoxide = scaleFactor;
+        mScaleFactorCarbonMonoxide = scaleFactor;
     }
 
     double  CorriasBuistICCModified::GetCarbonMonoxideScaleFactor()
     {
-    	return mScaleFactorCarbonMonoxide;
+        return mScaleFactorCarbonMonoxide;
     }
 
     double CorriasBuistICCModified::GetIIonic(const std::vector<double>* pStateVariables)
@@ -211,24 +211,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         if (!pStateVariables) pStateVariables = &rGetStateVariables();
         const std::vector<double>& rY = *pStateVariables;
 
-    	// index 0:  Vm         (mV)
-    	// index 1:  Ca_i       (mM)
-    	// index 2:  Ca_ER      (mM)
-    	// index 3:  Ca_PU      (mM)
-    	// index 4:  Ca_m       (mM)
-    	// index 5:  h          (dim)
-    	// index 6:  d_CaCl     (dim)
-    	// index 7:  d_ERG      (dim)
-    	// index 8:  d_Ltype    (dim)
-    	// index 9:  d_NSCC     (dim)
-    	// index 10: d_Na       (dim)
-    	// index 11: d_VDDR     (dim)
-    	// index 12: d_kv11     (dim)
-    	// index 13: f_Ltype    (dim)
-    	// index 14: f_Na       (dim)
-    	// index 15: f_VDDR     (dim)
-    	// index 16: f_ca_Ltype (dim)
-    	// index 17: f_kv11     (dim)
+        // index 0:  Vm         (mV)
+        // index 1:  Ca_i       (mM)
+        // index 2:  Ca_ER      (mM)
+        // index 3:  Ca_PU      (mM)
+        // index 4:  Ca_m       (mM)
+        // index 5:  h          (dim)
+        // index 6:  d_CaCl     (dim)
+        // index 7:  d_ERG      (dim)
+        // index 8:  d_Ltype    (dim)
+        // index 9:  d_NSCC     (dim)
+        // index 10: d_Na       (dim)
+        // index 11: d_VDDR     (dim)
+        // index 12: d_kv11     (dim)
+        // index 13: f_Ltype    (dim)
+        // index 14: f_Na       (dim)
+        // index 15: f_VDDR     (dim)
+        // index 16: f_ca_Ltype (dim)
+        // index 17: f_kv11     (dim)
 
         double E_Ca = 0.5*RToF*log(Ca_o/rY[1]);
         /* --- INa --- */
@@ -264,24 +264,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
     void CorriasBuistICCModified::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
     {
-    	// index 0:  Vm         (mV)
-    	// index 1:  Ca_i       (mM)
-    	// index 2:  Ca_ER      (mM)
-    	// index 3:  Ca_PU      (mM)
-    	// index 4:  Ca_m       (mM)
-    	// index 5:  h          (dim)
-    	// index 6:  d_CaCl     (dim)
-    	// index 7:  d_ERG      (dim)
-    	// index 8:  d_Ltype    (dim)
-    	// index 9:  d_NSCC     (dim)
-    	// index 10: d_Na       (dim)
-    	// index 11: d_VDDR     (dim)
-    	// index 12: d_kv11     (dim)
-    	// index 13: f_Ltype    (dim)
-    	// index 14: f_Na       (dim)
-    	// index 15: f_VDDR     (dim)
-    	// index 16: f_ca_Ltype (dim)
-    	// index 17: f_kv11     (dim)
+        // index 0:  Vm         (mV)
+        // index 1:  Ca_i       (mM)
+        // index 2:  Ca_ER      (mM)
+        // index 3:  Ca_PU      (mM)
+        // index 4:  Ca_m       (mM)
+        // index 5:  h          (dim)
+        // index 6:  d_CaCl     (dim)
+        // index 7:  d_ERG      (dim)
+        // index 8:  d_Ltype    (dim)
+        // index 9:  d_NSCC     (dim)
+        // index 10: d_Na       (dim)
+        // index 11: d_VDDR     (dim)
+        // index 12: d_kv11     (dim)
+        // index 13: f_Ltype    (dim)
+        // index 14: f_Na       (dim)
+        // index 15: f_VDDR     (dim)
+        // index 16: f_ca_Ltype (dim)
+        // index 17: f_kv11     (dim)
 
         /* ----------------- */
         /* Membrane currents */
@@ -388,8 +388,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         }
         else
         {
-        	voltage_derivative = (-1.0 / 0.01) * (i_stim + I_Na+I_Ltype+I_VDDR+I_kv11+I_ERG+I_BK+I_CaCl+I_NSCC+I_bk+(J_PMCA*2.0*F*V_cyto/Asurf));
-        	assert(!std::isnan(voltage_derivative));
+            voltage_derivative = (-1.0 / 0.01) * (i_stim + I_Na+I_Ltype+I_VDDR+I_kv11+I_ERG+I_BK+I_CaCl+I_NSCC+I_bk+(J_PMCA*2.0*F*V_cyto/Asurf));
+            assert(!std::isnan(voltage_derivative));
         }
 
         rDY[0] =  voltage_derivative;/* Vm */

@@ -52,24 +52,24 @@ private:
         static const double magnitude = -105000.0;//volume stimulus in microA/cm3
 public:
     StimulatedCellFactory() : AbstractCardiacCellFactory<1>(),
-			mpStimulus ( new SimpleStimulus(magnitude, 1.0))/*amplitude, duration (ms)*/
+            mpStimulus ( new SimpleStimulus(magnitude, 1.0))/*amplitude, duration (ms)*/
     {
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-    	CellLuoRudy1991FromCellML* first_cell;
-    	if (x < 0.005)
-    	{
-    		first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
-    	}
-    	else
-    	{
-    		first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
-    	}
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        CellLuoRudy1991FromCellML* first_cell;
+        if (x < 0.005)
+        {
+            first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
+        }
+        else
+        {
+            first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
+        }
 
-    	return first_cell;
+        return first_cell;
     }
 };
 
@@ -81,24 +81,24 @@ private:
         // this is a volume stimulus in microA/cm3
 public:
         StimulatedCellFactoryBidomain() : AbstractCardiacCellFactory<1>(),
-			mpStimulus ( new SimpleStimulus(magnitude, 1.0))/*amplitude, duration (ms)*/
+            mpStimulus ( new SimpleStimulus(magnitude, 1.0))/*amplitude, duration (ms)*/
     {
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-    	CellLuoRudy1991FromCellML* first_cell;
-    	if (x < 0.005)
-    	{
-    		first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
-    	}
-    	else
-    	{
-    		first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
-    	}
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        CellLuoRudy1991FromCellML* first_cell;
+        if (x < 0.005)
+        {
+            first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
+        }
+        else
+        {
+            first_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
+        }
 
-    	return first_cell;
+        return first_cell;
     }
 };
 
@@ -115,8 +115,8 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	CellLuoRudy1991FromCellML* second_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
-    	return second_cell;
+        CellLuoRudy1991FromCellML* second_cell = new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
+        return second_cell;
     }
 };
 
@@ -130,17 +130,17 @@ public:
 
     boost::shared_ptr<AbstractStimulusFunction> CreateStimulusForNode(unsigned nodeIndex)
     {
-    	double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-    	boost::shared_ptr<SimpleStimulus> p_stimulus;
-    	if (x < 0.005)
-    	{
-    		p_stimulus.reset (new SimpleStimulus(-428, 1.0, 0.1));
-    	}
-    	else
-    	{
-    		p_stimulus.reset (new SimpleStimulus(0.0, 0.5, 0.1));
-    	}
-    	return p_stimulus;
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        boost::shared_ptr<SimpleStimulus> p_stimulus;
+        if (x < 0.005)
+        {
+            p_stimulus.reset (new SimpleStimulus(-428, 1.0, 0.1));
+        }
+        else
+        {
+            p_stimulus.reset (new SimpleStimulus(0.0, 0.5, 0.1));
+        }
+        return p_stimulus;
     }
 };
 
@@ -166,18 +166,18 @@ class TestExtendedBidomainProblem1D : public CxxTest::TestSuite
 
 public:
 
-	void SetupParameters() throw (Exception)
-	{
-    	HeartConfig::Instance()->Reset();
+    void SetupParameters() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(65.0));//very high compared to intracellular
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1400.0);
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
         HeartConfig::Instance()->SetCapacitance(1.0);
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
-    	HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms. Tried to run for up tp 35 ms and all was fine.
-	}
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // Tests and simulations for the setAveragePhie method
@@ -185,8 +185,8 @@ public:
 
     void RunExtendedBidomainStimulateFirstCell() throw (Exception)
     {
-    	SetupParameters();
-    	HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
+        SetupParameters();
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
 
         StimulatedCellFactory stimulated_cell_factory;
         UnStimulatedCellFactory unstimulated_cell_factory;
@@ -205,9 +205,9 @@ public:
     }
 
     void RunBidomain() throw (Exception)
-	{
-    	SetupParameters();
-    	HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
+    {
+        SetupParameters();
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
 
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("normal1d");
@@ -220,12 +220,12 @@ public:
     }
 
     void TestCompareStimulationOfFirstCell() throw(Exception)
-	{
-    	//run the two simulations, bidomain and extended bidomain
-    	RunBidomain();
-    	RunExtendedBidomainStimulateFirstCell();
+    {
+        //run the two simulations, bidomain and extended bidomain
+        RunBidomain();
+        RunExtendedBidomainStimulateFirstCell();
 
-    	//pick up the results...
+        //pick up the results...
         Hdf5DataReader reader_extended("Extended1dStimulateFirstCell", "extended1d");
         Hdf5DataReader reader_bidomain("Bidomain1d", "normal1d");
         TS_ASSERT_EQUALS(reader_extended.GetNumberOfRows(), reader_bidomain.GetNumberOfRows());
@@ -234,38 +234,38 @@ public:
         //... and compare
         for (unsigned node = 0; node < reader_extended.GetNumberOfRows(); node++)
         {
-			std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
-			std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
-			std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
+            std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
+            std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
 
-			std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
-			std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
+            std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
 
-			TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
-			TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
-			TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
-			TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
+            TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
+            TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
 
-			for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
-			{
-				//check that an AP was generated somewhere at some time
-				if (voltage_bidomain[index] >0.0)
-				{
-					ap_generated = true;
-				}
-				TS_ASSERT_DELTA(voltage_first_cell_extended[index] , voltage_bidomain[index], 1e-3);
-				TS_ASSERT_LESS_THAN(voltage_second_cell_extended[index] , -83.5);//second unstimulated cell should be at rest
-				TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
-			}
+            for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
+            {
+                //check that an AP was generated somewhere at some time
+                if (voltage_bidomain[index] >0.0)
+                {
+                    ap_generated = true;
+                }
+                TS_ASSERT_DELTA(voltage_first_cell_extended[index] , voltage_bidomain[index], 1e-3);
+                TS_ASSERT_LESS_THAN(voltage_second_cell_extended[index] , -83.5);//second unstimulated cell should be at rest
+                TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
+            }
         }
         TS_ASSERT_EQUALS(ap_generated, true);
-	}
+    }
 
 
     void RunExtendedBidomainStimulateSecondCell() throw (Exception)
-	{
-    	SetupParameters();
-    	HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
+    {
+        SetupParameters();
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-5);
 
         StimulatedCellFactory stimulated_cell_factory;
         UnStimulatedCellFactory unstimulated_cell_factory;
@@ -283,17 +283,17 @@ public:
         extended_problem.SetNodeForAverageOfPhiZeroed(100u);
         extended_problem.Initialise();
         extended_problem.Solve();
-	}
+    }
 
     /**
      * This test is the same as TestCompareStimulationOfFirstCell above, but with the stimulus applied to the second cell instead of the first.
      */
     void TestCompareStimulationOfSecondCell() throw (Exception)
     {
-    	//first, run the extended bidomain simulation stimulating the second cell
-    	RunExtendedBidomainStimulateSecondCell();
+        //first, run the extended bidomain simulation stimulating the second cell
+        RunExtendedBidomainStimulateSecondCell();
 
-    	//pick up the results...(note the bidomain simulatioon is the same as the test above for the first cell)
+        //pick up the results...(note the bidomain simulatioon is the same as the test above for the first cell)
         Hdf5DataReader reader_extended("Extended1dStimulateSecondCell", "extended1d");
         Hdf5DataReader reader_bidomain("Bidomain1d", "normal1d");
         TS_ASSERT_EQUALS(reader_extended.GetNumberOfRows(), reader_bidomain.GetNumberOfRows());
@@ -302,29 +302,29 @@ public:
         //... and compare
         for (unsigned node = 0; node < reader_extended.GetNumberOfRows(); node++)
         {
-			std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
-			std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
-			std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
+            std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
+            std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
 
-			std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
-			std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
+            std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
 
-			TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
-			TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
-			TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
-			TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
+            TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
+            TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
 
-			for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
-			{
-				//check that an AP was generated somewhere at some time
-				if (voltage_bidomain[index] >0.0)
-				{
-					ap_generated = true;
-				}
-				TS_ASSERT_DELTA(voltage_second_cell_extended[index] , voltage_bidomain[index], 1e-3);
-				TS_ASSERT_LESS_THAN(voltage_first_cell_extended[index] , -83.5);//first unstimulated cell should be at rest
-				TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
-			}
+            for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
+            {
+                //check that an AP was generated somewhere at some time
+                if (voltage_bidomain[index] >0.0)
+                {
+                    ap_generated = true;
+                }
+                TS_ASSERT_DELTA(voltage_second_cell_extended[index] , voltage_bidomain[index], 1e-3);
+                TS_ASSERT_LESS_THAN(voltage_first_cell_extended[index] , -83.5);//first unstimulated cell should be at rest
+                TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
+            }
         }
         TS_ASSERT_EQUALS(ap_generated, true);
     }
@@ -334,8 +334,8 @@ public:
     //////////////////////////////////////////////////////////////////////////////
 
     void RunExtendedSimulationWithNullBasis()  throw(Exception)
-	{
-    	SetupParameters();
+    {
+        SetupParameters();
 
         StimulatedCellFactory stimulated_cell_factory;
         UnStimulatedCellFactory unstimulated_cell_factory;
@@ -352,11 +352,11 @@ public:
         extended_problem.SetIntracellularConductivitiesForSecondCell(Create_c_vector(0.0005));
         extended_problem.Initialise();
         extended_problem.Solve();
-	}
+    }
 
     void RunBidomainNullBasis() throw (Exception)
-	{
-    	SetupParameters();
+    {
+        SetupParameters();
 
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1dNullBasis");
         HeartConfig::Instance()->SetOutputFilenamePrefix("normal1d");
@@ -369,12 +369,12 @@ public:
     }
 
     void TestCompareNullBasis() throw (Exception)
-	{
-    	//first, run the extended bidomain simulation stimulating the second cell
-    	RunExtendedSimulationWithNullBasis();
-    	RunBidomainNullBasis();
+    {
+        //first, run the extended bidomain simulation stimulating the second cell
+        RunExtendedSimulationWithNullBasis();
+        RunBidomainNullBasis();
 
-    	//pick up the results...(note the bidomain simulatioon is the same as the test above for the first cell)
+        //pick up the results...(note the bidomain simulatioon is the same as the test above for the first cell)
         Hdf5DataReader reader_extended("Extended1dStimulateSecondCellNullBasis", "extended1d");
         Hdf5DataReader reader_bidomain("Bidomain1dNullBasis", "normal1d");
         TS_ASSERT_EQUALS(reader_extended.GetNumberOfRows(), reader_bidomain.GetNumberOfRows());
@@ -383,40 +383,40 @@ public:
         //... and compare
         for (unsigned node = 0; node < reader_extended.GetNumberOfRows(); node++)
         {
-			std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
-			std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
-			std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
+            std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
+            std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
 
-			std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
-			std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
+            std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
 
-			TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
-			TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
-			TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
-			TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
+            TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
+            TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
 
-			for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
-			{
-				//check that an AP was generated somewhere at some time
-				if (voltage_bidomain[index] >0.0)
-				{
-					ap_generated = true;
-				}
-				TS_ASSERT_DELTA(voltage_second_cell_extended[index] , voltage_bidomain[index], 1e-3);
-				TS_ASSERT_LESS_THAN(voltage_first_cell_extended[index] , -83.5);//first unstimulated cell should be at rest
-				TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
-			}
+            for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
+            {
+                //check that an AP was generated somewhere at some time
+                if (voltage_bidomain[index] >0.0)
+                {
+                    ap_generated = true;
+                }
+                TS_ASSERT_DELTA(voltage_second_cell_extended[index] , voltage_bidomain[index], 1e-3);
+                TS_ASSERT_LESS_THAN(voltage_first_cell_extended[index] , -83.5);//first unstimulated cell should be at rest
+                TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
+            }
         }
         TS_ASSERT_EQUALS(ap_generated, true);
-	}
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // Tests and simulations for pinning a node
     //////////////////////////////////////////////////////////////////////////////
 
     void RunExtendedSimulationPinnedNode()  throw(Exception)
-	{
-    	SetupParameters();
+    {
+        SetupParameters();
 
         StimulatedCellFactory stimulated_cell_factory;
         UnStimulatedCellFactory unstimulated_cell_factory;
@@ -440,11 +440,11 @@ public:
 
         extended_problem.Initialise();
         extended_problem.Solve();
-	}
+    }
 
     void RunBidomainPinnedNode() throw (Exception)
-	{
-    	SetupParameters();
+    {
+        SetupParameters();
 
         HeartConfig::Instance()->SetOutputDirectory("Bidomain1dPinnedNode");
         HeartConfig::Instance()->SetOutputFilenamePrefix("normal1d");
@@ -464,12 +464,12 @@ public:
     }
 
     void TestComparePinnedNode() throw (Exception)
-	{
-    	//first, run the two simulations
-    	RunBidomainPinnedNode();
-    	RunExtendedSimulationPinnedNode();
+    {
+        //first, run the two simulations
+        RunBidomainPinnedNode();
+        RunExtendedSimulationPinnedNode();
 
-    	//pick up the results...
+        //pick up the results...
         Hdf5DataReader reader_extended("Extended1dPinnedNode", "extended1d");
         Hdf5DataReader reader_bidomain("Bidomain1dPinnedNode", "normal1d");
         TS_ASSERT_EQUALS(reader_extended.GetNumberOfRows(), reader_bidomain.GetNumberOfRows());
@@ -478,37 +478,37 @@ public:
         //... and compare
         for (unsigned node = 0; node < reader_extended.GetNumberOfRows(); node++)
         {
-			std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
-			std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
-			std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_first_cell_extended = reader_extended.GetVariableOverTime("V", node);
+            std::vector<double> voltage_second_cell_extended = reader_extended.GetVariableOverTime("V_2", node);
+            std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
 
-			std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
-			std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
+            std::vector<double> voltage_bidomain = reader_bidomain.GetVariableOverTime("V", node);
+            std::vector<double> phi_e_bidomain = reader_bidomain.GetVariableOverTime("Phi_e", node);
 
-			TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
-			TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
-			TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
-			TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_first_cell_extended.size(), voltage_second_cell_extended.size());
+            TS_ASSERT_EQUALS(voltage_second_cell_extended.size(), phi_e_extended.size());
+            TS_ASSERT_EQUALS(phi_e_extended.size(), voltage_bidomain.size());
+            TS_ASSERT_EQUALS(voltage_bidomain.size(), phi_e_bidomain.size());
 
-			for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
-			{
-				//check that an AP was generated somewhere at some time
-				if (voltage_bidomain[index] >0.0)
-				{
-					ap_generated = true;
-				}
-				TS_ASSERT_DELTA(voltage_second_cell_extended[index] , voltage_bidomain[index], 1e-3);
-				TS_ASSERT_LESS_THAN(voltage_first_cell_extended[index] , -83.5);//first unstimulated cell should be at rest
-				TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
-			}
+            for ( unsigned index = 0; index < voltage_bidomain.size(); index ++)
+            {
+                //check that an AP was generated somewhere at some time
+                if (voltage_bidomain[index] >0.0)
+                {
+                    ap_generated = true;
+                }
+                TS_ASSERT_DELTA(voltage_second_cell_extended[index] , voltage_bidomain[index], 1e-3);
+                TS_ASSERT_LESS_THAN(voltage_first_cell_extended[index] , -83.5);//first unstimulated cell should be at rest
+                TS_ASSERT_DELTA(phi_e_extended[index] , phi_e_bidomain[index], 1e-3);
+            }
         }
         TS_ASSERT_EQUALS(ap_generated, true);
-	}
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // Tests for heterogeneous Ggap
     //////////////////////////////////////////////////////////////////////////////
-        
+
     void TestHeterogeneousGgap() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
@@ -594,7 +594,7 @@ public:
 
 
     }
-    
+
     /**
      * This test is just to try out (and cover) the WriteInfo method and the set  method of the extracellular stimulus
      * Also tests method for accessing the flag indicating whether the user suipplied an extracellular stimulus or not
@@ -632,53 +632,53 @@ public:
 
     void TestExceptions() throw (Exception)
     {
-    	HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("ExtendedExceptions");
         HeartConfig::Instance()->SetOutputFilenamePrefix("exceptions");
 
-		PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
-		PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory_2;
-		ExtendedBidomainProblem<1> extended_problem( &bidomain_cell_factory , &bidomain_cell_factory_2);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory_2;
+        ExtendedBidomainProblem<1> extended_problem( &bidomain_cell_factory , &bidomain_cell_factory_2);
 
-		extended_problem.Initialise();
+        extended_problem.Initialise();
 
-		// Exception in PreSolveChecks()
-		HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
-		TS_ASSERT_THROWS_THIS( extended_problem.Solve()
-				, "Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");
-		HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);
+        // Exception in PreSolveChecks()
+        HeartConfig::Instance()->SetUseRelativeTolerance(1e-4);
+        TS_ASSERT_THROWS_THIS( extended_problem.Solve()
+                , "Bidomain external voltage is not bounded in this simulation - use KSP *absolute* tolerance");
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-4);
 
-		//Exception in SetupLinearSystem within MatrixBasedAssembler
-		extended_problem.SetHasBath(true);
-		TS_ASSERT_THROWS_THIS( extended_problem.Solve()
-				,"Bath simulations are not yet supported for extended bidomain problems");
-		extended_problem.SetHasBath(false);
-		TS_ASSERT_EQUALS(extended_problem.GetHasBath(),false);
+        //Exception in SetupLinearSystem within MatrixBasedAssembler
+        extended_problem.SetHasBath(true);
+        TS_ASSERT_THROWS_THIS( extended_problem.Solve()
+                ,"Bath simulations are not yet supported for extended bidomain problems");
+        extended_problem.SetHasBath(false);
+        TS_ASSERT_EQUALS(extended_problem.GetHasBath(),false);
 
-		HeartEventHandler::Reset();
-		// check throws if the fixed node num isn't valid
-		std::vector<unsigned> pinned_nodes;
-		pinned_nodes.push_back(1000);
-		extended_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
+        HeartEventHandler::Reset();
+        // check throws if the fixed node num isn't valid
+        std::vector<unsigned> pinned_nodes;
+        pinned_nodes.push_back(1000);
+        extended_problem.SetFixedExtracellularPotentialNodes(pinned_nodes);
 
-		// Covering exception thrown in ExtendedBidomainProblem<DIM>::CreateAssembler()
-		TS_ASSERT_THROWS_THIS(extended_problem.Solve(),"Fixed node number must be less than total number nodes");
+        // Covering exception thrown in ExtendedBidomainProblem<DIM>::CreateAssembler()
+        TS_ASSERT_THROWS_THIS(extended_problem.Solve(),"Fixed node number must be less than total number nodes");
 
-		//cover an exception in SetGgapHeterogeneities
-		std::vector<boost::shared_ptr<AbstractChasteRegion<1> > > heterogeneity_areas;
-		std::vector<double> Ggap_values;
+        //cover an exception in SetGgapHeterogeneities
+        std::vector<boost::shared_ptr<AbstractChasteRegion<1> > > heterogeneity_areas;
+        std::vector<double> Ggap_values;
 
-		ChastePoint<1> cornerA(-1);
-		ChastePoint<1> cornerB(0.001);
-		boost::shared_ptr<ChasteCuboid<1> > p_cuboid_1(new ChasteCuboid<1>(cornerA, cornerB));
-		heterogeneity_areas.push_back(p_cuboid_1);
-		Ggap_values.push_back(143.0);
-		Ggap_values.push_back(91.0);//now Ggap_values has 2 members while heterogeneity_areas only 1.
-		TS_ASSERT_THROWS_THIS(extended_problem.SetGgapHeterogeneities(heterogeneity_areas, Ggap_values),
-			"Gap junction heterogeneity areas must be of the same number as the heterogeneity values");
-		
+        ChastePoint<1> cornerA(-1);
+        ChastePoint<1> cornerB(0.001);
+        boost::shared_ptr<ChasteCuboid<1> > p_cuboid_1(new ChasteCuboid<1>(cornerA, cornerB));
+        heterogeneity_areas.push_back(p_cuboid_1);
+        Ggap_values.push_back(143.0);
+        Ggap_values.push_back(91.0);//now Ggap_values has 2 members while heterogeneity_areas only 1.
+        TS_ASSERT_THROWS_THIS(extended_problem.SetGgapHeterogeneities(heterogeneity_areas, Ggap_values),
+            "Gap junction heterogeneity areas must be of the same number as the heterogeneity values");
+
         // Coverage of the exception in the solver itself
         BoundaryConditionsContainer<1,1,3> container;
         ExtendedBidomainSolver<1,1> bidomain_solver(false,
@@ -687,7 +687,7 @@ public:
                                                        &container);
 
         TS_ASSERT_THROWS_THIS(bidomain_solver.SetRowForAverageOfPhiZeroed(4),
-        		"Row for applying the constraint 'Average of phi_e = zero' should be every 3 rows");
+                "Row for applying the constraint 'Average of phi_e = zero' should be every 3 rows");
 
     }
 

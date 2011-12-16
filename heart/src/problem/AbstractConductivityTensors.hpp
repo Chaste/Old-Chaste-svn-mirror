@@ -51,13 +51,13 @@ protected:
     /** Single constant conductivities for all space (when mUseNonConstantConductivities==false)*/
     c_vector<double, SPACE_DIM> mConstantConductivities; // mS/cm
 
-    /** 
+    /**
      * Non-constant conductivities for each element (when mUseNonConstantConductivities==true)
      * The size of this vector should match the number of local elements in the mesh
      */
     std::vector<c_vector<double, SPACE_DIM> >* mpNonConstantConductivities; // mS/cm
 
-    /** Container for conductivity tensors 
+    /** Container for conductivity tensors
      * (single, size=1 [one for all space] or multiple, size=num local elements [one for each local element]) */
     std::vector< c_matrix<double,SPACE_DIM,SPACE_DIM> > mTensors;
 

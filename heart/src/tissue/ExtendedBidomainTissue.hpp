@@ -86,13 +86,13 @@ private:
         archive & boost::serialization::base_object<AbstractCardiacTissue<SPACE_DIM> >(*this);
         // Conductivity tensors are dealt with by HeartConfig, and the caches get regenerated.
 
-    	archive & mAmFirstCell;
-    	archive & mAmSecondCell;
-    	archive & mAmGap;
-    	archive & mCmFirstCell;
-    	archive & mCmSecondCell;
-    	archive & mGGap;
-    	archive & mUserSuppliedExtracellularStimulus;
+        archive & mAmFirstCell;
+        archive & mAmSecondCell;
+        archive & mAmGap;
+        archive & mCmFirstCell;
+        archive & mCmSecondCell;
+        archive & mGGap;
+        archive & mUserSuppliedExtracellularStimulus;
     }
 
     /** Intracellular conductivity tensors for the second cell.*/
@@ -119,7 +119,7 @@ private:
      *  replicated over all processes.
      */
     ReplicatableVector mGgapCacheReplicated;
-    
+
     /**
      *  Cache containing all the ionic currents for each node for the seconed cell,
      *  replicated over all processes.
@@ -137,28 +137,28 @@ private:
 
     /** The vector of stimuli for the extracellular stimulus. Distributed. */
     std::vector<boost::shared_ptr<AbstractStimulusFunction> > mExtracellularStimuliDistributed;
-    
+
     /** The vector of gap junction conductances. Distributed*/
     std::vector<double> mGgapDistributed;
 
     /**the Am for the first cell, set by the problem class and picked up by the assembler*/
-	double mAmFirstCell;
+    double mAmFirstCell;
     /**the Am for the second cell, set by the problem class and picked up by the assembler*/
-	double mAmSecondCell;
+    double mAmSecondCell;
     /**the Am for the gap junction, set by the problem class and picked up by the assembler*/
-	double mAmGap;
+    double mAmGap;
     /**the Cm for the first cell, set by the problem class and picked up by the assembler*/
-	double mCmFirstCell;
+    double mCmFirstCell;
     /**the Cm for the second cell, set by the problem class and picked up by the assembler*/
-	double mCmSecondCell;
-	/**the conductance of the gap junction, in mS/cm2. Set by the problem class and picked up by the assembler*/
-	double mGGap;
+    double mCmSecondCell;
+    /**the conductance of the gap junction, in mS/cm2. Set by the problem class and picked up by the assembler*/
+    double mGGap;
 
-	/**
-	 * Whether the extracellular stimulus that is passed in was supplied by the user or not
-	 * (it could be the default zero implementation). Initialise to false (user did not pass in anything).
-	 */
-	bool mUserSuppliedExtracellularStimulus;
+    /**
+     * Whether the extracellular stimulus that is passed in was supplied by the user or not
+     * (it could be the default zero implementation). Initialise to false (user did not pass in anything).
+     */
+    bool mUserSuppliedExtracellularStimulus;
 
     /**
      * Convenience method for extracellular conductivity tensors creation
@@ -192,7 +192,7 @@ private:
      * It is typically called right after the ReplicateCaches method in the parent class.
      */
     void ReplicateAdditionalCaches();
-    
+
     /** vector of regions for Ggap heterogeneities*/
     std::vector<boost::shared_ptr<AbstractChasteRegion<SPACE_DIM> > > mGgapHeterogeneityRegions;
     /**values of heterogeneous Ggaps corresponding to mGgapHeterogeneityRegions. This has the same size as mGgapHeterogeneityRegions*/
@@ -250,12 +250,12 @@ public:
      *  Returns a reference to the vector of distributed cells (second cell). Needed for archiving.
      */
     const std::vector<AbstractCardiacCell*>& rGetSecondCellsDistributed() const;
-    
+
     /**
      *  Returns a reference to the vector of distributed values of Ggaps. Needed for archiving.
      */
     const std::vector<double>& rGetGapsDistributed() const;
-    
+
 
     /**
      *  Returns a reference to the vector of distributed extracellular stimuli. Needed for archiving.
@@ -283,15 +283,15 @@ public:
      * Convenience method for intracellular conductivity tensors creation for the second cell
      */
     void CreateIntracellularConductivityTensorSecondCell();
-    
+
     /**
      *  Set the values of mCellHeterogeneityRegions and mGgapValues for the heterogeneities of Ggap.
-     * 
+     *
      *  @param rGgapHeterogeneityRegions a vector of (pointers to) heterogeneity regions for gap junctions
      *  @param rGgapValues a vector (of the same size as rGgapHeterogeneityRegions) with the respective values of Ggap for every region.
-     */ 
+     */
     void SetGgapHeterogeneities ( std::vector<boost::shared_ptr<AbstractChasteRegion<SPACE_DIM> > > & rGgapHeterogeneityRegions, std::vector<double> rGgapValues);
-    
+
     /**
      * Create the pattern of Ggap across the mesh based upon mCellHeterogeneityRegions, mGgapValues and mGgap. This will fill in mGgapDistributed.
      * It will set mGgap everywhere except in  the areas mCellHeterogeneityRegions[i] where it will put mGgapValues[i] instead.
@@ -320,7 +320,7 @@ public:
 
      /** Get the extracellular stimulus*/
      ReplicatableVector& rGetExtracellularStimulusCacheReplicated();
-     
+
      /** Get the values of ggap*/
      ReplicatableVector& rGetGgapCacheReplicated();
 
@@ -461,7 +461,7 @@ public:
                                   std::vector<double>& rGgaps,
                                   AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
      {
-    	 assert(pMesh!=NULL);
+         assert(pMesh!=NULL);
          DistributedVectorFactory* p_factory;
          archive & p_factory;
          unsigned num_cells;
@@ -564,48 +564,48 @@ public:
       */
      template<class Archive>
      void LoadExtracellularStimulus(Archive & archive, const unsigned int version,
-    		                                   std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuli,
-    		                                   AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+                                               std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuli,
+                                               AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
      {
 
-		DistributedVectorFactory* p_factory;
-		archive & p_factory;
-		unsigned num_cells;
-		archive & num_cells;
-		rStimuli.resize(p_factory->GetLocalOwnership());
+        DistributedVectorFactory* p_factory;
+        archive & p_factory;
+        unsigned num_cells;
+        archive & num_cells;
+        rStimuli.resize(p_factory->GetLocalOwnership());
 #ifndef NDEBUG
-		  // Paranoia
-		  for (unsigned i=0; i<rStimuli.size(); i++)
-		  {
-			  assert(rStimuli[i] == NULL);
-		  }
+          // Paranoia
+          for (unsigned i=0; i<rStimuli.size(); i++)
+          {
+              assert(rStimuli[i] == NULL);
+          }
 #endif
 
-		// We don't store a cell index in the archive, so need to work out what global
-		// index this tissue starts up.  If we're migrating (so have an
-		// original factory) we use the original low index; otherwise we use the current
-		// low index.
-		unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
+        // We don't store a cell index in the archive, so need to work out what global
+        // index this tissue starts up.  If we're migrating (so have an
+        // original factory) we use the original low index; otherwise we use the current
+        // low index.
+        unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
 
-		assert(pMesh!=NULL);
-		//unsigned num_cells = pMesh->GetNumNodes();
-		for (unsigned local_index=0; local_index<num_cells; local_index++)
-		{
-		  unsigned global_index = index_low + local_index;
+        assert(pMesh!=NULL);
+        //unsigned num_cells = pMesh->GetNumNodes();
+        for (unsigned local_index=0; local_index<num_cells; local_index++)
+        {
+          unsigned global_index = index_low + local_index;
 
-		  unsigned new_local_index = global_index - p_factory->GetLow();
-		  bool local = p_factory->IsGlobalIndexLocal(global_index);
+          unsigned new_local_index = global_index - p_factory->GetLow();
+          bool local = p_factory->IsGlobalIndexLocal(global_index);
 
-		  boost::shared_ptr<AbstractStimulusFunction> p_stim;
-		  archive & p_stim;//get from archive
+          boost::shared_ptr<AbstractStimulusFunction> p_stim;
+          archive & p_stim;//get from archive
 
-		  if (local)
-		  {
-			  rStimuli[new_local_index] = p_stim; // Add stimulus to local cells
-		  }
-		  //otherwise we should delete, but I think shared pointers delete themselves?
-		}
-	}
+          if (local)
+          {
+              rStimuli[new_local_index] = p_stim; // Add stimulus to local cells
+          }
+          //otherwise we should delete, but I think shared pointers delete themselves?
+        }
+    }
 };
 
  // Declare identifier for the serializer
@@ -619,29 +619,29 @@ public:
 
  template<class Archive, unsigned SPACE_DIM>
  inline void save_construct_data(
-	 Archive & ar, const ExtendedBidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
+     Archive & ar, const ExtendedBidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
  {
-	 //archive the conductivity tensor of the second cell (which may not be dealt with by heartconfig)
-	 c_vector<double, SPACE_DIM>  intracellular_conductivities_second_cell = t->GetIntracellularConductivitiesSecondCell();
-	 //note that simple: ar & intracellular_conductivities_second_cell may not be liked by some boost versions
-	 for (unsigned i = 0; i < SPACE_DIM; i++)
-	 {
-	     ar & intracellular_conductivities_second_cell(i);
-	 }
+     //archive the conductivity tensor of the second cell (which may not be dealt with by heartconfig)
+     c_vector<double, SPACE_DIM>  intracellular_conductivities_second_cell = t->GetIntracellularConductivitiesSecondCell();
+     //note that simple: ar & intracellular_conductivities_second_cell may not be liked by some boost versions
+     for (unsigned i = 0; i < SPACE_DIM; i++)
+     {
+         ar & intracellular_conductivities_second_cell(i);
+     }
 
-	 const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
-	 ar & p_mesh;
+     const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
+     ar & p_mesh;
 
-	 // Don't use the std::vector serialization for cardiac cells, so that we can load them
-	 // more cleverly when migrating checkpoints.
-	 t->SaveExtendedBidomainCells(ar, file_version);
-	 t->SaveExtracellularStimulus(ar, file_version);
+     // Don't use the std::vector serialization for cardiac cells, so that we can load them
+     // more cleverly when migrating checkpoints.
+     t->SaveExtendedBidomainCells(ar, file_version);
+     t->SaveExtracellularStimulus(ar, file_version);
 
-	 // Creation of conductivity tensors are called by constructor and uses HeartConfig. So make sure that it is
-	 // archived too (needs doing before construction so appears here instead of usual archive location).
-	 HeartConfig* p_config = HeartConfig::Instance();
-	 ar & *p_config;
-	 ar & p_config;
+     // Creation of conductivity tensors are called by constructor and uses HeartConfig. So make sure that it is
+     // archived too (needs doing before construction so appears here instead of usual archive location).
+     HeartConfig* p_config = HeartConfig::Instance();
+     ar & *p_config;
+     ar & p_config;
  }
 
  /**
@@ -650,41 +650,41 @@ public:
   */
  template<class Archive, unsigned SPACE_DIM>
  inline void load_construct_data(
-	 Archive & ar, ExtendedBidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
+     Archive & ar, ExtendedBidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
  {
-	 //Load conductivities of the conductivity of the second cell.
-	 c_vector<double, SPACE_DIM>  intra_cond_second_cell;
-	 //note that simple: ar & intra_cond_second_cell may not be liked by some boost versions
-	 for (unsigned i = 0; i < SPACE_DIM; i++)
+     //Load conductivities of the conductivity of the second cell.
+     c_vector<double, SPACE_DIM>  intra_cond_second_cell;
+     //note that simple: ar & intra_cond_second_cell may not be liked by some boost versions
+     for (unsigned i = 0; i < SPACE_DIM; i++)
      {
-	     double cond;
+         double cond;
          ar & cond;
          intra_cond_second_cell(i) = cond;
      }
 
 
-	 std::vector<AbstractCardiacCell*> cells_distributed;
-	 std::vector<AbstractCardiacCell*> cells_distributed_second_cell;
-	 std::vector<boost::shared_ptr<AbstractStimulusFunction> > extra_stim;
-	 std::vector<double> g_gaps;
-	 AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
-	 ar & p_mesh;
+     std::vector<AbstractCardiacCell*> cells_distributed;
+     std::vector<AbstractCardiacCell*> cells_distributed_second_cell;
+     std::vector<boost::shared_ptr<AbstractStimulusFunction> > extra_stim;
+     std::vector<double> g_gaps;
+     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
+     ar & p_mesh;
 
-	 // Load only the cells we actually own
-	 t->LoadExtendedBidomainCells(
-			 *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, cells_distributed_second_cell, g_gaps, p_mesh);
+     // Load only the cells we actually own
+     t->LoadExtendedBidomainCells(
+             *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, cells_distributed_second_cell, g_gaps, p_mesh);
 
-	 t->LoadExtracellularStimulus(
-			 *ProcessSpecificArchive<Archive>::Get(), file_version, extra_stim, p_mesh);
+     t->LoadExtracellularStimulus(
+             *ProcessSpecificArchive<Archive>::Get(), file_version, extra_stim, p_mesh);
 
-	 // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
-	 // (as does CreateExtracellularConductivityTensor). So make sure that it is
-	 // archived too (needs doing before construction so appears here instead of usual archive location).
-	 HeartConfig* p_config = HeartConfig::Instance();
-	 ar & *p_config;
-	 ar & p_config;
+     // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
+     // (as does CreateExtracellularConductivityTensor). So make sure that it is
+     // archived too (needs doing before construction so appears here instead of usual archive location).
+     HeartConfig* p_config = HeartConfig::Instance();
+     ar & *p_config;
+     ar & p_config;
 
-	 ::new(t)ExtendedBidomainTissue<SPACE_DIM>(cells_distributed, cells_distributed_second_cell, extra_stim, g_gaps, p_mesh, intra_cond_second_cell);
+     ::new(t)ExtendedBidomainTissue<SPACE_DIM>(cells_distributed, cells_distributed_second_cell, extra_stim, g_gaps, p_mesh, intra_cond_second_cell);
  }
  }
  } // namespace ...

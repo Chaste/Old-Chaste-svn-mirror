@@ -55,7 +55,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y);
 /**
  * This class defines a PETSc-compliant purpouse-build preconditioner.
  *
- * Let A be a matrix arising in the FEM discretisation of the bidomain 
+ * Let A be a matrix arising in the FEM discretisation of the bidomain
  * equations with the following block structure:
  *
  *                 A = (A11  B')
@@ -69,7 +69,7 @@ PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y);
  *
  * The inverses are approximate with one cycle of AMG.
  *
- * Note: This class requires PETSc to be build including HYPRE library. 
+ * Note: This class requires PETSc to be build including HYPRE library.
  * If it's not available, it will throw the following error:
  *
  *     [0]PETSC ERROR: --------------------- Error Message ------------------------------------

@@ -81,7 +81,7 @@ protected:
 
     /**
      * Overridden UpdateCellPopulation() method.
-     * 
+     *
      * If using a CaBasedCellPopulation, this method does nothing if at the start of a simulation that
      * has just been loaded, to ensure consistency in random number generation.
      */

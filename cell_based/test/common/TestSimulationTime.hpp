@@ -92,7 +92,7 @@ public:
         // Check the simulation time from the first instance
         TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 10.0);
         TS_ASSERT(p_simulation_time->IsFinished());
-        
+
         SimulationTime::Destroy();
 
         SimulationTime* p_simulation_time3 = SimulationTime :: Instance();
@@ -109,10 +109,10 @@ public:
 
         SimulationTime::Destroy();
     }
-    
+
     void TestSimulationTestDoesNotRunOver()
     {
-    
+
         SimulationTime* p_simulation_time = SimulationTime :: Instance();
         p_simulation_time->SetStartTime(0.0);
 
@@ -128,11 +128,11 @@ public:
         }
         TS_ASSERT_THROWS_THIS(p_simulation_time->IncrementTimeOneStep(), "TimeStepper incremented beyond end time.");
         TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 10);
-        
+
         SimulationTime::Destroy();
-            
+
     }
-    
+
 
     void TestResetTime()
     {
@@ -176,7 +176,7 @@ public:
         double dt = 0.0083333333333333332177;
         //As in the abstract simulation classes...
         unsigned num_time_steps = (unsigned) ((end-start)/dt+0.5);
-        TS_ASSERT_EQUALS(num_time_steps, 29U);            
+        TS_ASSERT_EQUALS(num_time_steps, 29U);
         p_simulation_time->SetStartTime(start);
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end, num_time_steps);
         TS_ASSERT_DELTA( p_simulation_time->GetTimeStep(), (1.0/120.0), DBL_EPSILON);

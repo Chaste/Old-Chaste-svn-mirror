@@ -34,26 +34,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Constructs a matrix with the mass matrix in the voltage-voltage block.
- * 
+ *
  *  Ie. IF the bidomain unknowns were ordered [V1,..,Vn,phie_1,..,phie_n], the
  *  matrix would be, in block form
- *  
+ *
  *  [ M 0 ]
- *  [ 0 0 ]  
- * 
+ *  [ 0 0 ]
+ *
  *  where M is the standard nxn mass matrix.
- * 
+ *
  *  Since the bidomain ordering is not [V1,..,Vn,phie_1,..,phie_n]
  *  but [V1,phie1,..,Vn,phie_n], the matrix has a different form.
- * 
+ *
  *  WORKS FOR BATH PROBLEMS AS WELL AS NON-BATH PROBLEMS
  *  (sets zeros in the voltage-voltage block for bath nodes, ie
- *  [ M 0 0 0 ]  
+ *  [ M 0 0 0 ]
  *  [ 0 0 0 0 ]
  *  [ 0 0 0 0 ]
- *  [ 0 0 0 0 ] 
+ *  [ 0 0 0 0 ]
  *  where the ordering is Vtissue, Vbath, phi_tissue, phi_bath
- * 
+ *
  */
 template<unsigned DIM>
 class BidomainMassMatrixAssembler : public AbstractFeVolumeIntegralAssembler<DIM,DIM,2,false,true,CARDIAC>
@@ -91,7 +91,7 @@ public:
     BidomainMassMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
         : AbstractFeVolumeIntegralAssembler<DIM,DIM,2,false,true,CARDIAC>(pMesh)
     {
-    }                      
+    }
 
     /**
      * Destructor.

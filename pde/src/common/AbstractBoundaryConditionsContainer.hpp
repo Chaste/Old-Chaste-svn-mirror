@@ -77,7 +77,7 @@ protected:
 
     /** Whether there are any Dirichlet BCs anywhere on the mesh*/
     bool mHasDirichletBCs;
-    
+
     /** Have we calculated mHasDirichletBCs. */
     bool mCheckedAndCommunicatedIfDirichletBcs;
 

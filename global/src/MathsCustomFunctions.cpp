@@ -61,7 +61,7 @@ double SmallPow(double x, unsigned exponent)
             }
             else
             {
-            	// Odd power
+                // Odd power
                 return SmallPow(x, exponent-1)*x;
             }
         }

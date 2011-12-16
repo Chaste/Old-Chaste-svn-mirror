@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Create the default Chaste parameters.
- * 
+ *
  * It sets up an object equivalent to the following XML file:
  * \verbatim
 <?xml version="1.0" encoding="UTF-8"?>
@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         <OutputDirectory>ChasteResults</OutputDirectory>
         <OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
     </Simulation>
-    
+
     <Physiological>
         <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm" />
         <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm" />
@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
         <MeshPartitioning>metis</MeshPartitioning>
         <UseStateVariableInterpolation>no</UseStateVariableInterpolation>
     </Numerical>
-    
+
     <PostProcessing>
     </PostProcessing>
 </ChasteParameters>
@@ -92,7 +92,7 @@ boost::shared_ptr<cp::chaste_parameters_type> CreateDefaultParameters()
     simulation_params.IonicModels().set(ionic_models);
     simulation_params.OutputDirectory().set("ChasteResults");
     simulation_params.OutputFilenamePrefix().set("SimulationResults");
-    
+
     // Physiological parameters
     cp::physiological_type phys_params;
     XSD_CREATE_WITH_FIXED_ATTR3(cp::conductivities_type, intra_conductivities,
@@ -107,7 +107,7 @@ boost::shared_ptr<cp::chaste_parameters_type> CreateDefaultParameters()
     phys_params.SurfaceAreaToVolumeRatio().set(surface_area_to_volume_ratio);
     XSD_CREATE_WITH_FIXED_ATTR1(cp::capacitance_type, capacitance, 1.0, "uF/cm^2");
     phys_params.Capacitance().set(capacitance);
-    
+
     // Numerical parameters
     cp::numerical_type numerical_params;
     XSD_CREATE_WITH_FIXED_ATTR3(cp::time_steps_type, timesteps, 0.01, 0.01, 0.01, "ms");
@@ -122,10 +122,10 @@ boost::shared_ptr<cp::chaste_parameters_type> CreateDefaultParameters()
     numerical_params.KSPPreconditioner().set(ksp_precond);
     numerical_params.MeshPartitioning().set(mesh_partitioning);
     numerical_params.UseStateVariableInterpolation().set(cp::yesno_type::no);
-    
+
     // Postprocessing
     cp::postprocessing_type postproc;
-    
+
     // Full default parameters
     boost::shared_ptr<cp::chaste_parameters_type> p_defaults(new cp::chaste_parameters_type(phys_params, numerical_params));
     p_defaults->Simulation().set(simulation_params);

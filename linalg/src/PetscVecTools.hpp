@@ -42,7 +42,7 @@ public:
 
     /**
      * Do parallel communication required to get the vector in a good state for further operations.
-     * This is a wrapper to PETSc functions like VecAssemblyBegin. 
+     * This is a wrapper to PETSc functions like VecAssemblyBegin.
      * @param vector  the vector to assemble
      */
     static void Finalise(Vec vector);

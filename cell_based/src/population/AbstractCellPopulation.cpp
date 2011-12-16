@@ -239,12 +239,12 @@ void AbstractCellPopulation<DIM>::SetDefaultMutationStateOrdering()
 template<unsigned DIM>
 c_vector<double, DIM> AbstractCellPopulation<DIM>::GetCentroidOfCellPopulation()
 {
-	mCentroid = zero_vector<double>(DIM);
+    mCentroid = zero_vector<double>(DIM);
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
     {
-    	mCentroid += GetLocationOfCellCentre(*cell_iter);
+        mCentroid += GetLocationOfCellCentre(*cell_iter);
     }
     mCentroid /= this->GetNumRealCells();
 
@@ -642,7 +642,7 @@ void AbstractCellPopulation<DIM>::WriteResultsToFiles()
     // VTK can only be written in 2 or 3 dimensions
     if (DIM > 1)
     {
-     	WriteVtkResultsToFile();
+         WriteVtkResultsToFile();
     }
 }
 
@@ -833,7 +833,7 @@ c_vector<double,DIM> AbstractCellPopulation<DIM>::GetSizeOfCellPopulation()
     // Compute the centre of mass of the cell population
     c_vector<double,DIM> centre = GetCentroidOfCellPopulation();
 
-    // Loop over cells and find the maximum distance from the centre of mass in each dimension 
+    // Loop over cells and find the maximum distance from the centre of mass in each dimension
     c_vector<double,DIM> max_distance_from_centre = zero_vector<double>(DIM);
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();

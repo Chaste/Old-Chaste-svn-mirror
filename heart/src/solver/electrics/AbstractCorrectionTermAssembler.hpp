@@ -47,19 +47,19 @@ protected:
 
     /** State variables interpolated onto quadrature point */
     std::vector<double> mStateVariablesAtQuadPoint;
-    
+
     /**
      * Resets interpolated state variables and ionic current.
      */
     void ResetInterpolatedQuantities( void );
-    
-    /** 
+
+    /**
      *  Vector of bools, one bool per element, saying whether that
-     *  element has identical cell models at each node. If this 
-     *  is not the case, SVI is certainly not posssible in this element 
+     *  element has identical cell models at each node. If this
+     *  is not the case, SVI is certainly not posssible in this element
      */
     std::vector<bool> mElementsHasIdenticalCellModels;
-    
+
     /**
      * Interpolates state variables and ionic current.
      *
@@ -68,16 +68,16 @@ protected:
      */
     void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
 
-  
+
     /**
      * Determine whether to assemble the correction term for this element.
      * Checks if there is a sufficiently steep ionic current gradient to make the expense worthwhile, by checking
      * if the maximum difference between nodal ionic currents is greater than 1 uA/cm^2^.
-     * 
+     *
      * @param rElement  the element to test
      */
     bool ElementAssemblyCriterion(Element<ELEM_DIM,SPACE_DIM>& rElement);
-    
+
 public:
 
     /**

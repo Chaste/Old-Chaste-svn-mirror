@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * BidomainTissue class.
- * 
+ *
  * See documentation for AbstractCardiacTissue. This class also has extracellular
  * conductivity tensors.
  *
@@ -138,7 +138,7 @@ inline void load_construct_data(
 {
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
     ar & p_mesh;
-    
+
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
     // (as does CreateExtracellularConductivityTensor). So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).

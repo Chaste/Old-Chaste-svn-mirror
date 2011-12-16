@@ -417,7 +417,7 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
 {
     if (SimulationTime::Instance()->GetTimeStepsElapsed() == 0 && this->mpVoronoiTessellation == NULL)
     {
-        TessellateIfNeeded();//Update isn't run on time-step zero 
+        TessellateIfNeeded();//Update isn't run on time-step zero
     }
 
     AbstractCentreBasedCellPopulation<DIM>::WriteResultsToFiles();
@@ -462,13 +462,13 @@ void MeshBasedCellPopulation<DIM>::WriteResultsToFiles()
 
     // Write data to file.
     if (mOutputVoronoiData)
-	{
-		WriteVoronoiResultsToFile();
-	}
-	if (mOutputCellPopulationVolumes)
-	{
-		WriteCellPopulationVolumeResultsToFile();
-	}
+    {
+        WriteVoronoiResultsToFile();
+    }
+    if (mOutputCellPopulationVolumes)
+    {
+        WriteCellPopulationVolumeResultsToFile();
+    }
 
 }
 
@@ -937,7 +937,7 @@ template<>
 void MeshBasedCellPopulation<2>::CreateVoronoiTessellation()
 {
     delete mpVoronoiTessellation;
-    
+
     // Check if the mesh associated with this cell population is periodic
     bool is_mesh_periodic = false;
     if (dynamic_cast<Cylindrical2dMesh*>(&mrMesh))

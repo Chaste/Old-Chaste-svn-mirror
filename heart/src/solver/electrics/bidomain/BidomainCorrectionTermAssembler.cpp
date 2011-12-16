@@ -52,9 +52,9 @@ c_vector<double,2*(ELEM_DIM+1)> BidomainCorrectionTermAssembler<ELEM_DIM,SPACE_D
     Element<ELEM_DIM,SPACE_DIM>* pElement /* not used */)
 {
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
-    
-    // compute the ionic current at this quadrature point using the 
-    // interpolated state variables, and a random choice of cell (all 
+
+    // compute the ionic current at this quadrature point using the
+    // interpolated state variables, and a random choice of cell (all
     // should be the same)
     unsigned node_global_index = pElement->GetNodeGlobalIndex(0);
     AbstractCardiacCell* p_any_cell = this->mpCardiacTissue->GetCardiacCellOrHaloCell(node_global_index);

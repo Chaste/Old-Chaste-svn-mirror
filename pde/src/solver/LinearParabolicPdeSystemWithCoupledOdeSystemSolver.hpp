@@ -455,10 +455,10 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     {
         EXCEPTION("SetTimeStep() must be called prior to SolveAndWriteResultsToFile()");
     }
-	if (mSamplingTimeStep == DOUBLE_UNSET)
-	{
-		EXCEPTION("SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
-	}
+    if (mSamplingTimeStep == DOUBLE_UNSET)
+    {
+        EXCEPTION("SetSamplingTimeStep() must be called prior to SolveAndWriteResultsToFile()");
+    }
 
 #ifdef CHASTE_VTK
     // Create a .pvd output file
@@ -471,7 +471,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
     // Write initial condition to VTK
     WriteVtkResultsToFile(this->mInitialCondition, 0);
 
-    // The helper class TimeStepper deals with issues such as small final timesteps so we don't have to 
+    // The helper class TimeStepper deals with issues such as small final timesteps so we don't have to
     TimeStepper stepper(this->mTstart, this->mTend, mSamplingTimeStep);
 
     // Main time loop

@@ -232,7 +232,7 @@ private:
  */
 #define ABORT_IF_NON0_WITH_MSG(retcode, msg)     \
     if (retcode != 0) {                          \
-    	TERMINATE(msg);                          \
+        TERMINATE(msg);                          \
     }
 
 /**

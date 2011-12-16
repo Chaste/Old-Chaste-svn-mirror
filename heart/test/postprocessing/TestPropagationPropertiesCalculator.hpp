@@ -227,8 +227,8 @@ public:
         TS_ASSERT_EQUALS(all_aps_for_node_range.size(), 6u);
         for(unsigned i=0; i<all_aps_for_node_range.size(); i++)
         {
-        	TS_ASSERT_EQUALS(all_aps_for_node_range[i].size(), 1u);
-        	//std::cout << "Node " << i+1 << ", APD = " << all_aps_for_node_range[i][0] << "\n";
+            TS_ASSERT_EQUALS(all_aps_for_node_range[i].size(), 1u);
+            //std::cout << "Node " << i+1 << ", APD = " << all_aps_for_node_range[i][0] << "\n";
         }
 
         // verify that the APDs for two of the nodes are definitely different
@@ -237,10 +237,10 @@ public:
         // Check that the CalculateAllActionPotentialDurationsForNodeRange() results
         // agrees with the single-node version, for both these nodes
         TS_ASSERT_EQUALS(ppc_fs.CalculateAllActionPotentialDurations(90, 5u, -30.0)[0],
-						 all_aps_for_node_range[4][0]);
+                         all_aps_for_node_range[4][0]);
 
         TS_ASSERT_EQUALS(ppc_fs.CalculateAllActionPotentialDurations(90, 6u, -30.0)[0],
-						 all_aps_for_node_range[5][0]);
+                         all_aps_for_node_range[5][0]);
 
     }
 

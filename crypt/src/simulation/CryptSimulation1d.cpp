@@ -41,9 +41,9 @@ CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
 
     if (!mDeleteCellPopulationInDestructor)
     {
-		// Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
-		MAKE_PTR_ARGS(CryptSimulationBoundaryCondition<1>, p_bc, (&rCellPopulation));
-		AddCellPopulationBoundaryCondition(p_bc);
+        // Pass a CryptSimulationBoundaryCondition object into mBoundaryConditions
+        MAKE_PTR_ARGS(CryptSimulationBoundaryCondition<1>, p_bc, (&rCellPopulation));
+        AddCellPopulationBoundaryCondition(p_bc);
     }
 }
 

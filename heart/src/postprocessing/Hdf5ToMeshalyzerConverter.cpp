@@ -65,7 +65,7 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     {
         this->mpReader->GetVariableOverNodes(data, type, time_step);
         repl_data.ReplicatePetscVector(data);
-        
+
         assert(repl_data.GetSize() == num_nodes);
 
         if (PetscTools::AmMaster())
@@ -79,8 +79,8 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     VecDestroy(data);
     if (PetscTools::AmMaster())
     {
-    	std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
-    	*p_file << comment;
+        std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+        *p_file << comment;
         p_file->close();
     }
 }

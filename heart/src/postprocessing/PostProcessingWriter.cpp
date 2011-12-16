@@ -111,7 +111,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WritePostProcessingFiles()
             WriteConductionVelocityMap(conduction_velocity_maps[i], distance_map);
         }
     }
-    
+
     if (HeartConfig::Instance()->IsAnyNodalTimeTraceRequested())
     {
         std::vector<unsigned> requested_nodes;
@@ -123,7 +123,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WritePostProcessingFiles()
     {
         std::vector<ChastePoint<SPACE_DIM> > electrodes;
         HeartConfig::Instance()->GetPseudoEcgElectrodePositions(electrodes);
-        
+
         for (unsigned i=0; i<electrodes.size(); i++)
         {
             PseudoEcgCalculator<ELEMENT_DIM,SPACE_DIM,1> calculator(mrMesh, electrodes[i], mDirectory, mHdf5File, mVoltageName, mMakeAbsolute);
@@ -337,8 +337,8 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteGenericFile(std::vector<
                 //Open the file for the first time
                 p_file = output_file_handler.OpenOutputFile(fileName);
                 //write provenance info
-			    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
-			    *p_file << comment;
+                std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+                *p_file << comment;
             }
             else
             {

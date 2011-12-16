@@ -179,76 +179,76 @@ public:
 
     void Test3dPottsElement()
     {
-		std::vector<Node<3>*> nodes;
-		nodes.push_back(new Node<3>(0, true, 0.0, 0.0, 0.0));
-		nodes.push_back(new Node<3>(1, false, 0.0, 1.0, 0.0));
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 0.0, 1.0, 0.0));
 
-		PottsElement<3> element(0, nodes);
+        PottsElement<3> element(0, nodes);
 
-		// Test RegisterWithNodes()
-		element.RegisterWithNodes();
-		for (unsigned node_index=0; node_index<element.GetNumNodes(); node_index++)
-		{
-		   TS_ASSERT_EQUALS(element.GetNode(node_index)->GetNumContainingElements(), 1u);
-		}
+        // Test RegisterWithNodes()
+        element.RegisterWithNodes();
+        for (unsigned node_index=0; node_index<element.GetNumNodes(); node_index++)
+        {
+           TS_ASSERT_EQUALS(element.GetNode(node_index)->GetNumContainingElements(), 1u);
+        }
 
-		// Test GetNodeLocalIndex()
-		TS_ASSERT_EQUALS(element.GetNodeLocalIndex(0), 0u);
-		TS_ASSERT_EQUALS(element.GetNodeLocalIndex(1), 1u);
+        // Test GetNodeLocalIndex()
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(0), 0u);
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(1), 1u);
 
-		// Test IsElementOnBoundary()
-		TS_ASSERT_EQUALS(element.IsElementOnBoundary(),true);
+        // Test IsElementOnBoundary()
+        TS_ASSERT_EQUALS(element.IsElementOnBoundary(),true);
 
-		// Test UpdateNode()
-		Node<3>* p_node_2 = new Node<3>(2, false, 1.0, 0.0, 0.0);
-		element.UpdateNode(0, p_node_2);
+        // Test UpdateNode()
+        Node<3>* p_node_2 = new Node<3>(2, false, 1.0, 0.0, 0.0);
+        element.UpdateNode(0, p_node_2);
 
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[1], 0.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[2], 0.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[0], 1.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[1], 0.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[2], 0.0, 1e-12);
 
-		// Test ResetIndex()
-		TS_ASSERT_EQUALS(element.GetIndex(), 0u);
-		element.ResetIndex(5);
-		TS_ASSERT_EQUALS(element.GetIndex(), 5u);
+        // Test ResetIndex()
+        TS_ASSERT_EQUALS(element.GetIndex(), 0u);
+        element.ResetIndex(5);
+        TS_ASSERT_EQUALS(element.GetIndex(), 5u);
 
-		// Test DeleteNode() and AddNode()
-		TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
-		element.DeleteNode(1);
-		TS_ASSERT_EQUALS(element.GetNumNodes(), 1u);
+        // Test DeleteNode() and AddNode()
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
+        element.DeleteNode(1);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 1u);
 
-		Node<3>* p_node_3 = new Node<3>(3, false, 1.0, 1.0, 0.0);
-		element.AddNode(p_node_3);
-		TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[1], 0.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[2], 0.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(1)->rGetLocation()[0], 1.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(1)->rGetLocation()[1], 1.0, 1e-12);
-		TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[2], 0.0, 1e-12);
+        Node<3>* p_node_3 = new Node<3>(3, false, 1.0, 1.0, 0.0);
+        element.AddNode(p_node_3);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[0], 1.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[1], 0.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[2], 0.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(1)->rGetLocation()[0], 1.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(1)->rGetLocation()[1], 1.0, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[2], 0.0, 1e-12);
 
-		// Test GetNodeLocalIndex()
-		TS_ASSERT_EQUALS(element.GetNodeLocalIndex(0), UINT_MAX);
-		TS_ASSERT_EQUALS(element.GetNodeLocalIndex(1), UINT_MAX);
-		TS_ASSERT_EQUALS(element.GetNodeLocalIndex(2), 0u);
-		TS_ASSERT_EQUALS(element.GetNodeLocalIndex(3), 1u);
+        // Test GetNodeLocalIndex()
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(0), UINT_MAX);
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(1), UINT_MAX);
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(2), 0u);
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(3), 1u);
 
-		// Test MarkAsDeleted()
-		element.MarkAsDeleted();
+        // Test MarkAsDeleted()
+        element.MarkAsDeleted();
 
-		for (unsigned node_index=0; node_index<element.GetNumNodes(); node_index++)
-		{
-		   TS_ASSERT_EQUALS(element.GetNode(node_index)->GetNumContainingElements(), 0u);
-		}
+        for (unsigned node_index=0; node_index<element.GetNumNodes(); node_index++)
+        {
+           TS_ASSERT_EQUALS(element.GetNode(node_index)->GetNumContainingElements(), 0u);
+        }
 
-		// Tidy up
-		for (unsigned i=0; i<nodes.size(); i++)
-		{
-		   delete nodes[i];
-		}
-		delete p_node_2;
-		delete p_node_3;
-	}
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+           delete nodes[i];
+        }
+        delete p_node_2;
+        delete p_node_3;
+    }
 };
 
 #endif /*TESTPOTTSELEMENT_HPP_*/

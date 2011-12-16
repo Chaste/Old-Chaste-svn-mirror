@@ -420,7 +420,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
                 mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
             }
         }
-        
+
         mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());
         *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
         *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();

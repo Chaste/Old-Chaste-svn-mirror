@@ -181,7 +181,7 @@ c_matrix<double,DIM,DIM>& CardiacElectroMechanicsProblem<DIM>::rGetModifiedCondu
 
         // save the current element and return the tensor
         mLastModifiedConductivity.first = elementIndex;
-    	return mLastModifiedConductivity.second;
+        return mLastModifiedConductivity.second;
     }
 }
 
@@ -527,7 +527,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         std::cout << "\n\n ** Current time = " << stepper.GetTime() << "\n";
         #endif
 
-		/////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
         ////
         ////  Pass the current deformation information back to the electro-physiology
         ////  solver (MEF)

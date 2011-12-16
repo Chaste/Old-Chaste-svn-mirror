@@ -38,19 +38,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Assembler, mainly used for assembling the LHS matrix of the linear system
  *  that arises when the monodomain equations are discretised.
- * 
- *  The discretised monodomain equation leads to the linear system (see FEM 
+ *
+ *  The discretised monodomain equation leads to the linear system (see FEM
  *  implementations document)
- * 
- *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf  
+ *
+ *  ( (chi*C/dt) M  + K ) V^{n+1} = (chi*C/dt) M V^{n} + M F^{n} + c_surf
  *
  *  where chi is the surface-area to volume ratio, C the capacitance, dt the timestep
  *  M the mass matrix, K the stiffness matrix, V^{n} the vector of voltages at time n,
  *  F^{n} the vector of (chi*Iionic + Istim) at each node, and c_surf a vector
  *  arising from any surface stimuli (usually zero).
- * 
+ *
  *  This assembler is used for assembling the matrix A :=(chi*C/dt) M  + K.
- *  Hence, this class inherits from AbstractCardiacFeVolumeIntegralAssembler and implements the 
+ *  Hence, this class inherits from AbstractCardiacFeVolumeIntegralAssembler and implements the
  *  method ComputeMatrixTerm().
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -60,7 +60,7 @@ class MonodomainAssembler
 protected:
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
-    
+
     /** This assembler uses another assembler, though just for calling the
      *  ComputeMatrixTerm() method. */
     MassMatrixAssembler<ELEMENT_DIM, SPACE_DIM> mMassMatrixAssembler;

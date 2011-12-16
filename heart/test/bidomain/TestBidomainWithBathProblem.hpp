@@ -77,7 +77,7 @@ public:
         char expected_node_regions[11]={ 'B', 'B', 'B',
                        'T', 'T', 'T', 'T', 'T',
                        'B','B','B'};
-          
+
         for (unsigned i=0; i<11; i++)
         {
             if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
@@ -351,7 +351,7 @@ public:
         BathCellFactory<2> cell_factory( 0.0, centre);
 
         BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
-        
+
         // Coverage
         TS_ASSERT(bidomain_problem.GetHasBath());
 
@@ -364,8 +364,8 @@ public:
         double duration = 1.9; // of the stimulus, in ms
 
         HeartConfig::Instance()->SetElectrodeParameters(false,0, boundary_flux, start_time, duration);
-        
-              
+
+
         bidomain_problem.SetMesh(p_mesh);
         bidomain_problem.Initialise();
 
@@ -415,7 +415,7 @@ public:
         bath_ids.insert(3);
         bath_ids.insert(4);
         HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
-        
+
         // need to create a cell factory but don't want any intra stim, so magnitude
         // of stim is zero.
         c_vector<double,2> centre;
@@ -424,16 +424,16 @@ public:
         BathCellFactory<2> cell_factory( 0.0, centre);
 
         BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
-        
+
         DistributedTetrahedralMesh<2,2> mesh;
-        
+
         mesh.ConstructRegularSlabMesh(0.05, 0.9, 0.9);
-        
+
         // set the x<0.25 and x>0.75 regions as the bath region
         for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
              ++iter)
-        {        
+        {
             double x = iter->CalculateCentroid()[0];
             double y = iter->CalculateCentroid()[1];
             if( (x>0.3) && (x<0.6) && (y>0.3) && (y<0.6) )
@@ -446,7 +446,7 @@ public:
                 {
                     iter->SetRegion(2);
                 }
-                else if (y<0.7) 
+                else if (y<0.7)
                 {
                     iter->SetRegion(3);
                 }
@@ -454,23 +454,23 @@ public:
                 {
                     iter->SetRegion(4);
                 }
-            }            
+            }
         }
-        
-        std::map<unsigned, double> multiple_bath_conductivities;        
+
+        std::map<unsigned, double> multiple_bath_conductivities;
         multiple_bath_conductivities[2] = 7.0;
         multiple_bath_conductivities[3] = 1.0;
         multiple_bath_conductivities[4] = 0.001;
 
-        HeartConfig::Instance()->SetBathMultipleConductivities(multiple_bath_conductivities);        
-        
+        HeartConfig::Instance()->SetBathMultipleConductivities(multiple_bath_conductivities);
+
         double boundary_flux = -3.0e3;
         double start_time = 0.0;
         double duration = 1.0; // of the stimulus, in ms
 
         HeartConfig::Instance()->SetElectrodeParameters(false, 0, boundary_flux, start_time, duration);
-        
-              
+
+
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
 
@@ -625,7 +625,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("matrix_based");
 
         BidomainWithBathProblem<2> matrix_based_bido( &cell_factory );
-        
+
         HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
 
         {
@@ -931,9 +931,9 @@ public:
             delete p_abstract_problem;
         }
     }
-    
+
     void TestSwitchesOffAtCorrectTime() throw(Exception)
-    {        
+    {
         // zero stim cell factory
         c_vector<double,2> centre;
         centre(0) = 0.05; // cm
@@ -942,7 +942,7 @@ public:
 
         // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
         //
-        // Will use printing dt = 1 in second run below, so choose start and end times of the 
+        // Will use printing dt = 1 in second run below, so choose start and end times of the
         // electrode which don't coincide with printing times
         double boundary_flux = -11.0e3;
         double start_time = 0.5;
@@ -956,34 +956,34 @@ public:
         // solve with printing_dt = 0.01
         //////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 0.01);  //ms
-        
+
         BidomainWithBathProblem<2> bidomain_problem1( &cell_factory );
         TetrahedralMesh<2,2>* p_mesh1 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-    
+
         HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
-    
+
         bidomain_problem1.SetMesh(p_mesh1);
         bidomain_problem1.PrintOutput(false);
         bidomain_problem1.Initialise();
- 
+
         bidomain_problem1.Solve();
         Vec sol1 = bidomain_problem1.GetSolution();
-            
-        ReplicatableVector sol_small_repl(sol1);                
+
+        ReplicatableVector sol_small_repl(sol1);
         delete p_mesh1;
-            
+
         //////////////////////////////////////////////////////
         // solve with printing_dt = 1.0
         //////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 1.0);  //ms
-                                
+
         BidomainWithBathProblem<2> bidomain_problem2( &cell_factory );
 
         TetrahedralMesh<2,2>* p_mesh2 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-   
-    
+
+
         bidomain_problem2.SetMesh(p_mesh2);
         bidomain_problem2.PrintOutput(false);
         bidomain_problem2.Initialise();
@@ -991,9 +991,9 @@ public:
         bidomain_problem2.Solve();
         Vec sol2 = bidomain_problem2.GetSolution();
 
-        ReplicatableVector sol_large_repl(sol2);       
-        delete p_mesh2; 
-        
+        ReplicatableVector sol_large_repl(sol2);
+        delete p_mesh2;
+
         //////////////////////////////////////////////////////
         // compare
         //////////////////////////////////////////////////////

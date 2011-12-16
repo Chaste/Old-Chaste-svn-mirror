@@ -639,40 +639,40 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
                                                         boundary_flux, 0.0, duration);
 
         {
-		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
-		    HeartConfig::Instance()->SetOutputDirectory(directory);
+            std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
+            HeartConfig::Instance()->SetOutputDirectory(directory);
 
-	        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
-	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-	        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
+            TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+                "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+            ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
-	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+            BidomainProblem<2> bidomain_problem( &cell_factory, true );
 
-	        bidomain_problem.SetMesh(p_mesh);
-	        bidomain_problem.Initialise();
+            bidomain_problem.SetMesh(p_mesh);
+            bidomain_problem.Initialise();
 
-	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
+            CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
 
-	        delete p_mesh;
+            delete p_mesh;
         }
 
         // And now with a distributed mesh, for coverage
         {
-		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
-		    HeartConfig::Instance()->SetOutputDirectory(directory);
+            std::string directory = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
+            HeartConfig::Instance()->SetOutputDirectory(directory);
 
-	        DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
-	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-	        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
+            DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
+                "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+            ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
-	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+            BidomainProblem<2> bidomain_problem( &cell_factory, true );
 
-	        bidomain_problem.SetMesh(p_mesh);
-	        bidomain_problem.Initialise();
+            bidomain_problem.SetMesh(p_mesh);
+            bidomain_problem.Initialise();
 
-	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
+            CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
 
-	        delete p_mesh;
+            delete p_mesh;
         }
     }
 

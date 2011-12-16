@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned numElementsAcross, unsigned elementWidth,
-											unsigned numNodesUp, unsigned numElementsUp, unsigned elementHeight,
-											unsigned numNodesDeep, unsigned numElementsDeep, unsigned elementDepth,
-											bool startAtBottomLeft, bool isPeriodicInX, bool isPeriodicInY ,bool isPeriodicInZ)
+                                            unsigned numNodesUp, unsigned numElementsUp, unsigned elementHeight,
+                                            unsigned numNodesDeep, unsigned numElementsDeep, unsigned elementDepth,
+                                            bool startAtBottomLeft, bool isPeriodicInX, bool isPeriodicInY ,bool isPeriodicInZ)
 {
     assert(numElementsAcross > 0);
     assert(numElementsUp > 0);
@@ -77,24 +77,24 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
      */
     for (unsigned k=0; k<numNodesDeep; k++)
     {
-		for (unsigned j=0; j<numNodesUp; j++)
-		{
-			for (unsigned i=0; i<numNodesAcross; i++)
-			{
-				bool is_boundary_node=false;
-				if (DIM==2)
-				{
-					is_boundary_node = (j==0 || j==numNodesUp-1 || (i==0 && !isPeriodicInX) || (i==numNodesAcross-1 && !isPeriodicInX) ) ? true : false;
-				}
-				if (DIM==3)
-				{
-					is_boundary_node = (j==0 || j==numNodesUp-1 || (i==0 && !isPeriodicInX) || (i==numNodesAcross-1 && !isPeriodicInX) || k==0 || k==numNodesDeep-1) ? true : false;
-				}
-				Node<DIM>* p_node = new Node<DIM>(node_index, is_boundary_node, i, j, k);
-				nodes.push_back(p_node);
-				node_index++;
-			}
-		}
+        for (unsigned j=0; j<numNodesUp; j++)
+        {
+            for (unsigned i=0; i<numNodesAcross; i++)
+            {
+                bool is_boundary_node=false;
+                if (DIM==2)
+                {
+                    is_boundary_node = (j==0 || j==numNodesUp-1 || (i==0 && !isPeriodicInX) || (i==numNodesAcross-1 && !isPeriodicInX) ) ? true : false;
+                }
+                if (DIM==3)
+                {
+                    is_boundary_node = (j==0 || j==numNodesUp-1 || (i==0 && !isPeriodicInX) || (i==numNodesAcross-1 && !isPeriodicInX) || k==0 || k==numNodesDeep-1) ? true : false;
+                }
+                Node<DIM>* p_node = new Node<DIM>(node_index, is_boundary_node, i, j, k);
+                nodes.push_back(p_node);
+                node_index++;
+            }
+        }
     }
     assert(nodes.size()==num_nodes);
 
@@ -104,36 +104,36 @@ PottsMeshGenerator<DIM>::PottsMeshGenerator(unsigned numNodesAcross, unsigned nu
      */
     for (unsigned n=0; n<numElementsDeep; n++)
     {
-		for (unsigned j=0; j<numElementsUp; j++)
-		{
-			for (unsigned i=0; i<numElementsAcross; i++)
-			{
-				for (unsigned m=0; m<elementDepth; m++)
-				{
-					for (unsigned l=0; l<elementHeight; l++)
-					{
-						for (unsigned k=0; k<elementWidth; k++)
-						{
-							node_indices[m*elementHeight*elementWidth + l*elementWidth + k] = n*elementDepth*numNodesUp*numNodesAcross +
-							                                                                  j*elementHeight*numNodesAcross +
-							                                                                  i*elementWidth +
-							                                                                  m*numNodesAcross*numNodesUp +
-							                                                                  l*numNodesAcross +
-							                                                                  k + index_offset;
-						}
-					}
-				}
-				std::vector<Node<DIM>*> element_nodes;
-				for (unsigned k=0; k<elementDepth*elementHeight*elementWidth; k++)
-				{
-				   element_nodes.push_back(nodes[node_indices[k]]);
-				}
+        for (unsigned j=0; j<numElementsUp; j++)
+        {
+            for (unsigned i=0; i<numElementsAcross; i++)
+            {
+                for (unsigned m=0; m<elementDepth; m++)
+                {
+                    for (unsigned l=0; l<elementHeight; l++)
+                    {
+                        for (unsigned k=0; k<elementWidth; k++)
+                        {
+                            node_indices[m*elementHeight*elementWidth + l*elementWidth + k] = n*elementDepth*numNodesUp*numNodesAcross +
+                                                                                              j*elementHeight*numNodesAcross +
+                                                                                              i*elementWidth +
+                                                                                              m*numNodesAcross*numNodesUp +
+                                                                                              l*numNodesAcross +
+                                                                                              k + index_offset;
+                        }
+                    }
+                }
+                std::vector<Node<DIM>*> element_nodes;
+                for (unsigned k=0; k<elementDepth*elementHeight*elementWidth; k++)
+                {
+                   element_nodes.push_back(nodes[node_indices[k]]);
+                }
 
-				element_index = n*numElementsAcross*numElementsUp + j*numElementsAcross + i;
-				PottsElement<DIM>* p_element = new PottsElement<DIM>(element_index, element_nodes);
-				elements.push_back(p_element);
-			}
-		}
+                element_index = n*numElementsAcross*numElementsUp + j*numElementsAcross + i;
+                PottsElement<DIM>* p_element = new PottsElement<DIM>(element_index, element_nodes);
+                elements.push_back(p_element);
+            }
+        }
     }
 
     /*

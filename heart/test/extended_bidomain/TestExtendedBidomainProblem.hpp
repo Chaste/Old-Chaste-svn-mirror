@@ -64,7 +64,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	CorriasBuistICCModified *cell;
+        CorriasBuistICCModified *cell;
         cell = new CorriasBuistICCModified(mpSolver, mpZeroStimulus);
 
         double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
@@ -91,7 +91,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
-    	CorriasBuistSMCModified *cell;
+        CorriasBuistSMCModified *cell;
         cell = new CorriasBuistSMCModified(mpSolver, mpZeroStimulus);
 
         cell->SetFakeIccStimulusPresent(false);//it will get it from the real ICC, via gap junction
@@ -104,49 +104,49 @@ class TestExtendedBidomainProblem: public CxxTest::TestSuite
 
 public:
 
-	void SetupParameters() throw (Exception)
-	{
-    	HeartConfig::Instance()->Reset();
+    void SetupParameters() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(5.0));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(1.0));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1,10.0);
 
         HeartConfig::Instance()->SetKSPSolver("gmres");
-		HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-4);
+        HeartConfig::Instance()->SetUseAbsoluteTolerance(2e-4);
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
-	}
+    }
 
-	/**
-	 * This test is aimed at comparing the extended bidomain implementation in Chaste with
-	 * the original Finite Difference code developed by Martin Buist.
-	 *
-	 * All the parameters are chosen to replicate the same conditions as in his code.
-	 */
+    /**
+     * This test is aimed at comparing the extended bidomain implementation in Chaste with
+     * the original Finite Difference code developed by Martin Buist.
+     *
+     * All the parameters are chosen to replicate the same conditions as in his code.
+     */
     void TestExtendedProblemVsMartincCode() throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
-    	TetrahedralMesh<1,1> mesh;
-    	unsigned number_of_elements = 100;//this is nGrid in Martin's code
-    	double length = 10.0;//100mm as in Martin's code
-    	mesh.ConstructRegularSlabMesh(length/number_of_elements, length);
-    	TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), number_of_elements + 1);
+        TetrahedralMesh<1,1> mesh;
+        unsigned number_of_elements = 100;//this is nGrid in Martin's code
+        double length = 10.0;//100mm as in Martin's code
+        mesh.ConstructRegularSlabMesh(length/number_of_elements, length);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), number_of_elements + 1);
 
-    	double Am_icc = 1000.0;
-    	double Am_smc = 1000.0;
-    	double Am_gap = 1.0;
-    	double Cm_icc = 1.0;
-    	double Cm_smc = 1.0;
-    	double G_gap = 20.0;//mS/cm^2
+        double Am_icc = 1000.0;
+        double Am_smc = 1000.0;
+        double Am_gap = 1.0;
+        double Cm_icc = 1.0;
+        double Cm_smc = 1.0;
+        double G_gap = 20.0;//mS/cm^2
 
         HeartConfig::Instance()->SetSimulationDuration(1000.0);  //ms.
 
-    	ICC_Cell_factory icc_factory;
-    	SMC_Cell_factory smc_factory;
+        ICC_Cell_factory icc_factory;
+        SMC_Cell_factory smc_factory;
 
-    	std::string dir = "ICCandSMC";
-    	std::string filename = "extended1d";
+        std::string dir = "ICCandSMC";
+        std::string filename = "extended1d";
         HeartConfig::Instance()->SetOutputDirectory(dir);
         HeartConfig::Instance()->SetOutputFilenamePrefix(filename);
 

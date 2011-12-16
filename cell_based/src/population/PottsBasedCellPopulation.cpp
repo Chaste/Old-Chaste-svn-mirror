@@ -379,7 +379,7 @@ void PottsBasedCellPopulation<DIM>::WriteResultsToFiles()
 
 template<unsigned DIM>
 void PottsBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
-{    
+{
     // Write time to file
     *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
 
@@ -408,9 +408,9 @@ void PottsBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
             unsigned cell_index = cell_iter->GetCellId();
             *(this->mpCellVolumesFile) << cell_index << " ";
 
-            // Write centroid location to file            
+            // Write centroid location to file
             c_vector<double, DIM> centroid_location = mrMesh.GetCentroidOfElement(elem_index);
-            
+
             *(this->mpCellVolumesFile) << centroid_location[0] << " ";
             *(this->mpCellVolumesFile) << centroid_location[1] << " ";
 

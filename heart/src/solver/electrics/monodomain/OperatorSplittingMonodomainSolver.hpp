@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *        perform well in parallel.
  *   (d)  We don't implement the simpler form of operator splitting, Godunov splitting, where the ODEs are
  *        solved for one timestep and the PDEs are solved for one timestep, since this is formally equivalent
- *        to the default implementation where the ionic current is interpolated from the nodal values 
+ *        to the default implementation where the ionic current is interpolated from the nodal values
  *        (ie ICI - see ICI/SVI discussion in documentation)
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

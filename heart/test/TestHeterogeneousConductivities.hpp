@@ -59,7 +59,7 @@ public:
 
         const unsigned num_elem_x = 8;
         const double space_step = width/num_elem_x;
- 
+
         /* Make the mesh*/
         DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructRegularSlabMesh(space_step, width, height, depth);
@@ -109,7 +109,7 @@ public:
         unsigned lo, hi;
         lo = mesh.GetDistributedVectorFactory()->GetLow();
         hi = mesh.GetDistributedVectorFactory()->GetHigh();
-        
+
         for (unsigned i=lo; i<hi; i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];

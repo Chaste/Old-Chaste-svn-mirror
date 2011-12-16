@@ -61,7 +61,7 @@ public:
      * @param rFileFinder  finder for the .so file
      */
     DynamicCellModelLoader* GetLoader(const FileFinder& rFileFinder);
-    
+
     /**
      * Destructor closes all loaded .so files.
      */

@@ -348,7 +348,7 @@ public:
 
         // Test this object has the correct identifier
         TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "CaBasedCellPopulation-2");
-    
+
         cell_population.SetCellAncestorsToLocationIndices();
         cell_population.SetOutputCellIdData(true);
         cell_population.SetOutputCellMutationStates(true);
@@ -390,7 +390,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat     cell_based/test/data/TestCaBasedCellPopulationWriters/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestCaBasedCellPopulationWriters/cellages.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat     cell_based/test/data/TestCaBasedCellPopulationWriters/cellareas.dat").c_str()), 0);
-    
+
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = cell_population.GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states.size(), 4u);
@@ -581,8 +581,8 @@ public:
         // Test that we cannot add the cell to the population
         CellPtr p_full_parent_cell = *(full_cell_population.Begin());
         TS_ASSERT_THROWS_THIS(full_cell_population.AddCell(p_cell, division_vector, p_full_parent_cell),
-                              "Cell can not divide as there are no free neighbours at maximum degree in any direction.");   
-        
+                              "Cell can not divide as there are no free neighbours at maximum degree in any direction.");
+
         // Now create a sparsely populated CA-based cell population object
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2, 2, true);
@@ -602,8 +602,8 @@ public:
 
         // Test that the correct exception is thrown when attempting to add the cell without providing a parent cell
         TS_ASSERT_THROWS_THIS(cell_population.AddCell(p_cell, division_vector),
-                              "A parent cell must be provided when calling AddCell() on a CaBasedCellPopulation.");   
-        
+                              "A parent cell must be provided when calling AddCell() on a CaBasedCellPopulation.");
+
         // Add this cell to the population
         CellPtr p_parent_cell = *(cell_population.Begin());
         cell_population.AddCell(p_cell, division_vector, p_parent_cell);
@@ -873,7 +873,7 @@ public:
         // Check the maximum degree possible in each direction
         std::vector<unsigned> max_degrees = cell_population.GetMaximumDegreeInEachDirection(29);
         TS_ASSERT_EQUALS(max_degrees.size(), 8u);
-        
+
         unsigned expected_max_degrees[8] = {2, 1, 1, 1, 4, 4, 5, 2};
         for (unsigned i=0; i<max_degrees.size(); i++)
         {
@@ -882,7 +882,7 @@ public:
 
         // Check the second degree neighbours
         std::set<unsigned> nearest_neighbours_2 = cell_population.GetNthDegreeNeighbouringNodeIndices(29, 2);
-        
+
         unsigned indices_2[5] = {43, 15, 17, 31, 45};
         std::set<unsigned> expected_neighbours_2(indices_2, indices_2 + 5);
 
@@ -1516,7 +1516,7 @@ public:
          *     3----4----5
          *     |    |    |
          *     0----1----2
-         * 
+         *
          * At this point cells should be located at sites 0, 1, 2, 3, 4
          */
         for (unsigned i=0; i<num_nodes; i++)

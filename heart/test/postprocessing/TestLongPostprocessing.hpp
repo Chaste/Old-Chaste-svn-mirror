@@ -75,7 +75,7 @@ public:
 
         if (x < 0.03)
         {
-        	return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
+            return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
         }
         else
         {
@@ -117,11 +117,11 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(pacing_cycle_length); //ms
         HeartConfig::Instance()->SetOutputDirectory("LongPostprocessing");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-        
+
         // These lines make postprocessing fast or slow.
         //HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(ode_time_step, pde_time_step, 1);
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(ode_time_step, pde_time_step, 0.01);
-        
+
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.4*conductivity_scale*1.171, 1.4*conductivity_scale*1.171));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1400.0); // 1/cm
         HeartConfig::Instance()->SetCapacitance(1.0); // uF/cm^2

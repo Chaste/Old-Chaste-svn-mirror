@@ -114,7 +114,7 @@ int CommandLineArguments::GetNumberOfArgumentsForOption(std::string option)
     {
         EXCEPTION("Command line option '" + option + "' does not exist");
     }
-    
+
     int end_idx = start_idx;
     for (int i=start_idx+1; i<*p_argc; i++)
     {
@@ -125,7 +125,7 @@ int CommandLineArguments::GetNumberOfArgumentsForOption(std::string option)
         }
         end_idx = i;
     }
-    
+
     if (end_idx == start_idx)
     {
         EXCEPTION("No value(s) given after command line option '" + option + "'");

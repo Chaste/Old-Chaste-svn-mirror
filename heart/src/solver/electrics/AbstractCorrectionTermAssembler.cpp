@@ -82,7 +82,7 @@ void AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Increme
             double phiI, const Node<SPACE_DIM>* pNode)
 {
     // interpolate ionic current, and state variables
-    
+
     unsigned node_global_index = pNode->GetIndex();
 
     mIionicInterp  += phiI * this->mpCardiacTissue->rGetIionicCacheReplicated()[ node_global_index ];
@@ -107,30 +107,30 @@ bool AbstractCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Element
     //The criterion and the correction both need the ionic cache, so we better make sure that it's up-to-date
     assert(this->mpCardiacTissue->GetDoCacheReplication());
     ReplicatableVector& r_cache = this->mpCardiacTissue->rGetIionicCacheReplicated();
-    
+
     double diionic = fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(1)]);
-    
+
     if (ELEMENT_DIM > 1)
     {
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(2)]) );    
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(2)]) ); 
+        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(2)]) );
+        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(2)]) );
     }
 
     if (ELEMENT_DIM > 2)
     {
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(3)]) ); 
-        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );    
+        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(0)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );
+        diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(1)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );
         diionic = std::max(diionic, fabs(r_cache[rElement.GetNodeGlobalIndex(2)] - r_cache[rElement.GetNodeGlobalIndex(3)]) );
     }
-    
+
     bool will_assemble = (diionic > DELTA_IIONIC);
-    
+
     if (will_assemble)
     {
         unsigned any_node = rElement.GetNodeGlobalIndex(0);
         mStateVariablesAtQuadPoint.resize(this->mpCardiacTissue->GetCardiacCellOrHaloCell(any_node)->rGetStateVariables().size());
     }
-    
+
     return will_assemble;
 }
 

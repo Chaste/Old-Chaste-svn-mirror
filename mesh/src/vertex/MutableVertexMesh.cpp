@@ -136,7 +136,7 @@ double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementRatio() co
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCheckForInternalIntersections() const
 {
-	return mCheckForInternalIntersections;
+    return mCheckForInternalIntersections;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -160,7 +160,7 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCellRearrangementRatio(double
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SetCheckForInternalIntersections(bool checkForInternalIntersections)
 {
-	mCheckForInternalIntersections=checkForInternalIntersections;
+    mCheckForInternalIntersections=checkForInternalIntersections;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -922,30 +922,30 @@ bool MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::CheckForIntersections()
 
     if (mCheckForInternalIntersections)
     {
-		// Check that no nodes have overlapped elements inside the mesh  // Change to only loop over neighboring elements
-		for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = this->GetNodeIteratorBegin();
-			 node_iter != this->GetNodeIteratorEnd();
-			 ++node_iter)
-		{
-			 assert(!(node_iter->IsDeleted()));
+        // Check that no nodes have overlapped elements inside the mesh  // Change to only loop over neighboring elements
+        for (typename AbstractMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator node_iter = this->GetNodeIteratorBegin();
+             node_iter != this->GetNodeIteratorEnd();
+             ++node_iter)
+        {
+             assert(!(node_iter->IsDeleted()));
 
-			for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = this->GetElementIteratorBegin();
-				 elem_iter != this->GetElementIteratorEnd();
-				 ++elem_iter)
-			{
-				unsigned elem_index = elem_iter->GetIndex();
+            for (typename VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator elem_iter = this->GetElementIteratorBegin();
+                 elem_iter != this->GetElementIteratorEnd();
+                 ++elem_iter)
+            {
+                unsigned elem_index = elem_iter->GetIndex();
 
-				// Check that the node is not part of this element.
-				if (node_iter->rGetContainingElementIndices().count(elem_index) == 0)
-				{
-					if (ElementIncludesPoint(node_iter->rGetLocation(), elem_index))
-					{
-						PerformIntersectionSwap(&(*node_iter), elem_index);
-						return true;
-					}
-				}
-			}
-		}
+                // Check that the node is not part of this element.
+                if (node_iter->rGetContainingElementIndices().count(elem_index) == 0)
+                {
+                    if (ElementIncludesPoint(node_iter->rGetLocation(), elem_index))
+                    {
+                        PerformIntersectionSwap(&(*node_iter), elem_index);
+                        return true;
+                    }
+                }
+            }
+        }
     }
 
     return false;

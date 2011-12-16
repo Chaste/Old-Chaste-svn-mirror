@@ -369,8 +369,8 @@ public:
             p_model->SetBirthTime(-1.5);
             static_cast<TysonNovakCellCycleModel*>(p_model)->SetDt(0.085);
 
-			// We must create a cell to be able to initialise the cell cycle model's ODE system
-			MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
+            // We must create a cell to be able to initialise the cell cycle model's ODE system
+            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
 
@@ -433,8 +433,8 @@ public:
             p_model->SetBirthTime(-1.5);
             static_cast<Alarcon2004OxygenBasedCellCycleModel*>(p_model)->SetDt(0.085);
 
-			// We must create a cell to be able to initialise the cell cycle model's ODE system
-			MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
+            // We must create a cell to be able to initialise the cell cycle model's ODE system
+            MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
 

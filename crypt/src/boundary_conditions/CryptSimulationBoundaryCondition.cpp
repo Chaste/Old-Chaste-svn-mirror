@@ -41,13 +41,13 @@ CryptSimulationBoundaryCondition<DIM>::CryptSimulationBoundaryCondition(Abstract
 template<unsigned DIM>
 void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
 {
-	// We only allow jiggling of bottom cells in 2D
-	if (DIM == 1)
-	{
-		mUseJiggledBottomCells = false;
-	}
+    // We only allow jiggling of bottom cells in 2D
+    if (DIM == 1)
+    {
+        mUseJiggledBottomCells = false;
+    }
 
-	// Check whether a WntConcentration singleton has been set up
+    // Check whether a WntConcentration singleton has been set up
     bool is_wnt_included = WntConcentration<DIM>::Instance()->IsWntSetUp();
     if (!is_wnt_included)
     {
@@ -64,13 +64,13 @@ void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::v
         {
             // Get index of node associated with cell
             unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-    
+
             // Get pointer to this node
             Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
-    
+
             if (!is_wnt_included)
             {
-            	/*
+                /*
                  * If WntConcentration is not set up then stem cells must be pinned,
                  * so we reset the location of each stem cell.
                  */
@@ -78,17 +78,17 @@ void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::v
                 {
                     // Get old node location
                     c_vector<double, DIM> old_node_location = rOldLocations[node_index];
-    
+
                     // Return node to old location
                     p_node->rGetModifiableLocation() = old_node_location;
                 }
             }
-    
+
             // Any cell that has moved below the bottom of the crypt must be moved back up
             if (p_node->rGetLocation()[DIM-1] < 0.0)
             {
                 p_node->rGetModifiableLocation()[DIM-1] = 0.0;
-    
+
                 if (mUseJiggledBottomCells)
                 {
                    /*
@@ -112,7 +112,7 @@ void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::v
         {
             // Get pointer to this node
             Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
-    
+
             if (!is_wnt_included)
             {
                 /*
@@ -126,7 +126,7 @@ void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::v
                     p_node->rGetModifiableLocation()[DIM-1] = node_height;
                 }
             }
-    
+
             // Any node that has moved below the bottom of the crypt must be moved back up
             if (p_node->rGetLocation()[DIM-1] < 0.0)
             {
@@ -149,12 +149,12 @@ void CryptSimulationBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::v
 template<unsigned DIM>
 bool CryptSimulationBoundaryCondition<DIM>::VerifyBoundaryCondition()
 {
-	bool boundary_condition_satisfied = true;
+    bool boundary_condition_satisfied = true;
 
-	/*
-	 * Here we verify that the boundary condition is still satisfied by simply
-	 * checking that no cells lies below the y=0 boundary.
-	 */
+    /*
+     * Here we verify that the boundary condition is still satisfied by simply
+     * checking that no cells lies below the y=0 boundary.
+     */
     for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
          cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
@@ -168,8 +168,8 @@ bool CryptSimulationBoundaryCondition<DIM>::VerifyBoundaryCondition()
         // If this node lies below the y=0 boundary, break and return false
         if (p_node->rGetLocation()[DIM-1] < 0.0)
         {
-        	boundary_condition_satisfied = false;
-        	break;
+            boundary_condition_satisfied = false;
+            break;
         }
     }
 
@@ -194,7 +194,7 @@ void CryptSimulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditio
     *rParamsFile << "\t\t<UseJiggledBottomCells>" << mUseJiggledBottomCells << "</UseJiggledBottomCells>\n";
     ///\todo Can we abstract these XML out methods and do automatic indentation?
     // Call method on direct parent class
-	AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
+    AbstractCellPopulationBoundaryCondition<DIM>::OutputCellPopulationBoundaryConditionParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////////////

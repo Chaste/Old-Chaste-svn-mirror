@@ -56,9 +56,9 @@ class CorriasBuistSMCModified : public AbstractCardiacCell
     {
         archive & boost::serialization::base_object<AbstractCardiacCell >(*this);
     }
-    
+
 private:
-    
+
     /**
      * Scale factor for CO-affected currents
      * Note that this the number that multiply the currents, hence it is not [CO],
@@ -71,38 +71,38 @@ private:
      */
     bool mFakeIccStimulusPresent;
 
-	double Cm;/**< membrane capacitance, pF*/
+    double Cm;/**< membrane capacitance, pF*/
 
-	double Asurf_in_cm_square;/**< Surface area in cm^2*/
-	double Asurf;/**< surface area (mm^2)*/
+    double Asurf_in_cm_square;/**< Surface area in cm^2*/
+    double Asurf;/**< surface area (mm^2)*/
 
-	double VolCell;/**< cell volume (mm^3)*/
-	double hCa;/**< conc for half inactivation of fCa */
-	double sCa;/**< lope factor for inactivation of fCa */
+    double VolCell;/**< cell volume (mm^3)*/
+    double hCa;/**< conc for half inactivation of fCa */
+    double sCa;/**< lope factor for inactivation of fCa */
 
-	/* concentrations */
-	double Ki;       /**< intra K conc (mM)*/
-	double Nai;        /**< intra Na conc (mM)*/
-	double ACh;       /**< acetylcholine conc (mM)*/
-	double CaiRest;     /**< baseline Ca conc (mM)*/
+    /* concentrations */
+    double Ki;       /**< intra K conc (mM)*/
+    double Nai;        /**< intra Na conc (mM)*/
+    double ACh;       /**< acetylcholine conc (mM)*/
+    double CaiRest;     /**< baseline Ca conc (mM)*/
 
-	/* maximum conductances*/
-	double gLVA_max; /**< max conductance of ILVA*/                 // (0.18 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gCaL_max; /**< max conductance of ICaL*/                 // (65.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gBK_max; /**< max conductance of IBK)*/                 // (45.7 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gKb_max; /**< max conductance of IKb*/                  // (0.0144 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gKA_max; /**< max conductance of IKA*/                  // (9.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gKr_max; /**< max conductance of IKr*/                  // (35.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gNa_max;  /**< max conductance of INa*/                  // (3.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gnsCC_max; /**< max conductance of InsCC*/                // (50.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double gcouple;   /**<  coupling conductance bewteen fake ICC and SMC*/        // 1.3 nS * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
-	double JCaExt_max;     /**< max flux of CaSR (mM/ms)*/
+    /* maximum conductances*/
+    double gLVA_max; /**< max conductance of ILVA*/                 // (0.18 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gCaL_max; /**< max conductance of ICaL*/                 // (65.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gBK_max; /**< max conductance of IBK)*/                 // (45.7 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gKb_max; /**< max conductance of IKb*/                  // (0.0144 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gKA_max; /**< max conductance of IKA*/                  // (9.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gKr_max; /**< max conductance of IKr*/                  // (35.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gNa_max;  /**< max conductance of INa*/                  // (3.0  nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gnsCC_max; /**< max conductance of InsCC*/                // (50.0 nS) * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double gcouple;   /**<  coupling conductance bewteen fake ICC and SMC*/        // 1.3 nS * 1e-6 (mS/nS) / Asurf (mm2) = mS/mm2
+    double JCaExt_max;     /**< max flux of CaSR (mM/ms)*/
 
-	/* Temperature corrections */
-	double Q10Ca;         /**< (dim)*/
-	double Q10K;         /**< (dim)*/ //1.365
-	double Q10Na;        /**< (dim)*/
-	double Texp;       /**< (degK)*/
+    /* Temperature corrections */
+    double Q10Ca;         /**< (dim)*/
+    double Q10K;         /**< (dim)*/ //1.365
+    double Q10Na;        /**< (dim)*/
+    double Texp;       /**< (degK)*/
 
     double T_correct_Ca ;/**< temperature correction for Ca (dim)*/
     double T_correct_K ;  /**< temperature correction for K (dim)*/
@@ -114,16 +114,16 @@ private:
     double ENa ;               /**< Nernst potential for Na (mV)*/
     double EnsCC;                          /**< Nernst potential for nsCC (mV)*/
 
-	double Ca_o;         /**<  mM */
-	double K_o;          /**< mM */
-	double Na_o;         /**< mM */
+    double Ca_o;         /**<  mM */
+    double K_o;          /**< mM */
+    double Na_o;         /**< mM */
 
-	/* Nernst parameters */
-	double R;    /**<  pJ/nmol/K*/
-	double T;       /**<  degK*/
-	double F;     /**<  nC/nmol*/
-	double FoRT;     /**<  1/mV*/
-	double RToF;    /**<  mV*/
+    /* Nernst parameters */
+    double R;    /**<  pJ/nmol/K*/
+    double T;       /**<  degK*/
+    double F;     /**<  nC/nmol*/
+    double FoRT;     /**<  1/mV*/
+    double RToF;    /**<  mV*/
 
 public:
 
@@ -214,7 +214,7 @@ namespace boost
             ar << p_solver;
             ar << p_stimulus;
         }
-        
+
         template<class Archive>
         inline void load_construct_data(
             Archive & ar, CorriasBuistSMCModified * t, const unsigned int fileVersion)
@@ -225,9 +225,9 @@ namespace boost
             ar >> p_stimulus;
             ::new(t)CorriasBuistSMCModified(p_solver, p_stimulus);
         }
-        
+
     }
-    
+
 }
 
 #endif // CorriasBuistSMCModified_HPP_

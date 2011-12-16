@@ -49,67 +49,67 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestNodeBasedCellPopulationWithBuskeUpdate : public AbstractCellBasedTestSuite
 {
 public:
-	void TestMethods()
-	{
-		// Create a simple mesh
-		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-		MutableMesh<2,2> generating_mesh;
-		generating_mesh.ConstructFromMeshReader(mesh_reader);
+    void TestMethods()
+    {
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        MutableMesh<2,2> generating_mesh;
+        generating_mesh.ConstructFromMeshReader(mesh_reader);
 
-		// Convert this to a NodesOnlyMesh
-		NodesOnlyMesh<2> mesh;
-		mesh.ConstructNodesWithoutMesh(generating_mesh);
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(generating_mesh);
 
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-		// Create a cell population, with no ghost nodes at the moment
-		NodeBasedCellPopulationWithBuskeUpdate<2> cell_population(mesh, cells);
+        // Create a cell population, with no ghost nodes at the moment
+        NodeBasedCellPopulationWithBuskeUpdate<2> cell_population(mesh, cells);
 
-		TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "NodeBasedCellPopulationWithBuskeUpdate-2");
+        TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "NodeBasedCellPopulationWithBuskeUpdate-2");
 
-		// Test NodeBasedCellPopulationWithBuskeUpdate::UpdateNodeLocations()
+        // Test NodeBasedCellPopulationWithBuskeUpdate::UpdateNodeLocations()
 
-		// Make up some forces
-		std::vector<c_vector<double, 2> > old_posns(cell_population.GetNumNodes());
-		std::vector<c_vector<double, 2> > forces_on_nodes(cell_population.GetNumNodes());
+        // Make up some forces
+        std::vector<c_vector<double, 2> > old_posns(cell_population.GetNumNodes());
+        std::vector<c_vector<double, 2> > forces_on_nodes(cell_population.GetNumNodes());
 
-		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
-		{
-			old_posns[i][0] = cell_population.GetNode(i)->rGetLocation()[0];
-			old_posns[i][1] = cell_population.GetNode(i)->rGetLocation()[1];
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+        {
+            old_posns[i][0] = cell_population.GetNode(i)->rGetLocation()[0];
+            old_posns[i][1] = cell_population.GetNode(i)->rGetLocation()[1];
 
-			forces_on_nodes[i][0] = i*0.01;
-			forces_on_nodes[i][1] = 2*i*0.01;
-		}
+            forces_on_nodes[i][0] = i*0.01;
+            forces_on_nodes[i][1] = 2*i*0.01;
+        }
 
-		// Call method
-		double time_step = 0.01;
-		cell_population.UpdateNodeLocations(forces_on_nodes, time_step);
+        // Call method
+        double time_step = 0.01;
+        cell_population.UpdateNodeLocations(forces_on_nodes, time_step);
 
-		// Check that node locations were correctly updated
-		for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
-		{
-			TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
-			TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
-		}
+        // Check that node locations were correctly updated
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[0], old_posns[i][0] +   i*0.01*0.01, 1e-9);
+            TS_ASSERT_DELTA(cell_population.GetNode(i)->rGetLocation()[1], old_posns[i][1] + 2*i*0.01*0.01, 1e-9);
+        }
 
-		// Test NodeBasedCellPopulationWithBuskeUpdate::OutputCellPopulationParameters()
-		std::string output_directory = "TestNodeBasedCellPopulationWithBuskeUpdate";
-		OutputFileHandler output_file_handler(output_directory, false);
+        // Test NodeBasedCellPopulationWithBuskeUpdate::OutputCellPopulationParameters()
+        std::string output_directory = "TestNodeBasedCellPopulationWithBuskeUpdate";
+        OutputFileHandler output_file_handler(output_directory, false);
 
-		// Test that the cell population parameters are output correctly
-		out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
+        // Test that the cell population parameters are output correctly
+        out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
-		// Write cell population parameters to file
-		cell_population.OutputCellPopulationParameters(parameter_file);
-		parameter_file->close();
+        // Write cell population parameters to file
+        cell_population.OutputCellPopulationParameters(parameter_file);
+        parameter_file->close();
 
-		// Compare output with saved files of what they should look like
+        // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters cell_based/test/data/TestNodeBasedCellPopulationWithBuskeUpdate/results.parameters").c_str()), 0);
-	}
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters cell_based/test/data/TestNodeBasedCellPopulationWithBuskeUpdate/results.parameters").c_str()), 0);
+    }
 
     void TestArchivingCellPopulation() throw (Exception)
     {

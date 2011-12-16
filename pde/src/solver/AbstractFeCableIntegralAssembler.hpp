@@ -43,10 +43,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
 class AbstractFeCableIntegralAssembler : public AbstractFeAssemblerCommon<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,CAN_ASSEMBLE_VECTOR,CAN_ASSEMBLE_MATRIX,INTERPOLATION_LEVEL>
 {
-protected: 
+protected:
     /** Cable element dimension. */
     static const unsigned CABLE_ELEMENT_DIM = 1;
-    
+
     /** Number of nodes in a cable element. */
     static const unsigned NUM_CABLE_ELEMENT_NODES = 2;
 
@@ -55,7 +55,7 @@ protected:
 
     /** Quadrature rule for use on cable elements. */
     GaussianQuadratureRule<1>* mpCableQuadRule;
-    
+
     /** Basis function for use with normal elements. */
     typedef LinearBasisFunction<1> CableBasisFunction;
 
@@ -114,8 +114,8 @@ protected:
         c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
         Element<CABLE_ELEMENT_DIM,SPACE_DIM>* pElement)
     {
-    	// If this line is reached this means this method probably hasn't been over-ridden correctly in
-    	// the concrete class
+        // If this line is reached this means this method probably hasn't been over-ridden correctly in
+        // the concrete class
         NEVER_REACHED;
         return zero_matrix<double>(PROBLEM_DIM*NUM_CABLE_ELEMENT_NODES,PROBLEM_DIM*NUM_CABLE_ELEMENT_NODES);
     }
@@ -148,8 +148,8 @@ protected:
         c_matrix<double, PROBLEM_DIM, SPACE_DIM>& rGradU,
         Element<CABLE_ELEMENT_DIM,SPACE_DIM>* pElement)
     {
-    	// If this line is reached this means this method probably hasn't been over-ridden correctly in
-    	// the concrete class
+        // If this line is reached this means this method probably hasn't been over-ridden correctly in
+        // the concrete class
         NEVER_REACHED;
         return zero_vector<double>(PROBLEM_DIM*NUM_CABLE_ELEMENT_NODES);
     }
@@ -207,7 +207,7 @@ public:
 
 
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
 AbstractFeCableIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AbstractFeCableIntegralAssembler(
             MixedDimensionMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, unsigned numQuadPoints)
     : AbstractFeAssemblerCommon<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>(),
@@ -225,7 +225,7 @@ AbstractFeCableIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMB
 }
 
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL> 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
 void AbstractFeCableIntegralAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::DoAssemble()
 {
     HeartEventHandler::EventType assemble_event;

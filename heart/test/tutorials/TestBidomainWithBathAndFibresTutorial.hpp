@@ -38,11 +38,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTBIDOMAINWITHBATHANDFIBRESTUTORIAL_HPP_
 /*
  * = Running a bidomain simulation with a bath and fibres =
- * 
+ *
  * In this tutorial we run a bidomain simulation with both a bath and fibres
  *
  * EMPTYLINE
- * 
+ *
  * We include the same headers as in the previous fibre tutorial
  */
 #include <cxxtest/TestSuite.h>
@@ -62,15 +62,15 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainTutorialWithBathAndFibres");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
-        /* Bath problems seem to require decreased ODE timesteps. We use the 
+        /* Bath problems seem to require decreased ODE timesteps. We use the
          * Backward Euler version of the Luo-Rudy model (see below) instead to
          * improve code performance.
          */
         HeartConfig::Instance()->SetOdeTimeStep(0.01);  //ms
 
-        /* Use the {{{PlaneStimulusCellFactory}}} to define a set of Luo-Rudy cells, in this 
-         * case with a Backward Euler solver. We pass the stimulus magnitude as 0.0 
-         * as we don't want any stimulated cells. 
+        /* Use the {{{PlaneStimulusCellFactory}}} to define a set of Luo-Rudy cells, in this
+         * case with a Backward Euler solver. We pass the stimulus magnitude as 0.0
+         * as we don't want any stimulated cells.
          */
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellMLBackwardEuler,2> cell_factory(0.0);
 
@@ -78,24 +78,24 @@ public:
          * Note that in the previous bath example, a mesh was read in and elements where then set to be
          * bath elements in the test. With fibres as well, in a bath simulation, it is better to read in a
          * mesh that has all the information: this mesh has bath elements defined as an extra column in the
-         * .ele file, and a .ortho file which defines the fibre direction for each element. Note that the 
+         * .ele file, and a .ortho file which defines the fibre direction for each element. Note that the
          * .ortho file should include fibre information for bath elements as well, but they won't be used
          * in the simulation. (The fibres read here are the same 'kinked' fibres as in the previous fibre
-         * tutorial). 
+         * tutorial).
          */
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_800_elements_bath_sides", cp::media_type::Orthotropic);
-                
-		/* Set anistropic conductivities. 
+
+        /* Set anistropic conductivities.
          */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.175));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 0.7));       
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0, 0.7));
 
         /* and now we define the electrodes.. */
         double magnitude = -9.0e3; // uA/cm^2
         double start_time = 0.0;
         double duration = 2; //ms
         HeartConfig::Instance()->SetElectrodeParameters(false, 0, magnitude, start_time, duration);
-        
+
         /* Now create the problem class, using the cell factory and passing
          * in `true` as the second argument to indicate we are solving a bath
          * problem, and solve.

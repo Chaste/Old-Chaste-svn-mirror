@@ -240,7 +240,7 @@ public:
      * Failing test for ReMesh (see #1275)
      */
     void noTestCylindricalReMeshFailingTest() throw (Exception)
-	{
+    {
         // Load a problematic mesh
         TrianglesMeshReader<2,2> mesh_reader("cell_based/test/data/TestCylindricalMeshBug/mesh");
         Cylindrical2dMesh mesh(20);
@@ -254,7 +254,7 @@ public:
         // Use showme to view this mesh
 
         NodeMap map(mesh.GetNumNodes());
-		mesh.ReMesh(map);
+        mesh.ReMesh(map);
     }
 
     void TestCylindricalReMeshAfterDelete() throw (Exception)

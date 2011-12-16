@@ -72,14 +72,14 @@ template<unsigned DIM>
 class CableTestProblemSolver: public AbstractStaticLinearPdeSolver<DIM,DIM,1>
 {
 private:
-	StiffnessMatrixAssembler<DIM,DIM>* mpStiffnessMatrixAssembler;
-	CableTestProblemRhsAssembler<DIM>* mpRhsAssembler;
+    StiffnessMatrixAssembler<DIM,DIM>* mpStiffnessMatrixAssembler;
+    CableTestProblemRhsAssembler<DIM>* mpRhsAssembler;
 
-	/** Boundary conditions */
-	BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
+    /** Boundary conditions */
+    BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
 
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
-	{
+    {
         // use assemblers to set up KU=b
         mpStiffnessMatrixAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
         mpStiffnessMatrixAssembler->Assemble();
@@ -95,25 +95,25 @@ private:
 
         this->mpLinearSystem->FinaliseRhsVector();
         this->mpLinearSystem->FinaliseLhsMatrix();
-	}
+    }
 
 
 public:
-	CableTestProblemSolver(MixedDimensionMesh<DIM,DIM>* pMesh,
+    CableTestProblemSolver(MixedDimensionMesh<DIM,DIM>* pMesh,
                            BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions)
-		 : AbstractStaticLinearPdeSolver<DIM,DIM,1>(pMesh),
-		   mpBoundaryConditions(pBoundaryConditions)
+         : AbstractStaticLinearPdeSolver<DIM,DIM,1>(pMesh),
+           mpBoundaryConditions(pBoundaryConditions)
     {
-		// set-up mStiffnessMatrixAssembler and mRhsAssembler
-		mpStiffnessMatrixAssembler = new StiffnessMatrixAssembler<DIM,DIM>(pMesh);
-		mpRhsAssembler = new CableTestProblemRhsAssembler<DIM>(pMesh);
+        // set-up mStiffnessMatrixAssembler and mRhsAssembler
+        mpStiffnessMatrixAssembler = new StiffnessMatrixAssembler<DIM,DIM>(pMesh);
+        mpRhsAssembler = new CableTestProblemRhsAssembler<DIM>(pMesh);
     }
 
-	~CableTestProblemSolver()
-	{
-		delete mpStiffnessMatrixAssembler;
-		delete mpRhsAssembler;
-	}
+    ~CableTestProblemSolver()
+    {
+        delete mpStiffnessMatrixAssembler;
+        delete mpRhsAssembler;
+    }
 };
 
 // See #1798
@@ -124,12 +124,12 @@ public:
 class TestCableTestProblem : public CxxTest::TestSuite
 {
 public:
-	void TestSolvingTestProblem() throw(Exception)
-	{
-		std::string mesh_base("mesh/test/data/mixed_dimension_meshes/cylinder");
-		TrianglesMeshReader<3,3> reader(mesh_base);
-		MixedDimensionMesh<3,3> mesh;
-		mesh.ConstructFromMeshReader(reader);
+    void TestSolvingTestProblem() throw(Exception)
+    {
+        std::string mesh_base("mesh/test/data/mixed_dimension_meshes/cylinder");
+        TrianglesMeshReader<3,3> reader(mesh_base);
+        MixedDimensionMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
 
         ConstBoundaryCondition<3>* p_zero_boundary_condition = new ConstBoundaryCondition<3>(0.0);
 
@@ -144,58 +144,58 @@ public:
 //        for (MixedDimensionMesh<3,3>::BoundaryNodeIterator iter =
 //               mesh.GetBoundaryNodeIteratorBegin();
 //             iter != mesh.GetBoundaryNodeIteratorEnd();
-//	         iter++)
+//             iter++)
 
-		for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
-	         current_node != mesh.GetNodeIteratorEnd();
-	         ++current_node)
-		{
-		    Node<3>* p_node = &(*current_node); //Get pointer to the current node from the iterator
+        for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
+             current_node != mesh.GetNodeIteratorEnd();
+             ++current_node)
+        {
+            Node<3>* p_node = &(*current_node); //Get pointer to the current node from the iterator
             double x = p_node->rGetLocation()[0];
-		    double y = p_node->rGetLocation()[1];
+            double y = p_node->rGetLocation()[1];
             double r = sqrt(x*x+y*y);
 
-		    if(fabs(r-1)<1e-3)
-		    {
-	            p_node->SetAsBoundaryNode(); // see comment above!
-		        bcc.AddDirichletBoundaryCondition(p_node, p_zero_boundary_condition);
-		    }
-	    }
+            if(fabs(r-1)<1e-3)
+            {
+                p_node->SetAsBoundaryNode(); // see comment above!
+                bcc.AddDirichletBoundaryCondition(p_node, p_zero_boundary_condition);
+            }
+        }
 
-		// Solver
-		CableTestProblemSolver<3> cable_solver(&mesh,&bcc);
-		Vec result = cable_solver.Solve();
-		double* p_result;
-		VecGetArray(result, &p_result);
-		// Solution should be u = log(r)/(2*pi)
-		for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
-			 current_node != mesh.GetNodeIteratorEnd();
-			 ++current_node)
-		{
-			double x = current_node->GetPoint()[0];
-			double y = current_node->GetPoint()[1];
-			double r = sqrt(x*x+y*y);
+        // Solver
+        CableTestProblemSolver<3> cable_solver(&mesh,&bcc);
+        Vec result = cable_solver.Solve();
+        double* p_result;
+        VecGetArray(result, &p_result);
+        // Solution should be u = log(r)/(2*pi)
+        for (AbstractTetrahedralMesh<3,3>::NodeIterator current_node = mesh.GetNodeIteratorBegin();
+             current_node != mesh.GetNodeIteratorEnd();
+             ++current_node)
+        {
+            double x = current_node->GetPoint()[0];
+            double y = current_node->GetPoint()[1];
+            double r = sqrt(x*x+y*y);
 
 
-			unsigned local_index = current_node->GetIndex() - mesh.GetDistributedVectorFactory()->GetLow();
-			if(r>0.1)
-			{
-			    // use a tolerance that is weighted by 1-r as accuracy will decrease as
-			    // get closer to r=0 for which u=-infty. Visually the solution compared
-			    // to the true solution looks pretty good.
+            unsigned local_index = current_node->GetIndex() - mesh.GetDistributedVectorFactory()->GetLow();
+            if(r>0.1)
+            {
+                // use a tolerance that is weighted by 1-r as accuracy will decrease as
+                // get closer to r=0 for which u=-infty. Visually the solution compared
+                // to the true solution looks pretty good.
                 double u = log(r)/(2*M_PI);
-			    TS_ASSERT_DELTA(p_result[local_index], u, 0.07*(1-r)+1e-6);
-			}
-			else
-			{
-			    // for these nodes r=0 and the true solution is -infinity
-			    TS_ASSERT_LESS_THAN(p_result[local_index], -0.4);
-			}
-		}
+                TS_ASSERT_DELTA(p_result[local_index], u, 0.07*(1-r)+1e-6);
+            }
+            else
+            {
+                // for these nodes r=0 and the true solution is -infinity
+                TS_ASSERT_LESS_THAN(p_result[local_index], -0.4);
+            }
+        }
 
-		VecRestoreArray(result, &p_result);
-		VecDestroy(result);
-	}
+        VecRestoreArray(result, &p_result);
+        VecDestroy(result);
+    }
 };
 
 #endif /* TESTCABLETESTPROBLEM_HPP_ */

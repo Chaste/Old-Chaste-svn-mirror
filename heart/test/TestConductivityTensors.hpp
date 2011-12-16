@@ -463,15 +463,15 @@ public:
 
             /*  The orthotropic tensors are calculated as T_i = F_i*G*F_i', where
              *
-             *  	  [ cos(v_i) -sin(v_i) 0] 	    [ g_f   0   0 ]
-			 *  F_i = [ sin(v_i)  cos(v_i) 0] , G = [   0 g_l   0 ] and v_i = i*2.0/30.0*PI .
-			 *  	  [        0         0 1]       [   0   0 g_n ]
+             *        [ cos(v_i) -sin(v_i) 0]         [ g_f   0   0 ]
+             *  F_i = [ sin(v_i)  cos(v_i) 0] , G = [   0 g_l   0 ] and v_i = i*2.0/30.0*PI .
+             *        [        0         0 1]       [   0   0 g_n ]
              *
              *  The lines below assert that this results in a tensor of the form
              *
-             *  	  [ g_f*cos(v_i)*cos(v_i)+g_l*sin(v_i)*sin(v_i) g_f*sin(v_i)*cos(v_i)-g_l*cos(v_i)*sin(v_i)   0]
-			 *	T_i = [ g_f*cos(v_i)*sin(v_i)-g_l*sin(v_i)*cos(v_i) g_l*cos(v_i)*cos(v_i)+g_f*sin(v_i)*sin(v_i)   0]
-			 *		  [                                           0			                                  0 g_n]
+             *        [ g_f*cos(v_i)*cos(v_i)+g_l*sin(v_i)*sin(v_i) g_f*sin(v_i)*cos(v_i)-g_l*cos(v_i)*sin(v_i)   0]
+             *    T_i = [ g_f*cos(v_i)*sin(v_i)-g_l*sin(v_i)*cos(v_i) g_l*cos(v_i)*cos(v_i)+g_f*sin(v_i)*sin(v_i)   0]
+             *          [                                           0                                              0 g_n]
              *
              *  for each element index i.
              *
@@ -516,12 +516,12 @@ public:
              *  g_l is the conductivity perpenticluar to the fibre direction and
              *
              *  f_i = [ cos(v_i) sin(v_i) 0 ]'
-			 *
+             *
              *  The lines below assert that this results in a tensor of the form
              *
-             *  	  [ g_l + cos(v_i)*cos(v_i)*(g_f-g_l)      -cos(v_i)*sin(v_i)*(g_f-g_l)   0]
-			 *  T_i = [      -sin(v_i)*cos(v_i)*(g_f-g_l) g_l + sin(v_i)*sin(v_i)*(g_f-g_l)   0]
-			 *  	  [                                 0                                 0 g_l]
+             *        [ g_l + cos(v_i)*cos(v_i)*(g_f-g_l)      -cos(v_i)*sin(v_i)*(g_f-g_l)   0]
+             *  T_i = [      -sin(v_i)*cos(v_i)*(g_f-g_l) g_l + sin(v_i)*sin(v_i)*(g_f-g_l)   0]
+             *        [                                 0                                 0 g_l]
              *
              *  for each element index i.
              *

@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneBoundaryCondition.hpp"
 
 class TestContactInhibitionOffLatticeSimulation : public CxxTest::TestSuite
-{ 
+{
 public:
 
     void TestBoxContactInhibitionCellCycleModel()
@@ -69,12 +69,12 @@ public:
           MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
           // Create cell state
-      	  MAKE_PTR(WildTypeCellMutationState, p_state);
+            MAKE_PTR(WildTypeCellMutationState, p_state);
           std::vector<CellPtr> cells;
 
           for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
           {
-          	ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+              ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
             p_cycle_model->SetCellProliferativeType(STEM);
             p_cycle_model->SetDimension(2);
             p_cycle_model->SetBirthTime(-10.0);
@@ -102,7 +102,7 @@ public:
 
           for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
           {
-          	p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
+              p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
           }
 
           // Create a contact inhibition simulator
@@ -145,12 +145,12 @@ public:
           // Test that the volumes of the cells are correct
           cell_population.CreateVoronoiTessellation();
           for (MeshBasedCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-          		 cell_iter != cell_population.End();
-          		 ++cell_iter)
-			{
-				unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
-				TS_ASSERT_LESS_THAN(cell_population.GetVolumeOfVoronoiElement(node_index), 0.71);
-			}
+                   cell_iter != cell_population.End();
+                   ++cell_iter)
+            {
+                unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
+                TS_ASSERT_LESS_THAN(cell_population.GetVolumeOfVoronoiElement(node_index), 0.71);
+            }
 
           // Tidy up
           SimulationTime::Destroy();

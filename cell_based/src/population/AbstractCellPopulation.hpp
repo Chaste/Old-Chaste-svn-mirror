@@ -142,7 +142,7 @@ protected:
 
     /** Results file for logged cell data. */
     out_stream mpCellIdFile;
-        
+
     /** Results file for cell volume (in 3D) or area (in 2D) data. */
     out_stream mpCellVolumesFile;
 
@@ -421,7 +421,7 @@ public:
 
     /**
      * Calculate the 'width' of any dimension of the cell population.
-     *      
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -432,7 +432,7 @@ public:
 
     /**
      * Given a node index, returns the set of neighbouring node indices.
-     *      
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -482,7 +482,7 @@ public:
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**
-     * Write the current volume of each cell to file.      
+     * Write the current volume of each cell to file.
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      */

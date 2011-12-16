@@ -74,7 +74,7 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
 
     if (mIsActivated && (rInputParameters.voltage < mDeactivationVoltage))
     {
-        // inactive (resting) - note don't set mIsActivated=false yet 
+        // inactive (resting) - note don't set mIsActivated=false yet
         // as the cell may yet be producing force, and the code is such
         // that if mIsActivated=false, Ta=0
         mElectricallyUnactivated = true;
@@ -116,7 +116,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
         else if(mElectricallyUnactivated)
         {
             // t_a < t_ma => f_twitch=0 => Ta=0
-            // In this case, if electrically unactivated as well, 
+            // In this case, if electrically unactivated as well,
             // set the state to be unactivated.
             mIsActivated = false;
         }

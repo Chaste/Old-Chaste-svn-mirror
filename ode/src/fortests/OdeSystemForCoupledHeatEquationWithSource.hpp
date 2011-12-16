@@ -54,7 +54,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param a the value of the parameter mA
      */
     OdeSystemForCoupledHeatEquationWithSource(double a)

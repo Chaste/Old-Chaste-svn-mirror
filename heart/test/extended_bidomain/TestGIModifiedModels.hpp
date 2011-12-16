@@ -64,52 +64,52 @@ public:
 
 
 
-	void TestICCmodelModified(void) throw (Exception)
-	{
-		HeartConfig::Instance()->Reset();
+    void TestICCmodelModified(void) throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
 
-		boost::shared_ptr<ZeroStimulus> stimulus(new ZeroStimulus()); //define the stimulus
-		boost::shared_ptr<EulerIvpOdeSolver> solver(new EulerIvpOdeSolver); //define the solver
+        boost::shared_ptr<ZeroStimulus> stimulus(new ZeroStimulus()); //define the stimulus
+        boost::shared_ptr<EulerIvpOdeSolver> solver(new EulerIvpOdeSolver); //define the solver
 
-		HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1,0.1);
-		CorriasBuistICCModified icc_ode_system(solver, stimulus);
-		icc_ode_system.SetIP3Concentration(0.000635);
-		icc_ode_system.SetFractionOfVDDRInPU(0.04);
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1,0.1);
+        CorriasBuistICCModified icc_ode_system(solver, stimulus);
+        icc_ode_system.SetIP3Concentration(0.000635);
+        icc_ode_system.SetFractionOfVDDRInPU(0.04);
 
-		TS_ASSERT_EQUALS(icc_ode_system.GetCarbonMonoxideScaleFactor(), 1.0); //coverage
-		icc_ode_system.SetCarbonMonoxideScaleFactor(1.0);
-		icc_ode_system.SetSercaPumpScaleFactor(1.0);
+        TS_ASSERT_EQUALS(icc_ode_system.GetCarbonMonoxideScaleFactor(), 1.0); //coverage
+        icc_ode_system.SetCarbonMonoxideScaleFactor(1.0);
+        icc_ode_system.SetSercaPumpScaleFactor(1.0);
 
-		std::string filebasename = "ICCmodelMartinCode";
-		// Solve and write to file
-		RunOdeSolverWithIonicModel(&icc_ode_system,
-								   20000,/*end time, in milliseconds*/
-								   filebasename,
-								   1000);
+        std::string filebasename = "ICCmodelMartinCode";
+        // Solve and write to file
+        RunOdeSolverWithIonicModel(&icc_ode_system,
+                                   20000,/*end time, in milliseconds*/
+                                   filebasename,
+                                   1000);
 
-		////////////////////////////////////////////////////////////////////
-		//Compare with valid data. The data are valid because of the following:
-		// valid data plotted against the results of Martin's code are shown in projects/alberto/test/data/MartinCodeVsChasteSingleCell.eps
-		// The two solutions match very closely, hence the code that generated those files is valid.
-		///////////////////////////////////////////////////////////////////
-		double tolerance = 1e-3;
+        ////////////////////////////////////////////////////////////////////
+        //Compare with valid data. The data are valid because of the following:
+        // valid data plotted against the results of Martin's code are shown in projects/alberto/test/data/MartinCodeVsChasteSingleCell.eps
+        // The two solutions match very closely, hence the code that generated those files is valid.
+        ///////////////////////////////////////////////////////////////////
+        double tolerance = 1e-3;
 
-		// read data entries for the new file
-		ColumnDataReader data_reader("TestIonicModels", filebasename, true);
-		std::vector<double> times = data_reader.GetValues("Time");
-		std::vector<double> voltages = data_reader.GetValues("Vm");
+        // read data entries for the new file
+        ColumnDataReader data_reader("TestIonicModels", filebasename, true);
+        std::vector<double> times = data_reader.GetValues("Time");
+        std::vector<double> voltages = data_reader.GetValues("Vm");
 
-		ColumnDataReader valid_reader("heart/test/data/extendedbidomain", filebasename + "ValidData",false);
-		std::vector<double> valid_times = valid_reader.GetValues("Time");
-		std::vector<double> valid_voltages = valid_reader.GetValues("Vm");
+        ColumnDataReader valid_reader("heart/test/data/extendedbidomain", filebasename + "ValidData",false);
+        std::vector<double> valid_times = valid_reader.GetValues("Time");
+        std::vector<double> valid_voltages = valid_reader.GetValues("Vm");
 
-		TS_ASSERT_EQUALS(times.size(), valid_times.size());
-		for (unsigned i=0; i<valid_times.size(); i++)
-		{
-			TS_ASSERT_DELTA(times[i], valid_times[i], 1e-12);
-			TS_ASSERT_DELTA(voltages[i], valid_voltages[i], tolerance);
-		}
-	}
+        TS_ASSERT_EQUALS(times.size(), valid_times.size());
+        for (unsigned i=0; i<valid_times.size(); i++)
+        {
+            TS_ASSERT_DELTA(times[i], valid_times[i], 1e-12);
+            TS_ASSERT_DELTA(voltages[i], valid_voltages[i], tolerance);
+        }
+    }
 
     void TestSMCmodelModified(void) throw (Exception)
     {
@@ -177,7 +177,7 @@ public:
 
         //it should be flat now, no AP and cell properties should throw
         TS_ASSERT_THROWS_THIS(cell_properties_2.GetLastActionPotentialDuration(90),
-							"AP did not occur, never exceeded threshold voltage.");
+                            "AP did not occur, never exceeded threshold voltage.");
 
      }
 

@@ -100,10 +100,10 @@ public:
         TS_ASSERT_EQUALS(mesh.mCellRadii.size(),0u);
 
         // When the mesh goes out of scope, then it's a different set of nodes that get destroyed
-		for (unsigned i=0; i<nodes.size(); i++)
-		{
-			delete nodes[i];
-		}
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
 
     void TestConstructNodesWithoutMeshUsingMesh()
@@ -224,7 +224,7 @@ public:
     }
 
     void TestAddNode() throw (Exception)
-	{
+    {
         std::vector<Node<2>*> nodes;
         Node<2> node0(0, true, 0.0, 0.0);
         nodes.push_back(&node0);
@@ -240,7 +240,7 @@ public:
         unsigned num_nodes = 3;
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
         TS_ASSERT_DELTA(mesh.GetCellRadius(2), 1.0, 1e-4);
-	}
+    }
 
     void TestDeleteNodesAndRemesh() throw (Exception)
     {
@@ -259,14 +259,14 @@ public:
 
         // Free memory - the constructor does a deep copy of its input
         for (unsigned i=0; i<nodes.size(); i++)
-		{
-			delete nodes[i];
-		}
+        {
+            delete nodes[i];
+        }
 
         // Set radius of cells from 1 to 8
         for (unsigned i=0; i<nodes.size(); i++)
         {
-			mesh.SetCellRadius(i, i+1);
+            mesh.SetCellRadius(i, i+1);
         }
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 8u);

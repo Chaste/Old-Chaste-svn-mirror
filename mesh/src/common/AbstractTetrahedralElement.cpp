@@ -132,7 +132,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
 
     /*
      * At this point we're only dealing with subspace (ELEMENT_DIM < SPACE_DIM) elem.
-     * We assume that the rWeightedDirection vector and rJacobianDeterminant (length 
+     * We assume that the rWeightedDirection vector and rJacobianDeterminant (length
      * of vector) are the values from a previous call.
      */
 

@@ -827,13 +827,13 @@ public:
         TS_ASSERT_EQUALS(quad_mesh.GetNumBoundaryNodes(), 626u);
 
         // Check some node co-ordinates
-		TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[0], 0.0963, 1e-4);
-		TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[1], 0.3593, 1e-4);
-		TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[2], 0.9925, 1e-4);
+        TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[0], 0.0963, 1e-4);
+        TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[1], 0.3593, 1e-4);
+        TS_ASSERT_DELTA(tet_mesh.GetNode(0)->GetPoint()[2], 0.9925, 1e-4);
 
-		TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[0], 1.0969, 1e-4);
-		TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[1], 0.6678, 1e-4);
-		TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[2], 0.7250, 1e-4);
+        TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[0], 1.0969, 1e-4);
+        TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[1], 0.6678, 1e-4);
+        TS_ASSERT_DELTA(tet_mesh.GetNode(8)->GetPoint()[2], 0.7250, 1e-4);
 
         TS_ASSERT_DELTA(quad_mesh.GetNode(0)->GetPoint()[0], 0.0963, 1e-4);
         TS_ASSERT_DELTA(quad_mesh.GetNode(0)->GetPoint()[1], 0.3593, 1e-4);

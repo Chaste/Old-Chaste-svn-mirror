@@ -35,7 +35,7 @@ CML_noble_varghese_kohl_noble_1998_basic_with_sac::CML_noble_varghese_kohl_noble
     : AbstractCardiacCell(pSolver, 22, 0, pIntracellularStimulus)
 {
     mStretch = 1.0;
-    
+
     mpSystemInfo = OdeSystemInformation<CML_noble_varghese_kohl_noble_1998_basic_with_sac>::Instance();
 
     Init();
@@ -217,9 +217,9 @@ double CML_noble_varghese_kohl_noble_1998_basic_with_sac::GetIIonic(const std::v
     //////////////////////////////////////////////////////////////////////
     // new part of the model - addition of a Stretch-activated channel
     //////////////////////////////////////////////////////////////////////
-    const double g_sac = 0.035; // uS   
+    const double g_sac = 0.035; // uS
     const double E_sac = -10; // mV
-    double f = (mStretch > 1.0) ? (mStretch-1.0)/0.15 : 0.0; // f = 0 if stretch < 1, scales linearly to f=1 at 15% stretch 
+    double f = (mStretch > 1.0) ? (mStretch-1.0)/0.15 : 0.0; // f = 0 if stretch < 1, scales linearly to f=1 at 15% stretch
     double sac_ionic_current = g_sac * f * (var_membrane__V - E_sac); // if g is uS, this is nA
 
     /*
@@ -547,9 +547,9 @@ void CML_noble_varghese_kohl_noble_1998_basic_with_sac::EvaluateYDerivatives (
     //////////////////////////////////////////////////////////////////////
     // new part of the model
     //////////////////////////////////////////////////////////////////////
-    const double g_sac = 0.035; // uS  
+    const double g_sac = 0.035; // uS
     const double E_sac = -10; // mV
-    double f = (mStretch > 0) ? (mStretch-1.0)/0.15 : 0.0; // f = 0 if stretch < 1, scales linearly to f=1 at 15% stretch 
+    double f = (mStretch > 0) ? (mStretch-1.0)/0.15 : 0.0; // f = 0 if stretch < 1, scales linearly to f=1 at 15% stretch
     double sac_ionic_current = g_sac * f * (var_membrane__V - E_sac); // if g is uS, this is nA
 
     double d_dt_membrane__V;

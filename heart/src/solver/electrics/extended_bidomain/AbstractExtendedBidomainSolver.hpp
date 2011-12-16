@@ -46,8 +46,8 @@ class AbstractExtendedBidomainSolver
 
 protected:
 
-	/** Whether the simulation involves a perfusing bath */
-	bool mBathSimulation;
+    /** Whether the simulation involves a perfusing bath */
+    bool mBathSimulation;
 
 
     /** The tissue object over which to solve the equation */
@@ -152,7 +152,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     AbstractExtendedBidomainSolver(bool bathSimulation,
-						 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                          ExtendedBidomainTissue<SPACE_DIM>* pTissue,
                          BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 3>* pBcc,
                          unsigned numQuadPoints = 2);

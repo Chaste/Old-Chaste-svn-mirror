@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "Version.hpp"
-#include "GenericMeshReader.hpp"    
+#include "GenericMeshReader.hpp"
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
@@ -84,9 +84,9 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 
         if (PetscTools::AmMaster())
         {
-        	// Write provenance info
-		    std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
-		    *p_file << comment;
+            // Write provenance info
+            std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
+            *p_file << comment;
             // The header first
             *p_file << "Group name: " << this->mFileBaseName << "\n";
             *p_file << "#Fields=" << num_vars << "\n";
@@ -110,7 +110,7 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
                 }
             }
         }
-        
+
         for (unsigned var=0; var<num_vars; var++)
         {
            delete all_data[var];
@@ -138,7 +138,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
 
     // Write mesh in a suitable form for cmgui
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
-    
+
     CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
 
     // Used to inform the mesh of the data names
@@ -151,7 +151,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
         names.push_back("bath");
         cmgui_mesh_writer.SetRegionNames(names);
     }
-   
+
     // Normally the in-memory mesh is converted:
     if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false)
     {
@@ -167,7 +167,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
             = GenericMeshReader<ELEMENT_DIM, SPACE_DIM>(original_file);
         cmgui_mesh_writer.WriteFilesUsingMeshReader(*p_original_mesh_reader);
     }
-    
+
     WriteCmguiScript();
     PetscTools::Barrier("Hdf5ToCmguiConverter");
 }
@@ -183,24 +183,24 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::WriteCmguiScript()
     {
         out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("script.com");
 
-    	// Write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interprets
-	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
-	    *p_script_file << comment;
+        // Write provenance info, note the # instead of ! because this is - essentially - a PERL script that Cmgui interprets
+        std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+        *p_script_file << comment;
 
-		*p_script_file << "# Read the mesh \n"
-					   << "gfx read node "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exnode \n"
-					   << "gfx read elem "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exelem generate_faces_and_lines \n" // note the mesh file name is taken from HeartConfig...
-					   << "# Create a window \n"
-					   << "gfx cre win 1 \n"
-					   << "# Modify the scene (obtained by gfx list g_element XXXX commands) to visualize first var on lines and nodes \n"
-					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" general clear circle_discretization 6 default_coordinate coordinates element_discretization \"4*4*4\" native_discretization none; \n"
-					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" lines select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
-					   << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" node_points glyph point general size \"1*1*1\" centre 0,0,0 font default select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
-					   << "# Load the data \n"
-					   << "for ($i=0; $i<" << num_timesteps << "; $i++) { \n"
-					   << "    gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" // ...while the data file from mFileBaseName...
-					   << "}\n";
-		p_script_file->close();
+        *p_script_file << "# Read the mesh \n"
+                       << "gfx read node "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exnode \n"
+                       << "gfx read elem "<<HeartConfig::Instance()->GetOutputFilenamePrefix()<<".exelem generate_faces_and_lines \n" // note the mesh file name is taken from HeartConfig...
+                       << "# Create a window \n"
+                       << "gfx cre win 1 \n"
+                       << "# Modify the scene (obtained by gfx list g_element XXXX commands) to visualize first var on lines and nodes \n"
+                       << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" general clear circle_discretization 6 default_coordinate coordinates element_discretization \"4*4*4\" native_discretization none; \n"
+                       << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" lines select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
+                       << "gfx modify g_element "<< HeartConfig::Instance()->GetOutputFilenamePrefix()<<" node_points glyph point general size \"1*1*1\" centre 0,0,0 font default select_on material default data "<<variable_name<<" spectrum default selected_material default_selected; \n"
+                       << "# Load the data \n"
+                       << "for ($i=0; $i<" << num_timesteps << "; $i++) { \n"
+                       << "    gfx read node " << this->mFileBaseName << "_$i.exnode time $i\n" // ...while the data file from mFileBaseName...
+                       << "}\n";
+        p_script_file->close();
     }
 }
 

@@ -235,7 +235,7 @@ protected:
     std::vector< AbstractCardiacCell* > mCellsDistributed;
 
     /** The vector of the purkinje cells. Distributed. Empty unless a AbstractPurkinjeCellFactory is given to the constructor. */
-	std::vector< AbstractCardiacCell* > mPurkinjeCellsDistributed;
+    std::vector< AbstractCardiacCell* > mPurkinjeCellsDistributed;
 
     /**
      *  Cache containing all the ionic currents for each node,
@@ -244,10 +244,10 @@ protected:
     ReplicatableVector mIionicCacheReplicated;
 
     /**
-	 *  Cache containing all the ionic currents for each purkinje node,
-	 *  replicated over all processes.
-	 */
-	ReplicatableVector mPurkinjeIionicCacheReplicated;
+     *  Cache containing all the ionic currents for each purkinje node,
+     *  replicated over all processes.
+     */
+    ReplicatableVector mPurkinjeIionicCacheReplicated;
 
     /**
      *  Cache containing all the stimulus currents for each node,

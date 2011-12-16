@@ -52,7 +52,7 @@ private:
         fibre_reader1.GetAllOrtho(fibres1, second1, third1);
         TS_ASSERT_EQUALS(fibres1.size(), second1.size());
         TS_ASSERT_EQUALS(fibres1.size(), third1.size());
-        
+
         //Read two
         FileFinder file_finder2(orthoFile2Relative, RelativeTo::ChasteSourceRoot);
         FibreReader<3> fibre_reader2(file_finder2, ORTHO);
@@ -65,7 +65,7 @@ private:
 
         //Compare data
         TS_ASSERT_EQUALS(fibres1.size(), fibres2.size());
-        
+
         for (unsigned i = 431980; i< fibres1.size(); i++)
         {
             for (unsigned j = 0; j< 3u ; j++)
@@ -101,7 +101,7 @@ public:
         std::string wall_file = handler.GetOutputDirectoryFullPath() + "wall_thickness.data";
 
         CompareOrthoFiles(fibre_file, "heart/test/data/point50_heart_mesh/point50.ortho");
-        
+
         NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
         TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
@@ -130,10 +130,10 @@ public:
         NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
         TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
-    
+
     void TestDownSampledRabbit() throw (Exception)
     {
-        
+
         TrianglesMeshReader<3,3> mesh_reader("apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles");
         std::string epi_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.epi";
         std::string rv_face_file = "apps/texttest/weekly/Propagation3d/heart_chaste2_renum_i_triangles.rv";
@@ -166,7 +166,7 @@ public:
         writer.AddCellData("OrthoFibres", fibres);
         writer.AddCellData("OrthoSecond", second);
         writer.AddCellData("OrthoThird", third);
-        
+
         //Add debugging data
         std::string debug_files[3] = {"wall_thickness", "node_regions", "averaged_thickness"};
         for (unsigned file=0; file<3; file++)

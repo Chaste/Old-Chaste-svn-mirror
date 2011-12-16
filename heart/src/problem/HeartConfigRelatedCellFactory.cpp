@@ -49,11 +49,11 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
 
     // Read and store Stimuli
     HeartConfig::Instance()->GetStimuli(mStimuliApplied, mStimulatedAreas);
-    
+
     // if no stimuli provided in XML, need electrodes instead
     if (mStimuliApplied.size()==0  &&  (HeartConfig::Instance()->IsElectrodesPresent() == false) )
     {
-     	EXCEPTION("Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
+         EXCEPTION("Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
     }
 
     // Read and store Cell Heterogeneities
@@ -116,7 +116,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             break;
         }
     }
-    
+
     AbstractCardiacCell* p_cell = NULL;
 
     if (ionic_model.Dynamic().present())
@@ -209,7 +209,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             }
         }
     }
-    
+
     // Set parameters
     try
     {
@@ -229,7 +229,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
 template<unsigned SPACE_DIM>
 void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiacCell* pCell,
-																 unsigned nodeIndex)
+                                                                 unsigned nodeIndex)
 {
     // Special case for backwards-compatibility: scale factors
     for (unsigned ht_index = 0;
@@ -240,9 +240,9 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiac
         {
             try
             {
-            	pCell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
-            	pCell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
-            	pCell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
+                pCell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
+                pCell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
+                pCell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
             }
             catch (const Exception& e)
             {
@@ -250,14 +250,14 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiac
             }
         }
     }
-    
+
     /// #1166 applying Hill function for drug action
     if (HeartConfig::Instance()->HasDrugDose())
     {
         double drug_dose = HeartConfig::Instance()->GetDrugDose();
         std::map<std::string, std::pair<double, double> > ic50_values = HeartConfig::Instance()->GetIc50Values();
-        for (std::map<std::string, std::pair<double, double> >::iterator it = ic50_values.begin(); 
-             it != ic50_values.end(); 
+        for (std::map<std::string, std::pair<double, double> >::iterator it = ic50_values.begin();
+             it != ic50_values.end();
              ++it)
         {
             const std::string param_name = it->first + "_conductance";
@@ -275,7 +275,7 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiac
             }
         }
     }
-        
+
     // SetParameter elements go next so they override the old ScaleFactor* elements.
     for (unsigned ht_index = 0;
          ht_index < mCellHeterogeneityAreas.size();
@@ -297,9 +297,9 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiac
 
 template<unsigned SPACE_DIM>
 void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellIntracellularStimulus(AbstractCardiacCell* pCell,
-																			unsigned nodeIndex)
+                                                                            unsigned nodeIndex)
 {
-	boost::shared_ptr<MultiStimulus> node_specific_stimulus(new MultiStimulus());
+    boost::shared_ptr<MultiStimulus> node_specific_stimulus(new MultiStimulus());
     // Check which of the defined stimuli contain the current node
     for (unsigned stimulus_index = 0;
          stimulus_index < mStimuliApplied.size();

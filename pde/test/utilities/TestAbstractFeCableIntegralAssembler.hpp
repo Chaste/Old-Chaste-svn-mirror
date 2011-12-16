@@ -44,7 +44,7 @@ class BasicCableAssembler : public AbstractFeCableIntegralAssembler<DIM,DIM,1,tr
 {
 private:
     double mCoefficient;
-  
+
     c_vector<double,1*2> ComputeCableVectorTerm(
         c_vector<double, 2>& rPhi,
         c_matrix<double, DIM, 2>& rGradPhi,
@@ -55,7 +55,7 @@ private:
     {
         return -mCoefficient*rPhi;
     }
-    
+
     c_matrix<double,1*2,1*2> ComputeCableMatrixTerm(
         c_vector<double, 2>& rPhi,
         c_matrix<double, DIM, 2>& rGradPhi,
@@ -128,10 +128,10 @@ public:
         std::string mesh_base("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
         TrianglesMeshReader<2,2> reader(mesh_base);
         MixedDimensionMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
-        mesh.ConstructFromMeshReader(reader); 
-        
+        mesh.ConstructFromMeshReader(reader);
+
         double h = 0.01; //All cable elements in the mesh are of this length
-        
+
         Vec vec = PetscTools::CreateVec(mesh.GetNumNodes());
 
         Mat mat;
@@ -167,7 +167,7 @@ public:
         ReplicatableVector vec_repl(vec);
         for (unsigned i = 0; i < 55; ++i)
         {
-            TS_ASSERT_DELTA(vec_repl[i], 0.0, 1e-4); 
+            TS_ASSERT_DELTA(vec_repl[i], 0.0, 1e-4);
         }
         TS_ASSERT_DELTA(vec_repl[55], -h*coefficient*0.5, 1e-4);
         for (unsigned i=56; i<65; i++)
@@ -177,11 +177,11 @@ public:
         TS_ASSERT_DELTA(vec_repl[65], -h*coefficient*0.5, 1e-4);
         for (unsigned i = 66; i < mesh.GetNumNodes(); ++i)
         {
-            TS_ASSERT_DELTA(vec_repl[i], 0.0, 1e-4); 
+            TS_ASSERT_DELTA(vec_repl[i], 0.0, 1e-4);
         }
-        
+
         VecDestroy(vec);
-        
+
         //Test matrix assembly
         int lo, hi;
         MatGetOwnershipRange(mat, &lo, &hi);
@@ -192,10 +192,10 @@ public:
             {
                 double value = PetscMatTools::GetElement(mat,i,i);
                 TS_ASSERT_DELTA(value, (2.0/3.0)*h*coefficient, 1e-4);
-                
+
                 value = PetscMatTools::GetElement(mat,i,i-1);
                 TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
-                
+
                 value = PetscMatTools::GetElement(mat,i,i+1);
                 TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
             }
@@ -203,7 +203,7 @@ public:
             {
                 double value = PetscMatTools::GetElement(mat,i,i);
                 TS_ASSERT_DELTA(value, (1.0/3.0)*h*coefficient, 1e-4);
-                
+
                 value = PetscMatTools::GetElement(mat,i,i+1);
                 TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
             }
@@ -211,11 +211,11 @@ public:
             {
                 double value = PetscMatTools::GetElement(mat,i,i);
                 TS_ASSERT_DELTA(value, (1.0/3.0)*h*coefficient, 1e-4);
-                
+
                 value = PetscMatTools::GetElement(mat,i,i-1);
-                TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);                
+                TS_ASSERT_DELTA(value, (1.0/6.0)*h*coefficient, 1e-4);
             }
-            else 
+            else
             {
                 double value = PetscMatTools::GetElement(mat,i,i);
                 TS_ASSERT_DELTA(value, 0.0, 1e-4);

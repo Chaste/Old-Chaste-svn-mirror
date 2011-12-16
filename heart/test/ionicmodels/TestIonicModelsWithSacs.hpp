@@ -46,14 +46,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 #include "NumericFileComparison.hpp"
 
-// This is a separate class to TestIonicModels as we don't want to be calling 
+// This is a separate class to TestIonicModels as we don't want to be calling
 // RunAndCheckIonicModels, because we want to switch the SAC on at certain times..
 
 class TestIonicModelsWithSacs : public CxxTest::TestSuite
 {
 private:
-    //  Run normally up to stretch-time, then apply stretch and 
-    //  run until stretch-off-time, then return to stretch=1 
+    //  Run normally up to stretch-time, then apply stretch and
+    //  run until stretch-off-time, then return to stretch=1
     //  and run until 1000ms.
     void RunModelWithSacRecruitment(double stretch,
                                     double stretchStartTime,
@@ -79,15 +79,15 @@ private:
 
         double printing_dt = 1;
         TimeStepper stepper(0, stretchStartTime, printing_dt);
-        
+
         while ( !stepper.IsTimeAtEnd() )
         {
             n98_with_sac.Compute(stepper.GetTime(), stepper.GetNextTime());
             stepper.AdvanceOneTimeStep();
-            
+
             *p_file << stepper.GetTime() << " " << n98_with_sac.GetVoltage() << "\n";
         }
-        
+
         n98_with_sac.SetStretch(stretch);
 
         TimeStepper stepper2(stepper.GetTime(), stretchEndTime, printing_dt);
@@ -95,7 +95,7 @@ private:
         {
             n98_with_sac.Compute(stepper2.GetTime(), stepper2.GetNextTime());
             stepper2.AdvanceOneTimeStep();
-            
+
             *p_file << stepper2.GetTime() << " " << n98_with_sac.GetVoltage() << "\n";
         }
 
@@ -106,23 +106,23 @@ private:
         {
             n98_with_sac.Compute(stepper3.GetTime(), stepper3.GetNextTime());
             stepper3.AdvanceOneTimeStep();
-            
+
             *p_file << stepper3.GetTime() << " " << n98_with_sac.GetVoltage() << "\n";
         }
 
         p_file->close();
-    }                                    
+    }
 
 public:
 
-    // series of tests. one has a hardcoded test. See figure in #1345. 
+    // series of tests. one has a hardcoded test. See figure in #1345.
 
     void TestN98WithSacAt300msShort() throw(Exception)
     {
         double stretch = 1.1;
         double stretch_start_time = 300.0;
         double stretch_end_time = 305.0;
-        
+
         RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
                                    "TestN98WithSac", "sac300short", true);
     }
@@ -132,7 +132,7 @@ public:
         double stretch = 1.1;
         double stretch_start_time = 300.0;
         double stretch_end_time = 310.0;
-        
+
         RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
                                    "TestN98WithSac", "sac300long", false);
 
@@ -148,18 +148,18 @@ public:
         double stretch = 1.1;
         double stretch_start_time = 200.0;
         double stretch_end_time = 205.0;
-        
+
         RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
                                    "TestN98WithSac", "sac200short", false);
     }
 
     void TestN98WithSacAt800msLong() throw(Exception)
     {
-        
+
         double stretch = 1.1;
         double stretch_start_time = 800.0;
         double stretch_end_time = 810.0;
-        
+
         RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
                                    "TestN98WithSac", "sac800long", false);
     }
@@ -170,40 +170,40 @@ public:
 //        double stretch = 1.1;
 //        double stretch_start_time = 200.0;
 //        double stretch_end_time = 210.0;
-//        
+//
 //        RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
 //                                   "TestN98WithSac", "sac200long", false);
 //    }
 //
 //    void TestN98WithSacAt800msShort() throw(Exception)
 //    {
-//        
+//
 //        double stretch = 1.1;
 //        double stretch_start_time = 800.0;
 //        double stretch_end_time = 805.0;
-//        
+//
 //        RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
 //                                   "TestN98WithSac", "sac800short", false);
 //    }
 //
 //    void TestN98WithSacAt800msLong() throw(Exception)
 //    {
-//        
+//
 //        double stretch = 1.1;
 //        double stretch_start_time = 800.0;
 //        double stretch_end_time = 810.0;
-//        
+//
 //        RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
 //                                   "TestN98WithSac", "sac800long", false);
 //    }
 //
 //    void TestN98WithSacAt230msLong() throw(Exception)
 //    {
-//        
+//
 //        double stretch = 1.1;
 //        double stretch_start_time = 230.0;
 //        double stretch_end_time = 240.0;
-//        
+//
 //        RunModelWithSacRecruitment(stretch, stretch_start_time, stretch_end_time,
 //                                   "TestN98WithSac", "sac230long", false);
 //    }

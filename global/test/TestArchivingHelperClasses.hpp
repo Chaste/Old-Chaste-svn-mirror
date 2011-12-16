@@ -247,7 +247,7 @@ public:
          * Now neither the master nor the slaves can write to their output files.
          * This avoids hitting a PetscBarrier() in the ~ArchiveOpener() because they
          * all throw an error first.
-         * 
+         *
          * If this test starts hanging it is because these TS_ASSERT_THROWS_CONTAINS
          * are not being thrown (rather than a real parallel calling problem).
          */

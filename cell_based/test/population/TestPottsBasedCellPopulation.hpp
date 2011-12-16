@@ -281,7 +281,7 @@ public:
     }
 
     void TestUpdateCellLocations()
-	{
+    {
         // Create a simple 2D PottsMesh with two cells
         PottsMeshGenerator<2> generator(4, 2, 2, 2, 1, 2);
         PottsMesh<2>* p_mesh = generator.GetMesh();
@@ -296,11 +296,11 @@ public:
 
         // Set node selection to non-random lattice sweeping: this will loop over the nodes in index order
         TS_ASSERT_EQUALS(true, cell_population.GetUpdateNodesInRandomOrder());
-		cell_population.SetUpdateNodesInRandomOrder(false);
+        cell_population.SetUpdateNodesInRandomOrder(false);
 
-		// Increase temperature: allows swaps to be more likely
-		TS_ASSERT_EQUALS(cell_population.GetTemperature(),0.1);
-		cell_population.SetTemperature(10.0);
+        // Increase temperature: allows swaps to be more likely
+        TS_ASSERT_EQUALS(cell_population.GetTemperature(),0.1);
+        cell_population.SetTemperature(10.0);
 
         // Create a volume update rule and pass to the population
         MAKE_PTR(VolumeConstraintPottsUpdateRule<2>, p_volume_constraint_update_rule);
@@ -311,7 +311,7 @@ public:
         TS_ASSERT_EQUALS(cell_population.rGetCells().size(), 2u);
         TS_ASSERT_EQUALS(cell_population.rGetMesh().GetElement(0)->GetNumNodes(), 1u);
         TS_ASSERT_EQUALS(cell_population.rGetMesh().GetElement(1)->GetNumNodes(), 7u);
-	}
+    }
 
     void TestUpdateCellLocationsRandomly()
     {
@@ -479,7 +479,7 @@ public:
 
             TS_ASSERT_EQUALS(p_element->GetNumNodes(), 4u);
         }
-        
+
         // Test SetNode()
         ChastePoint<2> unused_point;
         TS_ASSERT_THROWS_THIS(cell_population.SetNode(0, unused_point),

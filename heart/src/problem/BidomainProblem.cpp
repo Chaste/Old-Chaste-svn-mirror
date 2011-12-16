@@ -125,7 +125,7 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateSolver(
      * As long as they are kept as member variables here for as long as they are
      * required in the solvers it should all work OK.
      */
-    mpSolver = new BidomainSolver<DIM,DIM>(mHasBath, 
+    mpSolver = new BidomainSolver<DIM,DIM>(mHasBath,
                                            this->mpMesh,
                                            mpBidomainTissue,
                                            this->mpBoundaryConditionsContainer.get(),
@@ -272,11 +272,11 @@ void BidomainProblem<DIM>::SetElectrodes()
         //Cannot set electrodes when problem has been defined to not have a bath
         return;
     }
-    
+
     assert(this->mpMesh!=NULL);
-    
+
     if (HeartConfig::Instance()->IsElectrodesPresent())
-    { 
+    {
         mpElectrodes = (boost::shared_ptr<Electrodes<DIM> >) new Electrodes<DIM>(*(this->mpMesh));
     }
 }

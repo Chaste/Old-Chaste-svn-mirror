@@ -39,9 +39,9 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh)
 {
     unsigned axis_index;
     double magnitude, duration;
-    
+
     HeartConfig::Instance()->GetElectrodeParameters(mGroundSecondElectrode, axis_index, magnitude, mStartTime, duration);
-    
+
     assert(axis_index < DIM);
     assert(duration > 0);
     mEndTime = mStartTime + duration;

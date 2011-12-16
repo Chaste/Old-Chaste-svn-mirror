@@ -388,12 +388,12 @@ void NodeBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
 
     // Loop over cells
-    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin(); 
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin();
          cell_iter!=this->End(); ++cell_iter)
     {
         // Get the index of the corresponding node in mrMesh
         unsigned node_index = this->GetLocationIndexUsingCell(*cell_iter);
-           
+
         // Write node index to file
         *(this->mpCellVolumesFile) << node_index << " ";
 
@@ -412,7 +412,7 @@ void NodeBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
 
         // Get cell volume from radius
         double cell_volume = 0.0;
-        
+
         if (DIM == 2)
         {
             cell_volume = M_PI*cell_radius*cell_radius;
@@ -443,7 +443,7 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
     std::vector<double> cell_cycle_phases(num_nodes);
     std::vector<double> cell_radii(num_nodes);
     std::vector<std::vector<double> > cellwise_data;
-    
+
     if (CellwiseData<DIM>::Instance()->IsSetUp())
     {
         CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
@@ -487,12 +487,12 @@ void NodeBasedCellPopulation<DIM>::WriteVtkResultsToFile()
         {
             double cycle_phase = cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase();
             cell_cycle_phases[node_index] = cycle_phase;
-        }        
+        }
         if (this->mOutputCellVolumes)
         {
-            double cell_radius = mrMesh.GetCellRadius(node_index);    
+            double cell_radius = mrMesh.GetCellRadius(node_index);
             cell_radii[node_index] = cell_radius;
-        }         
+        }
         if (CellwiseData<DIM>::Instance()->IsSetUp())
         {
             CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();

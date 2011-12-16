@@ -53,7 +53,7 @@ public:
      *
      * See extensive comments within the implementation of this method.
      * @param pMesh a pointer to the mesh on which these tensors are to be used
-     * 
+     *
      */
     void Init(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) throw (Exception);
 };

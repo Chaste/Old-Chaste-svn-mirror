@@ -271,16 +271,16 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
     unsigned order_of_elements = 1;
     if (p_mesh_reader)
     {
-    	//A triangles mesh reader will let you read with non-linear elements
-    	order_of_elements = p_mesh_reader->GetOrderOfElements();
+        //A triangles mesh reader will let you read with non-linear elements
+        order_of_elements = p_mesh_reader->GetOrderOfElements();
     }
 
     // If it is a linear TrianglesMeshReader or any other reader (which are all linear)
     if (order_of_elements == 1)
     {
-    	WARNING("Reading a (linear) tetrahedral mesh and converting it to a QuadraticMesh.  This involves making an external library call to Triangle/Tetgen in order to compute in internal nodes");
-    	ConstructFromLinearMeshReader(rAbsMeshReader);
-    	return;
+        WARNING("Reading a (linear) tetrahedral mesh and converting it to a QuadraticMesh.  This involves making an external library call to Triangle/Tetgen in order to compute in internal nodes");
+        ConstructFromLinearMeshReader(rAbsMeshReader);
+        return;
     }
 
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(*p_mesh_reader);

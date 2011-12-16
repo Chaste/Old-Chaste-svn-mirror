@@ -41,7 +41,7 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
                 Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    /// Am and Cm are set as scaling factors for the mass matrix in its constructor.    
+    /// Am and Cm are set as scaling factors for the mass matrix in its constructor.
     return (PdeSimulationTime::GetPdeTimeStepInverse())*mMassMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement)
             + mStiffnessMatrixAssembler.ComputeMatrixTerm(rPhi,rGradPhi,rX,rU,rGradU,pElement);
 }

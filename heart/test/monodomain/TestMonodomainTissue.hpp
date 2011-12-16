@@ -164,16 +164,16 @@ private:
     c_matrix<double,1,1> mTensor;
 
 public:
-	SimpleConductivityModifier()
-	    : AbstractConductivityModifier<1,1>()
-	{
-	}
+    SimpleConductivityModifier()
+        : AbstractConductivityModifier<1,1>()
+    {
+    }
 
-	c_matrix<double,1,1>& rGetModifiedConductivityTensor(unsigned elementIndex, const c_matrix<double,1,1>& rOriginalConductivity)
-	{
-	    mTensor(0,0) = (elementIndex+2.0)*rOriginalConductivity(0,0); //so conductivity on element 0 gets scaled by 2, and by 3 on element 1
-		return mTensor;
-	}
+    c_matrix<double,1,1>& rGetModifiedConductivityTensor(unsigned elementIndex, const c_matrix<double,1,1>& rOriginalConductivity)
+    {
+        mTensor(0,0) = (elementIndex+2.0)*rOriginalConductivity(0,0); //so conductivity on element 0 gets scaled by 2, and by 3 on element 1
+        return mTensor;
+    }
 };
 
 
@@ -203,7 +203,7 @@ public:
 
         // check the purkinje cells vector is empty
         TS_ASSERT(!monodomain_tissue.HasPurkinje());
-		TS_ASSERT_THROWS_ANYTHING(monodomain_tissue.rGetPurkinjeCellsDistributed().size());
+        TS_ASSERT_THROWS_ANYTHING(monodomain_tissue.rGetPurkinjeCellsDistributed().size());
         TS_ASSERT_THROWS_ANYTHING(monodomain_tissue.rGetPurkinjeIionicCacheReplicated().GetSize());
 
         // voltage that gets passed in solving ode
@@ -337,7 +337,7 @@ public:
         }
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
         {
-        	TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75);
+            TS_ASSERT_DIFFERS(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75);
             TS_ASSERT_DELTA(monodomain_tissue.GetCardiacCell(1)->GetVoltage(), -75, 2.0); // within 2mV
             TS_ASSERT_DELTA(voltage2_repl[1], monodomain_tissue.GetCardiacCell(1)->GetVoltage(), 1e-10);
         }
@@ -589,20 +589,20 @@ public:
     }
 
     void TestMonodomainTissueUsingPurkinjeCellFactory() throw(Exception)
-	{
-		HeartConfig::Instance()->Reset();
+    {
+        HeartConfig::Instance()->Reset();
 
-		TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
-		MixedDimensionMesh<2,2> mixed_mesh;
-		mixed_mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshReader<2,2> reader("mesh/test/data/mixed_dimension_meshes/2D_0_to_1mm_200_elements");
+        MixedDimensionMesh<2,2> mixed_mesh;
+        mixed_mesh.ConstructFromMeshReader(reader);
 
-		PurkinjeCellFactory cell_factory;
-		cell_factory.SetMesh(&mixed_mesh);
+        PurkinjeCellFactory cell_factory;
+        cell_factory.SetMesh(&mixed_mesh);
 
-		MonodomainTissue<2> tissue( &cell_factory );
+        MonodomainTissue<2> tissue( &cell_factory );
 
-		TS_ASSERT(tissue.HasPurkinje());
-		TS_ASSERT_EQUALS(tissue.rGetPurkinjeCellsDistributed().size(), tissue.rGetCellsDistributed().size());
+        TS_ASSERT(tissue.HasPurkinje());
+        TS_ASSERT_EQUALS(tissue.rGetPurkinjeCellsDistributed().size(), tissue.rGetCellsDistributed().size());
         TS_ASSERT_EQUALS(tissue.rGetPurkinjeIionicCacheReplicated().GetSize(),
                          tissue.rGetIionicCacheReplicated().GetSize());
 
@@ -702,7 +702,7 @@ public:
         }
         TS_ASSERT_EQUALS(tissue.rGetPurkinjeIionicCacheReplicated().GetSize(), 121u);
     }
-    
+
     //Failure of this test may mean that the archive from the previous needs to be regenerated
     void TestArchiveMigration()
     { // Load from 5-process archive and compare

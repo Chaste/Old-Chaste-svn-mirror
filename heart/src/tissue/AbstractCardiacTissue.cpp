@@ -187,7 +187,7 @@ AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacTissue()
 
     // Delete Purkinje cells
     for (std::vector<AbstractCardiacCell*>::iterator iter = mPurkinjeCellsDistributed.begin();
-    	 iter != mPurkinjeCellsDistributed.end();
+         iter != mPurkinjeCellsDistributed.end();
          ++iter)
     {
         delete (*iter);
@@ -487,7 +487,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
 
         if(updateVoltage)
         {
-        	dist_solution.Restore();
+            dist_solution.Restore();
         }
     }
     catch (Exception &e)

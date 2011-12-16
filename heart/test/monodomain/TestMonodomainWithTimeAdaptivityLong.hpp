@@ -47,8 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class FixedTimeAdaptivityController : public AbstractTimeAdaptivityController
 {
 private:
-    double mThresholdTime; 
- 
+    double mThresholdTime;
+
     double ComputeTimeStep(double currentTime, Vec currentSolution)
     {
         if(currentTime < mThresholdTime)
@@ -60,7 +60,7 @@ private:
             return 1;
         }
     }
-            
+
 
 public:
     FixedTimeAdaptivityController(double thresholdTime)
@@ -84,7 +84,7 @@ public:
         mesh.ConstructRegularSlabMesh(0.01, 1.0); // h=0.01cm, width=1cm
 
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory(-600.0*1000);
-        
+
         //////////////////////////////////////////////////////////////////////////
         // run original simulation - no adaptivity, dt=0.01 all the way through
         //////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ public:
 
         problem.Initialise();
         problem.Solve();
-        
+
         HeartEventHandler::Headings();
         HeartEventHandler::Report();
 
@@ -115,7 +115,7 @@ public:
 
         Hdf5DataReader reader_no_adapt("MonoWithTimeAdaptivity1dLong/OrigNoAdapt","SimulationResults");
         Hdf5DataReader reader_adapt("MonoWithTimeAdaptivity1dLong/SimpleAdapt","SimulationResults");
- 
+
         unsigned num_timesteps = reader_no_adapt.GetUnlimitedDimensionValues().size();
         assert(num_timesteps == reader_adapt.GetUnlimitedDimensionValues().size());
 
@@ -130,7 +130,7 @@ public:
         {
             reader_no_adapt.GetVariableOverNodes(voltage_no_adapt, "V", timestep);
             reader_adapt.GetVariableOverNodes(voltage_adapt, "V", timestep);
-            
+
             PetscVecTools::WAXPY(difference, -1.0, voltage_adapt, voltage_no_adapt);
             double l_inf_norm;
             VecNorm(difference, NORM_INFINITY, &l_inf_norm);
@@ -145,7 +145,7 @@ public:
                 TS_ASSERT_DELTA(l_inf_norm, 0.0, 2.25); // the difference is at most ~2mv, which occurs during the downstroke
             }
         }
-        
+
         VecDestroy(voltage_no_adapt);
         VecDestroy(voltage_adapt);
     }
@@ -156,7 +156,7 @@ public:
 //
 //
 //Entering Test1dApd
-//         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output         PostProc            User1            Total  
-//   0.000 (  0%)     0.000 (  0%)     0.003 (  0%)    13.342 ( 61%)     0.904 (  4%)     0.830 (  4%)     0.048 (  0%)     0.000 (  0%)     4.915 ( 23%)     0.171 (  1%)     0.124 (  1%)     0.000 (  0%)    21.720 (100%)  (seconds) 
-//         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output         PostProc            User1            Total  
+//         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output         PostProc            User1            Total
+//   0.000 (  0%)     0.000 (  0%)     0.003 (  0%)    13.342 ( 61%)     0.904 (  4%)     0.830 (  4%)     0.048 (  0%)     0.000 (  0%)     4.915 ( 23%)     0.171 (  1%)     0.124 (  1%)     0.000 (  0%)    21.720 (100%)  (seconds)
+//         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output         PostProc            User1            Total
 //   0.000 (  0%)     0.001 (  0%)     0.006 (  0%)     7.018 ( 84%)     0.077 (  1%)     0.066 (  1%)     0.004 (  0%)     0.000 (  0%)     0.388 (  5%)     0.506 (  6%)     0.121 (  1%)     0.000 (  0%)     8.323 (100%)  (seconds)

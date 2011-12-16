@@ -88,23 +88,23 @@ public:
         cell_factory.SetMesh(&mixed_mesh);
 
         for (AbstractTetrahedralMesh<2,2>::NodeIterator current_node = mixed_mesh.GetNodeIteratorBegin();
-        	 current_node != mixed_mesh.GetNodeIteratorEnd();
-        	 ++current_node)
-		{
-        	unsigned index = current_node->GetIndex();
+             current_node != mixed_mesh.GetNodeIteratorEnd();
+             ++current_node)
+        {
+            unsigned index = current_node->GetIndex();
             AbstractCardiacCell* p_cell = cell_factory.CreatePurkinjeCellForNode(index);
             double y = current_node->rGetLocation()[1];
 
             // cable nodes are on y=0.05 (we don't test by index because indices may be permuted in parallel).
             if( fabs(y-0.05) < 1e-8 )
             {
-            	TS_ASSERT(dynamic_cast<CellDiFrancescoNoble1985FromCellML*>(p_cell) != NULL);
+                TS_ASSERT(dynamic_cast<CellDiFrancescoNoble1985FromCellML*>(p_cell) != NULL);
             }
             else
             {
-            	TS_ASSERT(dynamic_cast<FakeBathCell*>(p_cell) != NULL);
+                TS_ASSERT(dynamic_cast<FakeBathCell*>(p_cell) != NULL);
             }
-          	delete p_cell;
+              delete p_cell;
         }
 
         TS_ASSERT_EQUALS(cell_factory.GetMixedDimensionMesh(), &mixed_mesh);

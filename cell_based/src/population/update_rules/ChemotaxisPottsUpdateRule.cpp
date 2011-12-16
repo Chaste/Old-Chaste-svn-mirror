@@ -44,23 +44,23 @@ double ChemotaxisPottsUpdateRule<DIM>::EvaluateHamiltonianContribution(unsigned 
                                                                         unsigned targetNodeIndex,
                                                                         PottsBasedCellPopulation<DIM>& rCellPopulation)
 {
-	double delta_H = 0.0;
-	c_vector<double, DIM> current_location = rCellPopulation.GetNode(currentNodeIndex)->rGetLocation();
-	c_vector<double, DIM> target_location = rCellPopulation.GetNode(targetNodeIndex)->rGetLocation();
+    double delta_H = 0.0;
+    c_vector<double, DIM> current_location = rCellPopulation.GetNode(currentNodeIndex)->rGetLocation();
+    c_vector<double, DIM> target_location = rCellPopulation.GetNode(targetNodeIndex)->rGetLocation();
 
-	for (unsigned dimension = 0; dimension < DIM; dimension++)
-	{
-	    if(target_location[dimension] > current_location[dimension])
-	    {
-	        delta_H -= 0.2;
-	    }
-	    else if(target_location[dimension] < current_location[dimension])
+    for (unsigned dimension = 0; dimension < DIM; dimension++)
+    {
+        if(target_location[dimension] > current_location[dimension])
+        {
+            delta_H -= 0.2;
+        }
+        else if(target_location[dimension] < current_location[dimension])
         {
             delta_H += 0.2;
         }
-	}
+    }
 
-	return delta_H;
+    return delta_H;
 }
 
 template<unsigned DIM>

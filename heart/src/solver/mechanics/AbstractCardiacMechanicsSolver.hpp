@@ -88,16 +88,16 @@ protected:
      * is called, if not mConstantFibreSheetDirections is used instead
      */
     std::vector<c_matrix<double,DIM,DIM> >* mpVariableFibreSheetDirections;
-    
-    /** 
+
+    /**
      *  Whether the fibre-sheet directions that where read in where define per element or per quadrature point.
      *  Only valid if mpVariableFibreSheetDirections!=NULL
      */
     bool mFibreSheetDirectionsDefinedByQuadraturePoint;
 
-    /** (Pointer to) the fibre-sheet matrix for the current element being assembled on */    
+    /** (Pointer to) the fibre-sheet matrix for the current element being assembled on */
     c_matrix<double,DIM,DIM>* mpCurrentElementFibreSheetMatrix;
-    /** The fibre direction for the current element being assembled on */    
+    /** The fibre direction for the current element being assembled on */
     c_vector<double,DIM> mCurrentElementFibreDirection;
 
     /**
@@ -108,32 +108,32 @@ protected:
 
     /**
      *  Overloaded ComputeStressAndStressDerivative(), which computes the passive part of the
-     *  stress as normal but also calls on the contraction model to get the active stress and 
+     *  stress as normal but also calls on the contraction model to get the active stress and
      *  adds it on.
-     * 
+     *
      *  @param pMaterialLaw The material law for this element
      *  @param rC The Lagrangian deformation tensor (F^T F)
      *  @param rInvC The inverse of C. Should be computed by the user.
      *  @param pressure The current pressure
      *  @param elementIndex Index of the current element
-     *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner 
+     *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner
      *    loop over quadrature points), of the current quadrature point.
      *  @param rT The stress will be returned in this parameter
      *  @param rDTdE the stress derivative will be returned in this parameter, assuming
      *    the final parameter is true
      *  @param computeDTdE A boolean flag saying whether the stress derivative is
      *    required or not.
-     */ 
+     */
     void ComputeStressAndStressDerivative(AbstractMaterialLaw<DIM>* pMaterialLaw,
-                                          c_matrix<double,DIM,DIM>& rC, 
-                                          c_matrix<double,DIM,DIM>& rInvC, 
+                                          c_matrix<double,DIM,DIM>& rC,
+                                          c_matrix<double,DIM,DIM>& rInvC,
                                           double pressure,
                                           unsigned elementIndex,
                                           unsigned currentQuadPointGlobalIndex,
                                           c_matrix<double,DIM,DIM>& rT,
                                           FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
                                           bool computeDTdE);
-    
+
 
 
 
@@ -171,8 +171,8 @@ public:
      *  Destructor just deletes memory if it was allocated
      */
     ~AbstractCardiacMechanicsSolver();
-    
-    
+
+
     /** Get the total number of quad points in the mesh. Pure, implemented in concrete solver */
     unsigned GetTotalNumQuadPoints()
     {
@@ -198,9 +198,9 @@ public:
      *  Set a variable fibre-sheet-normal direction (matrices), from file.
      *  If the second parameter is false, there should be one fibre-sheet definition for each element; otherwise
      *  there should be one fibre-sheet definition for each *quadrature point* in the mesh.
-     *  In the first case, the file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir 
+     *  In the first case, the file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir
      *  for that element), in the second it should have .orthoquad as the format.
-     * 
+     *
      *  @param orthoFile the file containing the fibre/sheet directions
      *  @param definedPerQuadraturePoint whether the fibre-sheet definitions are for each quadrature point in the mesh
      *   (if not, one for each element is assumed).
@@ -232,23 +232,23 @@ public:
      *  @param odeTimestep the ODE timestep
      */
     virtual void Solve(double time, double nextTime, double odeTimestep)=0;
-    
-    
+
+
 
     /**
      *  Compute the deformation gradient, and stretch in the fibre direction, for each element in the mesh.
-     *  Note: using quadratic interpolation for position, the deformation gradients and stretches 
-     *  actually vary linearly in each element. However, for computational efficiency reasons, when computing 
-     *  deformation gradients and stretches to pass back to the electrophysiology solver, we just assume 
-     *  they are constant in each element (ie ignoring the quadratic correction to the displacement). This means 
-     *  that  the (const) deformation gradient and stretch for each element can be computed in advance and 
+     *  Note: using quadratic interpolation for position, the deformation gradients and stretches
+     *  actually vary linearly in each element. However, for computational efficiency reasons, when computing
+     *  deformation gradients and stretches to pass back to the electrophysiology solver, we just assume
+     *  they are constant in each element (ie ignoring the quadratic correction to the displacement). This means
+     *  that  the (const) deformation gradient and stretch for each element can be computed in advance and
      *  stored, and we don't have to worry about interpolation onto the precise location of the cell-model (electrics-mesh)
-     *  node, just which element it is in, and ditto the electric mesh element centroid. 
-     *  
-     *  To compute this (elementwise-)constant F (and from it the constant stretch), we just have to compute 
-     *  F using the deformed positions at the vertices only, with linear bases, rather than all the 
-     *  nodes and quadratic bases. 
-     * 
+     *  node, just which element it is in, and ditto the electric mesh element centroid.
+     *
+     *  To compute this (elementwise-)constant F (and from it the constant stretch), we just have to compute
+     *  F using the deformed positions at the vertices only, with linear bases, rather than all the
+     *  nodes and quadratic bases.
+     *
      *  @param rDeformationGradients A reference of a std::vector in which the deformation gradient
      *  in each element will be returned. Must be allocated prior to being passed in.
      *  @param rStretches A reference of a std::vector in which the stretch in each element will be returned.
@@ -340,7 +340,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeStressAndStre
     {
         mpCurrentElementFibreSheetMatrix = &(*mpVariableFibreSheetDirections)[currentQuadPointGlobalIndex];
     }
-        
+
     for(unsigned i=0; i<DIM; i++)
     {
         mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
@@ -401,10 +401,10 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
     std::vector<double>& rStretches)
 {
     assert(rStretches.size()==this->mrQuadMesh.GetNumElements());
-    
-    // this will only work currently if the coarse mesh fibre info is defined per element, not per quad point 
+
+    // this will only work currently if the coarse mesh fibre info is defined per element, not per quad point
     assert(!mpVariableFibreSheetDirections || !mFibreSheetDirectionsDefinedByQuadraturePoint);
-   
+
     static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> element_current_displacements;
     static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> grad_lin_phi;
     static c_matrix<double,DIM,DIM> F;      // the deformation gradient, F = dx/dX, F_{iM} = dx_i/dX_M
@@ -412,8 +412,8 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
     static c_matrix<double,DIM,DIM> jacobian;
     static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
-    ChastePoint<DIM> quadrature_point; // not needed, but has to be passed in  
-    
+    ChastePoint<DIM> quadrature_point; // not needed, but has to be passed in
+
     // loop over all the elements
     for(unsigned elem_index=0; elem_index<this->mrQuadMesh.GetNumElements(); elem_index++)
     {
@@ -425,7 +425,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
         {
             mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
         }
-        
+
         // get the displacement at this element
         for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
         {
@@ -438,8 +438,8 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
         // set up the linear basis functions
         this->mrQuadMesh.GetInverseJacobianForElement(elem_index, jacobian, jacobian_determinant, inverse_jacobian);
         LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_lin_phi);
-        
-        F = identity_matrix<double>(DIM,DIM); 
+
+        F = identity_matrix<double>(DIM,DIM);
 
         // loop over the vertices and interpolate F, the deformation gradient
         // (note: could use matrix-mult if this becomes inefficient
@@ -455,7 +455,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::ComputeDeformationGr
         }
 
         rDeformationGradients[elem_index] = F;
-        
+
         // compute and save the stretch: m^T C m = ||Fm||
         c_vector<double,DIM> deformed_fibre = prod(F, mCurrentElementFibreDirection);
         rStretches[elem_index] = norm_2(deformed_fibre);
@@ -469,10 +469,10 @@ template<class ELASTICITY_SOLVER,unsigned DIM>
 void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint)
 {
     mFibreSheetDirectionsDefinedByQuadraturePoint = definedPerQuadraturePoint;
-    
+
     FileFinder finder(orthoFile, RelativeTo::ChasteSourceRoot);
     FibreReader<DIM> reader(finder, ORTHO);
-    
+
     unsigned num_entries = reader.GetNumLinesOfData();
 
     if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=this->mrQuadMesh.GetNumElements()) )
@@ -486,7 +486,7 @@ void AbstractCardiacMechanicsSolver<ELASTICITY_SOLVER,DIM>::SetVariableFibreShee
         EXCEPTION("Number of entries defined at top of file " << orthoFile << " does not match number of quadrature points defined, "
            << "found " <<  num_entries << ", expected " << mTotalQuadPoints);
     }
-    
+
     mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(num_entries, zero_matrix<double>(DIM,DIM));
     for(unsigned index=0; index<num_entries; index++)
     {

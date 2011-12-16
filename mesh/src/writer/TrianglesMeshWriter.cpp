@@ -342,9 +342,9 @@ template<class T_DATA>
 void TrianglesMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteItem(out_stream &pFile, unsigned itemNumber,
                                                             const std::vector<T_DATA> &dataPacket)
 {
-	//Writing with no attribute
-	//Instantiates the attribute variety with the attribute type set to unsigned
-	WriteItem(pFile, itemNumber, dataPacket, UINT_MAX);
+    //Writing with no attribute
+    //Instantiates the attribute variety with the attribute type set to unsigned
+    WriteItem(pFile, itemNumber, dataPacket, UINT_MAX);
 }
 
 

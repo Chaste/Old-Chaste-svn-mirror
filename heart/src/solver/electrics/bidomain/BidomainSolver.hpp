@@ -49,27 +49,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  A bidomain solver, which uses various assemblers to set up the bidomain
  *  FEM linear system.
- * 
- *  The discretised bidomain equation leads to the linear system (see FEM 
+ *
+ *  The discretised bidomain equation leads to the linear system (see FEM
  *  implementations document)
- * 
+ *
  *  [ (chi*C/dt) M + K1    K1   ] [ V^{n+1}   ]  =  [  (chi*C/dt) M V^{n} + M F^{n} + c1_surf ]
  *  [        K1            K2   ] [ PhiE^{n+1}]     [              c2_surf                    ]
  *
  *  where chi is the surface-area to volume ratio, C the capacitance, dt the timestep
- *  M the mass matrix, K1 and K2 stiffness matrices, V^{n} and PhiE^{n} the vector of 
- *  voltages and phi_e at time n, F^{n} the vector of (chi*Iionic + Istim) at each node, 
+ *  M the mass matrix, K1 and K2 stiffness matrices, V^{n} and PhiE^{n} the vector of
+ *  voltages and phi_e at time n, F^{n} the vector of (chi*Iionic + Istim) at each node,
  *  and c1_surf and c2_surf vectors arising from any surface stimuli (usually zero).
- * 
+ *
  *  This solver uses two assemblers, one to assemble the whole LHS matrix,
- *  and also to compute c1_surf and c2_surf, and one to assemble the mass matrix M.   
- *  
- *  Also allows state variable interpolation (SVI) to be used on elements for which it 
- *  will be needed, if the appropriate HeartConfig boolean is set. 
+ *  and also to compute c1_surf and c2_surf, and one to assemble the mass matrix M.
+ *
+ *  Also allows state variable interpolation (SVI) to be used on elements for which it
+ *  will be needed, if the appropriate HeartConfig boolean is set.
  *  See wiki page ChasteGuides/StateVariableInterpolation for more details on this. In this
- *  case the vector [c_correction, 0] is added to the above, and another assembler is 
- *  used to create the c_correction. 
- * 
+ *  case the vector [c_correction, 0] is added to the above, and another assembler is
+ *  used to create the c_correction.
+ *
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BidomainSolver : public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>
@@ -80,7 +80,7 @@ private:
      */
     Mat mMassMatrix;
 
-    /** 
+    /**
      *  The vector multiplied by the mass matrix. Ie, if the linear system to
      *  be solved is Ax=b, this vector is z where b=Mz.
      */
@@ -93,7 +93,7 @@ private:
     BidomainNeumannSurfaceTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainNeumannSurfaceTermAssembler;
 
     /**
-     * If using state variable interpolation, points to an assembler to use in 
+     * If using state variable interpolation, points to an assembler to use in
      * computing the correction term to apply to the RHS.
      */
     BidomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainCorrectionTermAssembler;
@@ -101,16 +101,16 @@ private:
 
     /** Overloaded InitialiseForSolve() which calls base version but also
      *  initialises mMassMatrix and mVecForConstructingRhs
-     * 
+     *
      *  @param initialSolution initial solution
      */
     void InitialiseForSolve(Vec initialSolution);
 
-    /** 
+    /**
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the
-     *  LHS matrix, but sets up the RHS vector using the mass-matrix (constructed 
+     *  LHS matrix, but sets up the RHS vector using the mass-matrix (constructed
      *  using a separate assembler) multiplied by a vector
-     * 
+     *
      *  @param currentSolution Solution at current time
      *  @param computeMatrix Whether to compute the matrix of the linear system
      */

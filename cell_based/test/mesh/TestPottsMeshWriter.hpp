@@ -115,7 +115,7 @@ public:
         PottsMesh<2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(mesh2.GetElement(0)->GetRegion(), 97u);
-        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetRegion(), 152u);       
+        TS_ASSERT_EQUALS(mesh2.GetElement(1)->GetRegion(), 152u);
     }
 };
 

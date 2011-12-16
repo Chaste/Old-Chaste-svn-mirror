@@ -33,9 +33,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 boost::shared_ptr<AbstractStimulusFunction>  AbstractStimulusFactory<ELEMENT_DIM,SPACE_DIM>::CreateStimulusForNode(unsigned nodeIndex)
 {
-	//this is the default implementation
-	boost::shared_ptr<ZeroStimulus> p_stim (  new ZeroStimulus() );
-	return p_stim;
+    //this is the default implementation
+    boost::shared_ptr<ZeroStimulus> p_stim (  new ZeroStimulus() );
+    return p_stim;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -66,7 +66,7 @@ void AbstractStimulusFactory<ELEMENT_DIM,SPACE_DIM>::SetMesh(AbstractTetrahedral
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractStimulusFactory<ELEMENT_DIM,SPACE_DIM>::SetCompatibleExtracellularStimulus()
 {
-	//empty in the default case (zero stimulus -> no need to do anything)
+    //empty in the default case (zero stimulus -> no need to do anything)
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -82,13 +82,13 @@ AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractStimulusFactory<ELEMENT_
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 //void AbstractStimulusFactory<ELEMENT_DIM,SPACE_DIM>::SetRegionToBeGrounded(AbstractChasteRegion<SPACE_DIM>* pRegion)
 //{
-//	mGroundedRegion = pRegion;
+//    mGroundedRegion = pRegion;
 //}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<AbstractChasteRegion<SPACE_DIM>* > AbstractStimulusFactory<ELEMENT_DIM,SPACE_DIM>::GetRegionsToBeGrounded()
 {
-	return mGroundedRegions;
+    return mGroundedRegions;
 }
 
 /////////////////////////////////////////////////////////////////////

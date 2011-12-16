@@ -49,27 +49,27 @@ NodeBasedCellPopulationWithBuskeUpdate<DIM>::NodeBasedCellPopulationWithBuskeUpd
 template<unsigned DIM>
 void NodeBasedCellPopulationWithBuskeUpdate<DIM>::UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
 {
-	// Declare solver and give the size of the system and timestep
-	unsigned system_size = rNodeForces.size()*DIM;
+    // Declare solver and give the size of the system and timestep
+    unsigned system_size = rNodeForces.size()*DIM;
 
-	OdeLinearSystemSolver solver(system_size, dt);
+    OdeLinearSystemSolver solver(system_size, dt);
 
-	// Set up the matrix
-	Mat& r_matrix = solver.rGetLhsMatrix();
+    // Set up the matrix
+    Mat& r_matrix = solver.rGetLhsMatrix();
 
-	// Initial condition
-	Vec initial_condition = PetscTools::CreateAndSetVec(system_size, 0.0);
+    // Initial condition
+    Vec initial_condition = PetscTools::CreateAndSetVec(system_size, 0.0);
 
-	// Then an rGetForceVector for RHS
-	Vec& r_vector = solver.rGetForceVector();
+    // Then an rGetForceVector for RHS
+    Vec& r_vector = solver.rGetForceVector();
 
-	// Iterate over all nodes associated with real cells to construct the matrix A.
-	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
-		 cell_iter != this->End();
-		 ++cell_iter)
-	{
-		// Get index of node associated with cell
-		unsigned node_index = this->mCellLocationMap[(*cell_iter).get()];
+    // Iterate over all nodes associated with real cells to construct the matrix A.
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
+         cell_iter != this->End();
+         ++cell_iter)
+    {
+        // Get index of node associated with cell
+        unsigned node_index = this->mCellLocationMap[(*cell_iter).get()];
 
         // Get the location of this node
         c_vector<double, DIM> node_i_location = this->GetNode(node_index)->rGetLocation();
@@ -77,22 +77,22 @@ void NodeBasedCellPopulationWithBuskeUpdate<DIM>::UpdateNodeLocations(const std:
         // Get the radius of this cell
         double radius_of_cell_i = this->rGetMesh().GetCellRadius(node_index);
 
-		// Get damping constant for node
-		double damping_const = this->GetDampingConstant(node_index);
+        // Get damping constant for node
+        double damping_const = this->GetDampingConstant(node_index);
 
-		// loop over neighbours to add contribution
+        // loop over neighbours to add contribution
 
-		// Get the set of node indices corresponding to this cell's neighbours
-		std::set<unsigned> neighbouring_node_indices = this->GetNeighbouringNodeIndices(node_index);
+        // Get the set of node indices corresponding to this cell's neighbours
+        std::set<unsigned> neighbouring_node_indices = this->GetNeighbouringNodeIndices(node_index);
 
-		for (std::set<unsigned>::iterator iter = neighbouring_node_indices.begin();
+        for (std::set<unsigned>::iterator iter = neighbouring_node_indices.begin();
              iter != neighbouring_node_indices.end();
              ++iter)
         {
-			unsigned neighbour_node_index = *iter;
+            unsigned neighbour_node_index = *iter;
 
-			// Calculate Aij
-			double Aij = 0.0;
+            // Calculate Aij
+            double Aij = 0.0;
 
             // Get the location of this node
             c_vector<double, DIM> node_j_location = this->GetNode(neighbour_node_index)->rGetLocation();
@@ -111,46 +111,46 @@ void NodeBasedCellPopulationWithBuskeUpdate<DIM>::UpdateNodeLocations(const std:
             if (dij < radius_of_cell_i + radius_of_cell_j)
             {
                 // ...then compute the adhesion force and add it to the vector of forces...
-				double xij = 0.5*(radius_of_cell_i*radius_of_cell_i - radius_of_cell_j*radius_of_cell_j + dij*dij)/dij;
+                double xij = 0.5*(radius_of_cell_i*radius_of_cell_i - radius_of_cell_j*radius_of_cell_j + dij*dij)/dij;
 
-				Aij = M_PI*(radius_of_cell_i*radius_of_cell_i - xij*xij);
+                Aij = M_PI*(radius_of_cell_i*radius_of_cell_i - xij*xij);
 
-	    		// This is contribution from the sum term in (A7)
-	    		for (unsigned i=0; i<DIM; i++)
-	    		{
-	    			PetscMatTools::AddToElement(r_matrix, DIM*neighbour_node_index+i, DIM*neighbour_node_index+i, -damping_const*Aij);
-	    			PetscMatTools::AddToElement(r_matrix, DIM*node_index+i, DIM*node_index+i, damping_const*Aij);
-	    		}
+                // This is contribution from the sum term in (A7)
+                for (unsigned i=0; i<DIM; i++)
+                {
+                    PetscMatTools::AddToElement(r_matrix, DIM*neighbour_node_index+i, DIM*neighbour_node_index+i, -damping_const*Aij);
+                    PetscMatTools::AddToElement(r_matrix, DIM*node_index+i, DIM*node_index+i, damping_const*Aij);
+                }
             }
         }
 
-		// This is the standard contribution (i.e. not in the sum) in (A7)
-		for (unsigned i=0; i<DIM; i++)
-		{
-			PetscMatTools::AddToElement(r_matrix, DIM*node_index+i, DIM*node_index+i, damping_const);
-		}
+        // This is the standard contribution (i.e. not in the sum) in (A7)
+        for (unsigned i=0; i<DIM; i++)
+        {
+            PetscMatTools::AddToElement(r_matrix, DIM*node_index+i, DIM*node_index+i, damping_const);
+        }
 
-		// Add current positions to initial_conditions and RHS vector
-		c_vector<double, DIM> current_location = this->GetNode(node_index)->rGetLocation();
-		c_vector<double, DIM> forces = rNodeForces[node_index];
+        // Add current positions to initial_conditions and RHS vector
+        c_vector<double, DIM> current_location = this->GetNode(node_index)->rGetLocation();
+        c_vector<double, DIM> forces = rNodeForces[node_index];
 
-		for (unsigned i=0; i<DIM; i++)
-		{
-			PetscVecTools::SetElement(initial_condition, DIM*node_index+i, current_location(i));
-			PetscVecTools::SetElement(r_vector, DIM*node_index+i, forces(i));
-		}
-	}
-	PetscMatTools::Finalise(r_matrix);
+        for (unsigned i=0; i<DIM; i++)
+        {
+            PetscVecTools::SetElement(initial_condition, DIM*node_index+i, current_location(i));
+            PetscVecTools::SetElement(r_vector, DIM*node_index+i, forces(i));
+        }
+    }
+    PetscMatTools::Finalise(r_matrix);
 
-	solver.SetInitialConditionVector(initial_condition);
+    solver.SetInitialConditionVector(initial_condition);
 
-	// Solve to get solution at next timestep
-	Vec soln_next_timestep = solver.SolveOneTimeStep();
+    // Solve to get solution at next timestep
+    Vec soln_next_timestep = solver.SolveOneTimeStep();
 
-	ReplicatableVector soln_next_timestep_repl(soln_next_timestep);
+    ReplicatableVector soln_next_timestep_repl(soln_next_timestep);
 
-	// Iterate over all nodes associated with real cells to update the node locations
-	for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
+    // Iterate over all nodes associated with real cells to update the node locations
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
          ++cell_iter)
     {
@@ -160,10 +160,10 @@ void NodeBasedCellPopulationWithBuskeUpdate<DIM>::UpdateNodeLocations(const std:
         c_vector<double, DIM> new_node_location;
 
         // Get new node location
-		for (unsigned i=0; i<DIM; i++)
-		{
-			new_node_location(i) = soln_next_timestep_repl[DIM*node_index+i];
-		}
+        for (unsigned i=0; i<DIM; i++)
+        {
+            new_node_location(i) = soln_next_timestep_repl[DIM*node_index+i];
+        }
 
         // Create ChastePoint for new node location
         ChastePoint<DIM> new_point(new_node_location);
@@ -172,8 +172,8 @@ void NodeBasedCellPopulationWithBuskeUpdate<DIM>::UpdateNodeLocations(const std:
         this->SetNode(node_index, new_point);
     }
 
-	// Tidy up
-	VecDestroy(initial_condition);
+    // Tidy up
+    VecDestroy(initial_condition);
 }
 
 template<unsigned DIM>
@@ -182,7 +182,7 @@ void NodeBasedCellPopulationWithBuskeUpdate<DIM>::OutputCellPopulationParameters
     // Currently no specific parameters to output all come from parent classes
 
     // Call method on direct parent class
-	NodeBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
+    NodeBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }
 
 

@@ -44,7 +44,7 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
 
     // An older version of the constructor might allow the wrong argument through to the scale factor
     assert(scaleFactor > 0.0);
-    
+
     // Get a unique mesh filename
     std::stringstream pid;
     pid << getpid();
@@ -255,10 +255,10 @@ std::vector<unsigned> HoneycombMeshGenerator::GetCellLocationIndices()
 MutableMesh<2,2>* HoneycombMeshGenerator::GetCircularMesh(double radius)
 {
 
-	if(mGhostNodeIndices.size() != 0u)
-	{
-		EXCEPTION("Cannot call GetCircularMesh on a HoneycombMesh with ghost nodes");
-	}
+    if(mGhostNodeIndices.size() != 0u)
+    {
+        EXCEPTION("Cannot call GetCircularMesh on a HoneycombMesh with ghost nodes");
+    }
     // Centre the mesh at (0,0)
     c_vector<double,2> centre = zero_vector<double>(2);
     for (unsigned i=0; i<mpMesh->GetNumNodes(); i++)

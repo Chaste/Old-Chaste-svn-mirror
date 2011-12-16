@@ -36,11 +36,11 @@ DeltaNotchOdeSystem::DeltaNotchOdeSystem(double meanDelta, std::vector<double> s
 
     /**
      * The state variables are as follows:
-     * 
+     *
      * 0 - Notch concentration for this cell
      * 1 - Delta concentration for this cell
      * 2 - average Delta concentration for this cell's immediate neighbours
-     * 
+     *
      * We store the last state variable so that it can be written
      * to file at each time step alongside the others, and visualized.
      */

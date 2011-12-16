@@ -51,7 +51,7 @@ public:
 
     void TestDeltaNotchOdeSystemSetup() throw(Exception)
     {
-//    	EXIT_IF_PARALLEL;
+//        EXIT_IF_PARALLEL;
 #ifdef CHASTE_CVODE
         double mean_delta = 0.5;
         DeltaNotchOdeSystem ode_system(mean_delta);
@@ -82,7 +82,7 @@ public:
 
     void TestArchiving()
     {
-//    	EXIT_IF_PARALLEL;
+//        EXIT_IF_PARALLEL;
 #ifdef CHASTE_CVODE
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "delta_notch_ode.arch";
@@ -130,18 +130,18 @@ public:
 
     void TestSetStateVariables()
     {
- //   	EXIT_IF_PARALLEL;
+ //       EXIT_IF_PARALLEL;
 #ifdef CHASTE_CVODE
 
-    	std::vector<double> state_vars;
-    	state_vars.push_back(0.0);
-    	state_vars.push_back(1.0);
-    	state_vars.push_back(2.0);
-    	DeltaNotchOdeSystem ode_system(0.5,state_vars);
+        std::vector<double> state_vars;
+        state_vars.push_back(0.0);
+        state_vars.push_back(1.0);
+        state_vars.push_back(2.0);
+        DeltaNotchOdeSystem ode_system(0.5,state_vars);
 
-    	TS_ASSERT_EQUALS(ode_system.GetStateVariable(0),0.0);
-    	TS_ASSERT_EQUALS(ode_system.GetStateVariable(1),1.0);
-    	TS_ASSERT_EQUALS(ode_system.GetStateVariable(2),2.0);
+        TS_ASSERT_EQUALS(ode_system.GetStateVariable(0),0.0);
+        TS_ASSERT_EQUALS(ode_system.GetStateVariable(1),1.0);
+        TS_ASSERT_EQUALS(ode_system.GetStateVariable(2),2.0);
 
 #endif //CHASTE_CVODE
    }

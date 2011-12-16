@@ -105,7 +105,7 @@ public:
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
         DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMeshPartitionType::DUMB);
-       
+
         mesh.ConstructFromMeshReader(mesh_reader);
 
         BidomainProblem<2> distributed_problem( &cell_factory );
@@ -173,7 +173,7 @@ public:
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-        
+
             BidomainProblem<2> nondistributed_problem( &cell_factory );
             nondistributed_problem.SetMesh(&mesh);
             nondistributed_problem.Initialise();
@@ -280,7 +280,7 @@ public:
             ///////////////////////////////////////////////////////////////////
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/SlabFromMemfem");
             TetrahedralMesh<3,3> mesh;
-            
+
             mesh.ConstructFromMeshReader(mesh_reader);
             TS_ASSERT_DELTA(mesh.GetVolume(), 1.5625, 1e-6);
             TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 381u);

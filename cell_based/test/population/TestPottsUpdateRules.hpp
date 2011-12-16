@@ -57,63 +57,63 @@ public:
 
     void TestVolumeConstraintPottsUpdateRuleIn2d() throw (Exception)
     {
-		// Create a simple 2D PottsMesh with 2 elements
-		PottsMeshGenerator<2> generator(4, 1, 2, 4, 2, 2, 1, 1, 1, true); // last bool makes elements start in bottom left
-		PottsMesh<2>* p_mesh = generator.GetMesh();
+        // Create a simple 2D PottsMesh with 2 elements
+        PottsMeshGenerator<2> generator(4, 1, 2, 4, 2, 2, 1, 1, 1, true); // last bool makes elements start in bottom left
+        PottsMesh<2>* p_mesh = generator.GetMesh();
 
-		// Create cells
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-		// Create cell population
-		PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create an update law system
-		VolumeConstraintPottsUpdateRule<2> volume_constraint;
+        // Create an update law system
+        VolumeConstraintPottsUpdateRule<2> volume_constraint;
 
-		// Test get/set methods
-		TS_ASSERT_DELTA(volume_constraint.GetDeformationEnergyParameter(), 0.5, 1e-12);
-		TS_ASSERT_DELTA(volume_constraint.GetMatureCellTargetVolume(), 16.0, 1e-12);
+        // Test get/set methods
+        TS_ASSERT_DELTA(volume_constraint.GetDeformationEnergyParameter(), 0.5, 1e-12);
+        TS_ASSERT_DELTA(volume_constraint.GetMatureCellTargetVolume(), 16.0, 1e-12);
 
-		volume_constraint.SetDeformationEnergyParameter(1.0);
-		volume_constraint.SetMatureCellTargetVolume(0.6);
+        volume_constraint.SetDeformationEnergyParameter(1.0);
+        volume_constraint.SetMatureCellTargetVolume(0.6);
 
-		TS_ASSERT_DELTA(volume_constraint.GetDeformationEnergyParameter(), 1.0, 1e-12);
-		TS_ASSERT_DELTA(volume_constraint.GetMatureCellTargetVolume(), 0.6, 1e-12);
+        TS_ASSERT_DELTA(volume_constraint.GetDeformationEnergyParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(volume_constraint.GetMatureCellTargetVolume(), 0.6, 1e-12);
 
-		volume_constraint.SetDeformationEnergyParameter(0.5);
-		volume_constraint.SetMatureCellTargetVolume(4.0);
+        volume_constraint.SetDeformationEnergyParameter(0.5);
+        volume_constraint.SetMatureCellTargetVolume(4.0);
 
-		// Test EvaluateHamiltonianContribution()
+        // Test EvaluateHamiltonianContribution()
 
-		double alpha = volume_constraint.GetDeformationEnergyParameter();
+        double alpha = volume_constraint.GetDeformationEnergyParameter();
 
-		// Both points lie within cell 0
-		TS_ASSERT_THROWS_THIS(volume_constraint.EvaluateHamiltonianContribution(0, 1, cell_population),
-		                      "The current node and target node must not be in the same element.");
+        // Both points lie within cell 0
+        TS_ASSERT_THROWS_THIS(volume_constraint.EvaluateHamiltonianContribution(0, 1, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell 1
-		TS_ASSERT_THROWS_THIS(volume_constraint.EvaluateHamiltonianContribution(8, 9, cell_population),
-							  "The current node and target node must not be in the same element.");
+        // Both points lie within cell 1
+        TS_ASSERT_THROWS_THIS(volume_constraint.EvaluateHamiltonianContribution(8, 9, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell medium
-		TS_ASSERT_THROWS_THIS(volume_constraint.EvaluateHamiltonianContribution(2, 3, cell_population),
-		                      "At least one of the current node or target node must be in an element.");
+        // Both points lie within cell medium
+        TS_ASSERT_THROWS_THIS(volume_constraint.EvaluateHamiltonianContribution(2, 3, cell_population),
+                              "At least one of the current node or target node must be in an element.");
 
-		// Current site in cell 0; target site in cell medium
-		double contribution = volume_constraint.EvaluateHamiltonianContribution(5, 6, cell_population);
-		TS_ASSERT_DELTA(contribution, alpha, 1e-6);
+        // Current site in cell 0; target site in cell medium
+        double contribution = volume_constraint.EvaluateHamiltonianContribution(5, 6, cell_population);
+        TS_ASSERT_DELTA(contribution, alpha, 1e-6);
 
-		// Current site in cell medium; target site in cell 0
-		contribution = volume_constraint.EvaluateHamiltonianContribution(6, 5, cell_population);
-		TS_ASSERT_DELTA(contribution, alpha, 1e-6);
+        // Current site in cell medium; target site in cell 0
+        contribution = volume_constraint.EvaluateHamiltonianContribution(6, 5, cell_population);
+        TS_ASSERT_DELTA(contribution, alpha, 1e-6);
 
-		// Current site in cell 0; target site in cell 1
-		contribution = volume_constraint.EvaluateHamiltonianContribution(5, 9, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*alpha, 1e-6);
+        // Current site in cell 0; target site in cell 1
+        contribution = volume_constraint.EvaluateHamiltonianContribution(5, 9, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*alpha, 1e-6);
 
-	}
+    }
 
     void TestVolumeConstraintPottsUpdateRuleIn3d() throw (Exception)
     {
@@ -205,7 +205,7 @@ public:
             delete p_update_rule;
         }
     }
-    
+
     void TestSurfaceAreaConstraintPottsUpdateRuleIn2d() throw (Exception)
     {
         // Create a simple 2D PottsMesh with 2 elements
@@ -236,36 +236,36 @@ public:
         surface_area_constraint.SetDeformationEnergyParameter(0.5);
         surface_area_constraint.SetMatureCellTargetSurfaceArea(8.0);
 
-		// Test EvaluateHamiltonianContribution()
+        // Test EvaluateHamiltonianContribution()
         double gamma = surface_area_constraint.GetDeformationEnergyParameter();
 
-		// Both points lie within cell 0
-		TS_ASSERT_THROWS_THIS(surface_area_constraint.EvaluateHamiltonianContribution(0, 1, cell_population),
-		                      "The current node and target node must not be in the same element.");
+        // Both points lie within cell 0
+        TS_ASSERT_THROWS_THIS(surface_area_constraint.EvaluateHamiltonianContribution(0, 1, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell 1
-		TS_ASSERT_THROWS_THIS(surface_area_constraint.EvaluateHamiltonianContribution(8, 9, cell_population),
-							  "The current node and target node must not be in the same element.");
+        // Both points lie within cell 1
+        TS_ASSERT_THROWS_THIS(surface_area_constraint.EvaluateHamiltonianContribution(8, 9, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell medium
-		TS_ASSERT_THROWS_THIS(surface_area_constraint.EvaluateHamiltonianContribution(2, 3, cell_population),
-		                       "At least one of the current node or target node must be in an element.");
+        // Both points lie within cell medium
+        TS_ASSERT_THROWS_THIS(surface_area_constraint.EvaluateHamiltonianContribution(2, 3, cell_population),
+                               "At least one of the current node or target node must be in an element.");
 
-		// Current site in cell 0; target site in cell medium Cell on edge of domain
-		double contribution = surface_area_constraint.EvaluateHamiltonianContribution(1, 2, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*2.0*gamma, 1e-6);
+        // Current site in cell 0; target site in cell medium Cell on edge of domain
+        double contribution = surface_area_constraint.EvaluateHamiltonianContribution(1, 2, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*2.0*gamma, 1e-6);
 
-		// Current site in cell 0; target site in cell medium
-		contribution = surface_area_constraint.EvaluateHamiltonianContribution(5, 6, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*2.0*gamma, 1e-6);
+        // Current site in cell 0; target site in cell medium
+        contribution = surface_area_constraint.EvaluateHamiltonianContribution(5, 6, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*2.0*gamma, 1e-6);
 
-		// Current site in cell medium; target site in cell 0
-		contribution = surface_area_constraint.EvaluateHamiltonianContribution(6, 5, cell_population);
-		TS_ASSERT_DELTA(contribution, 0.0, 1e-6);
+        // Current site in cell medium; target site in cell 0
+        contribution = surface_area_constraint.EvaluateHamiltonianContribution(6, 5, cell_population);
+        TS_ASSERT_DELTA(contribution, 0.0, 1e-6);
 
-		// Current site in cell 0; target site in cell 1
-		contribution = surface_area_constraint.EvaluateHamiltonianContribution(5, 9, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*2.0*gamma, 1e-6);
+        // Current site in cell 0; target site in cell 1
+        contribution = surface_area_constraint.EvaluateHamiltonianContribution(5, 9, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*2.0*gamma, 1e-6);
     }
 
     void noTestSurfaceAreaConstraintPottsUpdateRuleIn3d() throw (Exception)
@@ -360,37 +360,37 @@ public:
 
     void TestAdhesionPottsUpdateRuleIn2d() throw (Exception)
     {
-    	// Create a simple 2D PottsMesh with 2 elements
-    	PottsMeshGenerator<2> generator(4, 1, 2, 4, 2, 2, 1, 1, 1, true); // last bool makes elements start in bottom left
-		PottsMesh<2>* p_mesh = generator.GetMesh();
+        // Create a simple 2D PottsMesh with 2 elements
+        PottsMeshGenerator<2> generator(4, 1, 2, 4, 2, 2, 1, 1, 1, true); // last bool makes elements start in bottom left
+        PottsMesh<2>* p_mesh = generator.GetMesh();
 
-		// Create cells
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
 
-		// Create cell population
-		PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create an update law system
-		AdhesionPottsUpdateRule<2> adhesion_update;
+        // Create an update law system
+        AdhesionPottsUpdateRule<2> adhesion_update;
 
-		// Test get/set methods
-	 	TS_ASSERT_DELTA(adhesion_update.GetCellCellAdhesionEnergyParameter(), 0.1, 1e-12);
-		TS_ASSERT_DELTA(adhesion_update.GetCellBoundaryAdhesionEnergyParameter(), 0.2, 1e-12);
+        // Test get/set methods
+         TS_ASSERT_DELTA(adhesion_update.GetCellCellAdhesionEnergyParameter(), 0.1, 1e-12);
+        TS_ASSERT_DELTA(adhesion_update.GetCellBoundaryAdhesionEnergyParameter(), 0.2, 1e-12);
 
-		adhesion_update.SetCellCellAdhesionEnergyParameter(0.5);
-		adhesion_update.SetCellBoundaryAdhesionEnergyParameter(0.6);
+        adhesion_update.SetCellCellAdhesionEnergyParameter(0.5);
+        adhesion_update.SetCellBoundaryAdhesionEnergyParameter(0.6);
 
-     	TS_ASSERT_DELTA(adhesion_update.GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
-		TS_ASSERT_DELTA(adhesion_update.GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
+         TS_ASSERT_DELTA(adhesion_update.GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
+        TS_ASSERT_DELTA(adhesion_update.GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
 
-		adhesion_update.SetCellCellAdhesionEnergyParameter(0.1);
-		adhesion_update.SetCellBoundaryAdhesionEnergyParameter(0.2);
+        adhesion_update.SetCellCellAdhesionEnergyParameter(0.1);
+        adhesion_update.SetCellBoundaryAdhesionEnergyParameter(0.2);
 
         // Test get adhesion methods
-		CellPtr p_cell_0 = cell_population.GetCellUsingLocationIndex(0u);
-		CellPtr p_cell_1 = cell_population.GetCellUsingLocationIndex(1u);
+        CellPtr p_cell_0 = cell_population.GetCellUsingLocationIndex(0u);
+        CellPtr p_cell_1 = cell_population.GetCellUsingLocationIndex(1u);
         TS_ASSERT_DELTA(adhesion_update.GetCellCellAdhesionEnergy(p_cell_0,p_cell_1), 0.1, 1e-12);
         TS_ASSERT_DELTA(adhesion_update.GetCellBoundaryAdhesionEnergy(p_cell_0), 0.2, 1e-12);
 
@@ -399,29 +399,29 @@ public:
         double gamma_cell_cell = adhesion_update.GetCellCellAdhesionEnergyParameter();
         double gamma_cell_boundary = adhesion_update.GetCellBoundaryAdhesionEnergyParameter();
 
-		// Both points lie within cell 0
-		TS_ASSERT_THROWS_THIS(adhesion_update.EvaluateHamiltonianContribution(0, 1, cell_population),
-		                      "The current node and target node must not be in the same element.");
+        // Both points lie within cell 0
+        TS_ASSERT_THROWS_THIS(adhesion_update.EvaluateHamiltonianContribution(0, 1, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell 1
-		TS_ASSERT_THROWS_THIS(adhesion_update.EvaluateHamiltonianContribution(8, 9, cell_population),
-							  "The current node and target node must not be in the same element.");
+        // Both points lie within cell 1
+        TS_ASSERT_THROWS_THIS(adhesion_update.EvaluateHamiltonianContribution(8, 9, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell medium
-		TS_ASSERT_THROWS_THIS(adhesion_update.EvaluateHamiltonianContribution(2, 3, cell_population),
-		                       "At least one of the current node or target node must be in an element.");
+        // Both points lie within cell medium
+        TS_ASSERT_THROWS_THIS(adhesion_update.EvaluateHamiltonianContribution(2, 3, cell_population),
+                               "At least one of the current node or target node must be in an element.");
 
-		// Current site in cell 0; target site in cell medium
-		double contribution = adhesion_update.EvaluateHamiltonianContribution(5, 6, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*gamma_cell_boundary, 1e-6);
+        // Current site in cell 0; target site in cell medium
+        double contribution = adhesion_update.EvaluateHamiltonianContribution(5, 6, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*gamma_cell_boundary, 1e-6);
 
-		// Current site in cell medium; target site in cell 0
-		contribution = adhesion_update.EvaluateHamiltonianContribution(6, 5, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*gamma_cell_boundary - gamma_cell_cell, 1e-6);
+        // Current site in cell medium; target site in cell 0
+        contribution = adhesion_update.EvaluateHamiltonianContribution(6, 5, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*gamma_cell_boundary - gamma_cell_cell, 1e-6);
 
-		// Current site in cell 0; target site in cell 1
-		contribution = adhesion_update.EvaluateHamiltonianContribution(5, 9, cell_population);
-		TS_ASSERT_DELTA(contribution, gamma_cell_cell, 1e-6);
+        // Current site in cell 0; target site in cell 1
+        contribution = adhesion_update.EvaluateHamiltonianContribution(5, 9, cell_population);
+        TS_ASSERT_DELTA(contribution, gamma_cell_cell, 1e-6);
     }
 
     void TestAdhesionPottsUpdateRuleIn3d() throw (Exception)
@@ -577,7 +577,7 @@ public:
         differential_adhesion_update.SetCellBoundaryAdhesionEnergyParameter(0.4);
         differential_adhesion_update.SetLabelledCellBoundaryAdhesionEnergyParameter(0.5);
 
-		// Test EvaluateHamiltonianContribution(). Note that the boundary of the domain is a void not medium
+        // Test EvaluateHamiltonianContribution(). Note that the boundary of the domain is a void not medium
 
         double gamma_cell_0_cell_0 = differential_adhesion_update.GetCellCellAdhesionEnergyParameter();
         double gamma_cell_0_cell_1 = differential_adhesion_update.GetLabelledCellCellAdhesionEnergyParameter();
@@ -585,33 +585,33 @@ public:
         double gamma_cell_0_boundary = differential_adhesion_update.GetCellBoundaryAdhesionEnergyParameter();
         double gamma_cell_1_boundary = differential_adhesion_update.GetLabelledCellBoundaryAdhesionEnergyParameter();
 
-		// Both points lie within cell 0
-		TS_ASSERT_THROWS_THIS(differential_adhesion_update.EvaluateHamiltonianContribution(0, 1, cell_population),
-		                      "The current node and target node must not be in the same element.");
+        // Both points lie within cell 0
+        TS_ASSERT_THROWS_THIS(differential_adhesion_update.EvaluateHamiltonianContribution(0, 1, cell_population),
+                              "The current node and target node must not be in the same element.");
 
-		// Both points lie within cell medium
-		TS_ASSERT_THROWS_THIS(differential_adhesion_update.EvaluateHamiltonianContribution(4, 9, cell_population),
-		                       "At least one of the current node or target node must be in an element.");
+        // Both points lie within cell medium
+        TS_ASSERT_THROWS_THIS(differential_adhesion_update.EvaluateHamiltonianContribution(4, 9, cell_population),
+                               "At least one of the current node or target node must be in an element.");
 
-		// Current site in cell 1; target site in cell medium
-		double contribution = differential_adhesion_update.EvaluateHamiltonianContribution(8, 9, cell_population);
-		TS_ASSERT_DELTA(contribution, gamma_cell_1_boundary, 1e-6);
+        // Current site in cell 1; target site in cell medium
+        double contribution = differential_adhesion_update.EvaluateHamiltonianContribution(8, 9, cell_population);
+        TS_ASSERT_DELTA(contribution, gamma_cell_1_boundary, 1e-6);
 
-		// Current site in cell 3; target site in cell medium
-		contribution = differential_adhesion_update.EvaluateHamiltonianContribution(13, 14, cell_population);
-		TS_ASSERT_DELTA(contribution, gamma_cell_0_boundary, 1e-6);
+        // Current site in cell 3; target site in cell medium
+        contribution = differential_adhesion_update.EvaluateHamiltonianContribution(13, 14, cell_population);
+        TS_ASSERT_DELTA(contribution, gamma_cell_0_boundary, 1e-6);
 
-		// Current site in cell 0; target site in cell 1; both are labelled
-		contribution = differential_adhesion_update.EvaluateHamiltonianContribution(1, 2, cell_population);
-		TS_ASSERT_DELTA(contribution, gamma_cell_1_cell_1, 1e-6);
+        // Current site in cell 0; target site in cell 1; both are labelled
+        contribution = differential_adhesion_update.EvaluateHamiltonianContribution(1, 2, cell_population);
+        TS_ASSERT_DELTA(contribution, gamma_cell_1_cell_1, 1e-6);
 
-		// Current site in cell 2; target site in cell 3; both are unlabelled
-		contribution = differential_adhesion_update.EvaluateHamiltonianContribution(11, 12, cell_population);
-		TS_ASSERT_DELTA(contribution, gamma_cell_0_cell_0, 1e-6);
+        // Current site in cell 2; target site in cell 3; both are unlabelled
+        contribution = differential_adhesion_update.EvaluateHamiltonianContribution(11, 12, cell_population);
+        TS_ASSERT_DELTA(contribution, gamma_cell_0_cell_0, 1e-6);
 
-		// Current site in cell 0; target site in cell 2;
-		contribution = differential_adhesion_update.EvaluateHamiltonianContribution(6, 11, cell_population);
-		TS_ASSERT_DELTA(contribution, 2.0*gamma_cell_0_cell_1 - gamma_cell_0_cell_0, 1e-6);
+        // Current site in cell 0; target site in cell 2;
+        contribution = differential_adhesion_update.EvaluateHamiltonianContribution(6, 11, cell_population);
+        TS_ASSERT_DELTA(contribution, 2.0*gamma_cell_0_cell_1 - gamma_cell_0_cell_0, 1e-6);
     }
 
     void TestDifferentialAdhesionPottsUpdateRuleIn3d() throw (Exception)
@@ -805,24 +805,24 @@ public:
     }
 
 
-	void TestUpdateRuleOutputUpdateRuleInfo()
-	{
-		std::string output_directory = "TestPottsUpdateRulesOutputParameters";
-		OutputFileHandler output_file_handler(output_directory, false);
+    void TestUpdateRuleOutputUpdateRuleInfo()
+    {
+        std::string output_directory = "TestPottsUpdateRulesOutputParameters";
+        OutputFileHandler output_file_handler(output_directory, false);
 
-		// Test with VolumeConstraintPottsUpdateRule
-		VolumeConstraintPottsUpdateRule<2> volume_constraint;
+        // Test with VolumeConstraintPottsUpdateRule
+        VolumeConstraintPottsUpdateRule<2> volume_constraint;
         volume_constraint.SetDeformationEnergyParameter(0.1);
         volume_constraint.SetMatureCellTargetVolume(20);
 
-		TS_ASSERT_EQUALS(volume_constraint.GetIdentifier(), "VolumeConstraintPottsUpdateRule-2");
+        TS_ASSERT_EQUALS(volume_constraint.GetIdentifier(), "VolumeConstraintPottsUpdateRule-2");
 
-		out_stream volume_constraint_parameter_file = output_file_handler.OpenOutputFile("volume_constraint_results.parameters");
-		volume_constraint.OutputUpdateRuleInfo(volume_constraint_parameter_file);
-		volume_constraint_parameter_file->close();
+        out_stream volume_constraint_parameter_file = output_file_handler.OpenOutputFile("volume_constraint_results.parameters");
+        volume_constraint.OutputUpdateRuleInfo(volume_constraint_parameter_file);
+        volume_constraint_parameter_file->close();
 
-		std::string volume_constraint_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + volume_constraint_results_dir + "volume_constraint_results.parameters cell_based/test/data/TestPottsUpdateRules/volume_constraint_results.parameters").c_str()), 0);
+        std::string volume_constraint_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + volume_constraint_results_dir + "volume_constraint_results.parameters cell_based/test/data/TestPottsUpdateRules/volume_constraint_results.parameters").c_str()), 0);
 
         // Test with SurfaceAreaConstraintPottsUpdateRule
         SurfaceAreaConstraintPottsUpdateRule<2> surface_area_constraint;
@@ -838,19 +838,19 @@ public:
         std::string surface_area_constraint_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + surface_area_constraint_results_dir + "surface_area_constraint_results.parameters cell_based/test/data/TestPottsUpdateRules/surface_area_constraint_results.parameters").c_str()), 0);
 
-		// Test with AdhesionPottsUpdateRule
-		AdhesionPottsUpdateRule<2> adhesion_update;
+        // Test with AdhesionPottsUpdateRule
+        AdhesionPottsUpdateRule<2> adhesion_update;
         adhesion_update.SetCellCellAdhesionEnergyParameter(0.3);
         adhesion_update.SetCellBoundaryAdhesionEnergyParameter(0.4);
 
-		TS_ASSERT_EQUALS(adhesion_update.GetIdentifier(), "AdhesionPottsUpdateRule-2");
+        TS_ASSERT_EQUALS(adhesion_update.GetIdentifier(), "AdhesionPottsUpdateRule-2");
 
-		out_stream adhesion_update_parameter_file = output_file_handler.OpenOutputFile("adhesion_update_results.parameters");
-		adhesion_update.OutputUpdateRuleInfo(adhesion_update_parameter_file);
-		adhesion_update_parameter_file->close();
+        out_stream adhesion_update_parameter_file = output_file_handler.OpenOutputFile("adhesion_update_results.parameters");
+        adhesion_update.OutputUpdateRuleInfo(adhesion_update_parameter_file);
+        adhesion_update_parameter_file->close();
 
-		std::string adhesion_update_results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + adhesion_update_results_dir + "adhesion_update_results.parameters cell_based/test/data/TestPottsUpdateRules/adhesion_update_results.parameters").c_str()), 0);
+        std::string adhesion_update_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + adhesion_update_results_dir + "adhesion_update_results.parameters cell_based/test/data/TestPottsUpdateRules/adhesion_update_results.parameters").c_str()), 0);
 
         // Test with DifferentialAdhesionPottsUpdateRule
         DifferentialAdhesionPottsUpdateRule<2> differential_adhesion_update;
@@ -880,7 +880,7 @@ public:
 
         std::string chemotaxis_update_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + chemotaxis_update_results_dir + "chemotaxis_update_results.parameters cell_based/test/data/TestPottsUpdateRules/chemotaxis_update_results.parameters").c_str()), 0);
-	}
+    }
 };
 
 #endif /*TESTPOTTSUPDATERULES_HPP_*/

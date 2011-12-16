@@ -176,7 +176,7 @@ public:
 
     /**
      * Set mOnlyUseNearestNeighboursForDivision.
-     * 
+     *
      * @param onlyUseNearestNeighboursForDivision whether to only search the next nearest neighbours for an
      *     empty site when a cell is going to divide.
      */
@@ -360,10 +360,10 @@ public:
      */
     void Update(bool hasHadBirthsOrDeaths=true);
 
-    /** 
+    /**
      * Overridden WriteCellVolumeResultsToFile() method.
      */
-    void WriteCellVolumeResultsToFile();   
+    void WriteCellVolumeResultsToFile();
 
     /**
      * Overridden GenerateCellResults() method.

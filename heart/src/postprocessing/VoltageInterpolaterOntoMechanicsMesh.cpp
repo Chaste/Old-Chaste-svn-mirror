@@ -39,7 +39,7 @@ VoltageInterpolaterOntoMechanicsMesh<DIM>::VoltageInterpolaterOntoMechanicsMesh(
     Hdf5DataReader reader(directory,inputFileNamePrefix);
 
     unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
-    
+
     // set up the elements and weights for the coarse nodes in the fine mesh
     FineCoarseMeshPair<DIM> mesh_pair(rElectricsMesh, rMechanicsMesh);
     mesh_pair.SetUpBoxesOnFineMesh();
@@ -60,7 +60,7 @@ VoltageInterpolaterOntoMechanicsMesh<DIM>::VoltageInterpolaterOntoMechanicsMesh(
 
     // set up a vector to read into
     DistributedVectorFactory factory(rElectricsMesh.GetNumNodes());
-    Vec voltage = factory.CreateVec(); 
+    Vec voltage = factory.CreateVec();
     std::vector<double> interpolated_voltages(rMechanicsMesh.GetNumNodes());
     Vec voltage_coarse = NULL;
 
@@ -69,7 +69,7 @@ VoltageInterpolaterOntoMechanicsMesh<DIM>::VoltageInterpolaterOntoMechanicsMesh(
         // read
         reader.GetVariableOverNodes(voltage, "V", time_step);
         ReplicatableVector voltage_repl(voltage);
-        
+
         // interpolate
         for(unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
         {
@@ -84,17 +84,17 @@ VoltageInterpolaterOntoMechanicsMesh<DIM>::VoltageInterpolaterOntoMechanicsMesh(
 
             interpolated_voltages[i] = interpolated_voltage;
         }
-        
+
         if(voltage_coarse!=NULL)
         {
             VecDestroy(voltage_coarse);
         }
         voltage_coarse = PetscTools::CreateVec(interpolated_voltages);
-      
+
         // write
         p_writer->PutUnlimitedVariable(time_step);
         p_writer->PutVector(voltage_column_id, voltage_coarse);
-        p_writer->AdvanceAlongUnlimitedDimension();            
+        p_writer->AdvanceAlongUnlimitedDimension();
     }
 
     if(voltage_coarse!=NULL)
@@ -103,19 +103,19 @@ VoltageInterpolaterOntoMechanicsMesh<DIM>::VoltageInterpolaterOntoMechanicsMesh(
         VecDestroy(voltage_coarse);
     }
 
-    // delete to flush 
+    // delete to flush
     delete p_writer;
-    
+
     // Convert the new data to CMGUI format.
     // alter the directory in HeartConfig as that is where Hdf5ToCmguiConverter decides
     // where to output
     std::string config_directory = HeartConfig::Instance()->GetOutputDirectory();
     HeartConfig::Instance()->SetOutputDirectory(directory);
-    Hdf5ToCmguiConverter<DIM,DIM> converter(directory, 
-                                            "voltage_mechanics_mesh", 
-                                            &rMechanicsMesh, 
+    Hdf5ToCmguiConverter<DIM,DIM> converter(directory,
+                                            "voltage_mechanics_mesh",
+                                            &rMechanicsMesh,
                                             false);
-    HeartConfig::Instance()->SetOutputDirectory(config_directory);                                                
+    HeartConfig::Instance()->SetOutputDirectory(config_directory);
 }
 
 ///////////////////////////////////////////

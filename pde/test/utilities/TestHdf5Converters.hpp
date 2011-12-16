@@ -101,12 +101,12 @@ public:
         PetscTools::Barrier();
 
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        
+
         VtkMeshReader<3,3> vtk_mesh_reader(test_output_directory + working_directory
                                            + "/vtk_output/cube_2mm_12_elements.vtu");
         TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumNodes(), 12u);
         TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumElements(), 12u);
-        
+
         std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
         TS_ASSERT_DELTA(first_node[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(first_node[1], 0.0, 1e-6);
@@ -116,7 +116,7 @@ public:
         TS_ASSERT_DELTA(next_node[0], 0.2, 1e-6);
         TS_ASSERT_DELTA(next_node[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(next_node[2], 0.0, 1e-6);
-        
+
         // V_m and phi_e samples
         std::vector<double> v_at_last, phi_at_last;
         vtk_mesh_reader.GetPointData("V_000001", v_at_last);
@@ -169,7 +169,7 @@ public:
 
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::stringstream filepath;
-        filepath << test_output_directory << working_directory << "/vtk_output/2D_0_to_1mm_400_elements";        
+        filepath << test_output_directory << working_directory << "/vtk_output/2D_0_to_1mm_400_elements";
         if (!PetscTools::IsSequential())
         {
             filepath << "_" << PetscTools::GetMyRank();
@@ -179,20 +179,20 @@ public:
         VtkMeshReader<2,2> vtk_mesh_reader(filepath.str());
         TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumNodes(), mesh.GetNumLocalNodes() + mesh.GetNumHaloNodes()); // 221 in total
         TS_ASSERT_EQUALS(vtk_mesh_reader.GetNumElements(), mesh.GetNumLocalElements()); // 400 in total
-        
+
         if (PetscTools::IsSequential())
         {
             std::vector<double> first_node = vtk_mesh_reader.GetNextNode();
             TS_ASSERT_DELTA(first_node[0], 0.0 , 1e-6);
             TS_ASSERT_DELTA(first_node[1], 0.0, 1e-6);
             TS_ASSERT_DELTA(first_node[2], 0.0 , 1e-6); // 2d VTK files still carry z-coordinate
-    
+
             std::vector<double> next_node = vtk_mesh_reader.GetNextNode();
             TS_ASSERT_DELTA(next_node[0], 0.01, 1e-6);
             TS_ASSERT_DELTA(next_node[1], 0.0 , 1e-6);
             TS_ASSERT_DELTA(next_node[2], 0.0 , 1e-6); // 2d VTK files still carry z-coordinate
         }
-        
+
         // V_m samples
         std::vector<double> v_at_last;
         vtk_mesh_reader.GetPointData("V_000020", v_at_last);

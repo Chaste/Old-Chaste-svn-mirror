@@ -847,7 +847,7 @@ void CaBasedCellPopulation<DIM>::Validate()
 
 template<unsigned DIM>
 void CaBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
-{   
+{
     // Write time to file
     *(this->mpCellVolumesFile) << SimulationTime::Instance()->GetTime() << " ";
 
@@ -855,7 +855,7 @@ void CaBasedCellPopulation<DIM>::WriteCellVolumeResultsToFile()
     double cell_volume = 1.0;
 
     // Loop over cells
-    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin(); 
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter=this->Begin();
          cell_iter!=this->End(); ++cell_iter)
     {
         // Get the index of the corresponding node in mrMesh and write to file
@@ -977,7 +977,7 @@ void CaBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rPar
 {
     *rParamsFile << "\t\t<OnlyUseNearestNeighboursForDivision>" << mOnlyUseNearestNeighboursForDivision << "</OnlyUseNearestNeighboursForDivision>\n";
     *rParamsFile << "\t\t<UseVonNeumannNeighbourhoods>" << mUseVonNeumannNeighbourhoods << "</UseVonNeumannNeighbourhoods>\n";
-      
+
     // Call method on direct parent class
     AbstractCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 }

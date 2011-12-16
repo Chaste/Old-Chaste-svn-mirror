@@ -228,7 +228,7 @@ void OnLatticeSimulation<DIM>::OutputAdditionalSimulationSetup(out_stream& rPara
     }
     else
     {
-        std::vector<boost::shared_ptr<AbstractCaUpdateRule<DIM> > > collection = 
+        std::vector<boost::shared_ptr<AbstractCaUpdateRule<DIM> > > collection =
             static_cast<CaBasedCellPopulation<DIM>*>(&(this->mrCellPopulation))->rGetUpdateRuleCollection();
 
         for (typename std::vector<boost::shared_ptr<AbstractCaUpdateRule<DIM> > >::iterator iter = collection.begin();

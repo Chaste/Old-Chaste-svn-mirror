@@ -66,11 +66,11 @@ public:
      * @param rEnds the end of each stimulation (ms)
      */
     ZeroNetChargeElectrodes(std::vector<std::pair<AbstractChasteRegion<DIM>*, AbstractChasteRegion<DIM>*> >& rElectrodePairs,
-							  std::vector<double>& rStimulusMagnitudes,
-							  std::vector<double>& rDurations,
-							  std::vector<double>& rPeriods,
-							  std::vector<double>& rStarts,
-							  std::vector<double>& rEnds);
+                              std::vector<double>& rStimulusMagnitudes,
+                              std::vector<double>& rDurations,
+                              std::vector<double>& rPeriods,
+                              std::vector<double>& rStarts,
+                              std::vector<double>& rEnds);
 
     /**
      * Creates an appropriate stimuus for each node as to abide compatibility conditions.

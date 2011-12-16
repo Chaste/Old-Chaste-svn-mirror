@@ -400,7 +400,7 @@ public:
         //Check the indexing exception
         TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info2(mesh, epi_surface, lv_surface, bad_surface, false),
                               "Error when reading surface file.  It was assumed not to be indexed from zero, but zero appeared in the list.");
-        
+
         //calculate the geometry information
         HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, false);
         info.DetermineLayerForEachNode(0.25,0.375);
@@ -528,10 +528,10 @@ public:
          HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, "", false);
 
          unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
-    	 unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
+         unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
          for (unsigned node_index=low_index; node_index<high_index; node_index++)
          {
-        	 TS_ASSERT_EQUALS(info.GetHeartRegion(node_index), HeartGeometryInformation<3>::LEFT_VENTRICLE_WALL);
+             TS_ASSERT_EQUALS(info.GetHeartRegion(node_index), HeartGeometryInformation<3>::LEFT_VENTRICLE_WALL);
          }
     }
 };

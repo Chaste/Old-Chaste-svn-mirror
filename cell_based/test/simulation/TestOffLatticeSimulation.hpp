@@ -726,11 +726,11 @@ public:
 
 
     void TestSettingEndTimeIssue() throw(Exception)
-	{
-		SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 1);
+    {
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 1);
 
-		HoneycombMeshGenerator generator(2, 2, 0);
-		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        HoneycombMeshGenerator generator(2, 2, 0);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create some cells
         std::vector<CellPtr> cells;
@@ -740,13 +740,13 @@ public:
         // Create a mesh-based cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		OffLatticeSimulation<2> simulator(cell_population);
+        OffLatticeSimulation<2> simulator(cell_population);
 
-		simulator.SetOutputDirectory("TestSettingEndTimeIssue");
+        simulator.SetOutputDirectory("TestSettingEndTimeIssue");
         simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_THIS(simulator.Solve(),
-				"End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell based tests.");
-	}
+                "End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell based tests.");
+    }
 
 
 };

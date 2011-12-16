@@ -649,30 +649,30 @@ public:
         std::vector<CellPtr> cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
-        
+
         // Create cell population
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
-        
+
         // Create crypt simulation from cell population
         CryptSimulation2d simulator(crypt);
-        
+
         // Create a force laws and pass it to the simulation
         MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
         simulator.AddForce(p_nagai_honda_force);
-        
+
         // Create cell killer and pass in to crypt simulation
         MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
         simulator.AddCellKiller(p_killer);
-        
+
         std::string output_directory = "TestCryptSimulation2dOutputParameters";
         OutputFileHandler output_file_handler(output_directory, false);
         out_stream parameter_file = output_file_handler.OpenOutputFile("vertex_crypt_sim_2d_results.parameters");
         simulator.OutputSimulationParameters(parameter_file);
         parameter_file->close();
-        
+
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "vertex_crypt_sim_2d_results.parameters  crypt/test/data/TestVertexCryptSimulationOutputParameters/vertex_crypt_sim_2d_results.parameters").c_str()), 0);
-        
+
         ///\todo check output of simulator.OutputSimulationSetup()
     }
 

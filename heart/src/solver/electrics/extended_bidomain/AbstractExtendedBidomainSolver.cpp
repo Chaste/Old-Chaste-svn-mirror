@@ -73,8 +73,8 @@ void AbstractExtendedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(V
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractExtendedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec existingSolution)
 {
-	double time = PdeSimulationTime::GetTime();
-	double delta_t = PdeSimulationTime::GetPdeTimeStep();
+    double time = PdeSimulationTime::GetTime();
+    double delta_t = PdeSimulationTime::GetPdeTimeStep();
     mpExtendedBidomainTissue->SolveCellSystems(existingSolution, time, time + delta_t);
 }
 
@@ -196,16 +196,16 @@ void AbstractExtendedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCo
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractExtendedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractExtendedBidomainSolver(
-		bool bathSimulation,
-		AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+        bool bathSimulation,
+        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
         ExtendedBidomainTissue<SPACE_DIM>* pTissue,
         BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 3>* pBcc,
         unsigned numQuadPoints)
     : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,3>(pMesh),
-    	      mBathSimulation(bathSimulation),
-    	      mpExtendedBidomainTissue(pTissue),
-    	      mpBoundaryConditions(pBcc),
-    	      mNumQuadPoints(numQuadPoints)
+              mBathSimulation(bathSimulation),
+              mpExtendedBidomainTissue(pTissue),
+              mpBoundaryConditions(pBcc),
+              mNumQuadPoints(numQuadPoints)
 {
     assert(pTissue != NULL);
     assert(pBcc != NULL);

@@ -121,7 +121,7 @@ ChastePoint<0>::ChastePoint(double v1, double v2, double v3)
 
 double ChastePoint<0>::operator[] (unsigned i) const
 {
-	EXCEPTION("Zero-dimensional point has no data");
+    EXCEPTION("Zero-dimensional point has no data");
 }
 
 //////////////////////////////////////////////////////////////////////////

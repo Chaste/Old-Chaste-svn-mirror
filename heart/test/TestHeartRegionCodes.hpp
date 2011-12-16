@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestHeartRegionCodes : public CxxTest::TestSuite
 {
     public:
-    
+
     void TestRegions()
     {
         std::set<unsigned> tissue_ids;
@@ -44,9 +44,9 @@ class TestHeartRegionCodes : public CxxTest::TestSuite
         std::set<unsigned> bath_ids;
         bath_ids.insert(1);
         bath_ids.insert(2);
-        
+
         HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids);
-        
+
         TS_ASSERT(HeartRegionCode::IsRegionTissue(0));
         TS_ASSERT(HeartRegionCode::IsRegionTissue(10));
         TS_ASSERT(!HeartRegionCode::IsRegionBath(0));
@@ -58,10 +58,10 @@ class TestHeartRegionCodes : public CxxTest::TestSuite
         TS_ASSERT(!HeartRegionCode::IsRegionTissue(2));
 
 ////////////////////////////////
-                               
+
         int tissue_region_one;//, tissue_region_two;
         int bath_region_one;//, bath_region_two;
-        
+
         tissue_region_one = HeartRegionCode::GetValidTissueId();
 
         bath_region_one = HeartRegionCode::GetValidBathId();
@@ -74,7 +74,7 @@ class TestHeartRegionCodes : public CxxTest::TestSuite
         TS_ASSERT(HeartRegionCode::IsRegionBath(bath_region_one));
 
     }
-    
+
     void TestExceptions() throw (Exception)
     {
         std::set<unsigned> tissue_ids;
@@ -85,15 +85,15 @@ class TestHeartRegionCodes : public CxxTest::TestSuite
         //Empty set
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids),
             "Identifying set must be non-empty");
-        
-        
+
+
         bath_ids.insert(1);
         bath_ids.insert(10);  //Overlaps with previous
-        
+
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetTissueAndBathIdentifiers(tissue_ids, bath_ids),
             "Tissue identifiers and bath identifiers overlap");
-        
-     }    
+
+     }
 };
 
 #endif /*TESTHEARTREGIONCODES_HPP_*/

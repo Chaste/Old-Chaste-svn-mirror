@@ -70,7 +70,7 @@ public:
 
     /**
      * Step forward one step in time and update member variables.
-     * 
+     *
      * Note that this should be used in conjuction with (not) IsTimeAtEnd because
      * increment past the end of a simulation will throw an exception
      */
@@ -160,7 +160,7 @@ private:
 
     /** Vector to store the additional times the stepper must stop at. */
     std::vector<double> mAdditionalTimes;
-    
+
         /** Needed for serialization. */
     friend class boost::serialization::access;
 
@@ -182,7 +182,7 @@ private:
         archive & mAdditionalTimesReached;
         archive & mAdditionalTimes;
     }
-    
+
 };
 
 #include "SerializationExportWrapper.hpp"

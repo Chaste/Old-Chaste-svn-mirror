@@ -85,17 +85,17 @@ public:
     ~AdhesionPottsUpdateRule();
 
     /**
-	 * Overridden EvaluateHamiltonianContribution() method
-	 *
-	 * Uses  sum_adjacentsites (1-delta(spin(i),spin(j))) gamma(spin(i),spin(j))
-	 *
-	 * @param currentNodeIndex The index of the current node/lattice site
-	 * @param targetNodeIndex The index of the target node/lattice site
-	 * @param rCellPopulation The cell population
-	 *
-	 * @return The difference in the Hamiltonian with the configuration of the target node
-	 * having the same spin as the current node with the current configuration. i.e H_1-H_0
-	 */
+     * Overridden EvaluateHamiltonianContribution() method
+     *
+     * Uses  sum_adjacentsites (1-delta(spin(i),spin(j))) gamma(spin(i),spin(j))
+     *
+     * @param currentNodeIndex The index of the current node/lattice site
+     * @param targetNodeIndex The index of the target node/lattice site
+     * @param rCellPopulation The cell population
+     *
+     * @return The difference in the Hamiltonian with the configuration of the target node
+     * having the same spin as the current node with the current configuration. i.e H_1-H_0
+     */
     double EvaluateHamiltonianContribution(unsigned currentNodeIndex,
                                            unsigned targetNodeIndex,
                                            PottsBasedCellPopulation<DIM>& rCellPopulation);
@@ -121,29 +121,29 @@ public:
      */
     virtual double GetCellBoundaryAdhesionEnergy(CellPtr pCell);
 
-	/**
- 	 * @return mCellCellAdhesionEnergyParameter
- 	 */
-	double GetCellCellAdhesionEnergyParameter();
+    /**
+      * @return mCellCellAdhesionEnergyParameter
+      */
+    double GetCellCellAdhesionEnergyParameter();
 
-	/**
-	 * @return mCellBoundaryAdhesionEnergyParameter
-	 */
-	double GetCellBoundaryAdhesionEnergyParameter();
+    /**
+     * @return mCellBoundaryAdhesionEnergyParameter
+     */
+    double GetCellBoundaryAdhesionEnergyParameter();
 
-	/**
-	 * Set mCellCellAdhesionEnergyParameter.
-	 *
-	 * @param cellCellAdhesionEnergyEnergyParameter the new value of mCellCellAdhesionEnergyParameter
-	 */
-	void SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyEnergyParameter);
+    /**
+     * Set mCellCellAdhesionEnergyParameter.
+     *
+     * @param cellCellAdhesionEnergyEnergyParameter the new value of mCellCellAdhesionEnergyParameter
+     */
+    void SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyEnergyParameter);
 
-	/**
-	 * Set mCellBoundaryAdhesionEnergyParameter.
-	 *
-	 * @param cellBoundaryAdhesionEnergyParameter the new value of mCellBoundaryAdhesionEnergyParameter
-	 */
-	void SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter);
+    /**
+     * Set mCellBoundaryAdhesionEnergyParameter.
+     *
+     * @param cellBoundaryAdhesionEnergyParameter the new value of mCellBoundaryAdhesionEnergyParameter
+     */
+    void SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter);
 
     /**
      * Overridden OutputUpdateRuleParameters() method.

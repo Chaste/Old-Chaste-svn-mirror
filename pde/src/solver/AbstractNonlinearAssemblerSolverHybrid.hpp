@@ -421,7 +421,7 @@ bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 
     mUseAnalyticalJacobian = false;
     ComputeJacobian(initial_guess, &numerical_jacobian);
-    
+
     bool ok = PetscMatTools::CheckEquality(numerical_jacobian, analytic_jacobian, tol);
     MatDestroy(numerical_jacobian);
     MatDestroy(analytic_jacobian);

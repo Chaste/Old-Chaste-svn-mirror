@@ -58,27 +58,27 @@ class MyStimulusFactory: public AbstractStimulusFactory<3>
 {
 
 public:
-	MyStimulusFactory() : AbstractStimulusFactory<3>()
+    MyStimulusFactory() : AbstractStimulusFactory<3>()
     {
     }
 
-	boost::shared_ptr<AbstractStimulusFunction> CreateStimulusForNode(unsigned nodeIndex)
+    boost::shared_ptr<AbstractStimulusFunction> CreateStimulusForNode(unsigned nodeIndex)
     {
-    	double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
-    	double y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
-    	double z = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[2];
+        double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
+        double y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
+        double z = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[2];
 
-    	boost::shared_ptr<SimpleStimulus> p_stimulus;
-    	if ((x < 0.0005) && (y < 0.0005) && (z < 0.0005))
-    	{
-    		p_stimulus.reset ( new SimpleStimulus(-428000, 1.0, 0.1) );
-    	}
-    	else
-    	{
-    		p_stimulus.reset ( new SimpleStimulus(0.0, 0.5, 0.1) );
+        boost::shared_ptr<SimpleStimulus> p_stimulus;
+        if ((x < 0.0005) && (y < 0.0005) && (z < 0.0005))
+        {
+            p_stimulus.reset ( new SimpleStimulus(-428000, 1.0, 0.1) );
+        }
+        else
+        {
+            p_stimulus.reset ( new SimpleStimulus(0.0, 0.5, 0.1) );
 
-    	}
-    	return p_stimulus;
+        }
+        return p_stimulus;
     }
 };
 
@@ -86,9 +86,9 @@ class TestStimulusFactory : public CxxTest::TestSuite
 {
 public:
 
-	void TestDefaultImplementation()  throw (Exception)
-	{
-    	HeartConfig::Instance()->Reset();
+    void TestDefaultImplementation()  throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(2,2,2);
@@ -99,18 +99,18 @@ public:
         //ZeroStimulus *stimulus;
         for (unsigned i = 0; i < my_factory.GetNumberOfCells(); i++)
         {
-        	boost::shared_ptr<AbstractStimulusFunction> stimulus (my_factory.CreateStimulusForNode(i));
+            boost::shared_ptr<AbstractStimulusFunction> stimulus (my_factory.CreateStimulusForNode(i));
 
-			TS_ASSERT_EQUALS(stimulus->GetStimulus(0), 0);
-			TS_ASSERT_EQUALS(stimulus->GetStimulus(1), 0);
-			TS_ASSERT_EQUALS(stimulus->GetStimulus(2), 0);
-			TS_ASSERT_EQUALS(stimulus->GetStimulus(258), 0);
+            TS_ASSERT_EQUALS(stimulus->GetStimulus(0), 0);
+            TS_ASSERT_EQUALS(stimulus->GetStimulus(1), 0);
+            TS_ASSERT_EQUALS(stimulus->GetStimulus(2), 0);
+            TS_ASSERT_EQUALS(stimulus->GetStimulus(258), 0);
         }
 
-	}
+    }
     void TestOneFactory() throw (Exception)
     {
-    	HeartConfig::Instance()->Reset();
+        HeartConfig::Instance()->Reset();
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(2,2,2);
@@ -141,20 +141,20 @@ public:
     }
 
     void TestComputeContributiontoRHS() throw (Exception)
-	{
-    	HeartConfig::Instance()->Reset();
+    {
+        HeartConfig::Instance()->Reset();
 
-    	/**
-    	 * In this test the mesh NEEDS to be a Distributed mesh.
-    	 * The loop over nodes in the ComputeElectrodeTotalFlux method only loops over the nodes we own (using a NodeIterator).
-    	 * If we run in parallel and uses a Tetrahedral mesh, each proc owns the whole mesh, hence the final flux computation
-    	 * will be N times the one in sequential (where N is number of procesors).
-    	 * In a normal simulation, this is not a problem, because the computed fluxes are used to compute their ratio,
-    	 * hence if both electrodes fluxes are mulitplied by N it doesn't really matter.
-    	 * Here, instead, we are testing the ComputeElectrodeTotalFlux method specifically,
-    	 * so we want consistent numbers to compare against on any number of procs.
-    	 *
-    	 */
+        /**
+         * In this test the mesh NEEDS to be a Distributed mesh.
+         * The loop over nodes in the ComputeElectrodeTotalFlux method only loops over the nodes we own (using a NodeIterator).
+         * If we run in parallel and uses a Tetrahedral mesh, each proc owns the whole mesh, hence the final flux computation
+         * will be N times the one in sequential (where N is number of procesors).
+         * In a normal simulation, this is not a problem, because the computed fluxes are used to compute their ratio,
+         * hence if both electrodes fluxes are mulitplied by N it doesn't really matter.
+         * Here, instead, we are testing the ComputeElectrodeTotalFlux method specifically,
+         * so we want consistent numbers to compare against on any number of procs.
+         *
+         */
 
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(30);
@@ -192,14 +192,14 @@ public:
 
         delete p_cuboid_1;
         delete p_cuboid_2;
-	}
+    }
 
     /**
      * Convenience heartconfig setups for the tests below
      */
-	void SetupParameters() throw (Exception)
-	{
-    	HeartConfig::Instance()->Reset();
+    void SetupParameters() throw (Exception)
+    {
+        HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01,0.1,1.0);
         HeartConfig::Instance()->SetKSPSolver("gmres");
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");//block jacobi is slow
@@ -210,17 +210,17 @@ public:
         HeartConfig::Instance()->SetVisualizeWithCmgui(true);
         HeartConfig::Instance()->SetVisualizeWithMeshalyzer(true);
         HeartConfig::Instance()->SetVisualizeWithVtk(false);
-	}
+    }
 
 
     void TestRegularCubeChasteNodesList() throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
-    	std::string directory = "RegularCube";
-    	std::string filename = "extended3d";
+        std::string directory = "RegularCube";
+        std::string filename = "extended3d";
 
-    	/**Where to utput stuff**/
+        /**Where to utput stuff**/
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix(filename);
 
@@ -253,31 +253,31 @@ public:
 
         if (mesh.rGetNodePermutation().size() > 0)
         {
-        	for (unsigned i = 0; i < indices.size(); i++)
-        	{
-        		indices[i] = mesh.rGetNodePermutation()[ indices[i] ];
-        	}
+            for (unsigned i = 0; i < indices.size(); i++)
+            {
+                indices[i] = mesh.rGetNodePermutation()[ indices[i] ];
+            }
         }
 
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(indices[0]))
         {
-        	arary_of_nodes_of_electrode_1.push_back(mesh.GetNode(indices[0]));
+            arary_of_nodes_of_electrode_1.push_back(mesh.GetNode(indices[0]));
         }
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(indices[1]))
         {
-        	arary_of_nodes_of_electrode_1.push_back(mesh.GetNode(indices[1]));
+            arary_of_nodes_of_electrode_1.push_back(mesh.GetNode(indices[1]));
         }
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(indices[2]))
         {
-        	arary_of_nodes_of_electrode_1.push_back(mesh.GetNode(indices[2]));
+            arary_of_nodes_of_electrode_1.push_back(mesh.GetNode(indices[2]));
         }
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(indices[3]))
         {
-        	arary_of_nodes_of_electrode_2.push_back(mesh.GetNode(indices[3]));
+            arary_of_nodes_of_electrode_2.push_back(mesh.GetNode(indices[3]));
         }
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(indices[4]))
         {
-        	arary_of_nodes_of_electrode_2.push_back(mesh.GetNode(indices[4]));
+            arary_of_nodes_of_electrode_2.push_back(mesh.GetNode(indices[4]));
         }
 
         ChasteNodesList<3>* p_node_list_1 = new ChasteNodesList<3>(arary_of_nodes_of_electrode_1);
@@ -304,12 +304,12 @@ public:
 
     void TestIrregularCubeChastecuboid() throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
-    	std::string directory = "IrregularCube";
-    	std::string filename = "extended3d";
+        std::string directory = "IrregularCube";
+        std::string filename = "extended3d";
 
-    	/**Where to utput stuff**/
+        /**Where to utput stuff**/
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix(filename);
 
@@ -360,12 +360,12 @@ public:
 
     void TestRegularCubeZeroNetChargeElectrodes() throw (Exception)
     {
-    	SetupParameters();
+        SetupParameters();
 
-    	std::string directory = "IrregularCube";
-    	std::string filename = "extended3d";
+        std::string directory = "IrregularCube";
+        std::string filename = "extended3d";
 
-    	/**Where to utput stuff**/
+        /**Where to utput stuff**/
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix(filename);
 
@@ -416,16 +416,16 @@ public:
     }
 
     void TestGroundingSecondElectrode() throw (Exception)
-	{
-    	SetupParameters();
+    {
+        SetupParameters();
 
-    	//this one needs to be a bit longer so that we are sure the second electrode stays at zero...
-    	HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms.
+        //this one needs to be a bit longer so that we are sure the second electrode stays at zero...
+        HeartConfig::Instance()->SetSimulationDuration(2.0);  //ms.
 
-    	std::string directory = "GroundedElectrode";
-    	std::string filename = "extended3d";
+        std::string directory = "GroundedElectrode";
+        std::string filename = "extended3d";
 
-    	/**Where to utput stuff**/
+        /**Where to utput stuff**/
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix(filename);
 
@@ -433,13 +433,13 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-		PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> first_cell_factory(0.0);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> first_cell_factory(0.0);
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> second_cell_factory(0.0);
 
         ExtendedBidomainProblem<3> extended_problem( &first_cell_factory , &second_cell_factory);
         extended_problem.SetMesh(&mesh);
 
-		std::vector<std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>*> > electrode_pairs;
+        std::vector<std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>*> > electrode_pairs;
         std::vector<double> magnitudes;
         std::vector<double> durations;
         std::vector<double> periods;
@@ -452,12 +452,12 @@ public:
         ChastePoint<3> LowerPoint_2(0.9, -0.1, 0.9);
         ChastePoint<3> UpperPoint_2(1.1, 2.0, 1.1);
 
-		ChasteCuboid<3>* p_cuboid_1 = new ChasteCuboid<3>(LowerPoint_1, UpperPoint_1);
-		ChasteCuboid<3>* p_cuboid_2 = new ChasteCuboid<3>(LowerPoint_2, UpperPoint_2);
-		std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>* > first_pair;
-		first_pair.first = p_cuboid_1;
-		first_pair.second = p_cuboid_2;
-		electrode_pairs.push_back(first_pair);
+        ChasteCuboid<3>* p_cuboid_1 = new ChasteCuboid<3>(LowerPoint_1, UpperPoint_1);
+        ChasteCuboid<3>* p_cuboid_2 = new ChasteCuboid<3>(LowerPoint_2, UpperPoint_2);
+        std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>* > first_pair;
+        first_pair.first = p_cuboid_1;
+        first_pair.second = p_cuboid_2;
+        electrode_pairs.push_back(first_pair);
         magnitudes.push_back(-9180.0);
         durations.push_back(15.0);
         periods.push_back(20000);
@@ -499,55 +499,55 @@ public:
         //now check that the second electrode was actually grounded
         Hdf5DataReader reader_extended(directory, filename);
 
-		for (unsigned node_index = 0; node_index < mesh.GetNumNodes(); node_index++)
-		{
-			if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index))
-			{
-				if ( grounded_regions[0]->DoesContain(mesh.GetNode(node_index)->GetPoint() ) )
-				{
-					unsigned node = mesh.GetNode(node_index)->GetIndex();
-					std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
-					for (unsigned j = 0; j <  phi_e_extended.size(); j++)
-					{
-						TS_ASSERT_EQUALS(phi_e_extended[j], 0);//should be zero at all times
-					}
-				}
-			}
-		}
+        for (unsigned node_index = 0; node_index < mesh.GetNumNodes(); node_index++)
+        {
+            if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index))
+            {
+                if ( grounded_regions[0]->DoesContain(mesh.GetNode(node_index)->GetPoint() ) )
+                {
+                    unsigned node = mesh.GetNode(node_index)->GetIndex();
+                    std::vector<double> phi_e_extended = reader_extended.GetVariableOverTime("Phi_e", node);
+                    for (unsigned j = 0; j <  phi_e_extended.size(); j++)
+                    {
+                        TS_ASSERT_EQUALS(phi_e_extended[j], 0);//should be zero at all times
+                    }
+                }
+            }
+        }
         delete p_cuboid_1;
         delete p_cuboid_2;
-	}
+    }
 
     void TestRegularCubeIntersecting() throw (Exception)
-	{
-		DistributedTetrahedralMesh<3,3> mesh;
-		double width = 2.0;
-		double height=2.0;
-		double depth=2.0;
-		double inter_node_space = 0.5;
-		mesh.ConstructRegularSlabMesh(inter_node_space, width, height, depth);
+    {
+        DistributedTetrahedralMesh<3,3> mesh;
+        double width = 2.0;
+        double height=2.0;
+        double depth=2.0;
+        double inter_node_space = 0.5;
+        mesh.ConstructRegularSlabMesh(inter_node_space, width, height, depth);
 
-		std::vector<std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>*> > electrode_pairs;
+        std::vector<std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>*> > electrode_pairs;
         std::vector<double> magnitudes;
         std::vector<double> durations;
         std::vector<double> periods;
         std::vector<double> starts;
         std::vector<double> ends;
 
-		//first electrodes, x=0 plane
-		ChastePoint<3> LowerPoint_1(-1, -1, -1);
-		ChastePoint<3> UpperPoint_1(0.15, 3.0, 3.0);
+        //first electrodes, x=0 plane
+        ChastePoint<3> LowerPoint_1(-1, -1, -1);
+        ChastePoint<3> UpperPoint_1(0.15, 3.0, 3.0);
 
-		//second electrode, z=0 plane -> should intersect the first one at x=0,z=0, any y
-		ChastePoint<3> LowerPoint_2(-1, -1, -1);
-		ChastePoint<3> UpperPoint_2(3.0, 3.0, 0.15);
+        //second electrode, z=0 plane -> should intersect the first one at x=0,z=0, any y
+        ChastePoint<3> LowerPoint_2(-1, -1, -1);
+        ChastePoint<3> UpperPoint_2(3.0, 3.0, 0.15);
 
-		ChasteCuboid<3>* p_cuboid_1 = new ChasteCuboid<3>(LowerPoint_1, UpperPoint_1);
-		ChasteCuboid<3>* p_cuboid_2 = new ChasteCuboid<3>(LowerPoint_2, UpperPoint_2);
-		std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>* > first_pair;
-		first_pair.first = p_cuboid_1;
-		first_pair.second = p_cuboid_2;
-		electrode_pairs.push_back(first_pair);
+        ChasteCuboid<3>* p_cuboid_1 = new ChasteCuboid<3>(LowerPoint_1, UpperPoint_1);
+        ChasteCuboid<3>* p_cuboid_2 = new ChasteCuboid<3>(LowerPoint_2, UpperPoint_2);
+        std::pair<AbstractChasteRegion<3>*, AbstractChasteRegion<3>* > first_pair;
+        first_pair.first = p_cuboid_1;
+        first_pair.second = p_cuboid_2;
+        electrode_pairs.push_back(first_pair);
         magnitudes.push_back(-91800.0);
         durations.push_back(15.0);
         periods.push_back(20000);
@@ -556,18 +556,18 @@ public:
 
         ElectrodesStimulusFactory<3> electrodes(electrode_pairs, magnitudes, durations, periods, starts, ends);
         electrodes.SetMesh(&mesh);
-		TS_ASSERT_THROWS_THIS( electrodes.SetCompatibleExtracellularStimulus(),
-						"Two or more electrodes intersect with each other");
+        TS_ASSERT_THROWS_THIS( electrodes.SetCompatibleExtracellularStimulus(),
+                        "Two or more electrodes intersect with each other");
 
-		//covers exception in constructor.
-		periods.push_back(25000);
-		TS_ASSERT_THROWS_THIS(ElectrodesStimulusFactory<3> electrodes_2(electrode_pairs, magnitudes, durations, periods, starts, ends),
-								"Vector of electrode pairs and vector of stimulation paremeters must have the same size");
+        //covers exception in constructor.
+        periods.push_back(25000);
+        TS_ASSERT_THROWS_THIS(ElectrodesStimulusFactory<3> electrodes_2(electrode_pairs, magnitudes, durations, periods, starts, ends),
+                                "Vector of electrode pairs and vector of stimulation paremeters must have the same size");
 
         delete p_cuboid_1;
         delete p_cuboid_2;
 
-	}
+    }
 };
 
 #endif /*TESTSTIMULUSFACTORY_HPP_*/

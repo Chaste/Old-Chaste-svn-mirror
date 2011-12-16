@@ -45,23 +45,23 @@ typedef unsigned HeartRegionType;
 class HeartRegionCode
 {
 
-public:    
+public:
     /** Convenience method that returns a valid tissue identifier */
     static HeartRegionType GetValidTissueId();
 
     /** Convenience method that returns a valid bath identifier */
-    static HeartRegionType GetValidBathId();   
-    
+    static HeartRegionType GetValidBathId();
+
     /**
      *  For a given region identifier, determines whether it is a tissue identifier
-     * 
+     *
      *  @param regionId region identifier
      */
     static bool IsRegionTissue(HeartRegionType regionId);
 
     /**
      *  For a given region identifier, determines whether it is a bath identifier
-     * 
+     *
      *  @param regionId region identifier
      */
     static bool IsRegionBath(HeartRegionType regionId);

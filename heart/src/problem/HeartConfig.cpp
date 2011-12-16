@@ -459,32 +459,32 @@ void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::cha
     // Stimulus definition.  For these we always replace any previous definitions (at least for now...)
     if (pResumeParameters->ResumeSimulation()->Stimuli().present())
     {
-    	mpUserParameters->Simulation()->Stimuli().set(pResumeParameters->ResumeSimulation()->Stimuli().get());
+        mpUserParameters->Simulation()->Stimuli().set(pResumeParameters->ResumeSimulation()->Stimuli().get());
     }
 
     // Cell heterogeneities.  Note that while we copy the elements here, other code in CardiacSimulation actually updates
     // the loaded simulation to take account of the new settings.
     if (pResumeParameters->ResumeSimulation()->CellHeterogeneities().present())
     {
-    	if (!mpUserParameters->Simulation()->CellHeterogeneities().present())
-    	{
-    		// Original parameters had no heterogeneities, so just copy the whole element
-    		mpUserParameters->Simulation()->CellHeterogeneities().set(pResumeParameters->ResumeSimulation()->CellHeterogeneities().get());
-    	}
-    	else
-    	{
-    		// Need to append the new heterogeneity defitions to the original sequence
-	    	XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
-	    	    new_seq = pResumeParameters->ResumeSimulation()->CellHeterogeneities()->CellHeterogeneity();
-	    	XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
-	    		orig_seq = mpUserParameters->Simulation()->CellHeterogeneities()->CellHeterogeneity();
-	    	for (XSD_ITERATOR_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity) i = new_seq.begin();
-    	         i != new_seq.end();
-    	         ++i)
-    	    {
-	    		orig_seq.push_back(*i);
-    	    }
-    	}
+        if (!mpUserParameters->Simulation()->CellHeterogeneities().present())
+        {
+            // Original parameters had no heterogeneities, so just copy the whole element
+            mpUserParameters->Simulation()->CellHeterogeneities().set(pResumeParameters->ResumeSimulation()->CellHeterogeneities().get());
+        }
+        else
+        {
+            // Need to append the new heterogeneity defitions to the original sequence
+            XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
+                new_seq = pResumeParameters->ResumeSimulation()->CellHeterogeneities()->CellHeterogeneity();
+            XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
+                orig_seq = mpUserParameters->Simulation()->CellHeterogeneities()->CellHeterogeneity();
+            for (XSD_ITERATOR_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity) i = new_seq.begin();
+                 i != new_seq.end();
+                 ++i)
+            {
+                orig_seq.push_back(*i);
+            }
+        }
     }
 
     // Whether to checkpoint the resumed simulation
@@ -945,8 +945,8 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunct
     try
     {
          stimuli = DecideLocation( & mpUserParameters->Simulation()->Stimuli(),
-		                           & mpDefaultParameters->Simulation()->Stimuli(),
-		                           "Stimuli")->get().Stimulus();
+                                   & mpDefaultParameters->Simulation()->Stimuli(),
+                                   "Stimuli")->get().Stimulus();
     }
     catch(Exception& e)
     {

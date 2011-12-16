@@ -70,15 +70,15 @@ public:
     virtual ~AbstractPottsUpdateRule();
 
     /**
-	 * Calculate the contribution to the Hamiltonian.
-	 *
-	 * @param currentNodeIndex The index of the current node/lattice site
-	 * @param targetNodeIndex The index of the target node/lattice site
-	 * @param rCellPopulation The cell population
-	 *
-	 * @return The difference in the Hamiltonian with the configuration of the target node
-	 * having the same spin as the current node with the current configuration. i.e H_1-H_0
-	 */
+     * Calculate the contribution to the Hamiltonian.
+     *
+     * @param currentNodeIndex The index of the current node/lattice site
+     * @param targetNodeIndex The index of the target node/lattice site
+     * @param rCellPopulation The cell population
+     *
+     * @return The difference in the Hamiltonian with the configuration of the target node
+     * having the same spin as the current node with the current configuration. i.e H_1-H_0
+     */
     virtual double EvaluateHamiltonianContribution(unsigned currentNodeIndex,
                                                    unsigned targetNodeIndex,
                                                    PottsBasedCellPopulation<DIM>& rCellPopulation)=0;

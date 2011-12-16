@@ -49,17 +49,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Very simple one-method class which can be used to convert the voltage from an electrics
- *  (or electromechanics) simulation onto a coarser mechanics mesh, by interpolation. The 
- *  class outputs a HDF5 file corresponding to nodes on the mechanics mesh, and converts it to 
- *  CMGUI output. 
- */ 
+ *  (or electromechanics) simulation onto a coarser mechanics mesh, by interpolation. The
+ *  class outputs a HDF5 file corresponding to nodes on the mechanics mesh, and converts it to
+ *  CMGUI output.
+ */
 template<unsigned DIM>
 class VoltageInterpolaterOntoMechanicsMesh
 {
 public:
-    /** 
+    /**
      *  Constructor, also the main method of the class
-     *  
+     *
      *  @param rElectricsMesh The electrics mesh
      *  @param rMechanicsMesh The mechanics mesh
      *  @param directory Directory the voltage file is in

@@ -80,7 +80,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This is a cardiac cell factory which uses the settings from HeartConfig to set up the cells.
- * 
+ *
  * It thus supports such features as heterogeneities (in both the type of cell, and for some cells,
  * cell model parameters), and the ability to dynamically convert CellML files into C++ code,
  * compile this, and load the resulting model.
@@ -119,7 +119,7 @@ private:
     std::vector<double> mScaleFactorIto;
     /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGkr;
-    
+
     /** Named parameters to be set in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<std::map<std::string, double> > mParameterSettings;
 
@@ -175,15 +175,15 @@ public:
 
     /**
      * Set parameters of a cell based on heterogeneity definitions in HeartConfig.
-     * 
+     *
      * @param pCell  the cell to set parameters of
      * @param nodeIndex  the index of the node corresponding to this cell in the mesh
      */
     void SetCellParameters(AbstractCardiacCell* pCell, unsigned nodeIndex);
-    
+
     /**
      * Set the intracellular stimulus for a cell based on the definitions in HeartConfig.
-     * 
+     *
      * @param pCell  the cell to set stimulus of
      * @param nodeIndex  the index of the node corresponding to this cell in the mesh
      */

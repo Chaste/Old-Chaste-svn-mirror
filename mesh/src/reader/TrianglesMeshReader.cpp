@@ -819,7 +819,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
         {
             for (unsigned i = 0; i < rNumAttributes; i++)
             {
-            	T_ATTR attribute;
+                T_ATTR attribute;
                 rFileStream.read((char*) &attribute, sizeof(T_ATTR));
                 rAttributes.push_back(attribute);
             }
@@ -856,7 +856,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifs
         {
             for (unsigned i = 0; i < rNumAttributes; i++)
             {
-            	T_ATTR attribute;
+                T_ATTR attribute;
                 buffer_stream >> attribute;
                 if (buffer_stream.fail())
                 {

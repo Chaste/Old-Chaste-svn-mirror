@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <cassert>
-#include <cmath>  
+#include <cmath>
 #include "SimulationTime.hpp"
 
 /** Pointer to the single instance */
@@ -89,7 +89,7 @@ double SimulationTime::GetTime() const
     //Check if the time stepping has started
     if (mpTimeStepper)
     {
-    	return mpTimeStepper->GetTime();
+        return mpTimeStepper->GetTime();
     }
     //If time stepping hasn't started then we are still at start time
     return mStartTime;
@@ -132,14 +132,14 @@ bool SimulationTime::IsStartTimeSetUp() const
 
 bool SimulationTime::IsEndTimeAndNumberOfTimeStepsSetUp() const
 {
-	if(mpTimeStepper)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if(mpTimeStepper)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool SimulationTime::IsFinished() const

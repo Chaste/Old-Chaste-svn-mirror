@@ -49,14 +49,14 @@ public:
         FibreReader<3> fibre_reader(file_finder, AXISYM);
         std::vector< c_vector<double, 3> > fibre_vector;
         fibre_reader.GetAllAxi(fibre_vector);
-        
+
         //Write ascii file
         FibreWriter<3> fibre_writer("TestFibreWriter", "SimpleAxisymmetric2", true);
         fibre_writer.WriteAllAxi(fibre_vector);
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2.axi heart/test/data/fibre_tests/SimpleAxisymmetric2.axi").c_str()), 0);
-        
+
     }
     void TestAxiWriterBinary()
     {
@@ -64,16 +64,16 @@ public:
         FibreReader<3> fibre_reader(file_finder, AXISYM);
         std::vector< c_vector<double, 3> > fibre_vector;
         fibre_reader.GetAllAxi(fibre_vector);
-        
+
         //Write binary file
         FibreWriter<3> fibre_writer("TestFibreWriter", "SimpleAxisymmetric2Bin", false);
         fibre_writer.SetWriteFileAsBinary();
         fibre_writer.WriteAllAxi(fibre_vector);
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/SimpleAxisymmetric2Bin.axi heart/test/data/fibre_tests/SimpleAxisymmetric2Bin.axi").c_str()), 0);
     }
-    
+
     void TestOrthoWriterAscii() throw (Exception)
     {
         FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
@@ -82,15 +82,15 @@ public:
         std::vector< c_vector<double, 3> > second;
         std::vector< c_vector<double, 3> > third;
         fibre_reader.GetAllOrtho(fibres, second, third);
-          
+
         //Write ascii file
         FibreWriter<3> fibre_writer("TestFibreWriter", "Orthotropic3D", false);
         fibre_writer.WriteAllOrtho(fibres, second, third);
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_dir + "/Orthotropic3D.ortho heart/test/data/fibre_tests/Orthotropic3D.ortho").c_str()), 0);
     }
-    
+
     void TestOrthoWriterBinary() throw (Exception)
     {
         FileFinder file_finder("heart/test/data/fibre_tests/Orthotropic3D.ortho", RelativeTo::ChasteSourceRoot);
@@ -99,14 +99,14 @@ public:
         std::vector< c_vector<double, 3> > second;
         std::vector< c_vector<double, 3> > third;
         fibre_reader.GetAllOrtho(fibres, second, third);
-          
+
         //Write binary file
         FibreWriter<3> fibre_writer("TestFibreWriter", "Orthotropic3DBin", false);
         fibre_writer.SetWriteFileAsBinary();
         fibre_writer.WriteAllOrtho(fibres, second, third);
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestFibreWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/Orthotropic3DBin.ortho heart/test/data/fibre_tests/Orthotropic3DBin.ortho").c_str()), 0);      
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/Orthotropic3DBin.ortho heart/test/data/fibre_tests/Orthotropic3DBin.ortho").c_str()), 0);
     }
 
 
@@ -127,7 +127,7 @@ private:
         FibreWriter<3> fibre_writer(dir, baseName+"_bin", false);
         fibre_writer.SetWriteFileAsBinary();
         fibre_writer.WriteAllOrtho(fibres, second, third);
-        
+
         //Read it back
         FileFinder file_finder_bin(dir+"/"+baseName+"_bin.ortho", RelativeTo::ChasteTestOutput);
         FibreReader<3> fibre_reader_bin(file_finder_bin, ORTHO);
@@ -135,11 +135,11 @@ private:
         std::vector< c_vector<double, 3> > second_bin;
         std::vector< c_vector<double, 3> > third_bin;
         fibre_reader_bin.GetAllOrtho(fibres_bin, second_bin, third_bin);
-        
+
         TS_ASSERT_EQUALS(fibres.size(), fibres_bin.size());
         TS_ASSERT_EQUALS(second.size(), second_bin.size());
         TS_ASSERT_EQUALS(third.size(), third_bin.size());
-        
+
         for (unsigned i = 0; i< fibres.size(); i++)
         {
             for (unsigned j = 0; j< 3u ; j++)
@@ -152,10 +152,10 @@ private:
         if (output)
         {
             std::cout<<"cp "<<
-                OutputFileHandler::GetChasteTestOutputDirectory() 
+                OutputFileHandler::GetChasteTestOutputDirectory()
                 << dir <<"/"<<baseName<<"_bin.ortho " <<
                 fullPath << "/" << baseName << ".ortho\n";
-            system(("ls -lh " + OutputFileHandler::GetChasteTestOutputDirectory() 
+            system(("ls -lh " + OutputFileHandler::GetChasteTestOutputDirectory()
                 + dir + "/" + baseName + "_bin.ortho " +
                 fullPath + "/" + baseName + ".ortho\n").c_str());
             }
@@ -171,15 +171,15 @@ private:
         FibreWriter<3> fibre_writer(dir, baseName+"_bin", false);
         fibre_writer.SetWriteFileAsBinary();
         fibre_writer.WriteAllAxi(fibres);
-        
+
         //Read it back
         FileFinder file_finder_bin(dir+"/"+baseName+"_bin.axi", RelativeTo::ChasteTestOutput);
         FibreReader<3> fibre_reader_bin(file_finder_bin, AXISYM);
         std::vector< c_vector<double, 3> > fibres_bin;
         fibre_reader_bin.GetAllAxi(fibres_bin);
-        
+
         TS_ASSERT_EQUALS(fibres.size(), fibres_bin.size());
-        
+
         for (unsigned i = 0; i< fibres.size(); i++)
         {
             for (unsigned j = 0; j< 3u ; j++)
@@ -190,10 +190,10 @@ private:
         if (output)
         {
             std::cout<<"cp "<<
-                OutputFileHandler::GetChasteTestOutputDirectory() 
+                OutputFileHandler::GetChasteTestOutputDirectory()
                 << dir <<"/"<<baseName<<"_bin.axi " <<
                 fullPath << "/" << baseName << ".axi\n";
-            system(("ls -lh " + OutputFileHandler::GetChasteTestOutputDirectory() 
+            system(("ls -lh " + OutputFileHandler::GetChasteTestOutputDirectory()
                 + dir + "/" + baseName + "_bin.axi " +
                 fullPath + "/" + baseName + ".axi\n").c_str());
         }

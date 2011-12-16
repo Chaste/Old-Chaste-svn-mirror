@@ -62,7 +62,7 @@ public:
                                 err.GetMessage().find("Hello. I\'m an exception",0), 51u); // This appears at position 51 in full message (a bit more robust?!)
     }
 
-    
+
     void TestCheckStreamingException()
     {
         int rule=42;

@@ -57,14 +57,14 @@ ExtendedBidomainProblem<DIM>::ExtendedBidomainProblem(
 template<unsigned DIM>
 ExtendedBidomainProblem<DIM>::ExtendedBidomainProblem()
     : AbstractCardiacProblem<DIM,DIM, 3>(),
-	  mpSecondCellFactory(NULL),
-	  mpExtendedBidomainTissue(NULL),
-	  mUserSpecifiedSecondCellConductivities(false),
-	  mUserHasSetBidomainValuesExplicitly(false),
-	  mpExtracellularStimulusFactory(NULL),
-	  mRowForAverageOfPhiZeroed(INT_MAX),
-	  mApplyAveragePhieZeroConstraintAfterSolving(false),
-	  mUserSuppliedExtracellularStimulus(false)
+      mpSecondCellFactory(NULL),
+      mpExtendedBidomainTissue(NULL),
+      mUserSpecifiedSecondCellConductivities(false),
+      mUserHasSetBidomainValuesExplicitly(false),
+      mpExtracellularStimulusFactory(NULL),
+      mRowForAverageOfPhiZeroed(INT_MAX),
+      mApplyAveragePhieZeroConstraintAfterSolving(false),
+      mUserSuppliedExtracellularStimulus(false)
 {
     mFixedExtracellularPotentialNodes.resize(0);
 }
@@ -84,7 +84,7 @@ Vec ExtendedBidomainProblem<DIM>::CreateInitialCondition()
     stripe.push_back(DistributedVector::Stripe(ic, 1));
     stripe.push_back(DistributedVector::Stripe(ic, 2));
 
-	for (DistributedVector::Iterator index = ic.Begin();
+    for (DistributedVector::Iterator index = ic.Begin();
          index != ic.End();
          ++index)
     {
@@ -100,49 +100,49 @@ Vec ExtendedBidomainProblem<DIM>::CreateInitialCondition()
 template<unsigned DIM>
 void ExtendedBidomainProblem<DIM>::ProcessExtracellularStimulus()
 {
-	if ((mpExtracellularStimulusFactory == NULL))//user has not passed in any extracelular stimulus in any form
-	{
-		mpExtracellularStimulusFactory = new AbstractStimulusFactory<DIM>();
-		//create one (with default implementation to zero stimulus everywhere)
-	}
+    if ((mpExtracellularStimulusFactory == NULL))//user has not passed in any extracelular stimulus in any form
+    {
+        mpExtracellularStimulusFactory = new AbstractStimulusFactory<DIM>();
+        //create one (with default implementation to zero stimulus everywhere)
+    }
 
-	assert(mpExtracellularStimulusFactory);//should be created by now, either above or by the user...
-	mpExtracellularStimulusFactory->SetMesh(this->mpMesh);//so, set the mesh into it.
-	mpExtracellularStimulusFactory->SetCompatibleExtracellularStimulus();//make sure compatibility condition will be valid
+    assert(mpExtracellularStimulusFactory);//should be created by now, either above or by the user...
+    mpExtracellularStimulusFactory->SetMesh(this->mpMesh);//so, set the mesh into it.
+    mpExtracellularStimulusFactory->SetCompatibleExtracellularStimulus();//make sure compatibility condition will be valid
 
-	std::vector<AbstractChasteRegion<DIM>* > grounded_regions = mpExtracellularStimulusFactory->GetRegionsToBeGrounded();
+    std::vector<AbstractChasteRegion<DIM>* > grounded_regions = mpExtracellularStimulusFactory->GetRegionsToBeGrounded();
 
     if ( (mUserSuppliedExtracellularStimulus) && grounded_regions.size() > 0 ) //we check for grunded nodes here
     {
-    	std::vector<unsigned> grounded_indices;
-    	for (unsigned global_node_index = 0; global_node_index < this->mpMesh->GetNumNodes(); global_node_index++)
-    	{
-    		if (this->mpMesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(global_node_index))
-    		{
-				for (unsigned region_index = 0; region_index <grounded_regions.size(); region_index++)
-				{
-					if ( grounded_regions[region_index]->DoesContain( this->mpMesh->GetNode(global_node_index)->GetPoint() ) )
-					{
-						grounded_indices.push_back( this->mpMesh->GetNode(global_node_index)->GetIndex() );
-					}
-				}
-    		}
-    	}
-    	PetscTools::Barrier();
-    	SetFixedExtracellularPotentialNodes(grounded_indices);
+        std::vector<unsigned> grounded_indices;
+        for (unsigned global_node_index = 0; global_node_index < this->mpMesh->GetNumNodes(); global_node_index++)
+        {
+            if (this->mpMesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(global_node_index))
+            {
+                for (unsigned region_index = 0; region_index <grounded_regions.size(); region_index++)
+                {
+                    if ( grounded_regions[region_index]->DoesContain( this->mpMesh->GetNode(global_node_index)->GetPoint() ) )
+                    {
+                        grounded_indices.push_back( this->mpMesh->GetNode(global_node_index)->GetIndex() );
+                    }
+                }
+            }
+        }
+        PetscTools::Barrier();
+        SetFixedExtracellularPotentialNodes(grounded_indices);
     }
 }
 
 template<unsigned DIM>
 AbstractCardiacTissue<DIM> * ExtendedBidomainProblem<DIM>::CreateCardiacTissue()
 {
-	//set the mesh into the second cell factory as well.
-	mpSecondCellFactory->SetMesh(this->mpMesh);
+    //set the mesh into the second cell factory as well.
+    mpSecondCellFactory->SetMesh(this->mpMesh);
 
-	//deal with extracellular stimulus, if any
-	ProcessExtracellularStimulus();
+    //deal with extracellular stimulus, if any
+    ProcessExtracellularStimulus();
 
-	//Now create the tissue object
+    //Now create the tissue object
     mpExtendedBidomainTissue = new ExtendedBidomainTissue<DIM>(this->mpCellFactory, mpSecondCellFactory,mpExtracellularStimulusFactory);
 
     //Let the Tissue know if the user wants an extracellular stimulus (or if we had to create a default zero one).
@@ -151,13 +151,13 @@ AbstractCardiacTissue<DIM> * ExtendedBidomainProblem<DIM>::CreateCardiacTissue()
     //if the user remembered to set a different value for the sigma of the second cell...
     if (mUserSpecifiedSecondCellConductivities)
     {
-    	mpExtendedBidomainTissue->SetIntracellularConductivitiesSecondCell(mIntracellularConductivitiesSecondCell);
+        mpExtendedBidomainTissue->SetIntracellularConductivitiesSecondCell(mIntracellularConductivitiesSecondCell);
     }
     else //..otherwise it gets the same as the first cell (according to heartconfig...)
     {
         c_vector<double, DIM> intra_conductivities;
         HeartConfig::Instance()->GetIntracellularConductivities(intra_conductivities);
-    	mpExtendedBidomainTissue->SetIntracellularConductivitiesSecondCell(intra_conductivities);
+        mpExtendedBidomainTissue->SetIntracellularConductivitiesSecondCell(intra_conductivities);
     }
 
     //the conductivities for the first cell are created within the tissue constructor in the abstract class
@@ -166,21 +166,21 @@ AbstractCardiacTissue<DIM> * ExtendedBidomainProblem<DIM>::CreateCardiacTissue()
 
     if (mUserHasSetBidomainValuesExplicitly)
     {
-    	mpExtendedBidomainTissue->SetAmFirstCell(mAmFirstCell);
-    	mpExtendedBidomainTissue->SetAmSecondCell(mAmSecondCell);
-    	mpExtendedBidomainTissue->SetAmGap(mAmGap);
-    	mpExtendedBidomainTissue->SetGGap(mGGap);
-    	mpExtendedBidomainTissue->SetCmFirstCell(mCmFirstCell);
-    	mpExtendedBidomainTissue->SetCmSecondCell(mCmSecondCell);
+        mpExtendedBidomainTissue->SetAmFirstCell(mAmFirstCell);
+        mpExtendedBidomainTissue->SetAmSecondCell(mAmSecondCell);
+        mpExtendedBidomainTissue->SetAmGap(mAmGap);
+        mpExtendedBidomainTissue->SetGGap(mGGap);
+        mpExtendedBidomainTissue->SetCmFirstCell(mCmFirstCell);
+        mpExtendedBidomainTissue->SetCmSecondCell(mCmSecondCell);
     }
     else//we set all the Am and Cm to the values set by the heartconfig (only one value for all Am and one value for all Cms)
     {
-    	mpExtendedBidomainTissue->SetAmFirstCell(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio());
-    	mpExtendedBidomainTissue->SetAmSecondCell(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio());
-    	mpExtendedBidomainTissue->SetAmGap(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio());
-    	mpExtendedBidomainTissue->SetGGap(0.0);
-    	mpExtendedBidomainTissue->SetCmFirstCell(HeartConfig::Instance()->GetCapacitance());
-    	mpExtendedBidomainTissue->SetCmSecondCell(HeartConfig::Instance()->GetCapacitance());
+        mpExtendedBidomainTissue->SetAmFirstCell(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio());
+        mpExtendedBidomainTissue->SetAmSecondCell(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio());
+        mpExtendedBidomainTissue->SetAmGap(HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio());
+        mpExtendedBidomainTissue->SetGGap(0.0);
+        mpExtendedBidomainTissue->SetCmFirstCell(HeartConfig::Instance()->GetCapacitance());
+        mpExtendedBidomainTissue->SetCmSecondCell(HeartConfig::Instance()->GetCapacitance());
     }
 
     mpExtendedBidomainTissue->SetGgapHeterogeneities(mGgapHeterogeneityRegions, mGgapHeterogenousValues);//set user input into the tissue class
@@ -192,14 +192,14 @@ AbstractCardiacTissue<DIM> * ExtendedBidomainProblem<DIM>::CreateCardiacTissue()
 template<unsigned DIM>
 void ExtendedBidomainProblem<DIM>::SetExtendedBidomainParameters(double Am1, double Am2, double AmGap, double Cm1, double Cm2, double Ggap)
 {
-	 mAmFirstCell = Am1;
-	 mAmSecondCell = Am2;
-	 mAmGap = AmGap;
-	 mCmFirstCell = Cm1;
-	 mCmSecondCell = Cm2;
-	 mGGap = Ggap;
+     mAmFirstCell = Am1;
+     mAmSecondCell = Am2;
+     mAmGap = AmGap;
+     mCmFirstCell = Cm1;
+     mCmSecondCell = Cm2;
+     mGGap = Ggap;
 
-	 mUserHasSetBidomainValuesExplicitly = true;
+     mUserHasSetBidomainValuesExplicitly = true;
 }
 
 template <unsigned DIM>
@@ -207,7 +207,7 @@ void ExtendedBidomainProblem<DIM>::SetGgapHeterogeneities ( std::vector<boost::s
 {
     if (rGgapHeterogeneityRegions.size() != rGgapValues.size() )
     {
-    	EXCEPTION  ("Gap junction heterogeneity areas must be of the same number as the heterogeneity values");
+        EXCEPTION  ("Gap junction heterogeneity areas must be of the same number as the heterogeneity values");
     }
     mGgapHeterogeneityRegions = rGgapHeterogeneityRegions;
     mGgapHeterogenousValues =rGgapValues;
@@ -216,8 +216,8 @@ void ExtendedBidomainProblem<DIM>::SetGgapHeterogeneities ( std::vector<boost::s
 template <unsigned DIM>
 void ExtendedBidomainProblem<DIM>::SetExtracellularStimulusFactory( AbstractStimulusFactory<DIM>* pFactory)
 {
-	mpExtracellularStimulusFactory = pFactory;
-	mUserSuppliedExtracellularStimulus = true;
+    mpExtracellularStimulusFactory = pFactory;
+    mUserSuppliedExtracellularStimulus = true;
 }
 
 template<unsigned DIM>
@@ -234,7 +234,7 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 3>* ExtendedBidomainProblem<DIM>::Creat
      */
 
 
-	mpSolver = new ExtendedBidomainSolver<DIM,DIM>( mHasBath,
+    mpSolver = new ExtendedBidomainSolver<DIM,DIM>( mHasBath,
                                                     this->mpMesh,
                                                     mpExtendedBidomainTissue,
                                                     this->mpBoundaryConditionsContainer.get(),
@@ -258,26 +258,26 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 3>* ExtendedBidomainProblem<DIM>::Creat
 template<unsigned DIM>
 ExtendedBidomainProblem<DIM>::~ExtendedBidomainProblem()
 {
-	if (!mUserSuppliedExtracellularStimulus)
-	{
-		delete mpExtracellularStimulusFactory;
-	}
+    if (!mUserSuppliedExtracellularStimulus)
+    {
+        delete mpExtracellularStimulusFactory;
+    }
 }
 
 template<unsigned DIM>
 void ExtendedBidomainProblem<DIM>::SetIntracellularConductivitiesForSecondCell(c_vector<double, DIM> conductivities)
 {
-	for (unsigned i = 0; i < DIM; i++)
-	{
-		mIntracellularConductivitiesSecondCell[i] = conductivities[i];
-	}
-	mUserSpecifiedSecondCellConductivities = true;
+    for (unsigned i = 0; i < DIM; i++)
+    {
+        mIntracellularConductivitiesSecondCell[i] = conductivities[i];
+    }
+    mUserSpecifiedSecondCellConductivities = true;
 }
 
 template<unsigned DIM>
 void ExtendedBidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsigned> nodes)
 {
-	assert(mFixedExtracellularPotentialNodes.size() == 0); //TODO turn this into an exception if the user calls this twice...
+    assert(mFixedExtracellularPotentialNodes.size() == 0); //TODO turn this into an exception if the user calls this twice...
     mFixedExtracellularPotentialNodes.resize(nodes.size());
     for (unsigned i=0; i<nodes.size(); i++)
     {
@@ -290,15 +290,15 @@ void ExtendedBidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vect
 template<unsigned DIM>
 void ExtendedBidomainProblem<DIM>::SetNodeForAverageOfPhiZeroed(unsigned node)
 {
-	if (node==0)
-	{
-		mRowForAverageOfPhiZeroed = 2;
-	}
-	else
-	{
-		//Phie is every three lines, starting from zero...
-		mRowForAverageOfPhiZeroed = 3*node  - 1;
-	}
+    if (node==0)
+    {
+        mRowForAverageOfPhiZeroed = 2;
+    }
+    else
+    {
+        //Phie is every three lines, starting from zero...
+        mRowForAverageOfPhiZeroed = 3*node  - 1;
+    }
 }
 
 template<unsigned DIM>
@@ -332,8 +332,8 @@ void ExtendedBidomainProblem<DIM>::WriteInfo(double time)
     if (PetscTools::AmMaster())
     {
         std::cout << " Phi_i first cell = " << "[" <<phi_i_max_first_cell << ", " << phi_i_min_first_cell << "]" << ";\n"
-        		  << " Phi_i second cell = " << "[" <<phi_i_max_second_cell << ", " << phi_i_min_second_cell << "]" << ";\n"
-        		  << " Phi_e = " << "[" <<phi_e_max << ", " << phi_e_min << "]" << ";\n"
+                  << " Phi_i second cell = " << "[" <<phi_i_max_second_cell << ", " << phi_i_min_second_cell << "]" << ";\n"
+                  << " Phi_e = " << "[" <<phi_e_max << ", " << phi_e_min << "]" << ";\n"
                   << std::flush;
     }
 }
@@ -364,9 +364,9 @@ void ExtendedBidomainProblem<DIM>::DefineWriterColumns(bool extending)
     }
     else
     {
-    	mVoltageColumnId_Vm1 = this->mpWriter->GetVariableByName("V");
-    	mVoltageColumnId_Vm2 = this->mpWriter->GetVariableByName("V_2");
-    	mVoltageColumnId_Phie = this->mpWriter->GetVariableByName("Phi_e");
+        mVoltageColumnId_Vm1 = this->mpWriter->GetVariableByName("V");
+        mVoltageColumnId_Vm2 = this->mpWriter->GetVariableByName("V_2");
+        mVoltageColumnId_Phie = this->mpWriter->GetVariableByName("Phi_e");
     }
     //define any extra variable. NOTE: it must be in the first cell (not the second)
     AbstractCardiacProblem<DIM,DIM,3>::DefineExtraVariablesWriterColumns(extending);
@@ -395,9 +395,9 @@ void ExtendedBidomainProblem<DIM>::WriteOneStep(double time, Vec voltageVec)
          index != wrapped_solution.End();
          ++index)
     {
-    	wrapped_ordered_solution_first_stripe[index] = phi_i_first_cell_stripe[index] - phi_e_stripe[index];
-    	wrapped_ordered_solution_second_stripe[index] = phi_i_second_cell_stripe[index] - phi_e_stripe[index];
-    	wrapped_ordered_solution_third_stripe[index] = phi_e_stripe[index];
+        wrapped_ordered_solution_first_stripe[index] = phi_i_first_cell_stripe[index] - phi_e_stripe[index];
+        wrapped_ordered_solution_second_stripe[index] = phi_i_second_cell_stripe[index] - phi_e_stripe[index];
+        wrapped_ordered_solution_third_stripe[index] = phi_e_stripe[index];
     }
     wrapped_solution.Restore();
     wrapped_ordered_solution.Restore();

@@ -49,9 +49,9 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSoluti
     PetscInt ownership_range_hi;
     VecGetOwnershipRange(r_template, &ownership_range_lo, &ownership_range_hi);
     PetscInt local_size = ownership_range_hi - ownership_range_lo;
-    PetscTools::SetupMat(mMassMatrix, 2*this->mpMesh->GetNumNodes(), 2*this->mpMesh->GetNumNodes(), 
+    PetscTools::SetupMat(mMassMatrix, 2*this->mpMesh->GetNumNodes(), 2*this->mpMesh->GetNumNodes(),
                          2*this->mpMesh->CalculateMaximumNodeConnectivityPerProcess(),
-                         local_size, local_size); 
+                         local_size, local_size);
 }
 
 
@@ -74,7 +74,7 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         mpBidomainAssembler->AssembleMatrix();
 
         // the BidomainMassMatrixAssembler deals with the mass matrix
-        // for both bath and nonbath problems 
+        // for both bath and nonbath problems
         assert(SPACE_DIM==ELEMENT_DIM);
         BidomainMassMatrixAssembler<SPACE_DIM> mass_matrix_assembler(this->mpMesh);
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
@@ -89,7 +89,7 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
 
     //////////////////////////////////////////
     // Set up z in b=Mz
-    //////////////////////////////////////////        
+    //////////////////////////////////////////
     DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
 
     // dist stripe for the current Voltage
@@ -126,22 +126,22 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
              index!= dist_vec_matrix_based.End();
              ++index)
         {
-    
+
             if ( !HeartRegionCode::IsRegionBath( this->mpMesh->GetNode(index.Global)->GetRegion() ))
             {
                 double V = distributed_current_solution_vm[index];
                 double F = - Am*this->mpBidomainTissue->rGetIionicCacheReplicated()[index.Global]
                            - this->mpBidomainTissue->rGetIntracellularStimulusCacheReplicated()[index.Global];
-    
+
                 dist_vec_matrix_based_vm[index] = Am*Cm*V*PdeSimulationTime::GetPdeTimeStepInverse() + F;
             }
             else
             {
                 dist_vec_matrix_based_vm[index] = 0.0;
             }
-    
+
             dist_vec_matrix_based_phie[index] = 0.0;
-    
+
         }
     }
 
@@ -173,7 +173,7 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         mpBidomainCorrectionTermAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
         // don't need to set current solution
         mpBidomainCorrectionTermAssembler->AssembleVector();
-    }  
+    }
 
     this->mpLinearSystem->FinaliseRhsVector();
 
@@ -221,7 +221,7 @@ BidomainSolver<ELEMENT_DIM,SPACE_DIM>::BidomainSolver(
 
     if(HeartConfig::Instance()->GetUseStateVariableInterpolation())
     {
-        mpBidomainCorrectionTermAssembler 
+        mpBidomainCorrectionTermAssembler
             = new BidomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainTissue,this->mNumQuadPoints);
         //We are going to need those caches after all
         pTissue->SetCacheReplication(true);
@@ -243,7 +243,7 @@ BidomainSolver<ELEMENT_DIM,SPACE_DIM>::~BidomainSolver()
         VecDestroy(mVecForConstructingRhs);
         MatDestroy(mMassMatrix);
     }
-    
+
     if(mpBidomainCorrectionTermAssembler)
     {
         delete mpBidomainCorrectionTermAssembler;

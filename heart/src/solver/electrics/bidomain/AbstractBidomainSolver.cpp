@@ -75,7 +75,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
         if (p_mesh && PetscTools::IsSequential())
         {
             boost::shared_ptr<std::vector<PetscInt> > p_bath_nodes(new std::vector<PetscInt>());
-        
+
             for(unsigned node_index=0; node_index<this->mpMesh->GetNumNodes(); node_index++)
             {
                 if (HeartRegionCode::IsRegionBath( this->mpMesh->GetNode(node_index)->GetRegion() ))
@@ -83,7 +83,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
                     p_bath_nodes->push_back(node_index);
                 }
             }
-            
+
             this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner(), p_bath_nodes);
         }
         else
@@ -92,7 +92,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initi
         }
     }
     else
-    { 
+    {
         this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
     }
 
@@ -222,7 +222,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition(
         return;
     }
 
-#ifndef NDEBUG   
+#ifndef NDEBUG
     DistributedVector distributed_rhs=this->mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(this->mpLinearSystem->rGetRhsVector());
     DistributedVector::Stripe distributed_rhs_phi_entries(distributed_rhs,1);
 
@@ -233,11 +233,11 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition(
     {
         local_sum += distributed_rhs_phi_entries[index];
     }
-    
+
     double global_sum;
     int mpi_ret = MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
     assert(mpi_ret == MPI_SUCCESS);
-     
+
     if(fabs(global_sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway (or a-a+b-b+c-c.. etc in the case of electrodes)
     {
         #define COVERAGE_IGNORE

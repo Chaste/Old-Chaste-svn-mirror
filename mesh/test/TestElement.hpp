@@ -728,8 +728,8 @@ public:
 
         ChastePoint<1> new_point(0.01);
         Element<1,1>* p_first_element = mesh.GetElement(0);
-        
-        
+
+
         TS_ASSERT_THROWS_NOTHING(mesh.RefineElement(p_first_element, new_point));
 
         // Instead of a element with nodes at 0 and 0.1

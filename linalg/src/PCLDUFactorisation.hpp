@@ -91,7 +91,7 @@ PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y);
  *
  * The inverses are approximate with one cycle of AMG.
  *
- * Note: This class requires PETSc to be build including HYPRE library. 
+ * Note: This class requires PETSc to be build including HYPRE library.
  * If it's not available, it will throw the following error:
  *
  *     [0]PETSC ERROR: --------------------- Error Message ------------------------------------

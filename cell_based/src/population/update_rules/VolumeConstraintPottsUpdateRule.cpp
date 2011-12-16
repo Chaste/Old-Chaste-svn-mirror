@@ -34,7 +34,7 @@ VolumeConstraintPottsUpdateRule<DIM>::VolumeConstraintPottsUpdateRule()
       mDeformationEnergyParameter(0.5), // Educated guess
       mMatureCellTargetVolume(16.0) // Defaults to a 4*4 cell size
 {
-        /// \todo Default values don't apply in 3D. 
+        /// \todo Default values don't apply in 3D.
 }
 
 template<unsigned DIM>
@@ -47,10 +47,10 @@ double VolumeConstraintPottsUpdateRule<DIM>::EvaluateHamiltonianContribution(uns
                                                                         unsigned targetNodeIndex,
                                                                         PottsBasedCellPopulation<DIM>& rCellPopulation)
 {
-	double delta_H = 0.0;
+    double delta_H = 0.0;
 
-	std::set<unsigned> containing_elements = rCellPopulation.GetNode(currentNodeIndex)->rGetContainingElementIndices();
-	std::set<unsigned> new_location_containing_elements = rCellPopulation.GetNode(targetNodeIndex)->rGetContainingElementIndices();
+    std::set<unsigned> containing_elements = rCellPopulation.GetNode(currentNodeIndex)->rGetContainingElementIndices();
+    std::set<unsigned> new_location_containing_elements = rCellPopulation.GetNode(targetNodeIndex)->rGetContainingElementIndices();
 
     bool current_node_contained = !containing_elements.empty();
     bool target_node_contained = !new_location_containing_elements.empty();
@@ -60,7 +60,7 @@ double VolumeConstraintPottsUpdateRule<DIM>::EvaluateHamiltonianContribution(uns
 
     if(!current_node_contained && !target_node_contained)
     {
-    	EXCEPTION("At least one of the current node or target node must be in an element.");
+        EXCEPTION("At least one of the current node or target node must be in an element.");
     }
 
     if (current_node_contained && target_node_contained)
@@ -71,24 +71,24 @@ double VolumeConstraintPottsUpdateRule<DIM>::EvaluateHamiltonianContribution(uns
         }
     }
 
-	if (current_node_contained) // current node is in an element
-	{
-		unsigned current_element = (*containing_elements.begin());
-		double current_volume = rCellPopulation.rGetMesh().GetVolumeOfElement(current_element);
-		double current_volume_difference = current_volume - mMatureCellTargetVolume;
+    if (current_node_contained) // current node is in an element
+    {
+        unsigned current_element = (*containing_elements.begin());
+        double current_volume = rCellPopulation.rGetMesh().GetVolumeOfElement(current_element);
+        double current_volume_difference = current_volume - mMatureCellTargetVolume;
 
-		delta_H += mDeformationEnergyParameter*((current_volume_difference + 1.0)*(current_volume_difference + 1.0) - current_volume_difference*current_volume_difference);
-	}
-	if (target_node_contained) // target node is in an element
-	{
-		unsigned target_element = (*new_location_containing_elements.begin());
+        delta_H += mDeformationEnergyParameter*((current_volume_difference + 1.0)*(current_volume_difference + 1.0) - current_volume_difference*current_volume_difference);
+    }
+    if (target_node_contained) // target node is in an element
+    {
+        unsigned target_element = (*new_location_containing_elements.begin());
         double target_volume = rCellPopulation.rGetMesh().GetVolumeOfElement(target_element);
         double target_volume_difference = target_volume - mMatureCellTargetVolume;
 
-		delta_H += mDeformationEnergyParameter*((target_volume_difference - 1.0)*(target_volume_difference - 1.0) - target_volume_difference*target_volume_difference);
-	}
+        delta_H += mDeformationEnergyParameter*((target_volume_difference - 1.0)*(target_volume_difference - 1.0) - target_volume_difference*target_volume_difference);
+    }
 
-	return delta_H;
+    return delta_H;
 }
 
 template<unsigned DIM>
@@ -120,7 +120,7 @@ template<unsigned DIM>
 void VolumeConstraintPottsUpdateRule<DIM>::OutputUpdateRuleParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<DeformationEnergyParameter>" << mDeformationEnergyParameter << "</DeformationEnergyParameter>\n";
-	*rParamsFile << "\t\t\t<MatureCellTargetVolume>" << mMatureCellTargetVolume << "</MatureCellTargetVolume>\n";
+    *rParamsFile << "\t\t\t<MatureCellTargetVolume>" << mMatureCellTargetVolume << "</MatureCellTargetVolume>\n";
 
     // Call method on direct parent class
     AbstractPottsUpdateRule<DIM>::OutputUpdateRuleParameters(rParamsFile);

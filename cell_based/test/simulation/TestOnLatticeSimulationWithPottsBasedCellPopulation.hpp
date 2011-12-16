@@ -161,7 +161,7 @@ public:
         TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
     }
-    
+
     void TestPottsMonolayerWithNonRandomSweep() throw (Exception)
     {
         // Create a simple 2D PottsMesh

@@ -68,7 +68,7 @@ public:
         }
 
         if (    (DIM==1 && fabs(x)<0.02+1e-6)
-             || (DIM==2 && fabs(x)<0.02+1e-6 && fabs(y)<0.02+1e-6) )  
+             || (DIM==2 && fabs(x)<0.02+1e-6 && fabs(y)<0.02+1e-6) )
         {
             return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
         }
@@ -101,44 +101,44 @@ public:
             {
                 TetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
-    
+
                 std::stringstream output_dir;
                 output_dir << "BidomainIci_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-    
+
                 // need to have this for i=1,2 cases!!
                 HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
-                    
+
                 BlockCellFactory<1> cell_factory;
                 BidomainProblem<1> bidomain_problem( &cell_factory );
                 bidomain_problem.SetMesh(&mesh);
                 bidomain_problem.Initialise();
-            
+
                 bidomain_problem.Solve();
-                    
+
                 final_voltage_ici.ReplicatePetscVector(bidomain_problem.GetSolution());
             }
-       
+
             // SVI - state variable interpolation
             {
                 DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
-    
+
                 std::stringstream output_dir;
                 output_dir << "BidomainSvi_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-    
+
                 HeartConfig::Instance()->SetUseStateVariableInterpolation();
-    
+
                 BlockCellFactory<1> cell_factory;
                 BidomainProblem<1> bidomain_problem( &cell_factory );
                 bidomain_problem.SetMesh(&mesh);
                 bidomain_problem.Initialise();
-                            
+
                 bidomain_problem.Solve();
-                    
+
                 final_solution_svi.ReplicatePetscVector(bidomain_problem.GetSolution());
             }
 
@@ -146,39 +146,39 @@ public:
             {
                 TetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
-    
+
                 std::stringstream output_dir;
                 output_dir << "BidomainSviTet_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-    
+
                 HeartConfig::Instance()->SetUseStateVariableInterpolation();
-    
+
                 BlockCellFactory<1> cell_factory;
                 BidomainProblem<1> bidomain_problem( &cell_factory );
                 bidomain_problem.SetMesh(&mesh);
                 bidomain_problem.Initialise();
-                            
+
                 bidomain_problem.Solve();
-                    
+
                 final_solution_svit.ReplicatePetscVector(bidomain_problem.GetSolution());
             }
             double voltage_at_0_03_finest_mesh;
             if(i==0) // finest mesh
-            {        
+            {
                 for(unsigned j=0; j<final_voltage_ici.GetSize(); j++)
                 {
                     // visually checked they agree at this mesh resolution, and chosen tolerance from results
                     TS_ASSERT_DELTA(final_voltage_ici[j], final_solution_svi[j], 0.35);
                     TS_ASSERT_DELTA(final_solution_svit[j], final_solution_svi[j], 1e-8);
-                    
-                    if(j%2==0 /* just look at voltage */ && final_voltage_ici[j]>-80) 
+
+                    if(j%2==0 /* just look at voltage */ && final_voltage_ici[j]>-80)
                     {
                         // shouldn't be exactly equal, as long as away from resting potential
                         TS_ASSERT_DIFFERS(final_voltage_ici[j], final_solution_svi[j]);
                     }
                 }
-                
+
                 voltage_at_0_03_finest_mesh = final_voltage_ici[600];
                 TS_ASSERT_DELTA(voltage_at_0_03_finest_mesh, -65.2218, 1e-3); //hardcoded value
             }
@@ -188,7 +188,7 @@ public:
                 double svi_voltage_at_0_03_middle_mesh = final_solution_svi[60];
                 double svit_voltage_at_0_03_middle_mesh = final_solution_svit[60];
                 // NCI conduction velocity > SVI conduction velocity
-                // and both should be greater than CV on finesh mesh 
+                // and both should be greater than CV on finesh mesh
                 TS_ASSERT_DELTA(nci_voltage_at_0_03_middle_mesh, -44.3111, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_middle_mesh, -60.7765, 1e-3);
                 TS_ASSERT_DELTA(svit_voltage_at_0_03_middle_mesh, -60.7765, 1e-3);
@@ -198,7 +198,7 @@ public:
                 double nci_voltage_at_0_03_coarse_mesh = final_voltage_ici[30];
                 double svi_voltage_at_0_03_coarse_mesh = final_solution_svi[30];
                 double svit_voltage_at_0_03_coarse_mesh = final_solution_svit[30];
-                // NCI conduction velocity even greater than SVI conduction 
+                // NCI conduction velocity even greater than SVI conduction
                 // velocity
                 TS_ASSERT_DELTA(nci_voltage_at_0_03_coarse_mesh,  -6.5622, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_coarse_mesh, -51.8848, 1e-3);
@@ -206,7 +206,7 @@ public:
             }
         }
     }
-    
+
     void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
     {
         ReplicatableVector final_voltage_ici;
@@ -214,11 +214,11 @@ public:
 
         HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 0.01);
-        
+
         // much lower conductivity in cross-fibre direction - NCI will struggle
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.17));
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(7.0, 0.7));
-        
+
         // NCI - nodal current interpolation - the default
         {
             TetrahedralMesh<2,2> mesh;
@@ -228,16 +228,16 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
             HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
-                
+
             BlockCellFactory<2> cell_factory;
             BidomainProblem<2> bidomain_problem( &cell_factory );
             bidomain_problem.SetMesh(&mesh);
             bidomain_problem.Initialise();
             bidomain_problem.Solve();
-        
+
             final_voltage_ici.ReplicatePetscVector(bidomain_problem.GetSolution());
         }
-   
+
         // SVI - state variable interpolation
         {
             TetrahedralMesh<2,2> mesh;
@@ -254,12 +254,12 @@ public:
             bidomain_problem.Initialise();
 
             bidomain_problem.Solve();
-                
+
             final_solution_svi.ReplicatePetscVector(bidomain_problem.GetSolution());
         }
-        
+
         // See comments in equivalent part of test/monodomain/TestMonodomainWithSvi.hpp
-        // For bidomain with h=0.02, SVI CV is slower in both fibre and cross-fibre 
+        // For bidomain with h=0.02, SVI CV is slower in both fibre and cross-fibre
         // directions
 
         // node 20 (for h=0.02) is on the x-axis (fibre direction)

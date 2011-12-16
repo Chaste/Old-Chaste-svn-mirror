@@ -62,7 +62,7 @@ PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::PseudoEcgCalculator(Ab
                                         mVariableName(variableName)
 
 {
-    
+
     mpDataReader = new Hdf5DataReader(directory, hdf5File, makeAbsolute);
     mNumberOfNodes = mpDataReader->GetNumberOfRows();
     mNumTimeSteps = mpDataReader->GetVariableOverTime(mVariableName, 0u).size();
@@ -128,8 +128,8 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
     if (PetscTools::AmMaster())
     {
         //write provenance info
-	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
-	    *p_file << comment;
+        std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+        *p_file << comment;
         p_file->close();
     }
 }

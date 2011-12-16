@@ -149,7 +149,7 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
 {
 
     //Note  !isPeriodic is not used except through polymorphic calls in rMesh
- 
+
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
 
@@ -223,7 +223,7 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic)
         delete mElements[elem_index];
         mElements[elem_index] = p_new_element;
     }
- 
+
     this->mMeshChangesDuringSimulation = false;
 
 }
@@ -1272,7 +1272,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
     // This is always the largest eigenvalue as both eigenvalues are real as it is a
     // symmetric matrix
     largest_eigenvalue = (moments(0) + moments(1) + discriminant)*0.5;
-    
+
     ///\todo remove magic number? (#1884)
     if (fabs(discriminant) < 1e-10)
     {

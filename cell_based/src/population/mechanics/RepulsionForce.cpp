@@ -84,8 +84,8 @@ void RepulsionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM>
 template<unsigned DIM>
 void RepulsionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	// Call direct parent class
-	GeneralisedLinearSpringForce<DIM>::OutputForceParameters(rParamsFile);
+    // Call direct parent class
+    GeneralisedLinearSpringForce<DIM>::OutputForceParameters(rParamsFile);
 }
 
 /////////////////////////////////////////////////////////////////////////////

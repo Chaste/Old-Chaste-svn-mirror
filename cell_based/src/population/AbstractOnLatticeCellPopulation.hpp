@@ -104,7 +104,7 @@ public:
 
     /**
      * Update cell locations over the course of a time step of specified length.
-     * 
+     *
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
@@ -114,21 +114,21 @@ public:
 
     /**
      * Get whether we update nodes in a random order.
-     * 
+     *
      * @return mUpdateNodesInRandomOrder
      */
     bool GetUpdateNodesInRandomOrder();
-    
+
     /**
      * Get whether we update nodes in a random order.
-     * 
+     *
      * @param updateNodesInRandomOrder Whether to update nodes in a random order.
      */
     void SetUpdateNodesInRandomOrder(bool updateNodesInRandomOrder);
 
     /**
      * Set mIterateRandomlyOverUpdateRuleCollection.
-     * 
+     *
      * @param iterateRandomly whether to iterate randomly over mUpdateRuleCollection
      */
     void SetIterateRandomlyOverUpdateRuleCollection(bool iterateRandomly);

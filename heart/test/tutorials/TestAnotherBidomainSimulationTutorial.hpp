@@ -38,13 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTANOTHERBIDOMAINSIMULATIONTUTORIAL_HPP_
 /*
  * = Another example showing how to run a bidomain simulation =
- * 
- * In this tutorial we run another bidomain simulation, 
+ *
+ * In this tutorial we run another bidomain simulation,
  * showing (i) an example using one of the source cell factories, (ii) how to define
  * and use fibre directions, and (iii) mentioning how to write other output file formats.
  *
  * EMPTYLINE
- * 
+ *
  * The first thing to do is to include the headers as before.
  */
 #include <cxxtest/TestSuite.h>
@@ -67,7 +67,7 @@ public:
          * had already been run and might have changed parameters in `HeartConfig`, we
          * would need to call `Reset` */
         HeartConfig::Instance()->Reset();
-        
+
         /* Next, we have to create a cell factory of the type we defined above. The plane
          * stimulus cell factory sets up cells of the given type with a non-zero stimulus
          * for cells on the x=0 boundary. The 2 below is the dimension, and the -2000000
@@ -84,7 +84,7 @@ public:
          * `cp::media_type::Orthotropic`, in which case `2D_0_to_1mm_800_elements.ortho` will also be read;
          * or `cp::media_type::Axisymmetric`, in which case `2D_0_to_1mm_800_elements.axi` will also be read.
          * See the file formats documentation for full descriptions of these formats, but basically .axi
-         * files provide the fibre direction for each element in the mesh, and .ortho files provide the fibre, 
+         * files provide the fibre direction for each element in the mesh, and .ortho files provide the fibre,
          * sheet (and normal in 3D) directions for each element in the mesh. */
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_800_elements", cp::media_type::Orthotropic);
 
@@ -108,24 +108,24 @@ public:
 //                std::cout << "0.707106781 0.707106781 -0.707106781 0.707106781\n";
 //            }
 //        }
-//        return;        
+//        return;
 
-        /* This is of course not enough - by default isotropic conductivities are used so the 
-         * variable fibre directions won't make any difference - so we have to alter the 
+        /* This is of course not enough - by default isotropic conductivities are used so the
+         * variable fibre directions won't make any difference - so we have to alter the
          * intracellular and extracellular conductivities to be anisotropic. The first value in
          * the following is the conductivity in the fibre direction, the second the conductivity
          * in the sheet direction (and the third in 3d would be that in the normal direction).
          * Note, we have scaled all the conductivities from the physiological values as the mesh
          * is a little too coarse to be able to handle the smallest conductivities (try running with
-         * scale = 1 to see the error message). 
+         * scale = 1 to see the error message).
          */
         double scale = 2;
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75*scale, 0.19*scale));
-        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0*scale, 2.4*scale));       
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(7.0*scale, 2.4*scale));
 
         /* The output will be written to /tmp/USER_NAME/testoutput/BidomainTutorial
-         * in hdf5 format, and converted to meshalyzer format at the end of the simulation.  
-         * To adjust this, or convert to Cmgui or VTK format as well, use methods in 
+         * in hdf5 format, and converted to meshalyzer format at the end of the simulation.
+         * To adjust this, or convert to Cmgui or VTK format as well, use methods in
          * `HeartConfig`,  e.g.
          */
         //HeartConfig::Instance()->SetVisualizeWithMeshalyzer(false);
@@ -135,7 +135,7 @@ public:
         //HeartConfig::Instance()->SetVisualizeWithVtk(true);
         /* If the mesh is a DistributedTetrahedralMesh then we can use parallel VTK files (.pvtu)*/
         //HeartConfig::Instance()->SetVisualizeWithParallelVtk(true);
-        
+
         /* Now we create a problem class, initialise and solve */
         BidomainProblem<2> bidomain_problem( &cell_factory );
 
@@ -143,13 +143,13 @@ public:
         bidomain_problem.Solve();
 
         /* The results can now be visualised - the effect of the fibres changing direction at x=0.05
-         * on the wave should be very clear. 
-         * 
+         * on the wave should be very clear.
+         *
          * EMPTYLINE
-         * 
+         *
          * We described in the previous tutorial how to access the latest voltage vector using
-         * `ReplicatableVector`, here we illustrate how to access the voltage values using the 
-         * {{{DistributedVector}}} class, which can be used to only iterate over the values 
+         * `ReplicatableVector`, here we illustrate how to access the voltage values using the
+         * {{{DistributedVector}}} class, which can be used to only iterate over the values
          * of the voltage owned by that process (for parallel simulations).
          */
         DistributedVector dist_bidomain_voltage = bidomain_problem.GetSolutionDistributedVector();

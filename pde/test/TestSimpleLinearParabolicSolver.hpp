@@ -301,9 +301,9 @@ public:
         solver.SetOutputToTxt(true);
 
         // Coverage of exception handling
-		TS_ASSERT_THROWS_THIS(solver.Solve(),"Output directory or filename prefix has not been set");
+        TS_ASSERT_THROWS_THIS(solver.Solve(),"Output directory or filename prefix has not been set");
 
-		solver.SetOutputDirectoryAndPrefix("TestSimpleLinearParabolicSolver2DZeroDirich","results");
+        solver.SetOutputDirectoryAndPrefix("TestSimpleLinearParabolicSolver2DZeroDirich","results");
 
         // Solve PDE and store solution
         Vec result = solver.Solve();

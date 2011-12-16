@@ -53,7 +53,7 @@ public:
 
     /**
      * Perform the modification.
-     * 
+     *
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */
@@ -80,7 +80,7 @@ public:
 
     /**
      * Perform the modification.
-     * 
+     *
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */
@@ -111,7 +111,7 @@ public:
 
     /**
      * Perform the modification.
-     * 
+     *
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      * @return  the fixed value (ignores inputs)
@@ -139,7 +139,7 @@ public:
 
     /**
      * This calculate does nothing and returns the parameter 'unharmed'.
-     * 
+     *
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */

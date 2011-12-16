@@ -71,7 +71,7 @@ public:
         }
 
         if (    (DIM==1 && fabs(x)<0.02+1e-6)
-             || (DIM==2 && fabs(x)<0.02+1e-6 && fabs(y)<0.02+1e-6) )  
+             || (DIM==2 && fabs(x)<0.02+1e-6 && fabs(y)<0.02+1e-6) )
         {
             return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
         }
@@ -92,14 +92,14 @@ private:
 public:
     HeterogeneousCellFactory()
         : AbstractCardiacCellFactory<1>(),
-          mpStimulus(new SimpleStimulus(-1000000.0, 0.5)) 
+          mpStimulus(new SimpleStimulus(-1000000.0, 0.5))
     {
     }
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex)
     {
         double x = this->GetMesh()->GetNodeOrHaloNode(nodeIndex)->rGetLocation()[0];
-        if ( x<0.15 )  
+        if ( x<0.15 )
         {
             return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpStimulus);
         }
@@ -110,7 +110,7 @@ public:
         else
         {
             return new CellTenTusscher2006EpiFromCellML(this->mpSolver, this->mpZeroStimulus);
-        }            
+        }
     }
 };
 
@@ -121,7 +121,7 @@ class TestMonodomainWithSvi : public CxxTest::TestSuite
     {
         HeartConfig::Instance()->Reset();
     }
-    
+
 public:
     void TestConductionVelocityConvergesFasterWithSvi1d() throw(Exception)
     {
@@ -145,7 +145,7 @@ public:
                 DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
                 TS_ASSERT_EQUALS(mesh.GetNumNodes(), number_of_nodes[i]);
-                
+
                 //Double check (for later) that the indexing is as expected
                 if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index[i] ))
                 {
@@ -155,37 +155,37 @@ public:
                 output_dir << "MonodomainIci_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-    
+
                 // need to have this for i=1,2 cases!!
                 HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
-                    
+
                 BlockCellFactory<1> cell_factory;
                 MonodomainProblem<1> monodomain_problem( &cell_factory );
                 monodomain_problem.SetMesh(&mesh);
                 monodomain_problem.Initialise();
-            
+
                 monodomain_problem.Solve();
-                    
+
                 final_voltage_ici.ReplicatePetscVector(monodomain_problem.GetSolution());
 
 //// see #1633
 //// end time needs to be increased for these (say, to 7ms)
 //                Hdf5DataReader simulation_data(OutputFileHandler::GetChasteTestOutputDirectory() + output_dir.str(),
 //                                               "results", false);
-//                PropagationPropertiesCalculator ppc(&simulation_data);    
+//                PropagationPropertiesCalculator ppc(&simulation_data);
 //                unsigned node_at_0_04 = (unsigned)round(0.04/h[i]);
 //                unsigned node_at_0_40 = (unsigned)round(0.40/h[i]);
 //                assert(fabs(mesh.GetNode(node_at_0_04)->rGetLocation()[0]-0.04)<1e-6);
 //                assert(fabs(mesh.GetNode(node_at_0_40)->rGetLocation()[0]-0.40)<1e-6);
-//                conduction_vel_nci[i] = ppc.CalculateConductionVelocity(node_at_0_04,node_at_0_40,0.36);        
+//                conduction_vel_nci[i] = ppc.CalculateConductionVelocity(node_at_0_04,node_at_0_40,0.36);
 //                std::cout << "conduction_vel_nci = " << conduction_vel_nci[i] << "\n";
             }
-       
+
             // SVI - state variable interpolation
             {
                 DistributedTetrahedralMesh<1,1> mesh;
                 mesh.ConstructRegularSlabMesh(h[i], 1.0);
-    
+
                 //Double check (for later) that the indexing is as expected
                 if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal( probe_node_index[i] ))
                 {
@@ -195,16 +195,16 @@ public:
                 output_dir << "MonodomainSvi_" << h[i];
                 HeartConfig::Instance()->SetOutputDirectory(output_dir.str());
                 HeartConfig::Instance()->SetOutputFilenamePrefix("results");
-    
+
                 HeartConfig::Instance()->SetUseStateVariableInterpolation();
-    
+
                 BlockCellFactory<1> cell_factory;
                 MonodomainProblem<1> monodomain_problem( &cell_factory );
                 monodomain_problem.SetMesh(&mesh);
                 monodomain_problem.Initialise();
 
                 monodomain_problem.Solve();
-                    
+
                 final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
 
 //                Hdf5DataReader simulation_data(OutputFileHandler::GetChasteTestOutputDirectory() + output_dir.str(),
@@ -213,25 +213,25 @@ public:
 //                unsigned node_at_0_04 = (unsigned)round(0.04/h[i]);
 //                unsigned node_at_0_40 = (unsigned)round(0.40/h[i]);
 //                assert(fabs(mesh.GetNode(node_at_0_04)->rGetLocation()[0]-0.04)<1e-6);
-//                assert(fabs(mesh.GetNode(node_at_0_40)->rGetLocation()[0]-0.40)<1e-6);    
-//                conduction_vel_svi[i] = ppc.CalculateConductionVelocity(node_at_0_04,node_at_0_40,0.36); 
+//                assert(fabs(mesh.GetNode(node_at_0_40)->rGetLocation()[0]-0.40)<1e-6);
+//                conduction_vel_svi[i] = ppc.CalculateConductionVelocity(node_at_0_04,node_at_0_40,0.36);
 //                std::cout << "conduction_vel_svi = " << conduction_vel_svi[i] << "\n";
             }
 
             if(i==0) // finest mesh
-            {        
+            {
                 for(unsigned j=0; j<final_voltage_ici.GetSize(); j++)
                 {
                     // visually checked they agree at this mesh resolution, and chosen tolerance from results
                     TS_ASSERT_DELTA(final_voltage_ici[j], final_voltage_svi[j], 0.3);
-                    
+
                     if(final_voltage_ici[j]>-80)
                     {
                         // shouldn't be exactly equal, as long as away from resting potential
                         TS_ASSERT_DIFFERS(final_voltage_ici[j], final_voltage_svi[j]);
                     }
                 }
-                
+
                 double ici_voltage_at_0_03_finest_mesh = final_voltage_ici[ probe_node_index[i] ];
                 double svi_voltage_at_0_03_finest_mesh = final_voltage_svi[ probe_node_index[i] ];
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_finest_mesh, 11.0067, 2e-4); //hardcoded value from fine svi
@@ -242,7 +242,7 @@ public:
                 double ici_voltage_at_0_03_middle_mesh = final_voltage_ici[ probe_node_index[i] ];
                 double svi_voltage_at_0_03_middle_mesh = final_voltage_svi[ probe_node_index[i] ];
                 // ICI conduction velocity > SVI conduction velocity
-                // and both should be greater than CV on finesh mesh 
+                // and both should be greater than CV on finesh mesh
                 TS_ASSERT_DELTA(ici_voltage_at_0_03_middle_mesh, 19.8924, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_middle_mesh, 14.9579, 1e-3);
             }
@@ -250,27 +250,27 @@ public:
             {
                 double ici_voltage_at_0_03_coarse_mesh = final_voltage_ici[ probe_node_index[i] ];
                 double svi_voltage_at_0_03_coarse_mesh = final_voltage_svi[ probe_node_index[i] ];
-                // ICI conduction velocity even greater than SVI conduction 
+                // ICI conduction velocity even greater than SVI conduction
                 // velocity
                 TS_ASSERT_DELTA(ici_voltage_at_0_03_coarse_mesh, 24.4938, 1e-3);
                 TS_ASSERT_DELTA(svi_voltage_at_0_03_coarse_mesh, 17.3131, 1e-3);
             }
         }
     }
-    
+
     void TestConductionVelocityInCrossFibreDirection2d() throw(Exception)
     {
- 
+
         ReplicatableVector final_voltage_ici;
         ReplicatableVector final_voltage_svi;
         ReplicatableVector final_voltage_svit;
 
         HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.01, 0.01);
-        
+
         // much lower conductivity in cross-fibre direction - ICI will struggle
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.17));
-        
+
         // ICI - nodal current interpolation - the default
         {
             TetrahedralMesh<2,2> mesh;
@@ -280,16 +280,16 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
             HeartConfig::Instance()->SetUseStateVariableInterpolation(false);
-                
+
             BlockCellFactory<2> cell_factory;
             MonodomainProblem<2> monodomain_problem( &cell_factory );
             monodomain_problem.SetMesh(&mesh);
             monodomain_problem.Initialise();
             monodomain_problem.Solve();
-        
+
             final_voltage_ici.ReplicatePetscVector(monodomain_problem.GetSolution());
         }
-   
+
         // SVI - state variable interpolation
         {
             TetrahedralMesh<2,2> mesh;
@@ -306,11 +306,11 @@ public:
             monodomain_problem.Initialise();
 
             monodomain_problem.Solve();
-                
+
             final_voltage_svi.ReplicatePetscVector(monodomain_problem.GetSolution());
         }
-        
-        // SVIT - state variable interpolation on non-distributed tetrahedral mesh 
+
+        // SVIT - state variable interpolation on non-distributed tetrahedral mesh
         {
             TetrahedralMesh<2,2> mesh;
             mesh.ConstructRegularSlabMesh(0.02 /*h*/, 0.5, 0.3);
@@ -326,17 +326,17 @@ public:
             monodomain_problem.Initialise();
 
             monodomain_problem.Solve();
-                
+
             final_voltage_svit.ReplicatePetscVector(monodomain_problem.GetSolution());
         }
 
-        // Visualised results with h=0.02 and h=0.01 - results looks sensible according to 
+        // Visualised results with h=0.02 and h=0.01 - results looks sensible according to
         // paper:
         // 1. SVI h=0.01 and h=0.02 match more closely than ICI results - ie SVI converges faster
         // 2. CV in fibre direction faster for ICI (both values of h)
-        // 3. CV in cross fibre direction: (i) h=0.01, faster for ICI; h=0.02 slower for ICI. 
+        // 3. CV in cross fibre direction: (i) h=0.01, faster for ICI; h=0.02 slower for ICI.
         // (Matches results in paper)
-        
+
         // node 20 (for h=0.02) is on the x-axis (fibre direction), SVI CV is slower
         ///\todo #1462 Check that these nodes are where expected
         TS_ASSERT_DELTA(final_voltage_ici[20], -9.2270,  8e-3);  //These tolerances show difference in parallel - note that SVI is more stable in the presence of multicore...
@@ -347,7 +347,7 @@ public:
         TS_ASSERT_DELTA(final_voltage_svi[130], 30.5281, 1e-3);
         TS_ASSERT_DELTA(final_voltage_svit[130], 30.5281, 1e-3);
     }
-    
+
     void TestCoverage3d() throw(Exception)
     {
         HeartConfig::Instance()->SetSimulationDuration(0.1); //ms
@@ -377,20 +377,20 @@ public:
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         monodomain_problem.SetMesh(&mesh);
         monodomain_problem.Initialise();
-        
+
         //// It's really very difficult to get hold of the correction assembler from here.
         //// The following, which requires 2 classes to be friends of this test compiles
-        //// but fails asserts in the first line as bcc is not set up. 
+        //// but fails asserts in the first line as bcc is not set up.
         //AbstractDynamicLinearPdeSolver<1,1,1>* p_solver = monodomain_problem.CreateSolver();
         //MonodomainSolver<1,1>* p_mono_solver = dynamic_cast<MonodomainSolver<1,1>*>(p_solver);
         //MonodomainCorrectionTermAssembler<1,1>* p_assembler = p_mono_solver->mpMonodomainCorrectionTermAssembler;
-        //TS_ASSERT_EQUALS(p_assembler->mElementsHasIdenticalCellModels.size(), 10u);        
-        
+        //TS_ASSERT_EQUALS(p_assembler->mElementsHasIdenticalCellModels.size(), 10u);
+
         // Therefore, we just test that calling Solve() runs (without the checking that
         // cell models are identical, this fails).
         monodomain_problem.Solve();
     }
-    
+
     /*
      * This is the same as TestConductionVelocityConvergesFasterWithSvi1d with i=2, but solves in two parts.
      * If that test changes, check the hardcoded values here!
@@ -400,14 +400,14 @@ public:
         std::string archive_dir = "monodomain_svi_archive";
         std::string archive_file = "monodomain_svi.arch";
         std::string output_dir = "monodomain_svi_output";
-        
+
         { // Save
             HeartConfig::Instance()->SetSimulationDuration(0.1); //ms
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
             HeartConfig::Instance()->SetOutputDirectory(output_dir);
             HeartConfig::Instance()->SetOutputFilenamePrefix("results");
             HeartConfig::Instance()->SetUseStateVariableInterpolation();
-            
+
             DistributedTetrahedralMesh<1,1> mesh;
             mesh.ConstructRegularSlabMesh(0.02, 1.0);
 
@@ -416,24 +416,24 @@ public:
             monodomain_problem.SetMesh(&mesh);
             monodomain_problem.Initialise();
             monodomain_problem.Solve();
-            
+
             CardiacSimulationArchiver<MonodomainProblem<1> >::Save(monodomain_problem, archive_dir);
         }
-        
+
         HeartConfig::Instance()->Reset();
-        
+
         { // Load
             HeartConfig::Instance()->SetUseStateVariableInterpolation(false); // Just in case...
             MonodomainProblem<1> *p_monodomain_problem = CardiacSimulationArchiver<MonodomainProblem<1> >::Load(archive_dir);
-            
+
             HeartConfig::Instance()->SetSimulationDuration(4.0); //ms
             p_monodomain_problem->Solve();
-            
+
             ReplicatableVector final_voltage;
             final_voltage.ReplicatePetscVector(p_monodomain_problem->GetSolution());
             double probe_voltage = final_voltage[15];
             TS_ASSERT_DELTA(probe_voltage, 17.3131, 1e-3);
-            
+
             delete p_monodomain_problem;
         }
     }

@@ -44,7 +44,7 @@ private:
 
     /** The loader for our shared object file */
     DynamicCellModelLoader* mpLoader;
-    
+
     friend class boost::serialization::access;
     /**
      * Save the path to the loadable module.

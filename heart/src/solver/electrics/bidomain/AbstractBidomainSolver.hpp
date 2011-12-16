@@ -41,14 +41,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractBidomainSolver : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>
 {
-protected:    
+protected:
     /** Whether the simulation involves a perfusing bath */
     bool mBathSimulation;
 
     /** The PDE to be solved. */
     BidomainTissue<SPACE_DIM>* mpBidomainTissue;
 
-    /** Boundary conditions */    
+    /** Boundary conditions */
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* mpBoundaryConditions;
 
     /**
@@ -99,7 +99,7 @@ protected:
     /**
      *  PrepareForSetupLinearSystem
      *
-     *  Called at the beginning of SetupLinearSystem(). Here, used to integrate cell 
+     *  Called at the beginning of SetupLinearSystem(). Here, used to integrate cell
      *  model odes.
      *  @param existingSolution is the voltage to feed into the cell models
      */
@@ -107,7 +107,7 @@ protected:
 
     /**
      *  FinaliseAssembleSystem
-     * 
+     *
      *  Called at the end of SetupLinearSystem(), before the system is solved.
      *
      *  If no dirichlet boundary conditions
@@ -118,7 +118,7 @@ protected:
      *      so set up a null space.
      *  (b) Apply average(phi)=0 constraint by altering the last row, to
      *      get a non-singular system
-     * 
+     *
      *  @param existingSolution Solution at current time
      */
     virtual void FinaliseLinearSystem(Vec existingSolution);
@@ -127,26 +127,26 @@ protected:
      *  GenerateNullBasis
      *
      *  Called by FinaliseAssembleSystem to get the null basis to use for the particular
-     *  formulation of the bidomain equations used. 
+     *  formulation of the bidomain equations used.
      */
     virtual Vec GenerateNullBasis() const;
 
-	/** 
-	 *  Apply any changes needed to the linear system for problems that
-	 *  include a bath. Checks the voltage-voltage block of the matrix
+    /**
+     *  Apply any changes needed to the linear system for problems that
+     *  include a bath. Checks the voltage-voltage block of the matrix
      *  at bath-nodes is zero, and puts a 1 on the diagonal.
      *
      *  Precondition: This method requires the system matrix to be in assembled
      *  state. Call FinaliseLhsMatrix() on your linear system if required.
      *
-     *  @param computeMatrix Whether the LHS matrix of the linear system has 
+     *  @param computeMatrix Whether the LHS matrix of the linear system has
      *   been computed
-     *  @param computeVector Whether the RHS vector of the linear system has 
+     *  @param computeVector Whether the RHS vector of the linear system has
      *   been computed
      */
     void FinaliseForBath(bool computeMatrix, bool computeVector);
 
-public:    
+public:
     /**
      * Constructor
      *
@@ -161,10 +161,10 @@ public:
                            BidomainTissue<SPACE_DIM>* pTissue,
                            BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                            unsigned numQuadPoints = 2);
-                       
+
     /**
      *  Destructor
-     */     
+     */
     virtual ~AbstractBidomainSolver();
 
     /**
@@ -199,14 +199,14 @@ public:
      *  Reset the boundary conditions being used. The caller should deal with deleting
      *  the old bcc pointer.
      *  @param pBcc The new boundary conditions container.
-     */ 
+     */
     void ResetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBcc)
     {
         assert(pBcc);
         mpBoundaryConditions = pBcc;
-        // Note, in SetupLinearSystem() 
-        //   neumann_assembler->ResetBoundaryConditionsContainer(mpBcc) 
-        // MUST be called every timestep, in case the bcc was reset. 
+        // Note, in SetupLinearSystem()
+        //   neumann_assembler->ResetBoundaryConditionsContainer(mpBcc)
+        // MUST be called every timestep, in case the bcc was reset.
     }
 };
 

@@ -62,18 +62,18 @@ public:
         }
         PetscMatTools::Finalise(matrix1);
         PetscMatTools::Finalise(matrix2);
-        
+
         TS_ASSERT(PetscMatTools::CheckEquality(matrix1, matrix2));
 
         PetscMatTools::AddToElement(matrix2, 1, 1, 2e-10);
         PetscMatTools::Finalise(matrix2);
         TS_ASSERT(!PetscMatTools::CheckEquality(matrix1, matrix2));
         TS_ASSERT(PetscMatTools::CheckEquality(matrix1, matrix2, 1e-9));
-        
+
         MatDestroy(matrix1);
         MatDestroy(matrix2);
     }
-    
+
     void TestSymmetryCheck() throw (Exception)
     {
         Mat matrix;
@@ -95,7 +95,7 @@ public:
         PetscMatTools::Finalise(matrix);
         TS_ASSERT(!PetscMatTools::CheckSymmetry(matrix));
         TS_ASSERT(PetscMatTools::CheckSymmetry(matrix, 1e-9));
-        
+
         MatDestroy(matrix);
     }
 };

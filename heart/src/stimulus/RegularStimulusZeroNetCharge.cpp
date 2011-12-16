@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 RegularStimulusZeroNetCharge::RegularStimulusZeroNetCharge(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime)
-	: RegularStimulus(magnitudeOfStimulus, duration, period, startTime,stopTime)
+    : RegularStimulus(magnitudeOfStimulus, duration, period, startTime,stopTime)
 {
 
 }
@@ -57,7 +57,7 @@ double RegularStimulusZeroNetCharge::GetStimulus(double time)
     }
     else if (beatTime >=0 && beatTime > mDuration/2 && beatTime <= mDuration && time <= mStopTime)
     {
-    	return -mMagnitudeOfStimulus;
+        return -mMagnitudeOfStimulus;
     }
     else
     {

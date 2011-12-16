@@ -58,7 +58,7 @@ OffLatticeSimulation<DIM>::OffLatticeSimulation(AbstractCellPopulation<DIM>& rCe
     }
     else
     {
-    	assert (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation));
+        assert (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation));
         this->mDt = 0.002; // smaller time step required for convergence/stability
     }
 }
@@ -201,21 +201,21 @@ void OffLatticeSimulation<DIM>::WriteVisualizerSetupFile()
         }
     }
 
-	// This is a quick and dirty check to see if the mesh is periodic
-	if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&this->mrCellPopulation))
-	{
-	   if (dynamic_cast<Cylindrical2dMesh*>(&(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation))->rGetMesh())))
-	   {
-		   *this->mpVizSetupFile << "MeshWidth\t" << this->mrCellPopulation.GetWidth(0) << "\n";
-	   }
-	}
-	else if (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&this->mrCellPopulation))
-	{
-	   if (dynamic_cast<Cylindrical2dVertexMesh*>(&(dynamic_cast<VertexBasedCellPopulation<DIM>*>(&(this->mrCellPopulation))->rGetMesh())))
-	   {
-		   *this->mpVizSetupFile << "MeshWidth\t" << this->mrCellPopulation.GetWidth(0) << "\n";
-	   }
-	}
+    // This is a quick and dirty check to see if the mesh is periodic
+    if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&this->mrCellPopulation))
+    {
+       if (dynamic_cast<Cylindrical2dMesh*>(&(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation))->rGetMesh())))
+       {
+           *this->mpVizSetupFile << "MeshWidth\t" << this->mrCellPopulation.GetWidth(0) << "\n";
+       }
+    }
+    else if (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&this->mrCellPopulation))
+    {
+       if (dynamic_cast<Cylindrical2dVertexMesh*>(&(dynamic_cast<VertexBasedCellPopulation<DIM>*>(&(this->mrCellPopulation))->rGetMesh())))
+       {
+           *this->mpVizSetupFile << "MeshWidth\t" << this->mrCellPopulation.GetWidth(0) << "\n";
+       }
+    }
 
 }
 

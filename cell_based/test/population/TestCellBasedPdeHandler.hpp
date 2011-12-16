@@ -372,14 +372,14 @@ public:
 
         NodesOnlyMesh<1> mesh_1d;
         mesh_1d.ConstructNodesWithoutMesh(nodes_1d);
-        
+
         std::vector<CellPtr> cells_1d;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 1> cells_generator_1d;
         cells_generator_1d.GenerateBasic(cells_1d, mesh_1d.GetNumNodes());
 
         NodeBasedCellPopulation<1> cell_population_1d(mesh_1d, cells_1d);
         cell_population_1d.SetMechanicsCutOffLength(1.5);
-        
+
         CellBasedPdeHandler<1> pde_handler_1d(&cell_population_1d);
 
         AveragedSourcePde<1> pde_1d(cell_population_1d, -0.1);
@@ -400,14 +400,14 @@ public:
 
         NodesOnlyMesh<3> mesh_3d;
         mesh_3d.ConstructNodesWithoutMesh(nodes_3d);
-        
+
         std::vector<CellPtr> cells_3d;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator_3d;
         cells_generator_3d.GenerateBasic(cells_3d, mesh_3d.GetNumNodes());
 
         NodeBasedCellPopulation<3> cell_population_3d(mesh_3d, cells_3d);
         cell_population_3d.SetMechanicsCutOffLength(1.5);
-        
+
         CellBasedPdeHandler<3> pde_handler_3d(&cell_population_3d);
 
         AveragedSourcePde<3> pde_3d(cell_population_3d, -0.1);
@@ -429,7 +429,7 @@ public:
             delete nodes_3d[i];
         }
     }
-        
+
     void TestInitialiseCellPdeElementMapAndFindCoarseElementContainingCell() throw(Exception)
     {
         EXIT_IF_PARALLEL;
@@ -642,7 +642,7 @@ public:
         // Create a PDE handler object using this cell population
         CellBasedPdeHandler<2> pde_handler(&cell_population);
 
-        // Create a single PDE and pass to the handler 
+        // Create a single PDE and pass to the handler
         SimpleUniformSourcePde<2> pde(-0.1);
         ConstBoundaryCondition<2> bc(1.0);
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, &bc, false);
@@ -971,11 +971,11 @@ public:
 
             unsigned elem_index = p_coarse_mesh->GetContainingElementIndex(cell_location);
             Element<2,2>* p_element = p_coarse_mesh->GetElement(elem_index);
-            
+
             unsigned node_0_index = p_element->GetNodeGlobalIndex(0);
             unsigned node_1_index = p_element->GetNodeGlobalIndex(1);
             unsigned node_2_index = p_element->GetNodeGlobalIndex(2);
-            
+
             double max0 = std::max(pde_solution0[node_0_index], pde_solution0[node_1_index]);
             max0 = std::max(max0, pde_solution0[node_2_index]);
 

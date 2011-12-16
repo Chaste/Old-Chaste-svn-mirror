@@ -266,7 +266,7 @@ std::vector<std::vector<double> > Hdf5DataReader::GetVariableOverTimeOverMultipl
 
     if (!mIsDataComplete)
     {
-    	EXCEPTION("GetVariableOverTimeOverMultipleNodes() cannot be called using incomplete data sets (those for which data was only written for certain nodes)");
+        EXCEPTION("GetVariableOverTimeOverMultipleNodes() cannot be called using incomplete data sets (those for which data was only written for certain nodes)");
     }
 
     if (upperIndex > mVariablesDatasetSizes[1])

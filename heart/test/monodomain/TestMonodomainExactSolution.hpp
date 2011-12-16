@@ -42,19 +42,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //////////////////////////////////////////////////////////////////////////////////
 //
-//  Test the monodomain solver against exact solutions by using fake cell model 
-//  that returns an ionic current that is a chosen function of position, and 
+//  Test the monodomain solver against exact solutions by using fake cell model
+//  that returns an ionic current that is a chosen function of position, and
 //  ditto the stimulus and initial condition
 //
 //  The equation solved is:
 //
 //  Am Cm dV/dt   +   Am Iion  =   div (sigma gradV) - Istim,   with Neumann bcs
 //
-//  In 2d, say, on the unit square, let 
+//  In 2d, say, on the unit square, let
 //
 //   ---  V(t,x) = exp(-t)*cos(pi*x)cos(pi*y)  ---
-//  
-//  (which satisfies the bcs). This is the solution to the problem if we choose 
+//
+//  (which satisfies the bcs). This is the solution to the problem if we choose
 //  initial conditions V0 = cos(pi*x)cos(pi*y), and
 //
 //    Iion  = alpha * exp(-t)*cos(pi*x)cos(pi*y)
@@ -76,12 +76,12 @@ private:
 public :
     ToyCellModel(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus,
                  c_vector<double,DIM> x)
-        : AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver>(), 
-                              1, 0, pIntracellularStimulus)                 
+        : AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver>(),
+                              1, 0, pIntracellularStimulus)
     {
         mX = x;
         mStateVariables.resize(1);
-        
+
         ///////////////////////
         // initial condition
         ///////////////////////
@@ -104,14 +104,14 @@ public :
     }
 
     ///////////////////////
-    // ionic current 
+    // ionic current
     ///////////////////////
     double GetIIonic(const std::vector<double>* pStateVariables=NULL)
     {
-        // NOTE: the +0.01 (pde_timestep) is so the source function is evaluated at the 
+        // NOTE: the +0.01 (pde_timestep) is so the source function is evaluated at the
         // next timestep to be consistent with how GetStimulus(time) is called.
-        
-        double t = PdeSimulationTime::GetTime()  +  0.01; 
+
+        double t = PdeSimulationTime::GetTime()  +  0.01;
         if(DIM==1)
         {
             return (-0.5*M_PI*M_PI + 1.5)*exp(-t)*cos(M_PI*mX[0]);
@@ -138,14 +138,14 @@ class PositionDependentStimulus : public AbstractStimulusFunction
 private:
     c_vector<double,DIM> mX;
 
-public: 
+public:
     PositionDependentStimulus(c_vector<double,DIM> x)
     {
         mX = x;
     }
 
     ///////////////////////
-    // stimulus current 
+    // stimulus current
     ///////////////////////
     double GetStimulus(double time)
     {
@@ -155,7 +155,7 @@ public:
         }
         else if (DIM==2)
         {
- 
+
             return  -M_PI*M_PI *exp(-time)*cos(M_PI*mX[0])*cos(M_PI*mX[1]);
         }
         else
@@ -179,10 +179,10 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         c_vector<double,DIM> x = this->GetMesh()->GetNode(node)->rGetLocation();
-        
-        boost::shared_ptr<PositionDependentStimulus<DIM> > 
+
+        boost::shared_ptr<PositionDependentStimulus<DIM> >
             p_stimulus(new PositionDependentStimulus<DIM>(x));
-        
+
         ToyCellModel<DIM>* p_cell_model = new ToyCellModel<DIM>(p_stimulus, x);
         return p_cell_model;
     }
@@ -198,14 +198,14 @@ public:
     {
         TetrahedralMesh<1,1> mesh;
         double h=0.01; //cm
-        
+
         mesh.ConstructRegularSlabMesh(h, 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution1d");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
         HeartConfig::Instance()->SetSimulationDuration(1); //ms
-        
-        
+
+
         // Note pde_timestep=0.01 is hardcoded above in GetIonic, and printing
         // timestep hardcoding below in test!
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
@@ -215,34 +215,34 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(2));
 
         MyCellFactory<1> cell_factory;
-        
+
         MonodomainProblem<1> problem( &cell_factory );
         problem.SetMesh(&mesh);
         problem.Initialise();
 
         problem.SetWriteInfo();
-        
+
         problem.Solve();
-        
-        
+
+
         Hdf5DataReader reader("TestMonodomainExactSolution1d","results");
         unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
-        DistributedVectorFactory factory(mesh.GetNumNodes()); 
+        DistributedVectorFactory factory(mesh.GetNumNodes());
         Vec voltage = factory.CreateVec();
 
         for(unsigned timestep=0; timestep<num_timesteps; timestep++)
         {
-            reader.GetVariableOverNodes(voltage, "V", timestep); 
+            reader.GetVariableOverNodes(voltage, "V", timestep);
             ReplicatableVector voltage_repl(voltage);
-            
+
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 double x=mesh.GetNode(i)->rGetLocation()[0];
-                
+
                 double V = voltage_repl[i];
                 double t = 0.01*timestep;
                 double exact_solution = exp(-t)*cos(M_PI*x);
-                
+
                 // for testing suitable tols:
                 if(fabs(V-exact_solution)>0.002*exp(-t))
                 {
@@ -261,14 +261,14 @@ public:
     {
         TetrahedralMesh<2,2> mesh;
         double h=0.02; //cm
-        
+
         mesh.ConstructRegularSlabMesh(h, 1.0, 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution2d");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
         HeartConfig::Instance()->SetSimulationDuration(1); //ms
-        
-        
+
+
         // Note pde_timestep=0.01 is hardcoded above in GetIonic, and printing
         // timestep hardcoding below in test!
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
@@ -278,34 +278,34 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.2,0.8));
 
         MyCellFactory<2> cell_factory;
-        
+
         MonodomainProblem<2> problem( &cell_factory );
         problem.SetMesh(&mesh);
         problem.Initialise();
 
         problem.SetWriteInfo();
-        
+
         problem.Solve();
-        
+
         Hdf5DataReader reader("TestMonodomainExactSolution2d","results");
         unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
-        DistributedVectorFactory factory(mesh.GetNumNodes()); 
+        DistributedVectorFactory factory(mesh.GetNumNodes());
         Vec voltage = factory.CreateVec();
 
         for(unsigned timestep=0; timestep<num_timesteps; timestep++)
         {
-            reader.GetVariableOverNodes(voltage, "V", timestep); 
+            reader.GetVariableOverNodes(voltage, "V", timestep);
             ReplicatableVector voltage_repl(voltage);
-            
+
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 double x=mesh.GetNode(i)->rGetLocation()[0];
                 double y=mesh.GetNode(i)->rGetLocation()[1];
-                
+
                 double V = voltage_repl[i];
                 double t = 0.01*timestep;
                 double exact_solution = exp(-t)*cos(M_PI*x)*cos(M_PI*y);
-                
+
                 // for testing suitable tols:
                 if(fabs(V-exact_solution)>0.002*exp(-t))
                 {
@@ -318,7 +318,7 @@ public:
                 // 10 elements each dir: passes tol = 4%, fails tol = 3%
                 // 20 elements each dir: passes tol = 1%, fails tol = 0.5%
                 // 50 elements each dir: passes tol = 0.2%, fails tol = 0.1%
-                
+
                 // 0.2% error tolerance. Note that the tol is scaled by exp(-t)=max(V)
                 TS_ASSERT_DELTA(V, exact_solution, 0.002*exp(-t));
 
@@ -331,50 +331,50 @@ public:
     {
         TetrahedralMesh<3,3> mesh;
         double h=0.05; //cm
-         
+
         mesh.ConstructRegularSlabMesh(h, 1.0, 1.0, 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution3d");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
         HeartConfig::Instance()->SetSimulationDuration(1); //ms
-        
+
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2);
-        HeartConfig::Instance()->SetCapacitance(1.5); 
+        HeartConfig::Instance()->SetCapacitance(1.5);
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.8, 0.7, 0.5));
 
         MyCellFactory<3> cell_factory;
-        
+
         MonodomainProblem<3> problem( &cell_factory );
         problem.SetMesh(&mesh);
         problem.Initialise();
 
         problem.SetWriteInfo();
-        
+
         problem.Solve();
-        
-        
+
+
         Hdf5DataReader reader("TestMonodomainExactSolution3d","results");
         unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
-        DistributedVectorFactory factory(mesh.GetNumNodes()); 
-        Vec voltage = factory.CreateVec();  
-        
+        DistributedVectorFactory factory(mesh.GetNumNodes());
+        Vec voltage = factory.CreateVec();
+
         for(unsigned timestep=0; timestep<num_timesteps; timestep++)
         {
-            reader.GetVariableOverNodes(voltage, "V", timestep); 
+            reader.GetVariableOverNodes(voltage, "V", timestep);
             ReplicatableVector voltage_repl(voltage);
-            
+
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 double x=mesh.GetNode(i)->rGetLocation()[0];
                 double y=mesh.GetNode(i)->rGetLocation()[1];
                 double z=mesh.GetNode(i)->rGetLocation()[2];
-                
+
                 double V = voltage_repl[i];
                 double t = 0.01*timestep;
                 double exact_solution = exp(-t)*cos(M_PI*x)*cos(M_PI*y)*cos(M_PI*z);
-                
+
                 // for testing suitable tols:
                 if(fabs(V-exact_solution)>0.03*exp(-t))
                 {
@@ -388,7 +388,7 @@ public:
                 // 20 elements each dir: passes tol = 2%, fails tol = 1%
                 //  --look reasonable compared to 2d results above, since would expect error
                 //    constant to scale with dimension
- 
+
                 // 3% error tolerance. Note that the tol is scaled by exp(-t)=max(V)
                 TS_ASSERT_DELTA(V, exact_solution, 0.03*exp(-t));
             }

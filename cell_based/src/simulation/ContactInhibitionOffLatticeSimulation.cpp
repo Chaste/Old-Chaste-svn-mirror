@@ -47,35 +47,35 @@ ContactInhibitionOffLatticeSimulation<DIM>::~ContactInhibitionOffLatticeSimulati
 template<unsigned DIM>
 void ContactInhibitionOffLatticeSimulation<DIM>::PostSolve()
 {
-	assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
+    assert(dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)));
 
-	// Loop over cells and set volume value in CellWiseData every 10 time step
-	//\todo find a better way to make this efficient
-	if (SimulationTime::Instance()->GetTimeStepsElapsed()%10==1)
-	{
-		MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
-	    this->mrCellPopulation.Update();
+    // Loop over cells and set volume value in CellWiseData every 10 time step
+    //\todo find a better way to make this efficient
+    if (SimulationTime::Instance()->GetTimeStepsElapsed()%10==1)
+    {
+        MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
+        this->mrCellPopulation.Update();
 
-	    CellwiseData<DIM>::Instance()->ReallocateMemory();
+        CellwiseData<DIM>::Instance()->ReallocateMemory();
 
-		// Create and initialize a vector of cell volumes
-		unsigned num_cells = this->mrCellPopulation.GetNumRealCells();
-		std::vector<double> volume(num_cells);
-		for (unsigned i=0; i<num_cells; i++)
-		{
-			volume[i] = 0;
-		}
+        // Create and initialize a vector of cell volumes
+        unsigned num_cells = this->mrCellPopulation.GetNumRealCells();
+        std::vector<double> volume(num_cells);
+        for (unsigned i=0; i<num_cells; i++)
+        {
+            volume[i] = 0;
+        }
 
-		p_static_cast_cell_population->CreateVoronoiTessellation();
-		for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
-			 cell_iter != this->mrCellPopulation.End();
-			 ++cell_iter)
-		{
-			unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
-			volume[node_index] = p_static_cast_cell_population->GetVolumeOfVoronoiElement(node_index);
-			CellwiseData<DIM>::Instance()->SetValue(volume[node_index], node_index, 0);
-		}
-	}
+        p_static_cast_cell_population->CreateVoronoiTessellation();
+        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+             cell_iter != this->mrCellPopulation.End();
+             ++cell_iter)
+        {
+            unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+            volume[node_index] = p_static_cast_cell_population->GetVolumeOfVoronoiElement(node_index);
+            CellwiseData<DIM>::Instance()->SetValue(volume[node_index], node_index, 0);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

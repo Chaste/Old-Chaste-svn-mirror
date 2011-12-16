@@ -77,18 +77,18 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (AbstractTetrahedr
 
     if (rLVFile != "")
     {
-    	GetNodesAtSurface(rLVFile, mLVSurface, indexFromZero);
+        GetNodesAtSurface(rLVFile, mLVSurface, indexFromZero);
     }
     else
     {
-    	if (rRVFile == "")
-    	{
-    		EXCEPTION("At least one of left ventricle or right ventricle files is required");
-    	}
+        if (rRVFile == "")
+        {
+            EXCEPTION("At least one of left ventricle or right ventricle files is required");
+        }
     }
     if (rRVFile != "")
     {
-    	GetNodesAtSurface(rRVFile, mRVSurface, indexFromZero);
+        GetNodesAtSurface(rRVFile, mRVSurface, indexFromZero);
     }
     distance_calculator.ComputeDistanceMap(mEpiSurface, mDistMapEpicardium);
     distance_calculator.ComputeDistanceMap(mLVSurface, mDistMapLeftVentricle);
@@ -156,7 +156,7 @@ void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
         unsigned item;
         line_stream >> item;
         // If offset==1 then shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
-        if (item == 0 && offset != 0) 
+        if (item == 0 && offset != 0)
         {
             EXCEPTION("Error when reading surface file.  It was assumed not to be indexed from zero, but zero appeared in the list.");
         }

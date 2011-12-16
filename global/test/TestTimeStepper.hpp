@@ -119,8 +119,8 @@ public:
 
         TS_ASSERT(stepper.IsTimeAtEnd());
         TS_ASSERT(stepper.GetTotalTimeStepsTaken()==time_step_number);
-        
-        //Stepper no longer allows increments beyond the end to be silently ignored 
+
+        //Stepper no longer allows increments beyond the end to be silently ignored
         TS_ASSERT_THROWS_THIS(stepper.AdvanceOneTimeStep(), "TimeStepper incremented beyond end time.");
     }
 
@@ -355,9 +355,9 @@ public:
         }
         TS_ASSERT_EQUALS(stepper.GetTotalTimeStepsTaken(), 500u);
     }
-    
-    
-    
+
+
+
     void TestArchiveTimeStepper()
     {
         OutputFileHandler handler("TestTimeStepper_Archive", false);
@@ -372,16 +372,16 @@ public:
             std::vector<double> additional_times;
             additional_times.push_back(0.55);
             TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times);
-            
+
             //Run for 5 steps
             for (int i=0; i<5; i++)
             {
                 stepper.AdvanceOneTimeStep();
             }
-            
+
             TS_ASSERT_DELTA(stepper.GetTime(), 0.5, 1e-10);
             TS_ASSERT_DELTA(stepper.GetNextTime(), 0.55, 1e-10);
-            
+
             TimeStepper* const p_stepper_for_archiving = &stepper;
             output_arch << p_stepper_for_archiving;
 
@@ -414,11 +414,11 @@ public:
             p_stepper->AdvanceOneTimeStep();
             TS_ASSERT_DELTA(p_stepper->GetTime(), 0.6, 1e-10);
             TS_ASSERT_DELTA(p_stepper->GetNextTime(), 0.7, 1e-10);
-            
+
             delete p_stepper;
         }
     }
-    
+
 };
 
 #endif /*TESTTIMESTEPPER_HPP_*/

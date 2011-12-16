@@ -122,7 +122,7 @@ public:
         // visualised, looks good - contracts in X-direction near the fixed surface,
         // but on the other side the fibres are in the (1,1) direction, so contraction
         // pulls the tissue downward a bit
-        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.9019, 2e-3); 
+        TS_ASSERT_DELTA(r_deformed_position[5](0), 0.9019, 2e-3);
         //IntelProduction differs by about 1.6e-3...
 
         MechanicsEventHandler::Headings();
@@ -171,7 +171,7 @@ public:
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }
-    
+
     void TestTwistingCube() throw(Exception)
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-1000*1000);
@@ -179,7 +179,7 @@ public:
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
         electrics_mesh.ConstructRegularSlabMesh(0.01, 0.1, 0.1, 0.1);
-    
+
         QuadraticMesh<3> mechanics_mesh(0.02, 0.1, 0.1, 0.1);
 
         // fix the nodes on Z=0
@@ -203,18 +203,18 @@ public:
                                                   "TestCardiacElectroMech3dTwistingCube");
 
 
-/////// Use the following to set up the fibres file        
+/////// Use the following to set up the fibres file
 ////        GaussianQuadratureRule<3> quad_rule(3);
 ////        QuadraturePointsGroup<3> quad_points(mechanics_mesh, quad_rule);
-////        std::cout << quad_points.Size() << "\n"; 
+////        std::cout << quad_points.Size() << "\n";
 ////        for(unsigned i=0; i<quad_points.Size(); i++)
 ////        {
 ////            ////std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << quad_points.Get(i)(2) << " ";
 ////            double x = quad_points.Get(i)(0);
-////            double theta = M_PI/3 - 10*x*2*M_PI/3; // 60 degrees when x=0, -60 when x=0.1; 
-////            std::cout <<  "0 " << cos(theta)  << " " << sin(theta) 
+////            double theta = M_PI/3 - 10*x*2*M_PI/3; // 60 degrees when x=0, -60 when x=0.1;
+////            std::cout <<  "0 " << cos(theta)  << " " << sin(theta)
 ////                      << " 0 " << -sin(theta) << " " << cos(theta)
-////                      << " 1 0 0\n";  
+////                      << " 1 0 0\n";
 ////        }
 ////        return;
 
@@ -503,14 +503,14 @@ public:
 //        std::vector<unsigned> fixed_nodes
 //          = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
 //
-//        std::vector<BoundaryElement<2,3>*> impact_region;        
+//        std::vector<BoundaryElement<2,3>*> impact_region;
 //        for (TetrahedralMesh<3,3>::BoundaryElementIterator iter
 //              = mechanics_mesh.GetBoundaryElementIteratorBegin();
 //             iter != mechanics_mesh.GetBoundaryElementIteratorEnd();
 //             ++iter)
 //        {
-//            c_vector<double,3> centroid =(*iter)->CalculateCentroid(); 
-//            if (    (fabs(centroid[1])<1e-4) 
+//            c_vector<double,3> centroid =(*iter)->CalculateCentroid();
+//            if (    (fabs(centroid[1])<1e-4)
 //                 && (centroid[0] < 0.05)
 //                 && (centroid[2] < 0.05) )
 //            {

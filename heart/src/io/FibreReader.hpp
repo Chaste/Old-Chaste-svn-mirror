@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include "FileFinder.hpp"
 
-/** 
- * Simple enumeration for use in FibreReader constructor 
+/**
+ * Simple enumeration for use in FibreReader constructor
  */
 typedef enum FibreFileType_
 {
@@ -48,7 +48,7 @@ typedef enum FibreFileType_
 /**
  * A class for reading .axi files (files which define the fibre direction
  * for each element) and .ortho files (files which define the fibre, sheet
- * and normal directions for each element. 
+ * and normal directions for each element.
  */
 template<unsigned DIM>
 class FibreReader
@@ -62,7 +62,7 @@ private:
 
     /** Number of lines of data in the file, read from the first line of the file */
     unsigned mNumLinesOfData;
-    
+
     bool mFileIsBinary;  /**< Whether the data file has binary entries*/
 
     /** How many items we expect to find per line: DIM for axisymmetric, DIM*DIM for orthotropic */
@@ -88,12 +88,12 @@ private:
 public:
     /**
      * Create a new FibreReader.
-     * 
+     *
      * @param rFileFinder  the path to the fibre direction file
      * @param fibreFileType AXISYM or ORTHO depending on type of file to be read
      */
     FibreReader(FileFinder& rFileFinder, FibreFileType fibreFileType);
-    
+
     /**
      *  Destructor closes file.
      */
@@ -112,7 +112,7 @@ public:
      *     [ fibre1   sheet1   normal1  ]
      *     [ fibre2   sheet2   normal2  ]
      * \endcode
-     * 
+     *
      * @param rFibreMatrix  matrix to be filled in
      * @param checkOrthogonality  if true, checks if the matrix is orthogonal
      *    and throws an exception if not
@@ -127,7 +127,7 @@ public:
      * \endcode
      *
      * @param rFibreVector  vector to be filled in
-     * @param checkNormalised  if true, checks if the read vector is normalised 
+     * @param checkNormalised  if true, checks if the read vector is normalised
      *   and throws an exception if not
      */
     void GetNextFibreVector(c_vector<double,DIM>& rFibreVector, bool checkNormalised=true);
@@ -140,29 +140,29 @@ public:
     {
         return mNumLinesOfData;
     }
-    
+
     /**
      * Get every line of a fibre file (axi-symmetric) in vector of vectors format.
      * This is useful for adding to a visualizer.
      * (Do not use with GetNext...)
-     * 
-     * @param direction  an empty vector which will be filled with data from file  
+     *
+     * @param direction  an empty vector which will be filled with data from file
      */
     void GetAllAxi(std::vector< c_vector<double, DIM> >& direction);
-    
+
     /**
      * Get every line of a fibre file (orthotropic) in vector of vectors format.
      * This is useful for adding to a visualizer.
      * (Do not use with GetNext...)
-     * 
-     * @param first_direction  an empty vector which will be filled with data from file  
-     * @param second_direction  an empty vector which will be filled with data from file  
-     * @param third_direction  an empty vector which will be filled with data from file (or will remain empty in 2D) 
+     *
+     * @param first_direction  an empty vector which will be filled with data from file
+     * @param second_direction  an empty vector which will be filled with data from file
+     * @param third_direction  an empty vector which will be filled with data from file (or will remain empty in 2D)
      */
-    void GetAllOrtho(std::vector< c_vector<double, DIM> >& first_direction, 
+    void GetAllOrtho(std::vector< c_vector<double, DIM> >& first_direction,
                          std::vector< c_vector<double, DIM> >& second_direction,
                          std::vector< c_vector<double, DIM> >& third_direction);
-    
+
 };
 
 #endif /*FIBREREADER_HPP_*/

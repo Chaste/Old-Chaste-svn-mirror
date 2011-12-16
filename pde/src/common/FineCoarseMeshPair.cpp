@@ -113,7 +113,7 @@ void FineCoarseMeshPair<DIM>::SetUpBoxes(TetrahedralMesh<DIM,DIM>& rMesh,
         /*
          * Use default value = max(max_edge_length, w20),  where w20 is the width
          * corresponding to 20 boxes in the x-direction.
-         * 
+         *
          * BoxCollection creates an extra box so divide by 19 not 20. Add a little
          * bit on to ensure minor numerical fluctuations don't change the answer.
          */
@@ -266,7 +266,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
 
     /*
      * The elements to try (initially) are those contained in the box the point is in.
-     * 
+     *
      * Note: it is possible the point to be in an element not 'in' this box, as it is
      * possible for all element nodes to be in different boxes.
      */

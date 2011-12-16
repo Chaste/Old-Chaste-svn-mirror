@@ -34,7 +34,7 @@ SurfaceAreaConstraintPottsUpdateRule<DIM>::SurfaceAreaConstraintPottsUpdateRule(
       mDeformationEnergyParameter(0.5), // Educated guess
       mMatureCellTargetSurfaceArea(16.0) // Defaults to a 4*4 cell size
 {
-    /// \todo Default values don't apply in 3D. 
+    /// \todo Default values don't apply in 3D.
 }
 
 template<unsigned DIM>
@@ -47,13 +47,13 @@ double SurfaceAreaConstraintPottsUpdateRule<DIM>::EvaluateHamiltonianContributio
                                                                         unsigned targetNodeIndex,
                                                                         PottsBasedCellPopulation<DIM>& rCellPopulation)
 {
-	double delta_H = 0.0;
+    double delta_H = 0.0;
 
-	// This method only works in 2D at present
-	assert(DIM == 2);
+    // This method only works in 2D at present
+    assert(DIM == 2);
 
-	std::set<unsigned> containing_elements = rCellPopulation.GetNode(currentNodeIndex)->rGetContainingElementIndices();
-	std::set<unsigned> new_location_containing_elements = rCellPopulation.GetNode(targetNodeIndex)->rGetContainingElementIndices();
+    std::set<unsigned> containing_elements = rCellPopulation.GetNode(currentNodeIndex)->rGetContainingElementIndices();
+    std::set<unsigned> new_location_containing_elements = rCellPopulation.GetNode(targetNodeIndex)->rGetContainingElementIndices();
 
     bool current_node_contained = !containing_elements.empty();
     bool target_node_contained = !new_location_containing_elements.empty();
@@ -63,7 +63,7 @@ double SurfaceAreaConstraintPottsUpdateRule<DIM>::EvaluateHamiltonianContributio
 
     if(!current_node_contained && !target_node_contained)
     {
-    	EXCEPTION("At least one of the current node or target node must be in an element.");
+        EXCEPTION("At least one of the current node or target node must be in an element.");
     }
 
     if (current_node_contained && target_node_contained)
@@ -75,64 +75,64 @@ double SurfaceAreaConstraintPottsUpdateRule<DIM>::EvaluateHamiltonianContributio
     }
 
     // Iterate over nodes neighbouring the target node to work out the change in surface area
-	unsigned neighbours_in_same_element_as_current_node = 0;
-	unsigned neighbours_in_same_element_as_target_node = 0;
-	std::set<unsigned> target_neighbouring_node_indices = rCellPopulation.rGetMesh().GetVonNeumannNeighbouringNodeIndices(targetNodeIndex);
-	for (std::set<unsigned>::iterator iter = target_neighbouring_node_indices.begin();
-		 iter != target_neighbouring_node_indices.end();
-		 ++iter)
-	{
-		std::set<unsigned> neighbouring_node_containing_elements = rCellPopulation.rGetMesh().GetNode(*iter)->rGetContainingElementIndices();
+    unsigned neighbours_in_same_element_as_current_node = 0;
+    unsigned neighbours_in_same_element_as_target_node = 0;
+    std::set<unsigned> target_neighbouring_node_indices = rCellPopulation.rGetMesh().GetVonNeumannNeighbouringNodeIndices(targetNodeIndex);
+    for (std::set<unsigned>::iterator iter = target_neighbouring_node_indices.begin();
+         iter != target_neighbouring_node_indices.end();
+         ++iter)
+    {
+        std::set<unsigned> neighbouring_node_containing_elements = rCellPopulation.rGetMesh().GetNode(*iter)->rGetContainingElementIndices();
 
-		// Every node must each be in at most one element
-		assert(neighbouring_node_containing_elements.size() < 2);
+        // Every node must each be in at most one element
+        assert(neighbouring_node_containing_elements.size() < 2);
 
-		bool neighbouring_node_contained = !neighbouring_node_containing_elements.empty();
+        bool neighbouring_node_contained = !neighbouring_node_containing_elements.empty();
 
-		if (neighbouring_node_contained && target_node_contained)
-		{
-			unsigned neighbour_element = (*neighbouring_node_containing_elements.begin());
-			unsigned target_element = (*new_location_containing_elements.begin());
-			if (target_element == neighbour_element)
-			{
-				neighbours_in_same_element_as_target_node++;
-			}
-		}
-		if (neighbouring_node_contained && current_node_contained)
-		{
-			unsigned neighbour_element = (*neighbouring_node_containing_elements.begin());
-			unsigned current_element = (*containing_elements.begin());
-			if (current_element == neighbour_element)
-			{
-				neighbours_in_same_element_as_current_node++;
-			}
-		}
-	}
-	assert(neighbours_in_same_element_as_current_node<5);
-	assert(neighbours_in_same_element_as_target_node<5);
+        if (neighbouring_node_contained && target_node_contained)
+        {
+            unsigned neighbour_element = (*neighbouring_node_containing_elements.begin());
+            unsigned target_element = (*new_location_containing_elements.begin());
+            if (target_element == neighbour_element)
+            {
+                neighbours_in_same_element_as_target_node++;
+            }
+        }
+        if (neighbouring_node_contained && current_node_contained)
+        {
+            unsigned neighbour_element = (*neighbouring_node_containing_elements.begin());
+            unsigned current_element = (*containing_elements.begin());
+            if (current_element == neighbour_element)
+            {
+                neighbours_in_same_element_as_current_node++;
+            }
+        }
+    }
+    assert(neighbours_in_same_element_as_current_node<5);
+    assert(neighbours_in_same_element_as_target_node<5);
 
-	double change_in_surface_area[5] = {4,2,0,-2,-4};
+    double change_in_surface_area[5] = {4,2,0,-2,-4};
 
-	if (current_node_contained) // current node is in an element
-	{
-		unsigned current_element = (*containing_elements.begin());
-		double current_surface_area = rCellPopulation.rGetMesh().GetSurfaceAreaOfElement(current_element);
-		double current_surface_area_difference = current_surface_area - mMatureCellTargetSurfaceArea;
-		double current_surface_area_difference_after_switch = current_surface_area_difference + change_in_surface_area[neighbours_in_same_element_as_current_node];
+    if (current_node_contained) // current node is in an element
+    {
+        unsigned current_element = (*containing_elements.begin());
+        double current_surface_area = rCellPopulation.rGetMesh().GetSurfaceAreaOfElement(current_element);
+        double current_surface_area_difference = current_surface_area - mMatureCellTargetSurfaceArea;
+        double current_surface_area_difference_after_switch = current_surface_area_difference + change_in_surface_area[neighbours_in_same_element_as_current_node];
 
-		delta_H += mDeformationEnergyParameter*(current_surface_area_difference_after_switch*current_surface_area_difference_after_switch - current_surface_area_difference*current_surface_area_difference);
-	}
-	if (target_node_contained) // target node is in an element
-	{
-		unsigned target_element = (*new_location_containing_elements.begin());
+        delta_H += mDeformationEnergyParameter*(current_surface_area_difference_after_switch*current_surface_area_difference_after_switch - current_surface_area_difference*current_surface_area_difference);
+    }
+    if (target_node_contained) // target node is in an element
+    {
+        unsigned target_element = (*new_location_containing_elements.begin());
         double target_surface_area = rCellPopulation.rGetMesh().GetSurfaceAreaOfElement(target_element);
         double target_surface_area_difference = target_surface_area - mMatureCellTargetSurfaceArea;
         double target_surface_area_difference_after_switch = target_surface_area_difference - change_in_surface_area[neighbours_in_same_element_as_target_node];
 
-		delta_H += mDeformationEnergyParameter*(target_surface_area_difference_after_switch*target_surface_area_difference_after_switch - target_surface_area_difference*target_surface_area_difference);
-	}
+        delta_H += mDeformationEnergyParameter*(target_surface_area_difference_after_switch*target_surface_area_difference_after_switch - target_surface_area_difference*target_surface_area_difference);
+    }
 
-	return delta_H;
+    return delta_H;
 }
 
 template<unsigned DIM>
@@ -164,7 +164,7 @@ template<unsigned DIM>
 void SurfaceAreaConstraintPottsUpdateRule<DIM>::OutputUpdateRuleParameters(out_stream& rParamsFile)
 {
     *rParamsFile << "\t\t\t<DeformationEnergyParameter>" << mDeformationEnergyParameter << "</DeformationEnergyParameter>\n";
-	*rParamsFile << "\t\t\t<MatureCellTargetSurfaceArea>" << mMatureCellTargetSurfaceArea << "</MatureCellTargetSurfaceArea>\n";
+    *rParamsFile << "\t\t\t<MatureCellTargetSurfaceArea>" << mMatureCellTargetSurfaceArea << "</MatureCellTargetSurfaceArea>\n";
 
     // Call method on direct parent class
     AbstractPottsUpdateRule<DIM>::OutputUpdateRuleParameters(rParamsFile);

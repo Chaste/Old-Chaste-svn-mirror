@@ -51,7 +51,7 @@ private:
     friend class boost::serialization::access;
     /**
      * Serialize the object and its member variables.
-     * 
+     *
      * @param archive the archive
      * @param version the current version of this class
      */
@@ -67,7 +67,7 @@ public:
 
     /**
      * Default constructor.
-     * 
+     *
      * @param meanDelta the average of the levels of Delta in the surrounding cells (defaults to zero)
      * @param stateVariables optional initial conditions for state variables (only used in archiving)
      */
@@ -77,7 +77,7 @@ public:
      * Destructor.
      */
     ~DeltaNotchOdeSystem();
-    
+
     /**
      * Compute the RHS of the Alarcon et al. (2004) system of ODEs.
      *

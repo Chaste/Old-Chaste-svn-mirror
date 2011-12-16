@@ -152,7 +152,7 @@ public:
 
             if(final_voltage_normal[j]>0.0)
             {
-            	some_node_depolarised = true;
+                some_node_depolarised = true;
             }
         }
         assert(some_node_depolarised);

@@ -55,7 +55,7 @@ private:
     HeartGeometryInformation<SPACE_DIM>* mpGeometryInfo; /**< Provides a method to calculate the relative position of a node with respect to two (or three) given surfaces*/
 
     c_vector <double, SPACE_DIM> mApexToBase; /**< Normalised direction from apex to base */
-    
+
     /**
      * Compute the wallthickness of a given node based on a
      * neighbourhood average of its thickness and of those in the forward star.

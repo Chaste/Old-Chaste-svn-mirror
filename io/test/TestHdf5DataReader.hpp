@@ -347,11 +347,11 @@ public:
                 TS_ASSERT_DELTA( i_na_values[i], i*1000 + 200 + node_index, 1e-9);
             }
         }
-        
+
         std::vector<double> i_k_values = reader.GetVariableOverTime("I_K", 15);
         std::vector<double> i_k_values_over_multiple = reader.GetVariableOverTimeOverMultipleNodes("I_K", 10, 19)[5];
         TS_ASSERT_THROWS_THIS(reader.GetVariableOverTimeOverMultipleNodes("I_K", 0, NUMBER_NODES+5),
-							  "The file doesn't contain info for node 104");
+                              "The file doesn't contain info for node 104");
 
         TS_ASSERT_EQUALS(i_k_values.size(), i_k_values_over_multiple.size());
 
