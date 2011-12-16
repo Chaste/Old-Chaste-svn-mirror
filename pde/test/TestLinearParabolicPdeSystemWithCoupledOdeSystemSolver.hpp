@@ -361,6 +361,100 @@ public:
         VecDestroy(initial_condition);
     }
 
+    void TestInitialConditionIsResetInSolveAndWriteResultsToFileMethod()
+    {
+        // Set up the same problem as in TestHeatEquationWithCoupledOdeSystemIn2dWithZeroDirichlet
+
+        // Create mesh of the domain [0,1]x[0,1]
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Create PDE system object
+        HeatEquationForCoupledOdeSystem<2> pde;
+
+        // Define zero Dirichlet boundary conditions on entire boundary
+        BoundaryConditionsContainer<2,2,1> bcc;
+        bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
+
+        // Create the correct number of ODE systems
+        double a = 5.0;
+        std::vector<AbstractOdeSystemForCoupledPdeSystem*> ode_systems;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            ode_systems.push_back(new OdeSystemForCoupledHeatEquation(a));
+        }
+
+        // Create PDE system solver
+        LinearParabolicPdeSystemWithCoupledOdeSystemSolver<2,2,1> solver(&mesh, &pde, &bcc, ode_systems);
+
+        /*
+         * Set initial condition
+         *
+         * u(x,y,0) = sin(pi*x)*sin(pi*y),
+         *
+         * which is an eigenfunction of the heat equation.
+         */
+        std::vector<double> init_cond(mesh.GetNumNodes());
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+            init_cond[i] = sin(M_PI*x)*sin(M_PI*y);
+        }
+        Vec initial_condition = PetscTools::CreateVec(init_cond);
+        solver.SetInitialCondition(initial_condition);
+
+        // Check that the initial condition is correct
+        TS_ASSERT(solver.GetInitialCondition() == initial_condition);
+
+        // Set output directory
+        solver.SetOutputDirectory("TestInitialConditionIsResetInSolveAndWriteResultsToFileMethod");
+
+        // Set end time and timestep
+        double t_end = 0.01;
+        solver.SetTimes(0, t_end);
+        solver.SetTimeStep(0.001);
+        solver.SetSamplingTimeStep(0.001);
+
+        // Solve PDE system
+#ifdef CHASTE_VTK
+        solver.SolveAndWriteResultsToFile();
+#else // CHASTE_VTK
+        TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
+                "VTK is not installed and is required for this functionality");
+#endif // CHASTE_VTK
+
+        // Check that the "initial condition" has been reset in the course of solving the system
+        Vec initial_condition_at_end_of_solve = solver.GetInitialCondition();
+        TS_ASSERT(initial_condition_at_end_of_solve != initial_condition);
+
+        /*
+         * Check that the "initial condition" is now equal to the expected solution
+         * at this time, namely
+         * 
+         * u(x,y,t) = e^{-2*pi*pi*t}*sin(pi*x)*sin(pi*y),
+         * v(x,y,t) = 1 + (1 - e^{-2*pi*pi*t})*sin(pi*x)*sin(pi*y)*a/(2*pi*pi),
+         *
+         * with t = t_end.
+         */
+        ReplicatableVector result_repl(initial_condition_at_end_of_solve);
+        for (unsigned i=0; i<result_repl.GetSize(); i++)
+        {
+            double x = mesh.GetNode(i)->GetPoint()[0];
+            double y = mesh.GetNode(i)->GetPoint()[1];
+
+            double u = exp(-2*M_PI*M_PI*t_end)*sin(M_PI*x)*sin(M_PI*y);
+            double v = 1.0 + (a/(2*M_PI*M_PI))*(1 - exp(-2*M_PI*M_PI*t_end))*sin(M_PI*x)*sin(M_PI*y);
+
+            TS_ASSERT_DELTA(result_repl[i], u, 0.01);
+            TS_ASSERT_DELTA(ode_systems[i]->rGetStateVariables()[0], v, 0.01);
+        }
+
+        // Tidy up
+        VecDestroy(initial_condition);
+    }
+
     /**
      * This test provides an example of how to solve a coupled PDE system
      * where there is no coupled ODE system, and can be used as a template
