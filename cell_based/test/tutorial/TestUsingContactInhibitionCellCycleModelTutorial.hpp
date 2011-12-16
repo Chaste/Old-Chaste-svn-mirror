@@ -93,7 +93,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneBoundaryCondition.hpp"
 
 /* We first define the global test class that inherits from {{{CxxTest::TestSuite}}}. */
-class TestUsingContactInibitionCellCycleModelTutorial : public CxxTest::TestSuite
+class TestUsingContactInhibitionCellCycleModelTutorial : public CxxTest::TestSuite
 {
 public:
     /*

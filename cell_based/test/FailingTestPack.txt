@@ -1,2 +1,1 @@
-tutorial/TestCellBasedWorkshopSession4aTutorial.hpp
-tutorial/TestCellBasedWorkshopSession8Tutorial.hpp
+tutorial/TestCellBasedDemoTutorial.hpp
