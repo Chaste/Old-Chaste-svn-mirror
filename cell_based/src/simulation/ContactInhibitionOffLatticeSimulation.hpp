@@ -36,9 +36,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Subclass of OffLatticeSimulation in which the volume of the cells is used in
- * a CellWiseData structure for contact inhibition below a threshold volume. Works
- *
+ * a CellWiseData structure for contact inhibition below a threshold volume.
+ * Works only with MeshBasedPopulation at the moment, where the volume is obtained
+ * using a Voronoi tessellation.
  */
+//\todo implement other populations
+
 template<unsigned DIM>
 class ContactInhibitionOffLatticeSimulation : public OffLatticeSimulation<DIM>
 {

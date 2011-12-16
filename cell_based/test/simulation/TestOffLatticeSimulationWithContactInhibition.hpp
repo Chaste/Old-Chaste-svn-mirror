@@ -53,6 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "MutableMesh.hpp"
 #include "PlaneBoundaryCondition.hpp"
+#include "Warnings.hpp"
 
 class TestContactInhibitionOffLatticeSimulation : public CxxTest::TestSuite
 {
@@ -69,7 +70,7 @@ public:
           MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
           // Create cell state
-            MAKE_PTR(WildTypeCellMutationState, p_state);
+          MAKE_PTR(WildTypeCellMutationState, p_state);
           std::vector<CellPtr> cells;
 
           for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -118,19 +119,19 @@ public:
           point(1) = 0.0;
           normal(0) = -1.0;
           normal(1) = 0.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // y>0
+          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>-2
           simulator.AddCellPopulationBoundaryCondition(p_bc1);
           point(0) = 2.5;
           point(1) = 0.0;
           normal(0) = 1.0;
           normal(1) = 0.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // y<2
+          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<2.5
           simulator.AddCellPopulationBoundaryCondition(p_bc2);
           point(0) = 0.0;
           point(1) = -1.0;
           normal(0) = 0.0;
           normal(1) = -1.0;
-          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y<2
+          MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>-1
           simulator.AddCellPopulationBoundaryCondition(p_bc3);
           point(0) = 0.0;
           point(1) = 2.0;
@@ -157,6 +158,101 @@ public:
           RandomNumberGenerator::Destroy();
           CellwiseData<2>::Destroy();
       }
+
+    void TestArchiving() throw (Exception)
+        {
+			EXIT_IF_PARALLEL;
+
+			// Set up SimulationTime
+			SimulationTime* p_simulation_time = SimulationTime::Instance();
+			p_simulation_time->SetStartTime(0.0);
+
+			// Create a simple mesh
+			HoneycombMeshGenerator generator(2, 2, 1);
+			MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+			// Create cell state
+			MAKE_PTR(WildTypeCellMutationState, p_state);
+			std::vector<CellPtr> cells;
+
+			for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+			{
+				ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+				p_cycle_model->SetCellProliferativeType(STEM);
+				p_cycle_model->SetDimension(2);
+				p_cycle_model->SetBirthTime(-1.0);
+				p_cycle_model->SetQuiescentVolumeFraction(0.7);
+				p_cycle_model->SetEquilibriumVolume(1.0);
+				p_cycle_model->SetStemCellG1Duration(0.1);
+				p_cycle_model->SetTransitCellG1Duration(0.1);
+
+				CellPtr p_cell(new Cell(p_state, p_cycle_model));
+				p_cell->InitialiseCellCycleModel();
+				cells.push_back(p_cell);
+			}
+
+			// Create a cell population
+			MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+			// Create a force law
+			MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+			p_force->SetCutOffLength(1.5);
+
+			// Create a singleton class to store the volume of the cells and initialize it
+			CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+			p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+			p_data->SetCellPopulation(&cell_population);
+
+			for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+			{
+				p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
+			}
+
+			// Create a contact inhibition simulator
+			ContactInhibitionOffLatticeSimulation<2> simulator(cell_population);
+			simulator.SetOutputDirectory("TestContactInhibitionOffLatticeSimulationSaveAndLoad");
+			double end_time=0.01;
+			simulator.SetEndTime(end_time);
+			simulator.AddForce(p_force);
+
+			// Run simulation
+			simulator.Solve();
+
+            CellBasedSimulationArchiver<2, ContactInhibitionOffLatticeSimulation<2> >::Save(&simulator);
+
+            TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 16u);
+            TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->GetNumRealCells(), 16u);
+
+            TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.01, 1e-9);
+            CellPtr p_cell = simulator.rGetCellPopulation().GetCellUsingLocationIndex(3);
+            TS_ASSERT_DELTA(p_cell->GetAge(), 1.01, 1e-4);
+
+            SimulationTime::Destroy();
+            SimulationTime::Instance()->SetStartTime(0.0);
+
+            // Load simulation
+            ContactInhibitionOffLatticeSimulation<2>* p_simulator
+                = CellBasedSimulationArchiver<2, ContactInhibitionOffLatticeSimulation<2> >::Load("TestContactInhibitionOffLatticeSimulationSaveAndLoad", end_time);
+
+            p_simulator->SetEndTime(0.2);
+
+            TS_ASSERT_EQUALS(p_simulator->rGetCellPopulation().GetNumRealCells(), 16u);
+            TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation())))->GetNumRealCells(), 16u);
+
+            TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.01, 1e-9);
+            CellPtr p_cell2 = p_simulator->rGetCellPopulation().GetCellUsingLocationIndex(3);
+            TS_ASSERT_DELTA(p_cell2->GetAge(), 1.01, 1e-4);
+
+            // Run simulation
+            TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
+
+            // Tidy up
+            delete p_simulator;
+
+            // Test Warnings
+            TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
+            Warnings::QuietDestroy();
+        }
 };
 
 #endif /*TESTOFFLATTICESIMULATIONWITHCONTACTINHIBITION_HPP_*/
