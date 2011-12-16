@@ -190,11 +190,11 @@ public:
         /*
          * For longer simulations, we may not want to output the results
          * every time step. In this case we can use the following method,
-         * to print results every 10 time steps instead. As the time step
+         * to print results every 12 time steps instead. As the time step
          * used by the simulator, is 30 seconds, this method will cause the
-         * simulator to print results every 5 minutes.
+         * simulator to print results every 6 minutes.
          */
-        simulator.SetSamplingTimestepMultiple(10);
+        simulator.SetSamplingTimestepMultiple(12);
 
         /*
          * Before running the simulation, we must add one or more force laws, which determine the mechanical

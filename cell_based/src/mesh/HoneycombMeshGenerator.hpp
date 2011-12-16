@@ -78,10 +78,10 @@ public:
      *
      * @param numNodesAlongWidth  The number of cells you want alopng the bottom of the domain
      * @param numNodesAlongLength  The number of cells you want sides of the domain
-     * @param ghosts  The thickness of ghost nodes to put around the edge (defaults to 3)
+     * @param ghosts  The thickness of ghost nodes to put around the edge (defaults to 0)
      * @param scaleFactor  The scale factor for the width (circumference) of the cells (defaults to 1.0)
      */
-    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, double scaleFactor=1.0);
+    HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=0, double scaleFactor=1.0);
 
     /**
      * Null constructor for derived classes to call.

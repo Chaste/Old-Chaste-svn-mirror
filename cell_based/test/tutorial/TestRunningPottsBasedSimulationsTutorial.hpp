@@ -139,7 +139,9 @@ public:
 
         /* We must now create one or more update rules, which determine the Hamiltonian
         * in the Potts simulation. For this test, we use two update rules based upon
-        * an area constraint and adhesion between cells and pass them to the {{{OnLatticeSimulation}}}
+        * an area constraint and adhesion between cells and pass them to the {{{OnLatticeSimulation}}}.
+        * For a list of possible update rules see subclasses of {{{AbstractPottsUpdateRule}}}.
+        * These can be found in the inheritance diagram, here, [class:AbstractPottsUpdateRule AbstractPottsUpdateRule].
         */
         MAKE_PTR(VolumeConstraintPottsUpdateRule<2>, p_volume_constraint_update_rule);
         simulator.AddPottsUpdateRule(p_volume_constraint_update_rule);
@@ -227,7 +229,6 @@ public:
         /* We must now create one or more update rules, which determine the Hamiltonian
         * in the Potts simulation. For this test, we use two update rules based upon
         * an area constraint and differential adhesion between cells and pass them to the {{{OnLatticeSimulation}}}.
-        * For a list of possible update rules see subclasses of [class:AbstractPottsUpdateRule AbstractPottsUpdateRule].
         */
         MAKE_PTR(VolumeConstraintPottsUpdateRule<2>, p_volume_constraint_update_rule);
         p_volume_constraint_update_rule->SetMatureCellTargetVolume(16);
