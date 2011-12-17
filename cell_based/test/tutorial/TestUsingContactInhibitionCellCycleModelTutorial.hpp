@@ -132,7 +132,7 @@ public:
             ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
             p_cycle_model->SetCellProliferativeType(STEM);
             p_cycle_model->SetDimension(2);
-            p_cycle_model->SetBirthTime(0.0);
+            p_cycle_model->SetBirthTime(-(double)i);
             p_cycle_model->SetQuiescentVolumeFraction(0.5);
             p_cycle_model->SetEquilibriumVolume(1.0);
             p_cycle_model->SetStemCellG1Duration(0.5);
@@ -180,31 +180,31 @@ public:
          *  to the simulator:
          */
         c_vector<double,2> point = zero_vector<double>(2);
-        c_vector<double,2> normal = zero_vector<double>(2);
-        point(0) = -1.0;
-        point(1) = 0.0;
-        normal(0) = -1.0;
-        normal(1) = 0.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // y>0
-        simulator.AddCellPopulationBoundaryCondition(p_bc1);
-        point(0) = 2.5;
-        point(1) = 0.0;
-        normal(0) = 1.0;
-        normal(1) = 0.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // y<2
-        simulator.AddCellPopulationBoundaryCondition(p_bc2);
-        point(0) = 0.0;
-        point(1) = -1.0;
-        normal(0) = 0.0;
-        normal(1) = -1.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y<2
-        simulator.AddCellPopulationBoundaryCondition(p_bc3);
-        point(0) = 0.0;
-        point(1) = 2.5;
-        normal(0) = 0.0;
-        normal(1) = 1.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2
-        simulator.AddCellPopulationBoundaryCondition(p_bc4);
+		c_vector<double,2> normal = zero_vector<double>(2);
+		point(0) = 0.0;
+		point(1) = 0.0;
+		normal(0) = -1.0;
+		normal(1) = 0.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>0
+		simulator.AddCellPopulationBoundaryCondition(p_bc1);
+		point(0) = 2.5;
+		point(1) = 0.0;
+		normal(0) = 1.0;
+		normal(1) = 0.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<2.5
+		simulator.AddCellPopulationBoundaryCondition(p_bc2);
+		point(0) = 0.0;
+		point(1) = 0.0;
+		normal(0) = 0.0;
+		normal(1) = -1.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>0
+		simulator.AddCellPopulationBoundaryCondition(p_bc3);
+		point(0) = 0.0;
+		point(1) = 2.5;
+		normal(0) = 0.0;
+		normal(1) = 1.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2.5
+		simulator.AddCellPopulationBoundaryCondition(p_bc4);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

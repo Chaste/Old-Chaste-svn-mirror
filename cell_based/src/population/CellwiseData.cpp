@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CellwiseData.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 
 template<unsigned DIM>
 CellwiseData<DIM>* CellwiseData<DIM>::mpInstance = NULL;
@@ -100,13 +101,19 @@ void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned 
     }
 
     unsigned vector_index = locationIndex*mNumberOfVariables + variableNumber;
+    assert(vector_index < mData.size());
     mData[vector_index] = value;
 }
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopulation)
 {
-    if (mAllocatedMemory == false)
+    if (dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(mpCellPopulation))
+    {
+    	EXCEPTION("CellwiseData does not work with ghost nodes.");
+    }
+
+	if (mAllocatedMemory == false)
     {
         EXCEPTION("SetCellPopulation must be called after SetNumCellsAndVars()");
     }
@@ -151,6 +158,7 @@ void CellwiseData<DIM>::ReallocateMemory()
     assert(mpCellPopulation!=NULL);
 
     unsigned num_cells = mpCellPopulation->GetNumRealCells();
+
     if (mData.size() != num_cells*mNumberOfVariables)
     {
         mData.clear();
