@@ -38,10 +38,10 @@ VolumeTrackedMeshBasedSimulation<DIM>::VolumeTrackedMeshBasedSimulation(Abstract
                                                                   bool initialiseCells)
     : OffLatticeSimulation<DIM>(rCellPopulation, deleteCellPopulationInDestructor, initialiseCells)
 {
-//    if (!dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
-//    {
-//        EXCEPTION("VolumeTrackedMeshBasedSimulation require a subclass of MeshBasedCellPopulation.");
-//    }
+    if (!dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))
+    {
+        EXCEPTION("VolumeTrackedMeshBasedSimulation require a subclass of MeshBasedCellPopulation.");
+    }
 }
 
 template<unsigned DIM>

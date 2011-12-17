@@ -54,9 +54,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "OutputFileHandler.hpp"
 #include "MutableMesh.hpp"
-#include "PottsMeshGenerator.hpp"
-#include "PottsMesh.hpp"
-#include "PottsBasedCellPopulation.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
+#include "MutableVertexMesh.hpp"
+#include "VertexBasedCellPopulation.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 
@@ -66,24 +66,24 @@ class TestVolumeTrackedMeshBasedSimulation : public AbstractCellBasedTestSuite
 {
 public:
 
-//    void TestVolumeTrackedMeshBasedSimulationExceptions()
-//    {
-//        // Create a simple 2D PottsMesh
-//        PottsMeshGenerator<2> generator(6, 2, 2, 6, 2, 2);
-//        PottsMesh<2>* p_mesh = generator.GetMesh();
-//
-//        // Create cells
-//        std::vector<CellPtr> cells;
-//        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-//        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
-//
-//        // Create cell population
-//        PottsBasedCellPopulation<2> potts_based_cell_population(*p_mesh, cells);
-//
-//        // Try to set up off lattice simulation
-//        TS_ASSERT_THROWS_THIS(VolumeTrackedMeshBasedSimulation<2> simulator(potts_based_cell_population),
-//           "VolumeTrackedMeshBasedSimulation require a subclass of MeshBasedCellPopulation.");
-//    }
+    void TestVolumeTrackedMeshBasedSimulationExceptions()
+    {
+    	// Create a simple 2D MutableVertexMesh
+		HoneycombVertexMeshGenerator generator(5, 5);
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+		// Create cells
+		std::vector<CellPtr> cells;
+		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
+
+		// Create cell population
+		VertexBasedCellPopulation<2> vertex_based_cell_population(*p_mesh, cells);
+
+        // Try to set up simulation
+        TS_ASSERT_THROWS_THIS(VolumeTrackedMeshBasedSimulation<2> simulator(vertex_based_cell_population),
+           "VolumeTrackedMeshBasedSimulation require a subclass of MeshBasedCellPopulation.");
+    }
 
     void TestMeshBasedSimulationWithContactInhibitionInBox()
     {
