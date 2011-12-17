@@ -175,6 +175,9 @@ public:
         * at the beginning of the next test in this file, an assertion will be triggered.
         */
         SimulationTime::Destroy();
+
+        /* we now need to tidy up and delete any pointers we created in the test.*/
+        delete p_mesh;
     }
 
     /*
