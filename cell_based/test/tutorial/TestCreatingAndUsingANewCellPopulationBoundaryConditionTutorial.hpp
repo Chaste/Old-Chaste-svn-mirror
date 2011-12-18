@@ -340,9 +340,10 @@ public:
         MAKE_PTR_ARGS(MyBoundaryCondition, p_bc, (&cell_population));
 
         /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
-         * and set the output directory and end time. */
+         * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyBoundaryCondition");
+        simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(1.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */

@@ -261,9 +261,10 @@ public:
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
-         * and set the output directory and end time. */
+         * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOffLatticeSimulationWithp_motile");
+        simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(10.0);
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
