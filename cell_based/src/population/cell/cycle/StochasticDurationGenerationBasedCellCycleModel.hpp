@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef STOCHASTICCELLCYCLEMODEL_HPP_
-#define STOCHASTICCELLCYCLEMODEL_HPP_
+#ifndef STOCHASTICDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_
+#define STOCHASTICDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
@@ -93,4 +93,4 @@ public:
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(StochasticDurationGenerationBasedCellCycleModel)
 
-#endif /*STOCHASTICCELLCYCLEMODEL_HPP_*/
+#endif /*STOCHASTICDURATIONGENERATIONBASEDCELLCYCLEMODEL_HPP_*/

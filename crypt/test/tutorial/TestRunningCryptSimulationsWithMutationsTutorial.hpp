@@ -46,6 +46,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
+ * This tutorial assumes you have already read UserTutorials/RunningMeshBasedCryptSimulations
+ * and UserTutorials/RunningVertexBasedCryptSimulations.
+ *
+ * EMPTYLINE
+ *
  * In this tutorial we show how Chaste can be used to simulate a cylindrical model of an
  * intestinal crypt with mutations in both mesh and vertex based simulations.
  * Full details of the computational model can be found in the paper by
@@ -148,8 +153,17 @@ public:
         CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
+        /* Make pointers to any mutations you want to use.
+         * you need to do this before making the cell population or otherwise the numbers of
+         * each type of mutation aren't tracked.
+         */
+        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+
         /* We create the cell population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
+
+        /* In order to visualise mutant cells and to count how many cells there are of each type you need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
 
         /*
          * We set the height of the crypt. As well as passing this variable into the {{{sloughingCellKiller}}},
@@ -186,6 +200,36 @@ public:
         simulator.Solve();
 
         /*
+         * Now we have run the simulation to a steady state we select a cell to become mutant.
+         *
+         *  EMPTYLINE
+         *
+         * First we re set the end time to some later time.
+         */
+        simulator.SetEndTime(20);
+
+        /*
+         * Now we select one of the cells and set the mutation state to {{{ApcTwoHitCellMutationState}}} (i.e. p_state).
+         */
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+                                                 cell_iter != cell_population.End();
+                                                 ++cell_iter)
+        {
+            unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
+
+            if (node_index == 74) // Chosen from looking at the results from steady state.
+            {
+                cell_iter->SetMutationState(p_state);
+            }
+        }
+
+        // Change the Drag on the Mutant cell
+        cell_population.SetDampingConstantMutant(10*cell_population.GetDampingConstantNormal());
+
+        /* Solve to new end time */
+        simulator.Solve();
+
+        /*
          * Finally, we must tidy up by destroying the {{{SimulationTime}}} and the {{{WntConcentration}}}
          * singleton objects. This avoids memory leaks occurring. */
         WntConcentration<2>::Destroy();
@@ -194,21 +238,19 @@ public:
     /*
      * EMPTYLINE
      *
-     * The results of this test can be visualized as in Test 1, with the correct output directory.
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedCryptWithMutations/results_from_time_0}}}.
+     *
+     * These are the results before we add the mutations do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedCryptWithMutations/results_from_time_10}}}
+     * to see the results from after the mutation has been added.
+     *
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * In the results folderes there is also a file {{{cellmutationstates.dat}}} which tracks the numbers of each mutation type in the simulation.
+     * These results are just tab separated columns so may be visualised by using gnuplot, Matlab or similar.
      *
      * EMPTYLINE
-     *
-     * == Test 2: a vertex based crypt simulation with mutations ==
-     *
-     * EMPTYLINE
-     *
-     * In the second test, we demonstrate how to create a crypt simulation using a
-     * cylindrical mesh, with each cell progressing through a simple wnt dependent cell-cycle model,
-     * with the Wnt concentration varying within the crypt in a predefined manner.
      */
-    void TestVertexBasedCryptWithMutations() throw(Exception)
-    {
-    	//TODO Write this test
-    }
 };
 #endif /*TESTRUNNINGCRYPTSIMULATIONSWITHMUTATIONSTUTORIAL_HPP_*/
