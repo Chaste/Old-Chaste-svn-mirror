@@ -191,27 +191,31 @@ public:
                               "PlaneBoundaryCondition is not yet implemented in 1D or 3D");
     }
 
-//    void TestPlaneBoundaryConditionExceptions() throw(Exception)
-//    {
-//        // Create a simple 2D PottsMesh
-//        PottsMeshGenerator<2> generator(6, 2, 2, 6, 2, 2);
-//        PottsMesh<2>* p_mesh = generator.GetMesh();
-//
-//        // Create cells
-//        std::vector<CellPtr> cells;
-//        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-//        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
-//
-//        // Create cell population
-//        PottsBasedCellPopulation<2> potts_cell_population(*p_mesh, cells);
-//
-//        // Attempt to set up cell population boundary condition
-//        c_vector<double,2> point = zero_vector<double>(2);
-//        c_vector<double,2> normal = zero_vector<double>(2);
-//        normal(0) = 1.0;
-//        TS_ASSERT_THROWS_THIS(PlaneBoundaryCondition<2> plane_boundary_condition(&potts_cell_population, point, normal),
-//            "PlaneBoundaryCondition require a subclass of AbstractOffLatticeCellPopulation.");
-//    }
+    void TestPlaneBoundaryConditionExceptions() throw(Exception)
+    {
+        // Create a simple 2D PottsMesh
+        PottsMeshGenerator<2> generator(6, 2, 2, 6, 2, 2);
+        PottsMesh<2>* p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
+
+        // Create cell population
+        PottsBasedCellPopulation<2> potts_cell_population(*p_mesh, cells);
+
+        // Attempt to set up cell population boundary condition
+        c_vector<double,2> point = zero_vector<double>(2);
+        c_vector<double,2> normal = zero_vector<double>(2);
+        normal(0) = 1.0;
+        //TS_ASSERT_THROWS_THIS(PlaneBoundaryCondition<2> plane_boundary_condition(&potts_cell_population, point, normal),
+        //    "PlaneBoundaryCondition require a subclass of AbstractOffLatticeCellPopulation.");
+        PlaneBoundaryCondition<2> boundary_condition(&potts_cell_population, point, normal);
+        std::vector<c_vector<double,2> > old_locations;
+        TS_ASSERT_THROWS_THIS(boundary_condition.ImposeBoundaryCondition(old_locations),
+            "PlaneBoundaryCondition requires a subclass of AbstractOffLatticeCellPopulation.");
+    }
 
     void TestSphereGeometryBoundaryCondition() throw (Exception)
     {

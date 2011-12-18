@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneBoundaryCondition.hpp"
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "VertexBasedCellPopulation.hpp"
+#include "Debug.hpp"
 
 template<unsigned DIM>
 PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
@@ -37,11 +38,6 @@ PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>*
         : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
           mPointOnPlane(point)
 {
-    if (dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(pCellPopulation)==NULL)
-    {
-       // EXCEPTION("PlaneBoundaryCondition require a subclass of AbstractOffLatticeCellPopulation.");
-    }
-
     assert(norm_2(normal) > 0.0);
     mNormalToPlane = normal/norm_2(normal);
 }
@@ -61,6 +57,12 @@ const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() co
 template<unsigned DIM>
 void PlaneBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
 {
+    //TODO Move this to constructor. If this is in the constructor then Exception always throws.
+    if (dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(this->mpCellPopulation)==NULL)
+    {
+        EXCEPTION("PlaneBoundaryCondition requires a subclass of AbstractOffLatticeCellPopulation.");
+    }
+
     assert((dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation))
             || (dynamic_cast<VertexBasedCellPopulation<DIM>*>(this->mpCellPopulation)) );
 
