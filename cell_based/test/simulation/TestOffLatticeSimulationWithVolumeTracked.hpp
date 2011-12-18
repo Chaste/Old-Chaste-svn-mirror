@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTOFFLATTICESIMULATIONWITHCONTACTINHIBITION_HPP_
-#define TESTOFFLATTICESIMULATIONWITHCONTACTINHIBITION_HPP_
+#ifndef TESTOFFLATTICESIMULATIONWITHVOLUMETRACKED_HPP_
+#define TESTOFFLATTICESIMULATIONWITHVOLUMETRACKED_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -41,56 +41,63 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellBasedTestSuite.hpp"
 
-#include "OffLatticeSimulation.hpp"
-#include "MeshBasedCellPopulation.hpp"
-#include "ContactInhibitionCellCycleModel.hpp"
-#include "VolumeTrackedMeshBasedSimulation.hpp"
-#include "WildTypeCellMutationState.hpp"
-#include "HoneycombMeshGenerator.hpp"
 #include "SmartPointers.hpp"
 #include "OutputFileHandler.hpp"
-#include "GeneralisedLinearSpringForce.hpp"
 #include "SimulationTime.hpp"
+
+#include "OffLatticeSimulation.hpp"
+#include "VolumeTrackedOffLatticeSimulation.hpp"
+
+#include "ContactInhibitionCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
-#include "OutputFileHandler.hpp"
+
+#include "GeneralisedLinearSpringForce.hpp"
+#include "NagaiHondaForce.hpp"
+
 #include "MutableMesh.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
-#include "MutableVertexMesh.hpp"
-#include "VertexBasedCellPopulation.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "CellsGenerator.hpp"
+#include "HoneycombMeshGenerator.hpp"
 
+#include "MeshBasedCellPopulation.hpp"
+#include "VertexBasedCellPopulation.hpp"
+#include "NodeBasedCellPopulation.hpp"
+
+#include "NodesOnlyMesh.hpp"
+#include "MutableVertexMesh.hpp"
+#include "CellsGenerator.hpp"
 #include "Warnings.hpp"
 
-class TestVolumeTrackedMeshBasedSimulation : public AbstractCellBasedTestSuite
+class TestOffLatticeSimulationWithVolumeTracked : public AbstractCellBasedTestSuite
 {
 public:
 
-    void TestVolumeTrackedMeshBasedSimulationExceptions()
+    void TestOffLatticeSimulationWithVolumeTrackedExceptions()
     {
-    	// Create a simple 2D MutableVertexMesh
-		HoneycombVertexMeshGenerator generator(5, 5);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        HoneycombMeshGenerator generator(5, 5, 0);
+        TetrahedralMesh<2,2>* p_generating_mesh = generator.GetMesh();
 
-		// Create cells
+        // Convert this to a NodesOnlyMesh
+        NodesOnlyMesh<2> mesh;
+        mesh.ConstructNodesWithoutMesh(*p_generating_mesh);
+
+        // Create cells
 		std::vector<CellPtr> cells;
 		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), DIFFERENTIATED);
+		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
-		// Create cell population
-		VertexBasedCellPopulation<2> vertex_based_cell_population(*p_mesh, cells);
+		// Create a node-based cell population
+		NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+		node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Try to set up simulation
-        TS_ASSERT_THROWS_THIS(VolumeTrackedMeshBasedSimulation<2> simulator(vertex_based_cell_population),
-           "VolumeTrackedMeshBasedSimulation require a subclass of MeshBasedCellPopulation.");
+        TS_ASSERT_THROWS_THIS(VolumeTrackedOffLatticeSimulation<2> simulator(node_based_cell_population),
+        		"VolumeTrackedOffLatticeSimulation require a subclass of MeshBasedCellPopulation or VertexBasedSimulation.");
     }
 
     void TestMeshBasedSimulationWithContactInhibitionInBox()
     {
-          // Set up SimulationTime
-//          SimulationTime* p_simulation_time = SimulationTime::Instance();
-//          p_simulation_time->SetStartTime(0.0);
-
           // Create a simple mesh
           HoneycombMeshGenerator generator(2, 2, 0);
           MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -133,8 +140,8 @@ public:
           }
 
           // Create a contact inhibition simulator
-          VolumeTrackedMeshBasedSimulation<2> simulator(cell_population);
-          simulator.SetOutputDirectory("TestMeshBasedSimulationWithContactInhibition");
+          VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+          simulator.SetOutputDirectory("TestMeshBasedSimulationWithVolumeTracked");
           simulator.SetEndTime(1.0);
           simulator.AddForce(p_force);
 
@@ -158,13 +165,68 @@ public:
           CellwiseData<2>::Destroy();
     }
 
-    void TestVolumeTrackedMeshBasedSimulationArchiving() throw (Exception)
+
+    void TestVertexBasedSimulationWithContactInhibitionInBox()
+        {
+
+		// Create a simple 2D MutableVertexMesh
+		HoneycombVertexMeshGenerator generator(2, 2);
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+		// Create cell state
+		MAKE_PTR(WildTypeCellMutationState, p_state);
+		std::vector<CellPtr> cells;
+
+		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+		{
+		ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+		p_cycle_model->SetCellProliferativeType(STEM);
+		p_cycle_model->SetDimension(2);
+		p_cycle_model->SetBirthTime(-10.0);
+		p_cycle_model->SetQuiescentVolumeFraction(0.7);
+		p_cycle_model->SetEquilibriumVolume(1.0);
+		p_cycle_model->SetStemCellG1Duration(0.1);
+		p_cycle_model->SetTransitCellG1Duration(0.1);
+
+		CellPtr p_cell(new Cell(p_state, p_cycle_model));
+		p_cell->InitialiseCellCycleModel();
+		cells.push_back(p_cell);
+		}
+
+		// Create cell population
+		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+		// Create a force law and pass it to the simulation
+		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+
+		// Create a singleton class to store the volume of the cells and initialize it
+		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+		p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
+		p_data->SetCellPopulation(&cell_population);
+
+		for (unsigned i=0; i<cell_population.GetNumElements(); i++)
+		{
+		  p_data->SetValue(1.0, i);
+		}
+
+		// Create a contact inhibition simulator
+		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+		simulator.SetOutputDirectory("TestVertexBasedSimulationWithVolumeTracked");
+		simulator.SetEndTime(1.0);
+		simulator.AddForce(p_nagai_honda_force);
+
+		// Run simulation
+		simulator.Solve();
+
+		// Tidy up
+		SimulationTime::Destroy();
+		RandomNumberGenerator::Destroy();
+		CellwiseData<2>::Destroy();
+        }
+
+    void TestVolumeTrackedOffLatticeSimulationArchiving() throw (Exception)
     {
         EXIT_IF_PARALLEL;
-
-        // Set up SimulationTime
-//        SimulationTime* p_simulation_time = SimulationTime::Instance();
-//        p_simulation_time->SetStartTime(0.0);
 
         // Create a simple mesh
         HoneycombMeshGenerator generator(2, 2, 0);
@@ -208,8 +270,8 @@ public:
         }
 
         // Create a contact inhibition simulator
-        VolumeTrackedMeshBasedSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestVolumeTrackedMeshBasedSimulationSaveAndLoad");
+        VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestVolumeTrackedOffLatticeSimulationSaveAndLoad");
         double end_time=0.01;
         simulator.SetEndTime(end_time);
         simulator.AddForce(p_force);
@@ -217,7 +279,7 @@ public:
         // Run simulation
         simulator.Solve();
 
-        CellBasedSimulationArchiver<2, VolumeTrackedMeshBasedSimulation<2> >::Save(&simulator);
+        CellBasedSimulationArchiver<2, VolumeTrackedOffLatticeSimulation<2> >::Save(&simulator);
 
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 4u);
         TS_ASSERT_EQUALS((static_cast<MeshBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->GetNumRealCells(), 4u);
@@ -230,8 +292,8 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         // Load simulation
-        VolumeTrackedMeshBasedSimulation<2>* p_simulator
-            = CellBasedSimulationArchiver<2, VolumeTrackedMeshBasedSimulation<2> >::Load("TestVolumeTrackedMeshBasedSimulationSaveAndLoad", end_time);
+        VolumeTrackedOffLatticeSimulation<2>* p_simulator
+            = CellBasedSimulationArchiver<2, VolumeTrackedOffLatticeSimulation<2> >::Load("TestVolumeTrackedOffLatticeSimulationSaveAndLoad", end_time);
 
         p_simulator->SetEndTime(0.2);
 
@@ -249,9 +311,9 @@ public:
         delete p_simulator;
 
         // Test Warnings
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         Warnings::QuietDestroy();
     }
 };
 
-#endif /*TESTOFFLATTICESIMULATIONWITHCONTACTINHIBITION_HPP_*/
+#endif /*TESTOFFLATTICESIMULATIONWITHVOLUMETRACKED_HPP_*/

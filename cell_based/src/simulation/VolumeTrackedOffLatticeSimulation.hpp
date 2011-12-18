@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef VOLUMETRACKEDMESHBASEDSIMULATION_HPP_
-#define VOLUMETRACKEDMESHBASEDSIMULATION_HPP_
+#ifndef VOLUMETRACKEDOFFLATTICESIMULATION_HPP_
+#define VOLUMETRACKEDOFFLATTICESIMULATION_HPP_
 
 #include <map>
 #include "ChasteSerialization.hpp"
@@ -37,13 +37,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Subclass of OffLatticeSimulation in which the volume of the cells is used in
  * a CellWiseData structure for contact inhibition below a threshold volume.
- * Works only with MeshBasedPopulation at the moment, where the volume is obtained
- * using a Voronoi tessellation.
+ * Works only with MeshBasedPopulation and a VertexBasedPopulation at the moment.
  */
-//\todo implement other populations
+//\todo implement NodeBasedPopulation
 
 template<unsigned DIM>
-class VolumeTrackedMeshBasedSimulation : public OffLatticeSimulation<DIM>
+class VolumeTrackedOffLatticeSimulation : public OffLatticeSimulation<DIM>
 {
 private :
 
@@ -68,9 +67,6 @@ private :
 
 public:
 
-    /** The file that the values of beta catenin is written out to. */
-    out_stream mVizDeltaFile;
-
     /**
      * Default constructor.
      *
@@ -79,18 +75,18 @@ public:
      *     free up memory (defaults to false)
      * @param initialiseCells whether to initialise cells (defaults to true, set to false when loading from an archive)
      */
-     VolumeTrackedMeshBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
+     VolumeTrackedOffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
                                    bool deleteCellPopulationInDestructor=false,
                                    bool initialiseCells=true);
 
      /**
       * Destructor.
       */
-    ~VolumeTrackedMeshBasedSimulation();
+    ~VolumeTrackedOffLatticeSimulation();
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(VolumeTrackedMeshBasedSimulation)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(VolumeTrackedOffLatticeSimulation)
 
 namespace boost
 {
@@ -98,7 +94,7 @@ namespace serialization
 {
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const VolumeTrackedMeshBasedSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const VolumeTrackedOffLatticeSimulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     const AbstractCellPopulation<DIM> * p_cell_population = &(t->rGetCellPopulation());
     ar & p_cell_population;
@@ -106,14 +102,14 @@ inline void save_construct_data(
 
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, VolumeTrackedMeshBasedSimulation<DIM> * t, const unsigned int file_version)
+    Archive & ar, VolumeTrackedOffLatticeSimulation<DIM> * t, const unsigned int file_version)
 {
     AbstractCellPopulation<DIM>* p_cell_population;
     ar >> p_cell_population;
 
-    ::new(t)VolumeTrackedMeshBasedSimulation<DIM>(*p_cell_population, true, false);
+    ::new(t)VolumeTrackedOffLatticeSimulation<DIM>(*p_cell_population, true, false);
 }
 }
 } // namespace ...
 
-#endif /*VOLUMETRACKEDMESHBASEDSIMULATION_HPP_*/
+#endif /*VOLUMETRACKEDOFFLATTICESIMULATION_HPP_*/
