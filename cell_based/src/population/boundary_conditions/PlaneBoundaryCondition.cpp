@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlaneBoundaryCondition.hpp"
 #include "AbstractCentreBasedCellPopulation.hpp"
+#include "VertexBasedCellPopulation.hpp"
 
 template<unsigned DIM>
 PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>* pCellPopulation,
@@ -36,6 +37,11 @@ PlaneBoundaryCondition<DIM>::PlaneBoundaryCondition(AbstractCellPopulation<DIM>*
         : AbstractCellPopulationBoundaryCondition<DIM>(pCellPopulation),
           mPointOnPlane(point)
 {
+    if (dynamic_cast<AbstractOffLatticeCellPopulation<DIM>*>(pCellPopulation)==NULL)
+    {
+       // EXCEPTION("PlaneBoundaryCondition require a subclass of AbstractOffLatticeCellPopulation.");
+    }
+
     assert(norm_2(normal) > 0.0);
     mNormalToPlane = normal/norm_2(normal);
 }
@@ -55,30 +61,60 @@ const c_vector<double, DIM>& PlaneBoundaryCondition<DIM>::rGetNormalToPlane() co
 template<unsigned DIM>
 void PlaneBoundaryCondition<DIM>::ImposeBoundaryCondition(const std::vector< c_vector<double, DIM> >& rOldLocations)
 {
-    assert(dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation));
+    assert((dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation))
+            || (dynamic_cast<VertexBasedCellPopulation<DIM>*>(this->mpCellPopulation)) );
 
     if (DIM==2)
     {
-        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
-             cell_iter != this->mpCellPopulation->End();
-             ++cell_iter)
+        if(dynamic_cast<AbstractCentreBasedCellPopulation<DIM>*>(this->mpCellPopulation))
         {
-            c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
-
-            unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-            Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
-
-            if (inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0)
+            for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+                 cell_iter != this->mpCellPopulation->End();
+                 ++cell_iter)
             {
-                c_vector<double, 2> tangent;
-                tangent(0) = -mNormalToPlane(1);
-                tangent(1) = mNormalToPlane(0);
+                c_vector<double, DIM> cell_location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
-                c_vector<double, 2> intersection = mPointOnPlane + inner_prod(tangent,cell_location- mPointOnPlane)*tangent;
+                unsigned node_index = this->mpCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+                Node<DIM>* p_node = this->mpCellPopulation->GetNode(node_index);
 
-                p_node->rGetModifiableLocation() = intersection;
+                if (inner_prod(cell_location - mPointOnPlane,mNormalToPlane) > 0.0)
+                {
+                    c_vector<double, 2> tangent;
+                    tangent(0) = -mNormalToPlane(1);
+                    tangent(1) = mNormalToPlane(0);
+
+                    c_vector<double, 2> intersection = mPointOnPlane + inner_prod(tangent,cell_location- mPointOnPlane)*tangent;
+
+                    p_node->rGetModifiableLocation() = intersection;
+                }
             }
         }
+        else
+        {
+            assert(dynamic_cast<VertexBasedCellPopulation<DIM>*>(this->mpCellPopulation));
+
+            VertexBasedCellPopulation<DIM>* pStaticCastCellPopulation = static_cast<VertexBasedCellPopulation<DIM>*>(this->mpCellPopulation);
+
+            // Iterate over all nodes and update their positions according to the boundary conditions
+            unsigned num_nodes = pStaticCastCellPopulation->GetNumNodes();
+            for (unsigned node_index=0; node_index<num_nodes; node_index++)
+            {
+                Node<DIM>* p_node = pStaticCastCellPopulation->GetNode(node_index);
+                c_vector<double, DIM> node_location = p_node->rGetLocation();
+
+                if (inner_prod(node_location - mPointOnPlane,mNormalToPlane) > 0.0)
+                {
+                    c_vector<double, 2> tangent;
+                    tangent(0) = -mNormalToPlane(1);
+                    tangent(1) = mNormalToPlane(0);
+
+                    c_vector<double, 2> intersection = mPointOnPlane + inner_prod(tangent,node_location- mPointOnPlane)*tangent;
+
+                    p_node->rGetModifiableLocation() = intersection;
+                }
+            }
+        }
+
     }
     else
     {

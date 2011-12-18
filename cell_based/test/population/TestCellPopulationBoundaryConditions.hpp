@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "HoneycombVertexMeshGenerator.hpp"
+#include "PottsMeshGenerator.hpp"
 #include "PlaneBoundaryCondition.hpp"
 #include "SphereGeometryBoundaryCondition.hpp"
 #include "CellwiseData.hpp"
@@ -44,6 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "NodeBasedCellPopulation.hpp"
+#include "VertexBasedCellPopulation.hpp"
+#include "PottsBasedCellPopulation.hpp"
 #include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
 
@@ -102,9 +106,9 @@ public:
         {
             Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
-            if (old_locations[p_node->GetIndex()][1] < 2.0)
+            if (old_locations[p_node->GetIndex()][0] < 2.0)
             {
-                TS_ASSERT_LESS_THAN_EQUALS(2.0, location[0]);
+                TS_ASSERT_DELTA(2.0, location[0], 1e-6);
                 TS_ASSERT_DELTA(location[1], old_locations[p_node->GetIndex()][1], 1e-6);
             }
             else
@@ -122,6 +126,92 @@ public:
         TS_ASSERT_THROWS_THIS(plane_boundary_condition_3d.VerifyBoundaryCondition(),
                               "PlaneBoundaryCondition is not yet implemented in 1D or 3D");
     }
+
+    void TestPlaneBoundaryConditionWithVertexBasedCellPopulation() throw(Exception)
+    {
+        // Create mesh
+        HoneycombVertexMeshGenerator generator(2, 2);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Create cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+
+        // Create cell population
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+
+        // Set up cell population boundary condition x>1
+        c_vector<double,2> point = zero_vector<double>(2);
+        point(0) = 1.0;
+        c_vector<double,2> normal = zero_vector<double>(2);
+        normal(0) = -1.0;
+        PlaneBoundaryCondition<2> boundary_condition(&cell_population, point, normal);
+
+        TS_ASSERT_EQUALS(boundary_condition.GetIdentifier(), "PlaneBoundaryCondition-2");
+
+        // Impose boundary condition
+        std::vector<c_vector<double,2> > old_locations;
+        old_locations.reserve(cell_population.GetNumNodes());
+
+        for (MutableVertexMesh<2,2>::NodeIterator node_iter = cell_population.rGetMesh().GetNodeIteratorBegin();
+                node_iter != cell_population.rGetMesh().GetNodeIteratorEnd();
+                ++node_iter)
+        {
+            old_locations.push_back(node_iter->rGetLocation());
+        }
+
+        boundary_condition.ImposeBoundaryCondition(old_locations);
+
+        // Test that all nodes satisfy the boundary condition
+        for (MutableVertexMesh<2,2>::NodeIterator node_iter = cell_population.rGetMesh().GetNodeIteratorBegin();
+                node_iter != cell_population.rGetMesh().GetNodeIteratorEnd();
+                ++node_iter)
+        {
+            c_vector<double, 2> location = node_iter->rGetLocation();
+            if (old_locations[node_iter->GetIndex()][0] < 1.0)
+            {
+                TS_ASSERT_DELTA(1.0, location[0], 1e-6);
+                TS_ASSERT_DELTA(location[1], old_locations[node_iter->GetIndex()][1], 1e-6);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(location[0], old_locations[node_iter->GetIndex()][0], 1e-6);
+                TS_ASSERT_DELTA(location[1], old_locations[node_iter->GetIndex()][1], 1e-6);
+            }
+        }
+
+        // Test VerifyBoundaryCondition() method
+        TS_ASSERT_EQUALS(boundary_condition.VerifyBoundaryCondition(), true);
+
+        // For coverage, test VerifyBoundaryCondition() method in the case DIM != 2
+        PlaneBoundaryCondition<3> plane_boundary_condition_3d(NULL, zero_vector<double>(3), unit_vector<double>(3,2));
+        TS_ASSERT_THROWS_THIS(plane_boundary_condition_3d.VerifyBoundaryCondition(),
+                              "PlaneBoundaryCondition is not yet implemented in 1D or 3D");
+    }
+
+//    void TestPlaneBoundaryConditionExceptions() throw(Exception)
+//    {
+//        // Create a simple 2D PottsMesh
+//        PottsMeshGenerator<2> generator(6, 2, 2, 6, 2, 2);
+//        PottsMesh<2>* p_mesh = generator.GetMesh();
+//
+//        // Create cells
+//        std::vector<CellPtr> cells;
+//        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+//        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
+//
+//        // Create cell population
+//        PottsBasedCellPopulation<2> potts_cell_population(*p_mesh, cells);
+//
+//        // Attempt to set up cell population boundary condition
+//        c_vector<double,2> point = zero_vector<double>(2);
+//        c_vector<double,2> normal = zero_vector<double>(2);
+//        normal(0) = 1.0;
+//        TS_ASSERT_THROWS_THIS(PlaneBoundaryCondition<2> plane_boundary_condition(&potts_cell_population, point, normal),
+//            "PlaneBoundaryCondition require a subclass of AbstractOffLatticeCellPopulation.");
+//    }
 
     void TestSphereGeometryBoundaryCondition() throw (Exception)
     {
