@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how Chaste can be used to create, run and visualize vertex-based simulations.
- * Full details of the mechanical model proposed by T. Nagai and H. Honda ("A dynamic cell model for
+ * This mechanical model was originally proposed by T. Nagai and H. Honda ("A dynamic cell model for
  * the formation of epithelial tissues", Philosophical Magazine Part B 81:699-719).
  *
  * EMPTYLINE
@@ -91,23 +91,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * between neighbouring cells in the cell population, subject to each vertex.
  */
 #include "NagaiHondaForce.hpp"
-/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
- * and defines some test methods.
- */
+
+/* Next, we define the test class. */
 class TestRunningVertexBasedCryptSimulationsTutorial : public CxxTest::TestSuite
 {
 public:
+
     /* EMPTYLINE
-    *
-    *
-    * == Test 1 - create a vertex-based crypt simulation ==
-    *
-    * EMPTYLINE
-    *
-    * The first test generates a crypt, in which we use a cylindrical vertex mesh,
-    * give each cell a fixed cell-cycle model, and enforce sloughing at the top of
-    * the crypt.
-    */
+     *
+     *
+     * == Test 1 - create a vertex-based crypt simulation ==
+     *
+     * EMPTYLINE
+     *
+     * The first test generates a crypt, in which we use a cylindrical vertex mesh,
+     * give each cell a fixed cell-cycle model, and enforce sloughing at the top of
+     * the crypt.
+     */
     void TestVertexBasedCrypt() throw(Exception)
     {
         /* First re-initialize time to zero. */
@@ -136,7 +136,7 @@ public:
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true, 1.0, 2.0, 3.0, 4.0);
 
-        /* Create cell population, as before. */
+        /* Create a cell population, as before. */
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
         /* Create a simulator as before (except setting a different output directory). */
@@ -167,77 +167,69 @@ public:
          */
         SimulationTime::Destroy();
     }
+
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexCrypt/results_from_time_0}}}.
-    * You may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    *
-    * When we visualize the results, we should see three colours of cells: a row of blue stem cells, 3 rows of yellow transit
-    * cells, and 5 rows of pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
-    *
-    * EMPTYLINE
-    *
-    * == Test 3 - create a vertex-based crypt simulation with a simple wnt dependent cell-cycle model ==
-    *
-    * EMPTYLINE
-    *
-    * The next test generates a crypt, in which we use a cylindrical vertex mesh, and
-    * impose a linearly decreasing concentration gradient of Wnt. Cells detect the level of Wnt
-    * at their centre and those that are in a region of sufficient Wnt are defined to be transit cells,
-    * whilst those above this Wnt threshold are defined to be differentiated. The cell cycle length of
-    * transit cells is then assigned randomly from a uniform distribution.
-    */
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexCrypt/results_from_time_0}}}.
+     * You may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * EMPTYLINE
+     *
+     * When we visualize the results, we should see three colours of cells: a row of blue stem cells, 3 rows of yellow transit
+     * cells, and 5 rows of pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
+     *
+     * EMPTYLINE
+     *
+     * == Test 3 - create a vertex-based crypt simulation with a simple wnt dependent cell-cycle model ==
+     *
+     * EMPTYLINE
+     *
+     * The next test generates a crypt, in which we use a cylindrical vertex mesh, and
+     * impose a linearly decreasing concentration gradient of Wnt. Cells detect the level of Wnt
+     * at their centre and those that are in a region of sufficient Wnt are defined to be transit cells,
+     * whilst those above this Wnt threshold are defined to be differentiated. The cell cycle length of
+     * transit cells is then assigned randomly from a uniform distribution.
+     */
     void TestVertexBasedCryptWithSimpleWntCellCycleModel() throw(Exception)
     {
         /* First re-initialize time to zero. */
         SimulationTime::Instance()->SetStartTime(0.0);
 
-        /* Create a cylindrical mesh, and get the cell location indices, as before.
-        */
+        /* Create a cylindrical mesh, and get the cell location indices, as before. */
         CylindricalHoneycombVertexMeshGenerator generator(6, 9);
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
 
         /* Create a {{{std::vector}}} of {{{CellPtr}}}s.
-        * Generate cells, which are assigned a {{{SimpleWntCellCycleModel}}} using
-        * the {{{CryptCellsGenerator}}}. The final boolean argument 'true' indicates
-        * to assign randomly chosen birth times.
-        */
+         * Generate cells, which are assigned a {{{SimpleWntCellCycleModel}}} using
+         * the {{{CryptCellsGenerator}}}. The final boolean argument 'true' indicates
+         * to assign randomly chosen birth times.
+         */
         std::vector<CellPtr> cells;
         CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
 
-        /* Create cell population, as before. */
+        /* Create a cell population, as before. */
         VertexBasedCellPopulation<2> crypt(*p_mesh, cells);
 
-        /* Set the crypt length this will be used for sloughing and calculating the Wnt gradient */
+        /* Define the crypt length; this will be used for sloughing and calculating the Wnt gradient. */
         double crypt_length = 6.0;
 
-        /* The other change needed: Cells with a Wnt-based cell cycle need to know
-        * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
-        * class. This is another singleton class (ie accessible from anywhere), so all
-        * cells and cell-cycle models can access it. We need to say what the profile of the
-        * Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
-        * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
-        * of the cell population.*/
+        /* Set up a {{{WntConcentration}}} object, as in UserTutorials/RunningMeshBasedCryptSimulations. */
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         WntConcentration<2>::Instance()->SetCryptLength(crypt_length);
 
-        /* Create a simulator as before (except setting a different output directory). */
+        /* Create a simulator as before, and add a force law and sloughing cell killer to it. */
         CryptSimulation2d simulator(crypt);
         simulator.SetOutputDirectory("VertexCryptWithSimpleWntCellCycleModel");
         simulator.SetEndTime(0.1);
 
-        /* Before running the simulation, we add a one or more force laws, as before. */
         MAKE_PTR(NagaiHondaForce<2>, p_force);
         simulator.AddForce(p_force);
 
-        /* Before running the simulation, we add a cell killer, as before.*/
         MAKE_PTR_ARGS(SloughingCellKiller<2>, p_killer, (&crypt, crypt_length));
         simulator.AddCellKiller(p_killer);
 
@@ -248,7 +240,7 @@ public:
         /* Run the simulation, by calling {{{Solve()}}}. */
         simulator.Solve();
 
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.*/
+        /* Recall that {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test. */
         SimulationTime::Destroy();
     }
     /*

@@ -75,7 +75,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in mechanical equilibrium with its neighours and periodic boundary conditions are applied
  * at the left- and right-hand sides of the mesh (hence the "cylindrical"). */
 #include "CylindricalHoneycombMeshGenerator.hpp"
-/* The next two header files were encountered in the UserTutorials/RunningMeshBasedSimulations. 
+/* The next two header files were encountered in UserTutorials/RunningMeshBasedSimulations. 
  * The first header  
  * defines a {{{CellPopulation}}} class that uses a triangular mesh, and allows
  * for the inclusion of 'ghost nodes': these are nodes in the mesh that do not correspond
@@ -102,10 +102,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "SloughingCellKiller.hpp"
 
-/*
- * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
- * and defines some test methods.
- */
+/* Next, we define the test class. */
 class TestRunningMeshBasedCryptSimulationsTutorial : public CxxTest::TestSuite
 {
 public:
