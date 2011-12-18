@@ -78,6 +78,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 /* The next header file defines a vertex-based {{{CellPopulation}}} class.*/
 #include "NodeBasedCellPopulation.hpp"
+/* The next header file defines a boundary condition to be used in the third test.*/
+#include "SphereGeometryBoundaryCondition.hpp"
 /* The next header file defines a force law for describing the mechanical interactions
  * between neighbouring cells in the cell population.
  */
@@ -159,7 +161,7 @@ public:
         /* We must now create one or more force laws, which determine the mechanics of the centres
         * of each cell in a cell population. For this test, we use one force law, based on the
         * spring based model, and pass it to the {{{OffLatticeSimulation}}}.
-        * For a list of possible update rules see subclasses of {{{AbstractForce}}}.
+        * For a list of possible forces see subclasses of {{{AbstractForce}}}.
         * These can be found in the inheritance diagram, here, [class:AbstractForce AbstractForce].
         * Note that some of these forces are not compatible with node based simulations see the specific class documentation for details,
         * if you try to use an incompatible class then you will receive a warning.
@@ -196,16 +198,76 @@ public:
     *
     * EMPTYLINE
     *
-    * In the second test we run a simple node based simulation in 3d
+    * In the second test we run a simple node based simulation in 3D. This is basically identical
+    * to the 2D Test witht he dimension template changed from 2 to 3 and instead of using a mesh
+    * generator we generate the nodes directly.
     */
     void TestSpheroid() throw(Exception)
     {
+        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
+        SimulationTime::Instance()->SetStartTime(0.0);
+
+        /* Next, we generate a nodes only mesh. This time we specify the nodes manually by first
+         * creating a vector of nodes*/
+        std::vector<Node<3>*> nodes;
+        /* We then create some nodes to add to this vector.*/
+        nodes.push_back(new Node<3>(0u,  false,  0.5, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1u,  false,  -0.5, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2u,  false,  0.0, 0.5, 0.0));
+        nodes.push_back(new Node<3>(3u,  false,  0.0, -0.5, 0.0));
+        /* Finally a {{{NodesOnlyMesh}}} is created and the vector of nodes is passed to
+         * the {{{ConstructNodesWithoutMesh}}} method.         *
+         */
+        NodesOnlyMesh<3> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
+        /*
+        * Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
+        * As before, we do this with the `CellsGenerator` helper class (this time with dimension 3).
+        */
+        std::vector<CellPtr> cells;
+        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(),TRANSIT);
+
+        /* We make a {{{NodeBasedCellPopulation}}} (this time with dimension 3) as before and define the cut off length.
+        */
+        NodeBasedCellPopulation<3> cell_population(mesh, cells);
+        cell_population.SetMechanicsCutOffLength(1.5);
+
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
+         * (this time with dimension 3) and set the output directory, output multiple and end time. */
+        OffLatticeSimulation<3> simulator(cell_population);
+        simulator.SetOutputDirectory("NodeBasedSpheroid");
+        simulator.SetSamplingTimestepMultiple(12);
+        simulator.SetEndTime(10.0);
+
+        /* Again we create a force law (this time with dimension 3), and pass it to the {{{OffLatticeSimulation}}}.*/
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+        simulator.AddForce(p_force);
+
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
+
+        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+        * at the beginning of the next test in this file, an assertion will be triggered.
+        */
+        SimulationTime::Destroy();
+
+        /* we now need to tidy up and delete any pointers we created in the test.*/
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
 
     /*
     * EMPTYLINE
     *
-    * To visualize the results, use paraview
+    * To visualize the results use paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information
+    *
+    * Load the file {{{/tmp/$USER/testoutput/NodeBasedSpheroid/results_from_time_0/results.pvd}}},
+    * add a spherical glyph.
     *
     * EMPTYLINE
     *
@@ -217,12 +279,74 @@ public:
     */
     void TestOnSurfaceOfSphere() throw(Exception)
     {
+        /* We Begin with exactly the same code as the previous test*/
 
+        SimulationTime::Instance()->SetStartTime(0.0);
+
+        // Generate Mesh
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0u,  false,  0.5, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1u,  false,  -0.5, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2u,  false,  0.0, 0.5, 0.0));
+        nodes.push_back(new Node<3>(3u,  false,  0.0, -0.5, 0.0));
+        NodesOnlyMesh<3> mesh;
+        mesh.ConstructNodesWithoutMesh(nodes);
+
+        // Generate Cells
+        std::vector<CellPtr> cells;
+        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(),TRANSIT);
+
+        // Make Cell population
+        NodeBasedCellPopulation<3> cell_population(mesh, cells);
+        cell_population.SetMechanicsCutOffLength(1.5);
+
+        // Make Simulation
+        OffLatticeSimulation<3> simulator(cell_population);
+        simulator.SetOutputDirectory("NodeBasedOnSphere");
+        simulator.SetSamplingTimestepMultiple(12);
+        simulator.SetEndTime(10.0);
+
+        // make Force and pass to Simulation
+        MAKE_PTR(GeneralisedLinearSpringForce<3>, p_force);
+        simulator.AddForce(p_force);
+
+        /*
+         * This time we create a {{{CellPopulationBoundaryCondition}}} and pass this to
+         * the {{{OffLatticeSimulation}}}. Here we use a {{{SphereGeometryBoundaryCondition}}}
+         * which restricts cells to lie on a sphere (in 3D) or circle (in 2D).
+         *
+         * For a list of possible boundary conditions see subclasses of {{{AbstractCellPopulationBoundaryCondition}}}.
+         * These can be found in the inheritance diagram, here, [class:AbstractCellPopulationBoundaryCondition AbstractCellPopulationBoundaryCondition].
+         * Note that some of these boundary conditions are not compatible with node based simulations see the specific class documentation for details,
+         * if you try to use an incompatible class then you will receive a warning.
+         *
+         * First we set the centre (0,0,1) and radius of the sphere (1)
+         */
+        c_vector<double,3> centre = zero_vector<double>(3);
+        centre(2) = 1.0;
+        double radius = 1.0;
+        /* We then make a pointer to the boundary condition using the MAKE_PTR_ARGS macro, and pass
+         * it to the {{{OffLatticeSimulation}}}*/
+        MAKE_PTR_ARGS(SphereGeometryBoundaryCondition<3>, p_boundary_condition, (&cell_population, centre, radius));
+        simulator.AddCellPopulationBoundaryCondition(p_boundary_condition);
+
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
+
+        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+        * at the beginning of the next test in this file, an assertion will be triggered.
+        */
+        SimulationTime::Destroy();
     }
     /*
     * EMPTYLINE
     *
-    * To visualize the results, use paraview
+    * To visualize the results use paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information
+    *
+    * Load the file {{{/tmp/$USER/testoutput/NodeBasedOnSphere/results_from_time_0/results.pvd}}},
+    * add a spherical glyph.
     *
     * EMPTYLINE
     */

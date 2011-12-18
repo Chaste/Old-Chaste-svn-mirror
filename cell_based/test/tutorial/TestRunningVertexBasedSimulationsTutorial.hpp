@@ -145,7 +145,7 @@ public:
         /* We must now create one or more force laws, which determine the mechanics of the vertices
         * of each cell in a cell population. For this test, we use one force law, based on the
         * Nagai-Honda mechanics, and pass it to the {{{OffLatticeSimulation}}}.
-        * For a list of possible update rules see subclasses of {{{AbstractForce}}}.
+        * For a list of possible forces see subclasses of {{{AbstractForce}}}.
         * These can be found in the inheritance diagram, here, [class:AbstractForce AbstractForce].
         * Note that some of these forces are not compatible with vertex based simulations see the specific class documentation for details,
         * if you try to use an incompatible class then you will receive a warning.

@@ -145,9 +145,9 @@ public:
         /* We must now create one or more force laws, which determine the mechanics of the centres
         * of each cell in a cell population. For this test, we use one force law, based on the
         * spring based model, and pass it to the {{{OffLatticeSimulation}}}.
-        * For a list of possible update rules see subclasses of {{{AbstractForce}}}.
+        * For a list of possible forces see subclasses of {{{AbstractForce}}}.
         * These can be found in the inheritance diagram, here, [class:AbstractForce AbstractForce].
-        * Note that some of these forces are not compatible with node based simulations see the specific class documentation for details,
+        * Note that some of these forces are not compatible with mesh based simulations see the specific class documentation for details,
         * if you try to use an incompatible class then you will receive a warning.
         */
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
@@ -167,9 +167,31 @@ public:
     * EMPTYLINE
     *
     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MonolayerFixedCellCycle/results_from_time_0}}}.
+    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedMonolayer/results_from_time_0}}}.
     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
     * java executable.
+    *
+    * You will notice that half of each cell cell around the edge is missing.
+    * This is because the voronoi region for nodes on the edge of the mesh can be
+    * infinite, therefore we only visualise the part inside the mesh.
+    *
+    * This also means there may be "long" edges in the mesh which can cause the cells
+    * to move due long range interactions resulting in an artificially rounded shape.
+    *
+    * There are two solution to this the first is to define a cut off length on the force,
+    * which can be done by using the command
+    *
+    * {{{p_force->SetCutOffLength(1.5);}}}
+    *
+    * on the {{{GeneralisedLinearSpringForce}}}. Here there will be no forces exerted
+    * on any "springs" which are longer than 1.5 cell radi.
+    *
+    * The second solution is to use Ghost Nodes. Ghost nodes can be added to mesh based
+    * simulations to remove infinite voronoii regions and long edges. To do this a set of
+    * nodes (known as ghost nodes) are added around the original mesh which exert forces
+    * on each other but do not exert forces on the nodes of the original mesh (known as
+    * real nodes). In addition real nodes exert forces on ghost nodes so the ghost nodes
+    * remain surrounding the cell population.
     *
     * EMPTYLINE
     *
@@ -177,13 +199,81 @@ public:
     *
     * EMPTYLINE
     *
-    * In the first test, we run a simple mesh-based simulation, in which we create a monolayer
-    * of cells, using a mutable mesh. Each cell is assigned a stochastic cell-cycle model.
+    * In the second test, we run a simple mesh-based simulation with ghost nodes, in which we
+    * create a monolayer of cells, using a mutable mesh.
+    * Each cell is assigned a stochastic cell-cycle model.
     */
     void TestMonolayerWithGhostNodes() throw(Exception)
     {
+        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
+        SimulationTime::Instance()->SetStartTime(0.0);
 
+
+        /* Next, we generate a mutable mesh. To create a {{{MutableMesh}}}, we can use
+        * the {{{HoneycombMeshGenerator}}} as before. Here the first and second arguments
+        * define the size of the mesh - we have chosen a mesh that is 2 nodes (i.e.
+        * cells) wide, and 2 nodes high.The third argument specifies the number of layers
+        * of ghost nodes to make.
+        */
+        HoneycombMeshGenerator generator(2, 2, 2);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        /* Only want to create cells to attach to real nodes so we
+         * use the method {{{GetCellLocationIndices}}} to get the indices
+         * of the real nodes in the mesh. This will be passed in to the
+         * cell population later on.
+         */
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
+        * To do this, we the `CellsGenerator` helper class again. This time the second
+        * argument is different and is the number of real nodes in the mesh.
+        * As before all cells are TRANSIT cells. */
+        std::vector<CellPtr> cells;
+        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT);
+
+        /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
+        * In general, this class associates a collection of cells with a set of elements or a mesh.
+        * For this test, because we have a {{{MutableMesh}}}, and ghost nodes we use a particular type of
+        * cell population called a {{{MeshBasedCellPopulationWithGhostNodes}}}. The third
+        * argument of the constructor takes a vector of the indices of the real nodes and should be the
+        * same length as the vector of cell pointers.
+        */
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); //**Changed**//
+
+        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
+         * and set the output directory, output multiple and end time. */
+        OffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("MeshBasedMonolayerWithGhostNodes");
+        simulator.SetSamplingTimestepMultiple(12);
+        simulator.SetEndTime(10.0);
+
+        /* Again we create a force laws, and pass it to the {{{OffLatticeSimulation}}}. This
+         * force law ensures that ghost nodes dont exert forces on real nodes but real nodes
+         * exert forces on ghost nodes.*/
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        simulator.AddForce(p_force);
+
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
+
+        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+        * at the beginning of the next test in this file, an assertion will be triggered.
+        */
+        SimulationTime::Destroy();
     }
+    /*
+    * EMPTYLINE
+    *
+    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedMonolayerWithGhostNodes/results_from_time_0}}}.
+    * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+    * java executable.
+    *
+    * EMPTYLINE
+    */
 
 };
 
