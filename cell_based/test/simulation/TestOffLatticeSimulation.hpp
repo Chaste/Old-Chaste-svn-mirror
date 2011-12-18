@@ -745,7 +745,7 @@ public:
         simulator.SetOutputDirectory("TestSettingEndTimeIssue");
         simulator.SetEndTime(1.0);
         TS_ASSERT_THROWS_THIS(simulator.Solve(),
-                "End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell based tests.");
+                "End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell-based tests.");
     }
 
 

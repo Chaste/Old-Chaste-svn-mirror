@@ -147,7 +147,7 @@ public:
         * Nagai-Honda mechanics, and pass it to the {{{OffLatticeSimulation}}}.
         * For a list of possible forces see subclasses of {{{AbstractForce}}}.
         * These can be found in the inheritance diagram, here, [class:AbstractForce AbstractForce].
-        * Note that some of these forces are not compatible with vertex based simulations see the specific class documentation for details,
+        * Note that some of these forces are not compatible with vertex-based simulations see the specific class documentation for details,
         * if you try to use an incompatible class then you will receive a warning.
         */
         MAKE_PTR(NagaiHondaForce<2>, p_force);

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 /*
  *
  *  Chaste tutorial - this page gets automatically changed to a wiki page
@@ -33,13 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *
  */
-
 #ifndef TESTCELLBASEDDEMOTUTORIAL_HPP_
 #define TESTCELLBASEDDEMOTUTORIAL_HPP_
 
-
 /*
- * = Examples showing how to create, run and cell based simulations in Chaste =
+ * = Examples showing how to create, run and cell-based simulations in Chaste =
  *
  * EMPTYLINE
  *
@@ -48,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how Chaste can be used to create, run and visualise various
- * cell based simulations. We begin with a simple monolayer simulations, see how to
+ * cell-based simulations. We begin with a simple monolayer simulations, see how to
  *   * change the cell level model;
  *   * how to impose boundaries;
  *   * how to impose periodic conditions; and
@@ -80,7 +79,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "SmartPointers.hpp"
 
-
 /*
  * Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
@@ -89,15 +87,14 @@ class TestCellBasedDemoTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
-    *
-    * == Test 1 - a basic vertex-based simulation ==
-    *
-    * EMPTYLINE
-    *
-    * In the first test, we run a simple vertex-based simulation, in which we create a monolayer
-    * of cells, using a vertex mesh. Each cell is assigned a stochastic cell-cycle model.
-    */
-
+     *
+     * == Test 1 - a basic vertex-based simulation ==
+     *
+     * EMPTYLINE
+     *
+     * In the first test, we run a simple vertex-based simulation, in which we create a monolayer
+     * of cells, using a vertex mesh. Each cell is assigned a stochastic cell-cycle model.
+     */
     void TestVertexBasedMonolayer() throw (Exception)
     {
         HoneycombVertexMeshGenerator generator(2, 2);
@@ -121,22 +118,20 @@ public:
     }
 
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/CellBasedDemo1/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    *
-    * == Test 2 - basic node based simulation ==
-    *
-    */
-
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/CellBasedDemo1/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * EMPTYLINE
+     *
+     * == Test 2 - basic node-based simulation ==
+     *
+     */
     void TestNodeBasedMonolayer() throw (Exception)
     {
-        // Create mesh
         HoneycombMeshGenerator generator(2, 2); //**Changed**//
         MutableMesh<2,2>* p_generating_mesh = generator.GetMesh(); //**Changed**//
         NodesOnlyMesh<2> mesh; //**Changed**//
@@ -157,7 +152,6 @@ public:
         MAKE_PTR(RepulsionForce<2>, p_force); //**Changed**//
         simulator.AddForce(p_force);
 
-        // Create cell killer and pass in to simulation
         MAKE_PTR_ARGS(RandomCellKiller<2>, p_cell_killer, (&cell_population, 0.01)); //**Changed**//
         simulator.AddCellKiller(p_cell_killer);
 
@@ -165,19 +159,18 @@ public:
     }
 
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo2/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    *
-    * == Test 3 - basic mesh based simulation ==
-    *
-    */
-
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo2/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * EMPTYLINE
+     *
+     * == Test 3 - basic mesh-based simulation ==
+     *
+     */
     void TestMeshBasedMonolayer() throw (Exception)
     {
         HoneycombMeshGenerator generator(2, 2);
@@ -210,10 +203,9 @@ public:
     *
     * EMPTYLINE
     *
-    * == Test 4 - basic mesh based simulation with ghost nodes ==
+    * == Test 4 - basic mesh-based simulation with ghost nodes ==
     *
     */
-
     void TestMeshBasedMonolayerWithGhostNodes() throw (Exception)
     {
         HoneycombMeshGenerator generator(2, 2, 2); //**Changed**//
@@ -238,19 +230,18 @@ public:
     }
 
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo4/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    *
-    * == Test 5 - basic periodic mesh based simulation ==
-    *
-    */
-
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo4/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * EMPTYLINE
+     *
+     * == Test 5 - basic periodic mesh-based simulation ==
+     *
+     */
     void TestMeshBasedMonolayerPeriodic() throw (Exception)
     {
         CylindricalHoneycombMeshGenerator generator(5, 2, 2); //**Changed**//
@@ -271,24 +262,22 @@ public:
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
         simulator.AddForce(p_force);
 
-        // Run simulation
         simulator.Solve();
     }
 
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo5/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    *
-    * == Test 6 - basic periodic mesh based simulation with obstructions ==
-    *
-    */
-
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo5/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * EMPTYLINE
+     *
+     * == Test 6 - basic periodic mesh-based simulation with obstructions ==
+     *
+     */
     void TestMeshBasedMonolayerPeriodicSolidBottomBoundary() throw (Exception)
     {
         CylindricalHoneycombMeshGenerator generator(5, 2, 2);
@@ -309,19 +298,19 @@ public:
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
         simulator.AddForce(p_force);
 
-        // Run simulation
         simulator.Solve();
     }
+
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo6/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    */
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo6/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * EMPTYLINE
+     */
 };
 
 #endif /*TESTCELLBASEDDEMOTUTORIAL_HPP_*/

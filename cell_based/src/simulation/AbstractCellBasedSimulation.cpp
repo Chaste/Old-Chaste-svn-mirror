@@ -291,7 +291,7 @@ void AbstractCellBasedSimulation<DIM>::Solve()
     {
         if(p_simulation_time->IsEndTimeAndNumberOfTimeStepsSetUp())
         {
-            EXCEPTION("End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell based tests.");
+            EXCEPTION("End time and number of timesteps already setup. You should not use SimulationTime::SetEndTimeAndNumberOfTimeSteps in cell-based tests.");
         }
         else
         {

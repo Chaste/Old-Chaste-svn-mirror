@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 
 /**
- * An abstract cell based simulation class. This class contains common functionality
+ * An abstract cell-based simulation class. This class contains common functionality
  * from off lattice and on lattice simulations.
  *
  * The AbstractCellBasedSimulation is constructed with a CellPopulation, which

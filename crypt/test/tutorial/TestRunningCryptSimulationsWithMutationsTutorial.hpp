@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how Chaste can be used to simulate a cylindrical model of an
- * intestinal crypt with mutations in both mesh and vertex based simulations.
+ * intestinal crypt with mutations in both mesh and vertex-based simulations.
  * Full details of the computational model can be found in the paper by
  * Osborne ''et al.'' (2010) [10.1098/rsta.2010.0173].
  *
@@ -128,7 +128,7 @@ class TestRunningCryptSimulationsWithMutationsTutorial : public CxxTest::TestSui
 public:
     /* EMPTYLINE
      *
-     * == Test 1: a mesh based crypt simulation with mutations ==
+     * == Test 1: a mesh-based crypt simulation with mutations ==
      *
      * EMPTYLINE
      *
@@ -217,13 +217,13 @@ public:
         {
             unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
 
-            if (node_index == 74) // Chosen from looking at the results from steady state.
+            if (node_index == 74) // Chosen from looking at the results from steady state
             {
                 cell_iter->SetMutationState(p_state);
             }
         }
 
-        // Change the Drag on the Mutant cell
+        // Change the drag on the mutant cell
         cell_population.SetDampingConstantMutant(10*cell_population.GetDampingConstantNormal());
 
         /* Solve to new end time */
@@ -247,10 +247,11 @@ public:
      * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
      * java executable.
      *
-     * In the results folderes there is also a file {{{cellmutationstates.dat}}} which tracks the numbers of each mutation type in the simulation.
+     * In the results folder there is also a file {{{cellmutationstates.dat}}} which tracks the numbers of each mutation type in the simulation.
      * These results are just tab separated columns so may be visualised by using gnuplot, Matlab or similar.
      *
      * EMPTYLINE
      */
 };
+
 #endif /*TESTRUNNINGCRYPTSIMULATIONSWITHMUTATIONSTUTORIAL_HPP_*/
