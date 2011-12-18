@@ -161,12 +161,18 @@ public:
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
         p_data->SetCellPopulation(&cell_population);
-        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
-             cell_iter != cell_population.End();
-             ++cell_iter)
+
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter));
+           p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
+
+//        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+//             cell_iter != cell_population.End();
+//             ++cell_iter)
+//        {
+//            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter));
+//        }
 
         /*  Then, we define the contact {{{VolumeTrackedOffLatticeSimulation}}} class, that automatically updates the volumes of the cells
          * in {{{CellWiseData}}}. We also set up the output directory, the end time and pass the forces to the simulator.
@@ -175,39 +181,39 @@ public:
         VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestContactInhibitionInBox");
         simulator.SetSamplingTimestepMultiple(12);
-        simulator.SetEndTime(50.0);
+        simulator.SetEndTime(10.0);
         simulator.AddForce(p_force);
 
-        /*  To study the behaviour of the cells with varying volume, we trap them in a box, i.e., between
-         *  4 plane boundary conditions. These planes are indicated by a point and a normal and then passed
-         *  to the simulator:
-         */
-        c_vector<double,2> point = zero_vector<double>(2);
-		c_vector<double,2> normal = zero_vector<double>(2);
-		point(0) = 0.0;
-		point(1) = 0.0;
-		normal(0) = -1.0;
-		normal(1) = 0.0;
-		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>0
-		simulator.AddCellPopulationBoundaryCondition(p_bc1);
-		point(0) = 2.5;
-		point(1) = 0.0;
-		normal(0) = 1.0;
-		normal(1) = 0.0;
-		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<2.5
-		simulator.AddCellPopulationBoundaryCondition(p_bc2);
-		point(0) = 0.0;
-		point(1) = 0.0;
-		normal(0) = 0.0;
-		normal(1) = -1.0;
-		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>0
-		simulator.AddCellPopulationBoundaryCondition(p_bc3);
-		point(0) = 0.0;
-		point(1) = 2.5;
-		normal(0) = 0.0;
-		normal(1) = 1.0;
-		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2.5
-		simulator.AddCellPopulationBoundaryCondition(p_bc4);
+//        /*  To study the behaviour of the cells with varying volume, we trap them in a box, i.e., between
+//         *  4 plane boundary conditions. These planes are indicated by a point and a normal and then passed
+//         *  to the simulator:
+//         */
+//        c_vector<double,2> point = zero_vector<double>(2);
+//		c_vector<double,2> normal = zero_vector<double>(2);
+//		point(0) = 0.0;
+//		point(1) = 0.0;
+//		normal(0) = -1.0;
+//		normal(1) = 0.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>0
+//		simulator.AddCellPopulationBoundaryCondition(p_bc1);
+//		point(0) = 2.5;
+//		point(1) = 0.0;
+//		normal(0) = 1.0;
+//		normal(1) = 0.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<2.5
+//		simulator.AddCellPopulationBoundaryCondition(p_bc2);
+//		point(0) = 0.0;
+//		point(1) = 0.0;
+//		normal(0) = 0.0;
+//		normal(1) = -1.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>0
+//		simulator.AddCellPopulationBoundaryCondition(p_bc3);
+//		point(0) = 0.0;
+//		point(1) = 2.5;
+//		normal(0) = 0.0;
+//		normal(1) = 1.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2.5
+//		simulator.AddCellPopulationBoundaryCondition(p_bc4);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
