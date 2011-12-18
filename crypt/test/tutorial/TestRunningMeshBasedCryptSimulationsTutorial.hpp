@@ -50,21 +50,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * intestinal crypt. Full details of the computational model can be found in the paper by
  * van Leeuwen ''et al.'' (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  *
- * The first thing to do is include the following header file, which allows us
- * to use certain methods in our test. This header file must be included
- * in any Chaste test.
+ * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
-/*
- * Any test in which the {{{GetIdentifier()}}} method is used, even via the main
- * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods),
- * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
- * as the first Chaste header file.
- */
 #include "CheckpointArchiveTypes.hpp"
-
-/* The next header includes the Boost shared_ptr smart pointer, and defines some useful
- * macros to save typing when using it. */
 #include "SmartPointers.hpp"
 
 /* The next header file defines a helper class for generating cells for crypt simulations. */
@@ -86,15 +75,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in mechanical equilibrium with its neighours and periodic boundary conditions are applied
  * at the left- and right-hand sides of the mesh (hence the "cylindrical"). */
 #include "CylindricalHoneycombMeshGenerator.hpp"
-/* The next header file defines a {{{CellPopulation}}} class that uses a triangular mesh, and allows
- * for the inclusion of 'ghost nodes'. These are nodes in the mesh that do not correspond
- * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
- * at each timestep. This is because the triangulation algorithm requires a convex hull. */
-#include "MeshBasedCellPopulationWithGhostNodes.hpp"
-/*
+/* The next two header files were encountered in the RunningMeshBasedSimulations tutorial.
+ * 
+ * The first header  
+ * defines a {{{CellPopulation}}} class that uses a triangular mesh, and allows
+ * for the inclusion of 'ghost nodes': these are nodes in the mesh that do not correspond
+ * to cells, but help ensure that a sensible Delaunay triangulation is generated
+ * at each timestep; this is because the triangulation algorithm requires a convex hull. 
+ * 
  * The next header file defines a force law, based on a linear spring, for describing
- * the mechanical interactions between neighbouring cells in the crypt.
- */
+ * the mechanical interactions between neighbouring cells in the crypt.*/
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 /*
  * The next header file defines the class that simulates the evolution of a {{{CellPopulation}}},
