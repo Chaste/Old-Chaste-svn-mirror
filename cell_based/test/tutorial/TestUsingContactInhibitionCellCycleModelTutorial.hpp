@@ -218,198 +218,198 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    /*
-     * == Testing normal and tumour cells ==
-     *
-     * We now test the behaviour of a mixture of normal and tumour cells
-     */
-    void TestContactInhibitionInBoxWithMutants()
-    {
-        /* Set up SimulationTime. */
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
-        /* Create a simple mesh. */
-        HoneycombMeshGenerator generator(2, 2, 1);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
-
-        /* Create cell state. */
-        MAKE_PTR(WildTypeCellMutationState, p_state);
-        std::vector<CellPtr> cells;
-
-        /* Create cell cycle. The difference here is that one of the cell is not contact-inhibited, but rather
-         * is defined by a stochastic duration generation-based cell-cycle model. */
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            if (i==1)
-            {
-                StochasticDurationGenerationBasedCellCycleModel* p_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
-                p_cycle_model->SetCellProliferativeType(TRANSIT);
-                p_cycle_model->SetMaxTransitGenerations(UINT_MAX);
-                p_cycle_model->SetTransitCellG1Duration(1);
-
-                CellPtr p_cell(new Cell(p_state, p_cycle_model));
-                p_cell->SetBirthTime(0.0);
-                cells.push_back(p_cell);
-            }
-            else
-            {
-                ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-                p_cycle_model->SetCellProliferativeType(STEM);
-                p_cycle_model->SetDimension(2);
-                p_cycle_model->SetBirthTime(0.0);
-                p_cycle_model->SetQuiescentVolumeFraction(0.8);
-                p_cycle_model->SetEquilibriumVolume(1.0);
-                p_cycle_model->SetStemCellG1Duration(0.5);
-
-                CellPtr p_cell(new Cell(p_state, p_cycle_model));
-                p_cell->InitialiseCellCycleModel();
-                cells.push_back(p_cell);
-            }
-        }
-
-        /* Create a cell population. */
-        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
-
-        /* Create a force law. */
-        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-        p_force->SetCutOffLength(1.5);
-
-        /* Create a singleton class to store the volume of the cells and initialise it. */
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
-        p_data->SetCellPopulation(&cell_population);
-
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
-        {
-            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
-        }
-
-        /* Create a contact inhibition simulator. */
-        VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestContactInhibitionInBoxWithMutants");
-        simulator.SetEndTime(10.0);
-        simulator.SetSamplingTimestepMultiple(12);
-        simulator.AddForce(p_force);
-
-        /* Create some boundary conditions and pass them to the simulation. */
-        c_vector<double,2> point = zero_vector<double>(2);
-        c_vector<double,2> normal = zero_vector<double>(2);
-        point(0) = -4.0;
-        point(1) = 0.0;
-        normal(0) = -1.0;
-        normal(1) = 0.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // y>0
-        simulator.AddCellPopulationBoundaryCondition(p_bc1);
-        point(0) = 4.0;
-        point(1) = 0.0;
-        normal(0) = 1.0;
-        normal(1) = 0.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // y<2
-        simulator.AddCellPopulationBoundaryCondition(p_bc2);
-        point(0) = 0.0;
-        point(1) = -4.0;
-        normal(0) = 0.0;
-        normal(1) = -1.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y<2
-        simulator.AddCellPopulationBoundaryCondition(p_bc3);
-        point(0) = 0.0;
-        point(1) = 4.0;
-        normal(0) = 0.0;
-        normal(1) = 1.0;
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2
-        simulator.AddCellPopulationBoundaryCondition(p_bc4);
-
-        /* Test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-        /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
-        CellwiseData<2>::Destroy();
-    }
-
-    /*
-	 * == Testing normal and tumour cells ==
-	 *
-	 * We now test the behaviour of a mixture of normal and tumour cells
-	 * for a vertex-based population
-	 */
-	void TestContactInhibitionWithVertexWithMutants()
-	{
-        /* Set up SimulationTime. */
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
-		// Create a simple 2D MutableVertexMesh
-		HoneycombVertexMeshGenerator generator(2, 2);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
-
-		// Create cell state
-		MAKE_PTR(WildTypeCellMutationState, p_state);
-		std::vector<CellPtr> cells;
-
-		/* Create cell cycle. The difference here is that one of the cell is not contact-inhibited, but rather
-		 * is defined by a stochastic duration generation-based cell-cycle model. */
-		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
-		{
-			if (i==1)
-			{
-				StochasticDurationGenerationBasedCellCycleModel* p_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
-				p_cycle_model->SetCellProliferativeType(TRANSIT);
-				p_cycle_model->SetMaxTransitGenerations(UINT_MAX);
-				p_cycle_model->SetTransitCellG1Duration(1);
-
-				CellPtr p_cell(new Cell(p_state, p_cycle_model));
-				p_cell->SetBirthTime(0.0);
-				cells.push_back(p_cell);
-			}
-			else
-			{
-				ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-				p_cycle_model->SetCellProliferativeType(STEM);
-				p_cycle_model->SetDimension(2);
-				p_cycle_model->SetBirthTime(0.0);
-				p_cycle_model->SetQuiescentVolumeFraction(0.99);
-				p_cycle_model->SetEquilibriumVolume(1.0);
-				p_cycle_model->SetStemCellG1Duration(0.5);
-
-				CellPtr p_cell(new Cell(p_state, p_cycle_model));
-				p_cell->InitialiseCellCycleModel();
-				cells.push_back(p_cell);
-			}
-		}
-
-		// Create cell population
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-
-		// Create a force law and pass it to the simulation
-		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
-
-		// Create a singleton class to store the volume of the cells and initialize it
-		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-		p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
-		p_data->SetCellPopulation(&cell_population);
-
-		for (unsigned i=0; i<cell_population.GetNumElements(); i++)
-		{
-		  p_data->SetValue(1.0, i);
-		}
-
-		// Create a contact inhibition simulator
-		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestContactInhibitionWithVertexWithMutants");
-        simulator.SetEndTime(10.0);
-        simulator.SetSamplingTimestepMultiple(12);
-		simulator.AddForce(p_nagai_honda_force);
-
-		/* Test that the Solve() method does not throw any exceptions. */
-		TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-		/* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
-		SimulationTime::Destroy();
-		RandomNumberGenerator::Destroy();
-		CellwiseData<2>::Destroy();
-	}
+//    /*
+//     * == Testing normal and tumour cells ==
+//     *
+//     * We now test the behaviour of a mixture of normal and tumour cells
+//     */
+//    void TestContactInhibitionInBoxWithMutants()
+//    {
+//        /* Set up SimulationTime. */
+//        SimulationTime* p_simulation_time = SimulationTime::Instance();
+//        p_simulation_time->SetStartTime(0.0);
+//
+//        /* Create a simple mesh. */
+//        HoneycombMeshGenerator generator(2, 2, 1);
+//        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+//
+//        /* Create cell state. */
+//        MAKE_PTR(WildTypeCellMutationState, p_state);
+//        std::vector<CellPtr> cells;
+//
+//        /* Create cell cycle. The difference here is that one of the cell is not contact-inhibited, but rather
+//         * is defined by a stochastic duration generation-based cell-cycle model. */
+//        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+//        {
+//            if (i==1)
+//            {
+//                StochasticDurationGenerationBasedCellCycleModel* p_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
+//                p_cycle_model->SetCellProliferativeType(TRANSIT);
+//                p_cycle_model->SetMaxTransitGenerations(UINT_MAX);
+//                p_cycle_model->SetTransitCellG1Duration(1);
+//
+//                CellPtr p_cell(new Cell(p_state, p_cycle_model));
+//                p_cell->SetBirthTime(0.0);
+//                cells.push_back(p_cell);
+//            }
+//            else
+//            {
+//                ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+//                p_cycle_model->SetCellProliferativeType(STEM);
+//                p_cycle_model->SetDimension(2);
+//                p_cycle_model->SetBirthTime(0.0);
+//                p_cycle_model->SetQuiescentVolumeFraction(0.8);
+//                p_cycle_model->SetEquilibriumVolume(1.0);
+//                p_cycle_model->SetStemCellG1Duration(0.5);
+//
+//                CellPtr p_cell(new Cell(p_state, p_cycle_model));
+//                p_cell->InitialiseCellCycleModel();
+//                cells.push_back(p_cell);
+//            }
+//        }
+//
+//        /* Create a cell population. */
+//        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+//
+//        /* Create a force law. */
+//        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+//        p_force->SetCutOffLength(1.5);
+//
+//        /* Create a singleton class to store the volume of the cells and initialise it. */
+//        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+//        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+//        p_data->SetCellPopulation(&cell_population);
+//
+//        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+//        {
+//            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
+//        }
+//
+//        /* Create a contact inhibition simulator. */
+//        VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+//        simulator.SetOutputDirectory("TestContactInhibitionInBoxWithMutants");
+//        simulator.SetEndTime(10.0);
+//        simulator.SetSamplingTimestepMultiple(12);
+//        simulator.AddForce(p_force);
+//
+//        /* Create some boundary conditions and pass them to the simulation. */
+//        c_vector<double,2> point = zero_vector<double>(2);
+//        c_vector<double,2> normal = zero_vector<double>(2);
+//        point(0) = -4.0;
+//        point(1) = 0.0;
+//        normal(0) = -1.0;
+//        normal(1) = 0.0;
+//        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // y>0
+//        simulator.AddCellPopulationBoundaryCondition(p_bc1);
+//        point(0) = 4.0;
+//        point(1) = 0.0;
+//        normal(0) = 1.0;
+//        normal(1) = 0.0;
+//        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // y<2
+//        simulator.AddCellPopulationBoundaryCondition(p_bc2);
+//        point(0) = 0.0;
+//        point(1) = -4.0;
+//        normal(0) = 0.0;
+//        normal(1) = -1.0;
+//        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y<2
+//        simulator.AddCellPopulationBoundaryCondition(p_bc3);
+//        point(0) = 0.0;
+//        point(1) = 4.0;
+//        normal(0) = 0.0;
+//        normal(1) = 1.0;
+//        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2
+//        simulator.AddCellPopulationBoundaryCondition(p_bc4);
+//
+//        /* Test that the Solve() method does not throw any exceptions. */
+//        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+//
+//        /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
+//        SimulationTime::Destroy();
+//        RandomNumberGenerator::Destroy();
+//        CellwiseData<2>::Destroy();
+//    }
+//
+//    /*
+//	 * == Testing normal and tumour cells ==
+//	 *
+//	 * We now test the behaviour of a mixture of normal and tumour cells
+//	 * for a vertex-based population
+//	 */
+//	void TestContactInhibitionWithVertexWithMutants()
+//	{
+//        /* Set up SimulationTime. */
+//        SimulationTime* p_simulation_time = SimulationTime::Instance();
+//        p_simulation_time->SetStartTime(0.0);
+//
+//		// Create a simple 2D MutableVertexMesh
+//		HoneycombVertexMeshGenerator generator(2, 2);
+//		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+//
+//		// Create cell state
+//		MAKE_PTR(WildTypeCellMutationState, p_state);
+//		std::vector<CellPtr> cells;
+//
+//		/* Create cell cycle. The difference here is that one of the cell is not contact-inhibited, but rather
+//		 * is defined by a stochastic duration generation-based cell-cycle model. */
+//		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+//		{
+//			if (i==1)
+//			{
+//				StochasticDurationGenerationBasedCellCycleModel* p_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
+//				p_cycle_model->SetCellProliferativeType(TRANSIT);
+//				p_cycle_model->SetMaxTransitGenerations(UINT_MAX);
+//				p_cycle_model->SetTransitCellG1Duration(1);
+//
+//				CellPtr p_cell(new Cell(p_state, p_cycle_model));
+//				p_cell->SetBirthTime(0.0);
+//				cells.push_back(p_cell);
+//			}
+//			else
+//			{
+//				ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+//				p_cycle_model->SetCellProliferativeType(STEM);
+//				p_cycle_model->SetDimension(2);
+//				p_cycle_model->SetBirthTime(0.0);
+//				p_cycle_model->SetQuiescentVolumeFraction(0.99);
+//				p_cycle_model->SetEquilibriumVolume(1.0);
+//				p_cycle_model->SetStemCellG1Duration(0.5);
+//
+//				CellPtr p_cell(new Cell(p_state, p_cycle_model));
+//				p_cell->InitialiseCellCycleModel();
+//				cells.push_back(p_cell);
+//			}
+//		}
+//
+//		// Create cell population
+//		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+//
+//		// Create a force law and pass it to the simulation
+//		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+//
+//		// Create a singleton class to store the volume of the cells and initialize it
+//		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+//		p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
+//		p_data->SetCellPopulation(&cell_population);
+//
+//		for (unsigned i=0; i<cell_population.GetNumElements(); i++)
+//		{
+//		  p_data->SetValue(1.0, i);
+//		}
+//
+//		// Create a contact inhibition simulator
+//		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+//		simulator.SetOutputDirectory("TestContactInhibitionWithVertexWithMutants");
+//        simulator.SetEndTime(10.0);
+//        simulator.SetSamplingTimestepMultiple(12);
+//		simulator.AddForce(p_nagai_honda_force);
+//
+//		/* Test that the Solve() method does not throw any exceptions. */
+//		TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+//
+//		/* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
+//		SimulationTime::Destroy();
+//		RandomNumberGenerator::Destroy();
+//		CellwiseData<2>::Destroy();
+//	}
 };
 #endif /*TESTUSINGCONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_*/
