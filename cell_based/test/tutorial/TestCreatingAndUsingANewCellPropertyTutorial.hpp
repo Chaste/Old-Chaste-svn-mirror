@@ -43,11 +43,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Introduction ==
  *
+ * EMPTYLINE
+ *
+ * This tutorial assumes you have already read UserTutorials/CreatingAndUsingANewForce.
+ *
+ * EMPTYLINE
+ *
  * In the cell mutation state tutorial we showed how to create a new cell mutation
  * state class, and how this can be used in a cell-based simulation. As well as
  * mutation states, cells may be given much more general properties, using the cell
  * property class hierarchy. In this tutorial, we show how to create a new cell property
- * class, and how this can be used in a cell-based simulation.
+ * class, and how this can be used in a cell-based simulation. We will also use a simple
+ * new force to illustrate what you can do with cell properties.
  *
  * == 1. Including header files ==
  *
@@ -65,6 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered each of these header files in previous cell-based
  * Chaste tutorials. */
+#include "AbstractForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -138,6 +146,116 @@ CHASTE_CLASS_EXPORT(MotileCellProperty)
 
 /* This completes the code for {{{MotileCellProperty}}}.  Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
+ */
+
+/*
+ * EMPTYLINE
+ *
+ * == Defining the motive force class ==
+ *
+ * In order to illustrate the use of cell properties we make a simple force law which
+ * causes all cells with the {{{MotileCellProperty}}} to move towards the origin. To do this we
+ * create a new force class, {{{MyMotiveForce}}}, which inherits from
+ * {{{AbstractForce}}} and overrides the methods {{{AddForceContribution()}}} and
+ * {{{OutputForceParameters()}}}.
+ *
+ * Note that usually this code would be separated out into a separate declaration
+ * in a .hpp file and definition in a .cpp file.
+ */
+class MyMotiveForce : public AbstractForce<2>
+{
+private:
+
+    /* This force class includes a member variable, {{{mStrength}}}, which
+     * defines the strength of the force. This member variable will be set
+     * in the constructor.
+     */
+    double mStrength;
+
+    /* We only need to include the next block of code if we wish to be able
+     * to archive (save or load) the force model object in a cell-based simulation.
+     * The code consists of a serialize method, in which we first archive the force
+     * using the serialization code defined in the base class {{{AbstractForce}}},
+     * then archive the member variable. */
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractForce<2> >(*this);
+        archive & mStrength;
+    }
+
+public:
+    /* The first public method is a default constructor, which calls the base
+     * constructor. There is a single input argument, which defines the strength
+     * of the force. We provide a default value of 1.0 for this argument. Inside
+     * the method, we add an assertion to make sure that the strength is strictly
+     * positive.
+     */
+    MyMotiveForce(double strength=1.0)
+        : AbstractForce<2>(),
+          mStrength(strength)
+    {
+        assert(mStrength > 0.0);
+    }
+
+    /* The second public method overrides {{{AddForceContribution()}}}.
+     * This method takes in two arguments: a reference to a vector of
+     * total forces on nodes in a cell population, which is update to by the
+     * force object; and a reference to the cell population itself.
+     */
+    void AddForceContribution(std::vector<c_vector<double, 2> >& rForces,
+                              AbstractCellPopulation<2>& rCellPopulation)
+    {
+        /* Inside the method, we loop over cells, and add a constant vector to
+         * each node, in the negative ''y''-direction and of magnitude {{{mStrength}}}.
+         */
+        /* Loop over cells*/
+        for (AbstractCellPopulation<2>::Iterator cell_iter = rCellPopulation.Begin();
+             cell_iter != rCellPopulation.End();
+             ++cell_iter)
+        {
+            if (cell_iter->HasCellProperty<MotileCellProperty>())
+            {
+                unsigned node_index = rCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+
+                c_vector<double, 2> location = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
+                if (fabs(norm_2(location)>1e-4))
+                {
+                    rForces[node_index] += mStrength *  location / norm_2(location);
+                }
+            }
+
+        }
+    }
+
+    /* Just as we encountered in the cell killer tutorial, here we must override
+     * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
+     * In our case, we output the member variable {{{mStrength}, then call the method on the base class.
+     */
+    void OutputForceParameters(out_stream& rParamsFile)
+    {
+        *rParamsFile << "\t\t\t<Strength>" << mStrength << "</Strength>\n";
+        AbstractForce<2>::OutputForceParameters(rParamsFile);
+    }
+};
+
+/* As mentioned in previous cell-based Chaste tutorials, we need to include the next block
+ * of code to be able to archive the force object in a cell-based
+ * simulation, and to obtain a unique identifier for our new force for writing
+ * results to file.
+ */
+//#include "SerializationExportWrapper.hpp"
+//CHASTE_CLASS_EXPORT(MyMotiveForce)
+//#include "SerializationExportWrapperForCpp.hpp"
+//CHASTE_CLASS_EXPORT(MyMotiveForce)
+
+/*
+ * This completes the code for {{{MyMotiveForce}}}. Note that usually this code
+ * would be separated out into a separate declaration in a .hpp file and definition
+ * in a .cpp file.
+ *
+ * EMPTYLINE
  *
  * === The Tests ===
  *
@@ -236,6 +354,11 @@ public:
         /* We now create a shared pointer to our new property, as follows. */
         boost::shared_ptr<AbstractCellProperty> p_motile(new MotileCellProperty);
 
+        /* Also create a shared pointer to a cell label so we can visualise the different cell types.
+         * Note that this is also a {{{CellProperty}}}.
+         */
+        boost::shared_ptr<CellLabel> p_label(new CellLabel);
+
         /* Next, we create some cells, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         std::vector<CellPtr> cells;
@@ -244,12 +367,13 @@ public:
             /* For each node we create a cell with our cell-cycle model and the wild-type cell mutation state.
              * We then add the property {{{MotileCellProperty}}} to a random selection of the cells, as follows. */
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-            p_model->SetCellProliferativeType(STEM);
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
 
             CellPropertyCollection collection;
             if (RandomNumberGenerator::Instance()->ranf() < 0.5)
             {
                 collection.AddProperty(p_motile);
+                collection.AddProperty(p_label);
             }
 
             CellPtr p_cell(new Cell(p_state, p_model, false, collection));
@@ -271,6 +395,9 @@ public:
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+        /* In order to visualise labelled cells you need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
+
         /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
@@ -281,6 +408,10 @@ public:
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
         p_linear_force->SetCutOffLength(3);
         simulator.AddForce(p_linear_force);
+
+//        /* Now create a {{{MotlieForce}}} and pass it to the {{{OffLatticeSimulation}}}. */
+//        MAKE_PTR(MyMotiveForce, p_motive_force);
+//        simulator.AddForce(p_motive_force);
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

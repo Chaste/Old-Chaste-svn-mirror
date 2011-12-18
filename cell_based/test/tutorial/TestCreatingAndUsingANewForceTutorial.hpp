@@ -81,16 +81,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * As an example, let us consider a force for a two-dimensional cell-based
  * simulation, that mimics gravity. To implement this we define a force
- * boundary condition class, {{{MyBoundaryCondition}}}, which inherits from
+ * boundary condition class, {{{MyForce}}}, which inherits from
  * {{{AbstractForce}}} and overrides the methods {{{AddForceContribution()}}} and
  * {{{OutputForceParameters()}}}.
+ *
+ * Note that usually this code would be separated out into a separate declaration
+ * in a .hpp file and definition in a .cpp file.
  */
 class MyForce : public AbstractForce<2>
 {
 private:
 
     /* This force class includes a member variable, {{{mStrength}}}, which
-     * defines the strength of the force. This member variables will be set
+     * defines the strength of the force. This member variable will be set
      * in the constructor.
      */
     double mStrength;
@@ -204,7 +207,7 @@ public:
          * classes {{{HoneycombMeshGenerator}}} and {{{CellsGenerator}}},
          * as in previous cell-based Chaste tutorials.
          */
-        HoneycombMeshGenerator generator(7, 7, 0);
+        HoneycombMeshGenerator generator(7, 7);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<CellPtr> cells;
@@ -275,13 +278,13 @@ public:
      * We now provide a test demonstrating how {{{MyForce}}} can be used
      * in a cell-based simulation.
      */
-    void TestOffLatticeSimulationWithMyBoundaryCondition() throw(Exception)
+    void TestOffLatticeSimulationWithMyForce() throw(Exception)
     {
         /* The first thing to do, as before, is to set up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* Once again we create a {{{MeshBasedCellPopulation}}}. */
-        HoneycombMeshGenerator generator(20, 20, 0);
+        HoneycombMeshGenerator generator(20, 20);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<CellPtr> cells;
