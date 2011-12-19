@@ -45,11 +45,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * This tutorial assumes you have already read UserTutorials/CreatingAndUsingANewForce.
+ * This tutorial assumes you have already read [wiki:UserTutorials/CreatingAndUsingANewForce].
  *
  * EMPTYLINE
  *
- * In the cell mutation state tutorial we showed how to create a new cell mutation
+ * In the  [wiki:UserTutorials/CreatingAndUsingANewCellMutationState] we showed how to create a new cell mutation
  * state class, and how this can be used in a cell-based simulation. As well as
  * mutation states, cells may be given much more general properties, using the cell
  * property class hierarchy. In this tutorial, we show how to create a new cell property
@@ -202,7 +202,6 @@ public:
          * cells to move inwards towards the origin. Note that this will only work with {{{AbstractCentreBasedCellPopulation}}}s as
          * we associate cells with nodes in the force calculation. This could be modified to make it work for {{{VertexBasedCellPopulation}}}s.
          */
-        /* Loop over cells*/
         for (AbstractCellPopulation<2>::Iterator cell_iter = rCellPopulation.Begin();
              cell_iter != rCellPopulation.End();
              ++cell_iter)
@@ -213,15 +212,13 @@ public:
 
                 c_vector<double, 2> location = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
                 rForces[node_index] -= mStrength *  location;
-
             }
-
         }
     }
 
     /* Just as we encountered in the cell killer tutorial, here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
-     * In our case, we output the member variable {{{mStrength}, then call the method on the base class.
+     * In our case, we output the member variable {{{mStrength}}}, then call the method on the base class.
      */
     void OutputForceParameters(out_stream& rParamsFile)
     {
@@ -252,7 +249,7 @@ CHASTE_CLASS_EXPORT(MyMotiveForce)
  *
  * EMPTYLINE
  *
- * === The Tests ===
+ * == The Tests ==
  *
  * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
@@ -261,7 +258,7 @@ class TestCreatingAndUsingANewCellPropertyTutorial : public CxxTest::TestSuite
 public:
 
     /*
-     * == Testing the cell property ==
+     * === Testing the cell property ===
      *
      * We begin by testing that our new cell property is implemented correctly.
      */
@@ -331,7 +328,7 @@ public:
     }
 
     /*
-     * == Using the cell property in a cell-based simulation ==
+     * === Using the cell property in a cell-based simulation ===
      *
      * We conclude with a brief test demonstrating how {{{MotileCellProperty}}} can be used
      * in a cell-based simulation.
