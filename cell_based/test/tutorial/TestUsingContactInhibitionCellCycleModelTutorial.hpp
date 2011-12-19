@@ -100,9 +100,10 @@ class TestUsingContactInhibitionCellCycleModelTutorial : public CxxTest::TestSui
 {
 public:
     /*
-     * == Testing only normal cells ==
+     * == Testing healthy cell contact inhibition ==
      *
-     * We begin by testing the behaviour of normal cells (contact inhibited) trapped in a box.
+     * In this first test we show how to simulate the behaviour of cells healthy cells trapped in a box.
+     * Each cell will only divide if there is sufficient room.
      */
     void TestContactInhibitionInBox()
     {
@@ -133,7 +134,7 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-            p_cycle_model->SetCellProliferativeType(STEM);
+            p_cycle_model->SetCellProliferativeType(TRANSIT);
             p_cycle_model->SetDimension(2);
             p_cycle_model->SetBirthTime(-(double)i);
             p_cycle_model->SetQuiescentVolumeFraction(0.5);
@@ -150,10 +151,8 @@ public:
          * the vector of cell pointers (for cycles and states)*/
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* Next, we create a force (springs) to be applied between cells and set up a
-         * cut-off length beyond which cells stop interacting. */
-        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
-        p_force->SetCutOffLength(1.5);
+        /* In order to visualise labelled cells (i.e those that are inhibited from division) you need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
 
         /* To keep track of the volumes of the cells that are used in the contact inhibition cell-cycle,
          * we use the singleton class {{{CellWiseData}}}. Here, we just initialise it with one variable
@@ -175,60 +174,79 @@ public:
 //        }
 
         /*  Then, we define the contact {{{VolumeTrackedOffLatticeSimulation}}} class, that automatically updates the volumes of the cells
-         * in {{{CellWiseData}}}. We also set up the output directory, the end time and pass the forces to the simulator.
-         *
+         * in {{{CellWiseData}}}. We also set up the output directory, the end time and the output multiple.
          */
         VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestContactInhibitionInBox");
         simulator.SetSamplingTimestepMultiple(12);
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(20.0);
+
+
+        /* Next, we create a force law (springs) to be applied between cell centres and set up a
+         * cut-off length beyond which cells stop interacting. We then pass this to the {{{VolumeTrackedOffLatticeSimulation}}} */
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
+        p_force->SetCutOffLength(1.5);
         simulator.AddForce(p_force);
 
-//        /*  To study the behaviour of the cells with varying volume, we trap them in a box, i.e., between
-//         *  4 plane boundary conditions. These planes are indicated by a point and a normal and then passed
-//         *  to the simulator:
-//         */
-//        c_vector<double,2> point = zero_vector<double>(2);
-//		c_vector<double,2> normal = zero_vector<double>(2);
-//		point(0) = 0.0;
-//		point(1) = 0.0;
-//		normal(0) = -1.0;
-//		normal(1) = 0.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>0
-//		simulator.AddCellPopulationBoundaryCondition(p_bc1);
-//		point(0) = 2.5;
-//		point(1) = 0.0;
-//		normal(0) = 1.0;
-//		normal(1) = 0.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<2.5
-//		simulator.AddCellPopulationBoundaryCondition(p_bc2);
-//		point(0) = 0.0;
-//		point(1) = 0.0;
-//		normal(0) = 0.0;
-//		normal(1) = -1.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>0
-//		simulator.AddCellPopulationBoundaryCondition(p_bc3);
-//		point(0) = 0.0;
-//		point(1) = 2.5;
-//		normal(0) = 0.0;
-//		normal(1) = 1.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<2.5
-//		simulator.AddCellPopulationBoundaryCondition(p_bc4);
+        /*
+         * To study the behaviour of the cells with varying volume, we trap them in a box, i.e., between
+         *  4 plane boundary conditions. These planes are indicated by a point and a normal and then passed
+         *  to the {{{VolumeTrackedOffLatticeSimulation}}}. The boundaries chosen are to make the test run
+         *  in a short amount of time, if you can make the box larger then the test will take longer to run.
+         */
 
-        /* Test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        /* First x>0 */
+        c_vector<double,2> point = zero_vector<double>(2);
+		c_vector<double,2> normal = zero_vector<double>(2);
+		point(0) = 0.0;
+		point(1) = 0.0;
+		normal(0) = -1.0;
+		normal(1) = 0.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal));
+		simulator.AddCellPopulationBoundaryCondition(p_bc1);
+		/* Second x<2.5 */
+		point(0) = 2.5;
+		normal(0) = 1.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal));
+		simulator.AddCellPopulationBoundaryCondition(p_bc2);
+		/* Third y>0 */
+		point(0) = 0.0;
+		point(1) = 0.0;
+		normal(0) = 0.0;
+		normal(1) = -1.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal));
+		simulator.AddCellPopulationBoundaryCondition(p_bc3);
+		/* Finally y<2.5 */
+		point(1) = 2.5;
+		normal(1) = 1.0;
+		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal));
+		simulator.AddCellPopulationBoundaryCondition(p_bc4);
+
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
 
         /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
         CellwiseData<2>::Destroy();
     }
-
-//    /*
-//     * == Testing normal and tumour cells ==
-//     *
-//     * We now test the behaviour of a mixture of normal and tumour cells
-//     */
+    /*
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestContactInhibitionInBox/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * You will notice that once the cells are below a certain size they no longer proliferate and turn blue in the visualisation.
+     *
+     * EMPTYLINE
+     *
+     * == Testing normal and tumour cells ==
+     *
+     * We now test the behaviour of a mixture of healthy and tumour cells in a Box. In this test healthy cells will only
+     * divide if there is sufficient room whereas tumour cells will divide regardless.
+     */
 //    void TestContactInhibitionInBoxWithMutants()
 //    {
 //        /* Set up SimulationTime. */
@@ -243,7 +261,7 @@ public:
 //        MAKE_PTR(WildTypeCellMutationState, p_state);
 //        std::vector<CellPtr> cells;
 //
-//        /* Create cell cycle. The difference here is that one of the cell is not contact-inhibited, but rather
+//        /* Create cell cycle. The difference here is that one of the cells is not contact-inhibited, but rather
 //         * is defined by a stochastic duration generation-based cell-cycle model. */
 //        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
 //        {
