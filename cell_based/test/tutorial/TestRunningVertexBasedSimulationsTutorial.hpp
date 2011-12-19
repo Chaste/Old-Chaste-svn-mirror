@@ -69,7 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SmartPointers.hpp"
 /* The next header file defines the cell cycle model. */
 #include "StochasticDurationCellCycleModel.hpp"
-/* The next two header files define a helper class for generating suitable meshes one planar and one periodic. */
+/* The next two header files define a helper class for generating suitable meshes: one planar and one periodic. */
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
 /* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}
@@ -83,7 +83,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NagaiHondaForce.hpp"
 /* The next header file defines a boundary condition for the cells.*/
 #include "PlaneBoundaryCondition.hpp"
-/* The next header file defines a cell killer which specifies how cells are removed from the simulation.*/
+/* The next header file defines a cell killer, which specifies how cells are removed from the simulation.*/
 #include "PlaneBasedCellKiller.hpp"
 
 /* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
@@ -133,7 +133,7 @@ public:
         */
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We then pass the cell population into a {{{OffLatticeSimulation}}},
+        /* We then pass the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("VertexBasedMonolayer");
@@ -203,17 +203,17 @@ public:
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-        * this is exactly the same as the above test. */
+        * This is exactly the same as the above test. */
         std::vector<CellPtr> cells;
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(),TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-         *  This is also the same as in the above test.
+         * This is also the same as in the above test.
          */
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* As always we then pass the cell population into a {{{OffLatticeSimulation}}},
+        /* As always we then pass the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory, output multiple and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("VertexBasedPeriodicMonolayer");
@@ -274,22 +274,19 @@ public:
          */
         SimulationTime::Destroy();
     }
-
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexBasedPeriodicMonolayer/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * You should see that the edges of the mesh are identical on both sides; cells no
-    * longer pass through the line y=0; and cells are removed at y=3.
-    *
-    * EMPTYLINE
-    */
-
-
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexBasedPeriodicMonolayer/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * You should see that the edges of the mesh are identical on both sides; cells no
+     * longer pass through the line y=0; and cells are removed at y=3.
+     *
+     * EMPTYLINE
+     */
 };
 
 #endif /* TESTRUNNINGVERTEXBASEDSIMULATIONSTUTORIAL_HPP_ */

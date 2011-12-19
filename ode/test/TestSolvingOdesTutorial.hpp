@@ -272,7 +272,7 @@ public:
      * === ODE Solving Using the State Variable ===
      *
      * In this second test, we show how to do an alternative version of ODE solving, which
-     * does not involve passing in initial conditions and returning a {{{OdeSolution}}}.
+     * does not involve passing in initial conditions and returning an {{{OdeSolution}}}.
      * The {{{AbstractOdeSystem}}} has a variable called the ''state variable'', which can
      * be used to hold the solution, and will be updated if a particular version of Solve
      * is called. This can be useful for embedding ODE models in a bigger system, since

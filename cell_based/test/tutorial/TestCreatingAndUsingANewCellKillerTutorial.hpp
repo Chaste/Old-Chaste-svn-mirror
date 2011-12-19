@@ -308,7 +308,7 @@ public:
          * use of the macro MAKR_PTR_ARGS (defined in the header {{{SmartPointers.hpp}}}).*/
         MAKE_PTR_ARGS(MyCellKiller, p_killer, (&cell_population));
 
-        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyCellKiller");

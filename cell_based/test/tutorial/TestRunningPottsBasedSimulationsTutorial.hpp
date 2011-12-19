@@ -142,7 +142,7 @@ public:
         cell_population.SetNumSweepsPerTimestep(1);
 
 
-        /* We then pass in the cell population into a {{{OnLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OnLatticeSimulation}}},
          * and set the output directory and end time.*/
         OnLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("PottsBasedMonolayer");
@@ -256,7 +256,7 @@ public:
          */
         PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We then pass in the cell population into a {{{OnLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OnLatticeSimulation}}},
          * and set the output directory and end time. */
         OnLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("PottsMonolayerCellSorting");
@@ -355,7 +355,7 @@ public:
          */
         PottsBasedCellPopulation<3> cell_population(*p_mesh, cells);
 
-        /* We then pass in the cell population into a {{{OnLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OnLatticeSimulation}}},
          * and set the output directory and end time. */
         OnLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("PottsCellSorting3D");

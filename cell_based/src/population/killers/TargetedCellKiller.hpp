@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 /**
- * Simple cell killer which at the first timestep kills any cell
+ * Simple cell killer, which at the first timestep kills any cell
  * whose corresponding location index is a given number.
  */
 template<unsigned DIM>

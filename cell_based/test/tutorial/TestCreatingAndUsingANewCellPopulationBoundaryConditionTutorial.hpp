@@ -339,7 +339,7 @@ public:
         /* We use the cell population to construct a cell population boundary condition object. */
         MAKE_PTR_ARGS(MyBoundaryCondition, p_bc, (&cell_population));
 
-        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyBoundaryCondition");

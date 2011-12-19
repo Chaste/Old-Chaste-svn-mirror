@@ -268,7 +268,7 @@ public:
         pde_handler.AddPdeAndBc(&pde_and_bc);
 
         /*
-         * We are now in a position to construct a {{{OffLatticeSimulationWithPdes}}} object,
+         * We are now in a position to construct an {{{OffLatticeSimulationWithPdes}}} object,
          * using the cell population. We then pass the PDE handler object to the simulation.
          */
         OffLatticeSimulation<2> simulator(cell_population);
@@ -310,4 +310,5 @@ public:
         CellwiseData<2>::Destroy();
     }
 };
+
 #endif /*TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_*/

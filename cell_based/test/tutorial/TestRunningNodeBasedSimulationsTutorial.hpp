@@ -132,7 +132,7 @@ public:
          * defines the connectivity of the nodes by defining a radius of interaction. */
         cell_population.SetMechanicsCutOffLength(1.5);
 
-        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("NodeBasedMonolayer");
@@ -208,7 +208,7 @@ public:
         NodeBasedCellPopulation<3> cell_population(mesh, cells);
         cell_population.SetMechanicsCutOffLength(1.5);
 
-        /* We then pass in the cell population into a {{{OffLatticeSimulation}}},
+        /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * (this time with dimension 3) and set the output directory, output multiple and end time. */
         OffLatticeSimulation<3> simulator(cell_population);
         simulator.SetOutputDirectory("NodeBasedSpheroid");
@@ -234,7 +234,7 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, use Paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information
+     * To visualize the results, use Paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information.
      *
      * Load the file {{{/tmp/$USER/testoutput/NodeBasedSpheroid/results_from_time_0/results.pvd}}},
      * add a spherical glyph.
@@ -303,12 +303,18 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
+        /* As before, we conclude by calling {{{SimulationTime::Destroy()}}}. 
+         * To avoid memory leaks, we also delete any pointers that we created in the test.*/
         SimulationTime::Destroy();
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
     }
     /*
      * EMPTYLINE
      *
-     * To visualize the results, use Paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information
+     * To visualize the results, use Paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information.
      *
      * Load the file {{{/tmp/$USER/testoutput/NodeBasedOnSphere/results_from_time_0/results.pvd}}},
      * add a spherical glyph.
