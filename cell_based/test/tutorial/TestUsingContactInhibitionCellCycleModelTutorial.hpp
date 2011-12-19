@@ -47,8 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * that stops cell division when the volume of the cell is smaller than a critical value.
  *
  * Firstly, we consider two mesh-based populations in 2-D with cells trapped in a square box. In the first population,
- *  all the cells are contact inhibited and we study the effect of the critical volume upon the global cell density. In the
- *  second population, we consider a mix of normal cells (contact inhibited) and tumour cells (not inhibited) and study the growth of the
+ * all the cells are contact inhibited and we study the effect of the critical volume upon the global cell density. In the
+ * second population, we consider a mix of normal cells (contact inhibited) and tumour cells (not inhibited) and study the growth of the
  * tumour cells within the box.
  *
  * Secondly, we look at the behaviour of a vertex-based population in a box and the effect of contact inhibition.
@@ -57,6 +57,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
+#include "CheckpointArchiveTypes.hpp"
+
 /* These two headers need to be includes here to ensure archiving of {{{CelwiseData}}} works on all Boost versions*/
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -161,11 +163,16 @@ public:
 
         /* To keep track of the volumes of the cells that are used in the contact inhibition cell-cycle,
          * we use the singleton class {{{CellWiseData}}}. Here, we just initialise it with one variable
-         * and associate it with the cell population: */
+         * and associate it with the cell population. */
+
+        /* This creates the instance of {{{CellwiseData}}}: */
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        /* TODO */
+        /* The next line passes the number of cells, {{cell_population.GetNumRealCells(){}}}, and the number of parameters
+         * to be stored in {{{CellwiseData}}}, i.e., one, for the volume of each cell, to the instance of {{{CellwiseData}}}.  */
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
-        /* TODO Won't work without the cell population set.*/
+        /* {{{CellwiseData}}} is closely connected with the cell population. For instance, the number of elements stored
+         * is updated at each time step with the number of cells in the cell population. Therefore, we also need to pass the cell_population
+         * to the instance of {{{CellwiseData}}} */
         p_data->SetCellPopulation(&cell_population);
         /* We now loop over the cells and assign an initial value for the volume. This can be anything as it is overwritten
          * by the {{{PostSolve}}} method in {{{VolumeTrackedOffLatticeSimulation}}}.*/
@@ -374,21 +381,21 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestContactInhibitionInBox/results_from_time_0}}}.
+     * To visualise the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestContactTumourInhibitionInBox/results_from_time_0}}}.
      * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable.
+     * java executable, if it has not been done previously.
      *
      * You will notice that once the healthy cells (yellow) are below a certain size they no longer proliferate and turn dark blue in the visualisation.
-     * Whereas Tumour cels (light blue) will continue to prolifferate.
+     * Tumour cells (light blue), on the other hand, will continue to proliferate.
      */
 
-//
-//    /*
-//    /*
+
+//  /*
 //	 * == Testing normal cells with vertex-based population ==
 //	 *
-//	 * We now test the behaviour of normal contact inhibited cells for a vertex-based population
+//	 * We now test the behaviour of normal contact inhibited cells for a vertex-based population. We show that
+//   * vertex-based populations are not adapted to confined environments.
 //	 *
 //	 */
 //	void TestContactInhibitionInBoxWithVertex()
@@ -482,5 +489,14 @@ public:
 //		RandomNumberGenerator::Destroy();
 //		CellwiseData<2>::Destroy();
 //	}
+//
+//    /*
+//     * EMPTYLINE
+//     *
+//     * To visualise the results, open a new terminal, {{{cd}}} to the Chaste directory,
+//     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/TestContactInhibitionInBox/results_from_time_0}}}.
+//     * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+//     * java executable, if it has not been done previously.
+//     */
 };
 #endif /*TESTUSINGCONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_*/
