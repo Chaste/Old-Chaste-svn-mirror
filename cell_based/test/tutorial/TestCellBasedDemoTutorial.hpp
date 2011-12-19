@@ -48,10 +48,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * In this tutorial we show how Chaste can be used to create, run and visualise various
  * cell-based simulations. We begin with a simple monolayer simulations, see how to
- *   * change the cell level model;
+ *   * change the cell-level model;
  *   * how to impose boundaries;
  *   * how to impose periodic conditions; and
- *   * how to change cell cycle models.
+ *   * how to change cell-cycle models.
  *
  * EMPTYLINE
  *
@@ -59,7 +59,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
+ * We begin by including the necessary header files. These will be described in detail in 
+ * subsequent cell-based tutorials.
  */
 #include <cxxtest/TestSuite.h>
 #include "CellBasedSimulationArchiver.hpp"
@@ -92,8 +93,8 @@ public:
      *
      * EMPTYLINE
      *
-     * In the first test, we run a simple vertex-based simulation, in which we create a monolayer
-     * of cells, using a vertex mesh. Each cell is assigned a stochastic cell-cycle model.
+     * In the first test, we run a simple vertex-based simulation of an epithelial monolayer. 
+     * Each cell in the simulation is assigned a simple stochastic cell-cycle model.
      */
     void TestVertexBasedMonolayer() throw (Exception)
     {
@@ -129,6 +130,11 @@ public:
      *
      * == Test 2 - basic node-based simulation ==
      *
+     * EMPTYLINE
+     *
+     * We next show how to modify the previous test to implement a 'node-based' simulation, 
+     * in which cells are represented by overlapping spheres (actually circles, since we're 
+     * in 2D).
      */
     void TestNodeBasedMonolayer() throw (Exception)
     {
@@ -142,7 +148,7 @@ public:
         cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes(), TRANSIT);
 
         NodeBasedCellPopulation<2> cell_population(mesh, cells);//**Changed**//
-        cell_population.SetMechanicsCutOffLength(1.5); //**Changed**// //to speed up simulations
+        cell_population.SetMechanicsCutOffLength(1.5); //**Changed**// // to speed up simulations
 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("CellBasedDemo2"); //**Changed**//
@@ -170,6 +176,9 @@ public:
      *
      * == Test 3 - basic mesh-based simulation ==
      *
+     * We next show how to modify the previous test to implement a 'mesh-based' simulation, 
+     * in which cells are represented by their centres and a Voronoi tessellation is used to 
+     * find nearest neighbours.
      */
     void TestMeshBasedMonolayer() throw (Exception)
     {
@@ -194,18 +203,19 @@ public:
     }
 
     /*
-    * EMPTYLINE
-    *
-    * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-    * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo3/results_from_time_0}}}.
-    * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-    * java executable.
-    *
-    * EMPTYLINE
-    *
-    * == Test 4 - basic mesh-based simulation with ghost nodes ==
-    *
-    */
+     * EMPTYLINE
+     *
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * previous test, with the results directory changed from {{{CellBasedDemo2}}} to {{{CellBasedDemo3}}}.
+     *
+     * EMPTYLINE
+     *
+     * == Test 4 - basic mesh-based simulation with ghost nodes ==
+     *
+     * We next show how to modify the previous test to include 'ghost nodes', which do not 
+     * correspond to cells but are sometimes needed when using a Voronoi tessellation. We 
+     * will discuss ghost nodes in more detail in subsequent cell-based tutorials.
+     */
     void TestMeshBasedMonolayerWithGhostNodes() throw (Exception)
     {
         HoneycombMeshGenerator generator(2, 2, 2); //**Changed**//
@@ -232,15 +242,15 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo4/results_from_time_0}}}.
-     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable.
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * previous test, with the results directory changed from {{{CellBasedDemo3}}} to {{{CellBasedDemo4}}}.
      *
      * EMPTYLINE
      *
      * == Test 5 - basic periodic mesh-based simulation ==
-     *
+     * 
+     * We next show how to modify the previous test to implement a periodic boundary to the 
+     * left and right of the domain.
      */
     void TestMeshBasedMonolayerPeriodic() throw (Exception)
     {
@@ -268,15 +278,15 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo5/results_from_time_0}}}.
-     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable.
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * previous test, with the results directory changed from {{{CellBasedDemo4}}} to {{{CellBasedDemo5}}}.
      *
      * EMPTYLINE
      *
      * == Test 6 - basic periodic mesh-based simulation with obstructions ==
      *
+     * In the final test, we show how to modify the previous test to include one 
+     * or more 'obstructions' within the domain. '''THIS IS NOT YET IMPLEMENTED'''
      */
     void TestMeshBasedMonolayerPeriodicSolidBottomBoundary() throw (Exception)
     {
@@ -300,14 +310,11 @@ public:
 
         simulator.Solve();
     }
-
     /*
      * EMPTYLINE
-     *
-     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/CellBasedDemo6/results_from_time_0}}}.
-     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable.
+     * 
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * previous test, with the results directory changed from {{{CellBasedDemo5}}} to {{{CellBasedDemo6}}}.
      *
      * EMPTYLINE
      */

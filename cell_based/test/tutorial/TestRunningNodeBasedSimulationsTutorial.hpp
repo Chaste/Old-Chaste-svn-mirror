@@ -62,30 +62,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckpointArchiveTypes.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
- * simulation test. We have encountered some of these header files in previous cell-based
- * Chaste tutorials. */
+ * simulation test. We encountered some of these header files in 
+ * UserTutorials/RunningMeshBasedSimulations. */
 #include "CellsGenerator.hpp"
+#include "StochasticDurationCellCycleModel.hpp"
+#include "HoneycombMeshGenerator.hpp"
+#include "GeneralisedLinearSpringForce.hpp"
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
-/* The next header file defines the cell cycle model. */
-#include "StochasticDurationCellCycleModel.hpp"
-/* The next header file defines a helper class for generating a suitable mesh. */
-#include "HoneycombMeshGenerator.hpp"
 /* The next header file defines the class for storing the spatial information of cells. */
 #include "NodesOnlyMesh.hpp"
-/* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}
- * for a vertex mesh. */
-#include "OffLatticeSimulation.hpp"
-/* The next header file defines a vertex-based {{{CellPopulation}}} class.*/
+/* The next header file defines a node-based {{{CellPopulation}}} class.*/
 #include "NodeBasedCellPopulation.hpp"
 /* The next header file defines a boundary condition to be used in the third test.*/
 #include "SphereGeometryBoundaryCondition.hpp"
-/* The next header file defines a force law for describing the mechanical interactions
- * between neighbouring cells in the cell population.
- */
-#include "GeneralisedLinearSpringForce.hpp"
-/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
- * and defines some test methods.
+/* Next, we define the test class.
  */
 class TestRunningNodeBasedSimulationsTutorial : public CxxTest::TestSuite
 {
@@ -146,24 +137,9 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("NodeBasedMonolayer");
         simulator.SetEndTime(10.0);
-
-        /*
-         * For longer simulations, we may not want to output the results
-         * every time step. In this case we can use the following method,
-         * to print results every 12 time steps instead. As the time step
-         * used by the simulator, is 30 seconds, this method will cause the
-         * simulator to print results every 6 minutes.
-         */
         simulator.SetSamplingTimestepMultiple(12);
 
-        /* We must now create one or more force laws, which determine the mechanics of the centres
-         * of each cell in a cell population. For this test, we use one force law, based on the
-         * spring based model, and pass it to the {{{OffLatticeSimulation}}}.
-         * For a list of possible forces see subclasses of {{{AbstractForce}}}.
-         * These can be found in the inheritance diagram, here, [class:AbstractForce AbstractForce].
-         * Note that some of these forces are not compatible with node-based simulations see the specific class documentation for details,
-         * if you try to use an incompatible class then you will receive a warning.
-         */
+        /* We now pass a force law to the simulation. */
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
         simulator.AddForce(p_force);
 
@@ -176,7 +152,8 @@ public:
         */
         SimulationTime::Destroy();
 
-        /* To avoid memory leaks, we also delete any pointers we created in the test. */
+        /* We conclude by calling {{{SimulationTime::Destroy()}}}. To avoid memory leaks, 
+         * we also delete any pointers that we created in the test. */
         delete p_mesh;
     }
 
@@ -245,13 +222,9 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
+        /* We conclude by calling {{{SimulationTime::Destroy()}}}. 
+         * To avoid memory leaks, we also delete any pointers that we created in the test.*/
         SimulationTime::Destroy();
-
-        /* To avoid memory leaks, we finish by deleting any pointers we created in the test.*/
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
@@ -330,10 +303,6 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-        * at the beginning of the next test in this file, an assertion will be triggered.
-        */
         SimulationTime::Destroy();
     }
     /*

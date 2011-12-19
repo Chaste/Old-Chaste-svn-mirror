@@ -55,24 +55,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * As in previous cell-based Chaste tutorials, we begin by including the necessary header files. 
- * WILL THIS BE THE FIRST TIME WE ENCOUNTER THE CHECKPOINTARCHIVETYPES HEADER?
+ * We begin by including the necessary header files. The first thing to do is include the 
+ * following header file, which allows us to use certain methods in our test. This header 
+ * file must be included in any Chaste test.
  */
 #include <cxxtest/TestSuite.h>
+/* Any test in which the {{{GetIdentifier()}}} method is used, even via the main 
+ * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods), 
+ * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}} 
+ * as the first Chaste header file. 
+ */
 #include "CheckpointArchiveTypes.hpp"
-
-/* The remaining header files define classes that will be used in the cell population
- * simulation test. We have encountered some of these header files in previous cell-based
- * Chaste tutorials. */
-#include "CellsGenerator.hpp"
-#include "OffLatticeSimulation.hpp"
+/* The next header includes the Boost shared_ptr smart pointer, and defines some useful 
+ * macros to save typing when using it.
+ */
 #include "SmartPointers.hpp"
-/* The next header file defines the cell cycle model. */
+/* The remaining header files define classes that will be used in the cell population
+ * simulation test. The first defines a helper class for generating a suitable collection 
+ * of cells. */
+#include "CellsGenerator.hpp"
+/* The next header file defines a stochastic cell-cycle model class. */
 #include "StochasticDurationCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "HoneycombMeshGenerator.hpp"
-/* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}
- * for a vertex mesh. */
+/* The next header file defines the class that simulates the evolution of an off-lattice {{{CellPopulation}}}. */
 #include "OffLatticeSimulation.hpp"
 /* The next header files define a mesh-based {{{CellPopulation}}} with and without ghost nodes class.*/
 #include "MeshBasedCellPopulation.hpp"
@@ -98,7 +104,7 @@ public:
      */
     void TestMonolayer() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
+        /* As in most cell-based Chaste tutorials, we begin by setting up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* Next, we generate a mutable mesh. To create a {{{MutableMesh}}}, we can use
@@ -179,16 +185,16 @@ public:
      * This also means there may be "long" edges in the mesh which can cause the cells
      * to move due long range interactions resulting in an artificially rounded shape.
      *
-     * There are two solution to this the first is to define a cut off length on the force,
+     * There are two solutiona to this. The first is to define a cut off length on the force,
      * which can be done by using the command
      *
      * {{{p_force->SetCutOffLength(1.5);}}}
      *
      * on the {{{GeneralisedLinearSpringForce}}}. Here there will be no forces exerted
-     * on any "springs" which are longer than 1.5 cell radi.
+     * on any "springs" which are longer than 1.5 cell radii.
      *
      * The second solution is to use 'ghost nodes'. Ghost nodes can be added to mesh-based
-     * simulations to remove infinite voronoii regions and long edges. To do this a set of
+     * simulations to remove infinite voronoii regions and long edges. To do this, a set of
      * nodes (known as ghost nodes) are added around the original mesh which exert forces
      * on each other but do not exert forces on the nodes of the original mesh (known as
      * real nodes). In addition real nodes exert forces on ghost nodes so the ghost nodes
@@ -206,7 +212,7 @@ public:
      */
     void TestMonolayerWithGhostNodes() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
+        /* Once again, we begin by setting up the start time. */
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* Next, we generate a mutable mesh. To create a {{{MutableMesh}}}, we can use
@@ -218,7 +224,7 @@ public:
         HoneycombMeshGenerator generator(2, 2, 2);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* Only want to create cells to attach to real nodes so we
+        /* We only want to create cells to attach to real nodes, so we
          * use the method {{{GetCellLocationIndices}}} to get the indices
          * of the real nodes in the mesh. This will be passed in to the
          * cell population later on.
@@ -258,10 +264,7 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
+        /* We conclude by calling {{{SimulationTime::Destroy()}}} as before. */
         SimulationTime::Destroy();
     }
     /*
