@@ -143,11 +143,9 @@ public:
             ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
             p_cycle_model->SetCellProliferativeType(TRANSIT);
             p_cycle_model->SetDimension(2);
-            p_cycle_model->SetBirthTime(-(double)i);
+            p_cycle_model->SetBirthTime(-2.0*(double)i);
             p_cycle_model->SetQuiescentVolumeFraction(0.5);
             p_cycle_model->SetEquilibriumVolume(1.0);
-            p_cycle_model->SetStemCellG1Duration(0.5);
-            p_cycle_model->SetTransitCellG1Duration(0.5);
 
             CellPtr p_cell(new Cell(p_state, p_cycle_model));
             p_cell->InitialiseCellCycleModel();
@@ -167,12 +165,11 @@ public:
 
         /* This creates the instance of {{{CellwiseData}}}: */
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        /* The next line passes the number of cells, {{cell_population.GetNumRealCells(){}}}, and the number of parameters
-         * to be stored in {{{CellwiseData}}}, i.e., one, for the volume of each cell, to the instance of {{{CellwiseData}}}.  */
+        /* the first thing we do is set the number of variables we with to use {{{CellWiseData}}} to track, we do this pay passing the number
+         * of cells in the simulation and the number of variables to  the {{{SetNumCellsAndVars}}} method.*/
         p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
-        /* {{{CellwiseData}}} is closely connected with the cell population. For instance, the number of elements stored
-         * is updated at each time step with the number of cells in the cell population. Therefore, we also need to pass the cell_population
-         * to the instance of {{{CellwiseData}}} */
+        /* We then pass the cell population to the {{{CellWiseData}}} object so the size of the data can vary over time.
+         * The simulation won't run without the cell population set.*/
         p_data->SetCellPopulation(&cell_population);
         /* We now loop over the cells and assign an initial value for the volume. This can be anything as it is overwritten
          * by the {{{PostSolve}}} method in {{{VolumeTrackedOffLatticeSimulation}}}.*/
@@ -278,7 +275,6 @@ public:
             {
                 StochasticDurationCellCycleModel* p_cycle_model = new StochasticDurationCellCycleModel();
                 p_cycle_model->SetCellProliferativeType(STEM);
-                p_cycle_model->SetTransitCellG1Duration(1);
                 p_cycle_model->SetBirthTime(-14.0);
 
                 CellPtr p_cell(new Cell(p_state, p_cycle_model));
@@ -293,7 +289,6 @@ public:
                 p_cycle_model->SetBirthTime(-2.0*(double)i);
                 p_cycle_model->SetQuiescentVolumeFraction(0.8);
                 p_cycle_model->SetEquilibriumVolume(1.0);
-                p_cycle_model->SetStemCellG1Duration(0.5);
 
                 CellPtr p_cell(new Cell(p_state, p_cycle_model));
                 p_cell->InitialiseCellCycleModel();
@@ -327,7 +322,7 @@ public:
         VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestContactInhibitionTumourInBox");
         simulator.SetSamplingTimestepMultiple(12);
-        simulator.SetEndTime(30.0);
+        simulator.SetEndTime(20.0);
 
 
         /* Next, we create a force law (springs) to be applied between cell centres and set up a
@@ -381,122 +376,110 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualise the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestContactTumourInhibitionInBox/results_from_time_0}}}.
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestContactInhibitionTumourInBox/results_from_time_0}}}.
      * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable, if it has not been done previously.
+     * java executable.
      *
      * You will notice that once the healthy cells (yellow) are below a certain size they no longer proliferate and turn dark blue in the visualisation.
-     * Tumour cells (light blue), on the other hand, will continue to proliferate.
+     * Whereas Tumour cells (light blue) on the other hand will continue to proliferate.
+     *
+     * EMPTY LINE
+     *
+     * == Testing contact inhibition in vertex-based monolayer ==
+	 *
+	 * We now test the behaviour of normal contact inhibited cells for a vertex-based population.
+	 * The example we use is a growing monolayer.
+	 *
+	 */
+	void TestContactInhibitionWithVertex()
+	{
+        /* Set up SimulationTime. */
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetStartTime(0.0);
+
+		// Create a simple 2D MutableVertexMesh.
+		HoneycombVertexMeshGenerator generator(2, 2);
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+		// Create cell state.
+		MAKE_PTR(WildTypeCellMutationState, p_state);
+		std::vector<CellPtr> cells;
+
+		/*
+		 * Create cells as before. this time we use a quiescent volume fraction of x so that
+		 * cells
+		 */
+		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+		{
+			ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+			p_cycle_model->SetCellProliferativeType(TRANSIT);
+			p_cycle_model->SetDimension(2);
+			p_cycle_model->SetBirthTime(-(double)i - 2.0); // So all out of M phase
+			p_cycle_model->SetQuiescentVolumeFraction(0.9);
+			p_cycle_model->SetEquilibriumVolume(1.0);
+
+			CellPtr p_cell(new Cell(p_state, p_cycle_model));
+			p_cell->InitialiseCellCycleModel();
+			cells.push_back(p_cell);
+		}
+
+		// Create cell population.
+		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+        /* In order to visualise labelled cells (i.e those that are inhibited from division) you need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
+
+        /* We increase the damping constant for healthy cells so the vertices move more slowly */
+		cell_population.SetDampingConstantNormal(2*cell_population.GetDampingConstantNormal());
+
+        /* To keep track of the volumes of the cells that are used in the contact inhibition cell-cycle,
+         * we use the singleton class {{{CellWiseData}}}. Here, we just initialise it with one variable
+         * and associate it with the cell population. This time each cell is associated with a vertex element */
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+        p_data->SetCellPopulation(&cell_population);
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter));
+        }
+
+        /*  Then, we define the contact {{{VolumeTrackedOffLatticeSimulation}}} class, that automatically updates the volumes of the cells
+         * in {{{CellWiseData}}}. We also set up the output directory, the end time and the output multiple.
+         */
+		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+		simulator.SetOutputDirectory("TestVertexContactInhibition");
+		simulator.SetSamplingTimestepMultiple(50);
+		simulator.SetEndTime(10.0);
+
+		/* Next, we create a force law, {{{NagaiHondaForce}}}, to be applied toe vertices.
+		 * We then pass this to the {{{VolumeTrackedOffLatticeSimulation}}} */
+		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        simulator.AddForce(p_nagai_honda_force);
+
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
+
+        /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        CellwiseData<2>::Destroy();
+	}
+    /*
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/TestVertexContactInhibition/results_from_time_0}}}.
+     * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+     * java executable.
+     *
+     * You will notice that once the healthy cells (yellow) are below a certain size they no longer proliferate and turn dark blue in the visualisation.
+     * If you run the simulation for a long time these Cells occur primarily towards the centre of the monolayer.
+     *
+     * EMPTY LINE
      */
 
-
-//  /*
-//	 * == Testing normal cells with vertex-based population ==
-//	 *
-//	 * We now test the behaviour of normal contact inhibited cells for a vertex-based population. We show that
-//   * vertex-based populations are not adapted to confined environments.
-//	 *
-//	 */
-//	void TestContactInhibitionInBoxWithVertex()
-//	{
-//        /* Set up SimulationTime. */
-//        SimulationTime* p_simulation_time = SimulationTime::Instance();
-//        p_simulation_time->SetStartTime(0.0);
-//
-//		// Create a simple 2D MutableVertexMesh.
-//		HoneycombVertexMeshGenerator generator(2, 2);
-//		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
-//
-//		// Create cell state.
-//		MAKE_PTR(WildTypeCellMutationState, p_state);
-//		std::vector<CellPtr> cells;
-//
-//		/*
-//		 * Create cell cycle.
-//		 */
-//		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
-//		{
-//			ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-//			p_cycle_model->SetCellProliferativeType(STEM);
-//			p_cycle_model->SetDimension(2);
-//			p_cycle_model->SetBirthTime(0.0);
-//			p_cycle_model->SetQuiescentVolumeFraction(0.93);
-//			p_cycle_model->SetEquilibriumVolume(1.0);
-//			p_cycle_model->SetStemCellG1Duration(0.5);
-//
-//			CellPtr p_cell(new Cell(p_state, p_cycle_model));
-//			p_cell->InitialiseCellCycleModel();
-//			cells.push_back(p_cell);
-//		}
-//
-//		// Create cell population.
-//		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-//
-//		// Create a force law and pass it to the simulation.
-//		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
-//
-//		// Create a singleton class to store the volume of the cells and initialise it.
-//		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-//		p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
-//		p_data->SetCellPopulation(&cell_population);
-//
-//		for (unsigned i=0; i<cell_population.GetNumElements(); i++)
-//		{
-//		  p_data->SetValue(1.0, i);
-//		}
-//
-//		// Create a contact inhibition simulator.
-//		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
-//		simulator.SetOutputDirectory("TestContactInhibitionInBoxWithVertex");
-//        simulator.SetEndTime(10.0);
-//        simulator.SetSamplingTimestepMultiple(5);
-//		simulator.AddForce(p_nagai_honda_force);
-//
-//		 /* Create some boundary conditions and pass them to the simulation. */
-//		c_vector<double,2> point = zero_vector<double>(2);
-//		c_vector<double,2> normal = zero_vector<double>(2);
-//		point(0) = -3.0;
-//		point(1) = 0.0;
-//		normal(0) = -1.0;
-//		normal(1) = 0.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>-3
-//		simulator.AddCellPopulationBoundaryCondition(p_bc1);
-//		point(0) = 3.0;
-//		point(1) = 0.0;
-//		normal(0) = 1.0;
-//		normal(1) = 0.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<3
-//		simulator.AddCellPopulationBoundaryCondition(p_bc2);
-//		point(0) = 0.0;
-//		point(1) = -3.0;
-//		normal(0) = 0.0;
-//		normal(1) = -1.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>-3
-//		simulator.AddCellPopulationBoundaryCondition(p_bc3);
-//		point(0) = 0.0;
-//		point(1) = 3.0;
-//		normal(0) = 0.0;
-//		normal(1) = 1.0;
-//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<3
-//		simulator.AddCellPopulationBoundaryCondition(p_bc4);
-//
-//		/* Test that the Solve() method does not throw any exceptions. */
-//		TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-//
-//		/* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
-//		SimulationTime::Destroy();
-//		RandomNumberGenerator::Destroy();
-//		CellwiseData<2>::Destroy();
-//	}
-//
-//    /*
-//     * EMPTYLINE
-//     *
-//     * To visualise the results, open a new terminal, {{{cd}}} to the Chaste directory,
-//     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/TestContactInhibitionInBox/results_from_time_0}}}.
-//     * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
-//     * java executable, if it has not been done previously.
-//     */
 };
 #endif /*TESTUSINGCONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_*/
