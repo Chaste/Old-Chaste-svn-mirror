@@ -118,7 +118,7 @@ public:
          * and the dimension. We create an empty vector of cells and pass this into the
          * method along with the mesh. The second argument represents the size of that the vector
          * {{{cells}}} should become - one cell for each element. Third argument makes all cells
-         * proliferate a specified numner of times (defaults to three).*/
+         * proliferate.*/
         std::vector<CellPtr> cells;
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(),TRANSIT);
