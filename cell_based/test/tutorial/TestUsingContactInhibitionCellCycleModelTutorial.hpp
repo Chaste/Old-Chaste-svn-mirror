@@ -57,6 +57,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
+/* These two headers need to be includes here to ensure archiving of {{{CelwiseData}}} works on all Boost versions*/
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 /* The next header includes the Boost shared_ptr smart pointer, and defines some useful
  * macros to save typing when using it. */
