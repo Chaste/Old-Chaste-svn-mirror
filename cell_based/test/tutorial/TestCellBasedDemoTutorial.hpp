@@ -366,7 +366,7 @@ public:
      */
     void TestMeshBasedMonolayerPeriodicSolidBottomBoundary() throw (Exception)
     {
-        /* We make the same {{{Mesh}}}, {{{Cells}}}, {{{Cell Population}}},
+        /* We make the same {{{Mesh}}}, {{{Cells}}}, {{{CellPopulation}}},
          * {{{CellBasedSimulation}}} and forces as before, all we change is the output directory.*/
         CylindricalHoneycombMeshGenerator generator(5, 2, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
@@ -406,11 +406,11 @@ public:
      *
      * EMPTYLINE
      *
-     * == Test 7 - basic potts-based simulation ==
+     * == Test 7 - basic Potts-based simulation ==
      *
      * EMPTYLINE
      *
-     * We next show how to modify the earlier tests (with off lattice simulations) to implement a 'potts-based' simulation,
+     * We next show how to modify the earlier tests (with off lattice simulations) to implement a 'Potts-based' simulation,
      * in which cells are represented by collections of sites on a fixed lattice.
      */
    void TestPottsBasedMonolayer() throw (Exception)
@@ -429,11 +429,11 @@ public:
        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), TRANSIT);
 
        /* As we have a {{{PottsMesh}}} we use a {{{PottsBasedCellPopulation}}}. Note here we also change the
-        * "temperature" of the potts simulation to make cells more motile.*/
+        * "temperature" of the Potts simulation to make cells more motile.*/
        PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);//**Changed**//
        cell_population.SetTemperature(1.0);
 
-       /* As a potts simulation is restricted to a lattice we create a {{{OnSimulation}}} object and pass in the {{{CellPopulation}}} in much the same
+       /* As a Potts simulation is restricted to a lattice we create a {{{OnSimulation}}} object and pass in the {{{CellPopulation}}} in much the same
         * way as an {{{OffLatticeSimulation}}} in the above examples. We also set some
         * options on the simulation like output directory and end time.
         */
