@@ -45,11 +45,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * In this tutorial, we will show how to use a simple implementation of the contact inhibition cell-cycle mode,
  * that stops cell division when the volume of the cell is smaller than a critical value.
- * We consider 2-D configurations for which cells are trapped in a square box. Firstly, all the cells are contact
- * inhibited and we study the effect of the critical volume upon the global cell density. Secondly, we consider
- * a mix of normal cells (contact inhibited) and tumour cells (not inhibited) and study the growth of the
+ *
+ * Firstly, we consider two mesh-based populations in 2-D with cells trapped in a square box. In the first population,
+ *  all the cells are contact inhibited and we study the effect of the critical volume upon the global cell density. In the
+ *  second population, we consider a mix of normal cells (contact inhibited) and tumour cells (not inhibited) and study the growth of the
  * tumour cells within the box.
  *
+ * Secondly, we look at the behaviour of a vertex-based population in a box and the effect of contact inhibition.
  *
  * == Including header files ==
  *
@@ -100,7 +102,7 @@ class TestUsingContactInhibitionCellCycleModelTutorial : public CxxTest::TestSui
 {
 public:
     /*
-     * == Testing healthy cell contact inhibition ==
+     * == Testing healthy cell contact inhibition with mesh-based population ==
      *
      * In this first test we show how to simulate the behaviour of cells healthy cells trapped in a box.
      * Each cell will only divide if there is sufficient room.
@@ -242,7 +244,7 @@ public:
      *
      * EMPTYLINE
      *
-     * == Testing normal and tumour cells ==
+     * == Testing normal and tumour cells with mesh-based population ==
      *
      * We now test the behaviour of a mixture of healthy and tumour cells in a Box. In this test healthy cells will only
      * divide if there is sufficient room whereas tumour cells will divide regardless.
@@ -354,63 +356,51 @@ public:
 //    }
 //
 //    /*
-//	 * == Testing normal and tumour cells ==
+//    /*
+//	 * == Testing normal cells with vertex-based population ==
 //	 *
-//	 * We now test the behaviour of a mixture of normal and tumour cells
-//	 * for a vertex-based population
+//	 * We now test the behaviour of normal contact inhibited cells for a vertex-based population
+//	 *
 //	 */
-//	void TestContactInhibitionWithVertexWithMutants()
+//	void TestContactInhibitionInBoxWithVertex()
 //	{
 //        /* Set up SimulationTime. */
 //        SimulationTime* p_simulation_time = SimulationTime::Instance();
 //        p_simulation_time->SetStartTime(0.0);
 //
-//		// Create a simple 2D MutableVertexMesh
+//		// Create a simple 2D MutableVertexMesh.
 //		HoneycombVertexMeshGenerator generator(2, 2);
 //		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 //
-//		// Create cell state
+//		// Create cell state.
 //		MAKE_PTR(WildTypeCellMutationState, p_state);
 //		std::vector<CellPtr> cells;
 //
-//		/* Create cell cycle. The difference here is that one of the cell is not contact-inhibited, but rather
-//		 * is defined by a stochastic duration generation-based cell-cycle model. */
+//		/*
+//		 * Create cell cycle.
+//		 */
 //		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
 //		{
-//			if (i==1)
-//			{
-//				StochasticDurationGenerationBasedCellCycleModel* p_cycle_model = new StochasticDurationGenerationBasedCellCycleModel();
-//				p_cycle_model->SetCellProliferativeType(TRANSIT);
-//				p_cycle_model->SetMaxTransitGenerations(UINT_MAX);
-//				p_cycle_model->SetTransitCellG1Duration(1);
+//			ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+//			p_cycle_model->SetCellProliferativeType(STEM);
+//			p_cycle_model->SetDimension(2);
+//			p_cycle_model->SetBirthTime(0.0);
+//			p_cycle_model->SetQuiescentVolumeFraction(0.93);
+//			p_cycle_model->SetEquilibriumVolume(1.0);
+//			p_cycle_model->SetStemCellG1Duration(0.5);
 //
-//				CellPtr p_cell(new Cell(p_state, p_cycle_model));
-//				p_cell->SetBirthTime(0.0);
-//				cells.push_back(p_cell);
-//			}
-//			else
-//			{
-//				ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-//				p_cycle_model->SetCellProliferativeType(STEM);
-//				p_cycle_model->SetDimension(2);
-//				p_cycle_model->SetBirthTime(0.0);
-//				p_cycle_model->SetQuiescentVolumeFraction(0.99);
-//				p_cycle_model->SetEquilibriumVolume(1.0);
-//				p_cycle_model->SetStemCellG1Duration(0.5);
-//
-//				CellPtr p_cell(new Cell(p_state, p_cycle_model));
-//				p_cell->InitialiseCellCycleModel();
-//				cells.push_back(p_cell);
-//			}
+//			CellPtr p_cell(new Cell(p_state, p_cycle_model));
+//			p_cell->InitialiseCellCycleModel();
+//			cells.push_back(p_cell);
 //		}
 //
-//		// Create cell population
+//		// Create cell population.
 //		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 //
-//		// Create a force law and pass it to the simulation
+//		// Create a force law and pass it to the simulation.
 //		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
 //
-//		// Create a singleton class to store the volume of the cells and initialize it
+//		// Create a singleton class to store the volume of the cells and initialise it.
 //		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 //		p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
 //		p_data->SetCellPopulation(&cell_population);
@@ -420,12 +410,40 @@ public:
 //		  p_data->SetValue(1.0, i);
 //		}
 //
-//		// Create a contact inhibition simulator
+//		// Create a contact inhibition simulator.
 //		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
-//		simulator.SetOutputDirectory("TestContactInhibitionWithVertexWithMutants");
+//		simulator.SetOutputDirectory("TestContactInhibitionInBoxWithVertex");
 //        simulator.SetEndTime(10.0);
-//        simulator.SetSamplingTimestepMultiple(12);
+//        simulator.SetSamplingTimestepMultiple(5);
 //		simulator.AddForce(p_nagai_honda_force);
+//
+//		 /* Create some boundary conditions and pass them to the simulation. */
+//		c_vector<double,2> point = zero_vector<double>(2);
+//		c_vector<double,2> normal = zero_vector<double>(2);
+//		point(0) = -3.0;
+//		point(1) = 0.0;
+//		normal(0) = -1.0;
+//		normal(1) = 0.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc1, (&cell_population, point, normal)); // x>-3
+//		simulator.AddCellPopulationBoundaryCondition(p_bc1);
+//		point(0) = 3.0;
+//		point(1) = 0.0;
+//		normal(0) = 1.0;
+//		normal(1) = 0.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc2, (&cell_population, point, normal)); // x<3
+//		simulator.AddCellPopulationBoundaryCondition(p_bc2);
+//		point(0) = 0.0;
+//		point(1) = -3.0;
+//		normal(0) = 0.0;
+//		normal(1) = -1.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc3, (&cell_population, point, normal)); // y>-3
+//		simulator.AddCellPopulationBoundaryCondition(p_bc3);
+//		point(0) = 0.0;
+//		point(1) = 3.0;
+//		normal(0) = 0.0;
+//		normal(1) = 1.0;
+//		MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc4, (&cell_population, point, normal)); // y<3
+//		simulator.AddCellPopulationBoundaryCondition(p_bc4);
 //
 //		/* Test that the Solve() method does not throw any exceptions. */
 //		TS_ASSERT_THROWS_NOTHING(simulator.Solve());
