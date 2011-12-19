@@ -96,10 +96,10 @@ public:
         		"VolumeTrackedOffLatticeSimulation require a subclass of MeshBasedCellPopulation or VertexBasedSimulation.");
     }
 
-    void TestMeshBasedSimulationWithContactInhibitionInBox()
+    void TestMeshBasedSimulationWithContactInhibition()
     {
           // Create a simple mesh
-          HoneycombMeshGenerator generator(2, 2, 0);
+          HoneycombMeshGenerator generator(2, 2);
           MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
           // Create cell state
@@ -134,9 +134,11 @@ public:
           p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
           p_data->SetCellPopulation(&cell_population);
 
-          for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+          for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+               cell_iter != cell_population.End();
+               ++cell_iter)
           {
-              p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
+              p_data->SetValue(1.0, cell_population.GetLocationIndexUsingCell(*cell_iter));
           }
 
           // Create a contact inhibition simulator
@@ -166,7 +168,7 @@ public:
     }
 
 
-    void TestVertexBasedSimulationWithContactInhibitionInBox()
+    void TestVertexBasedSimulationWithContactInhibition()
         {
 
 		// Create a simple 2D MutableVertexMesh
