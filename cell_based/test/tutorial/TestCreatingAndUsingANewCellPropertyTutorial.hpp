@@ -74,6 +74,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Chaste tutorials. */
 #include "AbstractForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "NodesOnlyMesh.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -133,17 +134,6 @@ public:
         return mColour;
     }
 };
-
-/* As mentioned in previous cell-based Chaste tutorials, we need to include the next block
- * of code to be able to archive the cell property object in a cell-based
- * simulation, and to obtain a unique identifier for our new cell property for writing
- * results to file.
- */
-#include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(MotileCellProperty)
-#include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(MotileCellProperty)
-
 /* This completes the code for {{{MotileCellProperty}}}.  Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
  */
@@ -192,7 +182,7 @@ public:
      * the method, we add an assertion to make sure that the strength is strictly
      * positive.
      */
-    MyMotiveForce(double strength=1.0)
+    MyMotiveForce(double strength=2.0)
         : AbstractForce<2>(),
           mStrength(strength)
     {
@@ -207,8 +197,10 @@ public:
     void AddForceContribution(std::vector<c_vector<double, 2> >& rForces,
                               AbstractCellPopulation<2>& rCellPopulation)
     {
-        /* Inside the method, we loop over cells, and add a constant vector to
-         * each node, in the negative ''y''-direction and of magnitude {{{mStrength}}}.
+        /* Inside the method, we loop over cells, and add a vector to
+         * each node associated with cells with the {{{MotileCellProperty}}}, which is proportional (with constant {{{mStrength}}})to the negative of the position. Causing
+         * cells to move inwards towards the origin. Note that this will only work with {{{AbstractCentreBasedCellPopulation}}}s as
+         * we associate cells with nodes in the force calculation. This could be modified to make it work for {{{VertexBasedCellPopulation}}}s.
          */
         /* Loop over cells*/
         for (AbstractCellPopulation<2>::Iterator cell_iter = rCellPopulation.Begin();
@@ -220,10 +212,8 @@ public:
                 unsigned node_index = rCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
                 c_vector<double, 2> location = rCellPopulation.GetLocationOfCellCentre(*cell_iter);
-                if (fabs(norm_2(location)>1e-4))
-                {
-                    rForces[node_index] += mStrength *  location / norm_2(location);
-                }
+                rForces[node_index] -= mStrength *  location;
+
             }
 
         }
@@ -241,14 +231,19 @@ public:
 };
 
 /* As mentioned in previous cell-based Chaste tutorials, we need to include the next block
- * of code to be able to archive the force object in a cell-based
- * simulation, and to obtain a unique identifier for our new force for writing
- * results to file.
+ * of code to be able to archive the cell property and force objects in a cell-based simulation,
+ * and to obtain a unique identifier for our new classes for when writing results to file.
+ *
+ * Identifiers for both classes are defined together here, since we can only have each #include once
+ * in this source file.  Normally the first include and export would go in the class' header, and the second
+ * include and export in the .cpp file.
  */
-//#include "SerializationExportWrapper.hpp"
-//CHASTE_CLASS_EXPORT(MyMotiveForce)
-//#include "SerializationExportWrapperForCpp.hpp"
-//CHASTE_CLASS_EXPORT(MyMotiveForce)
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(MotileCellProperty)
+CHASTE_CLASS_EXPORT(MyMotiveForce)
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(MotileCellProperty)
+CHASTE_CLASS_EXPORT(MyMotiveForce)
 
 /*
  * This completes the code for {{{MyMotiveForce}}}. Note that usually this code
@@ -347,17 +342,20 @@ public:
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* We use the {{{HoneycombMeshGenerator}}} to create a honeycomb mesh covering a
-         * circular domain of given radius, as follows. */
-        HoneycombMeshGenerator generator(10, 10, 0);
-        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
+         * circular domain of given radius, and use this to generate a {{{NodesOnlyMesh}}}
+         * as follows. */
+        HoneycombMeshGenerator generator(10, 10);
+        MutableMesh<2,2>* p_generating_mesh = generator.GetCircularMesh(5);
+
+        NodesOnlyMesh<2>* p_mesh = new(NodesOnlyMesh<2>);
+        p_mesh->ConstructNodesWithoutMesh(*p_generating_mesh);
 
         /* We now create a shared pointer to our new property, as follows. */
-        boost::shared_ptr<AbstractCellProperty> p_motile(new MotileCellProperty);
-
+        MAKE_PTR(MotileCellProperty, p_motile);
         /* Also create a shared pointer to a cell label so we can visualise the different cell types.
          * Note that this is also a {{{CellProperty}}}.
          */
-        boost::shared_ptr<CellLabel> p_label(new CellLabel);
+        MAKE_PTR(CellLabel, p_label);
 
         /* Next, we create some cells, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -370,7 +368,7 @@ public:
             p_model->SetCellProliferativeType(DIFFERENTIATED);
 
             CellPropertyCollection collection;
-            if (RandomNumberGenerator::Instance()->ranf() < 0.5)
+            if (RandomNumberGenerator::Instance()->ranf() < 0.2)
             {
                 collection.AddProperty(p_motile);
                 collection.AddProperty(p_label);
@@ -393,7 +391,11 @@ public:
 
         /* Now that we have defined the mesh and cells, we can define the cell population. The constructor
          * takes in the mesh and the cells vector. */
-        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        NodeBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        /* To run node based simulations you need to define a cut of length, which
+         * defines the connectivity of the nodes by defining a radius of interaction.
+         */
+        cell_population.SetMechanicsCutOffLength(1.5);
 
         /* In order to visualise labelled cells you need to use the following command.*/
         cell_population.SetOutputCellMutationStates(true);
@@ -407,15 +409,15 @@ public:
 
         /* We create a force law and pass it to the {{{OffLatticeSimulation}}}. */
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
-        p_linear_force->SetCutOffLength(3);
+        p_linear_force->SetCutOffLength(1.5);
         simulator.AddForce(p_linear_force);
 
-//        /* Now create a {{{MotlieForce}}} and pass it to the {{{OffLatticeSimulation}}}. */
-//        MAKE_PTR(MyMotiveForce, p_motive_force);
-//        simulator.AddForce(p_motive_force);
+        /* Now create a {{{MotlieForce}}} and pass it to the {{{OffLatticeSimulation}}}. */
+        MAKE_PTR(MyMotiveForce, p_motive_force);
+        simulator.AddForce(p_motive_force);
 
-        /* Test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
 
         /* Finally, we call {{{Destroy()}}} on the singleton classes. */
         SimulationTime::Destroy();
