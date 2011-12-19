@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationCellCycleModel.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "StochasticOxygenBasedCellCycleModel.hpp"
 #include "ContactInhibitionCellCycleModel.hpp"
@@ -219,6 +220,68 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, 4.1324);
         }
     }
+
+
+    void TestStochasticDurationCellCycleModel() throw(Exception)
+    {
+        TS_ASSERT_THROWS_NOTHING(StochasticDurationCellCycleModel cell_model3);
+
+        StochasticDurationCellCycleModel* p_stem_model = new StochasticDurationCellCycleModel;
+        p_stem_model->SetCellProliferativeType(STEM);
+
+        // Change G1 Duration for this model
+        p_stem_model->SetStemCellG1Duration(8.0);
+
+        StochasticDurationCellCycleModel* p_transit_model = new StochasticDurationCellCycleModel;
+        p_transit_model->SetCellProliferativeType(TRANSIT);
+
+        // Change G1 Duration for this model
+        p_stem_model->SetTransitCellG1Duration(8.0);
+
+        StochasticDurationCellCycleModel* p_diff_model = new StochasticDurationCellCycleModel;
+        p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
+
+        MAKE_PTR(WildTypeCellMutationState, p_healthy_state);
+
+        CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
+        p_stem_cell->InitialiseCellCycleModel();
+
+        CellPtr p_transit_cell(new Cell(p_healthy_state, p_transit_model));
+        p_transit_cell->InitialiseCellCycleModel();
+
+        CellPtr p_diff_cell(new Cell(p_healthy_state, p_diff_model));
+        p_diff_cell->InitialiseCellCycleModel();
+
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        unsigned num_steps = 100;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+                        4.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()), 2*num_steps);
+
+        for (unsigned i=0; i<num_steps; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+
+            // The numbers for the G1 durations below are taken from the first three
+            // random numbers generated
+            CheckReadyToDivideAndPhaseIsUpdated(p_stem_model, 9.68038);
+            CheckReadyToDivideAndPhaseIsUpdated(p_transit_model, 2.78877);
+            CheckReadyToDivideAndPhaseIsUpdated(p_diff_model, 132);  // any old number
+        }
+
+        StochasticDurationCellCycleModel* p_hepa_one_model = new StochasticDurationCellCycleModel;
+        p_hepa_one_model->SetCellProliferativeType(STEM);
+
+        CellPtr p_hepa_one_cell(new Cell(p_healthy_state, p_hepa_one_model));
+        p_hepa_one_cell->InitialiseCellCycleModel();
+
+        for (unsigned i=0; i< num_steps; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
+            CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, 15.5662);
+        }
+    }
+
 
     void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
@@ -848,6 +911,57 @@ public:
         }
     }
 
+    void TestArchiveStochasticDurationCellCycleModel()
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "StochasticDurationCellCycleModel.arch";
+
+        // We will also test that the random number generator is archived correctly
+        double random_number_test = 0.0;
+
+        {
+            // We must set up SimulationTime to avoid memory leaks
+            SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
+
+            // As usual, we archive via a pointer to the most abstract class possible
+            AbstractCellCycleModel* const p_model = new StochasticDurationCellCycleModel;
+            p_model->SetDimension(2);
+            p_model->SetCellProliferativeType(TRANSIT);
+
+            static_cast<StochasticDurationCellCycleModel*>(p_model)->SetG1Duration();
+            TS_ASSERT_DELTA(p_model->GetG1Duration(), 3.6803, 1e-4);
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch << p_model;
+
+            delete p_model;
+            SimulationTime::Destroy();
+
+           random_number_test = RandomNumberGenerator::Instance()->ranf();
+           RandomNumberGenerator::Destroy();
+        }
+
+        {
+            // We must set SimulationTime::mStartTime here to avoid tripping an assertion
+            SimulationTime::Instance()->SetStartTime(0.0);
+
+            AbstractCellCycleModel* p_model2;
+
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            input_arch >> p_model2;
+
+            TS_ASSERT_DELTA(p_model2->GetG1Duration(), 3.6803, 1e-4);
+            TS_ASSERT_DELTA(RandomNumberGenerator::Instance()->ranf(), random_number_test, 1e-6);
+
+            // Avoid memory leaks
+            delete p_model2;
+       }
+    }
+
     void TestArchiveSimpleOxygenBasedCellCycleModel() throw (Exception)
     {
         OutputFileHandler handler("archive", false);
@@ -1049,6 +1163,17 @@ public:
 
         std::string stochastic_duration_generation_based_results_dir = output_file_handler.GetOutputDirectoryFullPath();
         TS_ASSERT_EQUALS(system(("diff " + stochastic_duration_generation_based_results_dir + "stochastic_duration_generation_based_results.parameters cell_based/test/data/TestCellCycleModels/stochastic_duration_generation_based_results.parameters").c_str()), 0);
+
+        // Test with StochasticDurationCellCycleModel
+        StochasticDurationCellCycleModel stochastic_duration_cell_cycle_model;
+        TS_ASSERT_EQUALS(stochastic_duration_cell_cycle_model.GetIdentifier(), "StochasticDurationCellCycleModel");
+
+        out_stream stochastic_duration_parameter_file = output_file_handler.OpenOutputFile("stochastic_duration_results.parameters");
+        stochastic_duration_cell_cycle_model.OutputCellCycleModelParameters(stochastic_duration_parameter_file);
+        stochastic_duration_parameter_file->close();
+
+        std::string stochastic_duration_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        TS_ASSERT_EQUALS(system(("diff " + stochastic_duration_results_dir + "stochastic_duration_results.parameters cell_based/test/data/TestCellCycleModels/stochastic_duration_results.parameters").c_str()), 0);
 
         // Test with SimpleOxygenBasedCellCycleModel
         SimpleOxygenBasedCellCycleModel simple_oxygen_based_cell_cycle_model;

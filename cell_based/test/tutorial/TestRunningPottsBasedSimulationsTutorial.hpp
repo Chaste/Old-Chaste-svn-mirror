@@ -66,9 +66,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Chaste tutorials. */
 #include "CellsGenerator.hpp"
 #include "SmartPointers.hpp"
-/* The next header file defines the cell-cycle model,one with stochastic cell-cycle times. */
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+/* The next header file defines the cell-cycle model. */
+#include "StochasticDurationCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "PottsMeshGenerator.hpp"
 /* The next header file defines the class that simulates the evolution of an on lattice {{{CellPopulation}}}. */
@@ -115,13 +114,13 @@ public:
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * To do this, we the `CellsGenerator` helper class, which is templated over the type
-         * of cell model required (here {{{StochasticDurationGenerationBasedCellCycleModel}}})
+         * of cell model required (here {{{StochasticDurationCellCycleModel}}})
          * and the dimension. We create an empty vector of cells and pass this into the
          * method along with the mesh. The second argument represents the size of that the vector
          * {{{cells}}} should become - one cell for each element. Third argument makes all cells
          * proliferate a specified numner of times (defaults to three).*/
         std::vector<CellPtr> cells;
-        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(),TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
@@ -236,7 +235,7 @@ public:
          * To do this, we the `CellsGenerator` helper class, as before but this time the third argument is set to
          * DIFFERENTIATED to make all cells non-proliferative. */
         std::vector<CellPtr> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
 
         /* Before we make a {{{CellPopulation}}} we make a pointer to a cell label and then assign this
@@ -335,7 +334,7 @@ public:
          * To do this, we the `CellsGenerator` helper class, as before but this time the third argument is set to
          * DIFFERENTIATED to make all cells non-proliferative.*/
         std::vector<CellPtr> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        CellsGenerator<StochasticDurationCellCycleModel, 3> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
 
         /* As for the 2D case before we make a {{{CellPopulation}}} we make a pointer to a cell label and then assign this

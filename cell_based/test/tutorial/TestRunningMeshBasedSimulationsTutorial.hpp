@@ -68,7 +68,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
 /* The next header file defines the cell cycle model. */
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "HoneycombMeshGenerator.hpp"
 /* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}
@@ -112,13 +112,13 @@ public:
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * To do this, we the `CellsGenerator` helper class, which is templated over the type
-         * of cell model required (here {{{StiochasticDurationGenerationBasedCellCycleModel}}})
+         * of cell model required (here {{{StochasticDurationCellCycleModel}}})
          * and the dimension. We create an empty vector of cells and pass this into the
          * method along with the mesh. The second argument represents the size of that the vector
          * {{{cells}}} should become - one cell for each node, the third argument specifies
          * the proliferative type of the cell STEM TRANSIT or DIFFERENTIATED. */
         std::vector<CellPtr> cells;
-        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(),TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
@@ -230,7 +230,7 @@ public:
          * argument is different and is the number of real nodes in the mesh.
          * As before all cells are TRANSIT cells. */
         std::vector<CellPtr> cells;
-        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
