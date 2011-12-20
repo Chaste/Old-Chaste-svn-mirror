@@ -718,9 +718,6 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyDirichletBoundaryConditions(bo
     std::vector<unsigned> rows;
     std::vector<double> values;
 
-    rows.resize(DIM*mrProblemDefinition.rGetDirichletNodes().size());
-    values.resize(DIM*mrProblemDefinition.rGetDirichletNodes().size());
-
     // Whether to apply symmetrically, ie alter columns as well as rows (see comment above)
     bool applySymmetrically = (applyToLinearSystem) && (mCompressibilityType==COMPRESSIBLE);
 
@@ -742,8 +739,8 @@ void AbstractNonlinearElasticitySolver<DIM>::ApplyDirichletBoundaryConditions(bo
             if(disp != SolidMechanicsProblemDefinition<DIM>::FREE)
             {
                 unsigned dof_index = DIM*node_index+j;
-                rows[DIM*i+j] = dof_index;
-                values[DIM*i+j] = mCurrentSolution[dof_index] - disp;
+                rows.push_back(dof_index);
+                values.push_back(mCurrentSolution[dof_index] - disp);
             }
         }
     }
@@ -978,17 +975,26 @@ double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
     KSPSetUp(solver);
 
 
-    ///// For printing matrix when debugging
-    //std::cout << "\n\n";
-    //for(unsigned i=0; i<mNumDofs; i++)
-    //{
-    //    for(unsigned j=0; j<mNumDofs; j++)
-    //    {
-    //        std::cout << PetscMatTools::GetElement(mJacobianMatrix, i, j) << " ";
-    //    }
-    //    std::cout << "\n";
-    //}
-    //std::cout << "\n\n";
+//    ///// For printing matrix when debugging
+//    OutputFileHandler handler("TEMP");
+//    out_stream p_file = handler.OpenOutputFile("matrix.txt");
+//    for(unsigned i=0; i<mNumDofs; i++)
+//    {
+//        for(unsigned j=0; j<mNumDofs; j++)
+//        {
+//            *p_file << PetscMatTools::GetElement(mJacobianMatrix, i, j) << " ";
+//        }
+//        *p_file << "\n";
+//    }
+//    p_file->close();
+//
+//    out_stream p_file2 = handler.OpenOutputFile("rhs.txt");
+//    for(unsigned i=0; i<mNumDofs; i++)
+//    {
+//        *p_file2 << PetscVecTools::GetElement(mLinearSystemRhsVector, i) << "\n";
+//    }
+//    p_file2->close();
+
 
     // Set the linear system absolute tolerance.
     // This is either the user provided value, or set to
