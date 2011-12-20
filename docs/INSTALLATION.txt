@@ -174,7 +174,7 @@ export PATH=${CHASTE_LIBS}/cmake-2.6.2-Linux-i386/bin/:${PATH}
 
 2. (VTK) 
 cd $CHASTE_LIBS 
-#Note that we currently test with VTK-5.0.4 so some tests may fail due to minor output differences.
+#Note that we currently test with VTK-5.0.4 and VTK-5.2.1
 #However, 5.0.4 won't compile with recent versions of gcc! 
 wget http://www.vtk.org/files/release/5.2/vtk-5.2.1.tar.gz
 tar xvfz vtk-5.2.1.tar.gz 
@@ -185,12 +185,13 @@ ccmake -DCMAKE_INSTALL_PREFIX:PATH=${CHASTE_LIBS}/Vtk5 .
 make
 make install
 cd $CHASTE_LIBS 
-rm vtk-5.2.1.tar.gz 
+rm -f vtk-5.2.1.tar.gz 
 rm -rf VTK
 
 3. (CONFIGURE)
 Edit python/hostconfig/default.py:
-use_vtk = True
+-    use_vtk = int(prefs.get('use-vtk', False))
++    use_vtk = int(prefs.get('use-vtk', True))
 
 =============== Paraview (VTK visualizer) =====================
 
@@ -198,6 +199,7 @@ use_vtk = True
 cd $CHASTE_LIBS
 wget http://www.paraview.org/files/v3.6/paraview-3.6.2-Linux32-x86.tar.gz
 tar xfvz paraview-3.6.2-Linux32-x86.tar.gz
+rm -f paraview-3.6.2-Linux32-x86.tar.gz
 
 # You need to add these lines to your .bashrc (or similar) The syntax may change depending on your command-line interpreter.
 # Note that the following may break your python as there is a libpython2.5.so.1.0 in ${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/lib/paraview-3.6/ (fixme!)
@@ -208,6 +210,7 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-i6
 cd $CHASTE_LIBS
 wget http://www.paraview.org/files/v3.6/paraview-3.6.2-Linux64-x86.tar.gz
 tar xvfz paraview-3.6.2-Linux64-x86.tar.gz
+rm -f paraview-3.6.2-Linux64-x86.tar.gz
 
 # You need to add these lines to your .bashrc (or similar) The syntax may change depending on your command-line interpreter.
 # Note that the following may break your python as there is a libpython2.5.so.1.0 in ${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/lib/paraview-3.6/ (fixme!)
@@ -250,6 +253,7 @@ Amara
 export PYTHONPATH=$PYTHONPATH:$CHASTE_LIBS/python
 cd $CHASTE_LIBS
 mkdir python
+# Before issuing the next two lines first check is you already have "easy_install"
 wget http://peak.telecommunity.com/dist/ez_setup.py
 python ez_setup.py
 cd bin
@@ -265,7 +269,7 @@ cd rnv-*
 make -f Makefile.gnu
 cp rvp $CHASTE_LIBS/bin/
 cd ..
-rm RNV.ZIP
+rm -f RNV.ZIP
 
 RDFLib
 ------
