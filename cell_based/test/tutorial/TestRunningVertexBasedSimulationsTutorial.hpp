@@ -62,8 +62,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-/* The remaining header files define classes that will be used in the cell population
- * simulation test. We have encountered some of these header files in previous cell-based
+/* The remaining header files define classes that will be used in the cell-based
+ * simulation. We have encountered some of these header files in previous cell-based
  * Chaste tutorials. */
 #include "CellsGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
@@ -73,9 +73,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next two header files define a helper class for generating suitable meshes: one planar and one periodic. */
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "CylindricalHoneycombVertexMeshGenerator.hpp"
-/* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}
- * for a vertex mesh. */
-#include "OffLatticeSimulation.hpp"
 /* The next header file defines a vertex-based {{{CellPopulation}}} class.*/
 #include "VertexBasedCellPopulation.hpp"
 /* The next header file defines a force law for describing the mechanical interactions
@@ -114,18 +111,18 @@ public:
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-        * To do this, we the `CellsGenerator` helper class, which is templated over the type
+        * To do this, we use the `CellsGenerator` helper class, which is templated over the type
         * of cell model required (here {{{StochasticDurationCellCycleModel}}})
         * and the dimension. We create an empty vector of cells and pass this into the
         * method along with the mesh. The second argument represents the size of that the vector
         * {{{cells}}} should become - one cell for each element, the third argument specifies
-        * the proliferative type of the cell STEM TRANSIT or DIFFERENTIATED. */
+        * the proliferative type of the cell STEM, TRANSIT or DIFFERENTIATED. */
         std::vector<CellPtr> cells;
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(),TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-        * In general, this class associates a collection of cells with a set of elements or a mesh.
+        * In general, this class associates a collection of cells with a mesh.
         * For this test, because we have a {{{MutableVertexMesh}}}, we use a particular type of
         * cell population called a {{{VertexBasedCellPopulation}}}.
         */
@@ -140,9 +137,9 @@ public:
         /*
          * For longer simulations, we may not want to output the results
          * every time step. In this case we can use the following method,
-         * to print results every 50 time steps instead. As the time step
-         * used by the simulator, is 0.02 hours, this method will cause the
-         * simulator to print results every 6 minutes.
+         * to print results every 50 time steps instead. As the default time step
+         * used by the simulator (for vertex based simulations), is 0.02 hours, this method will cause the
+         * simulator to print results every 6 minutes (i.e. 0.1 hours).
          */
         simulator.SetSamplingTimestepMultiple(50);
 
@@ -159,12 +156,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-        * at the beginning of the next test in this file, an assertion will be triggered.
-        */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -188,11 +179,11 @@ public:
     */
     void TestPeriodicMonolayer() throw(Exception)
     {
-        /* First, we generate a vertex mesh. To create a {{{Cylindrical2dVertexMesh}}}, we can use
+        /* First, we generate a periodic vertex mesh. To create a {{{Cylindrical2dVertexMesh}}}, we can use
          * the {{{CylindricalHoneycombVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
          * in which all nodes are equidistant and the right hand side is associated with the left hand side.
          * Here the first and second arguments define the size of the mesh - we have chosen a mesh that
-         * is 4 elements (i.e. cells) wide, and 2 elements high.
+         * is 4 elements (i.e. cells) wide, and 4 elements high.
          */
         CylindricalHoneycombVertexMeshGenerator generator(4, 4);    // Parameters are: cells across, cells up
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
@@ -226,7 +217,7 @@ public:
          * we use a {{{PlaneBoundaryCondition}}}, and pass it to the {{{OffLatticeSimulation}}}.
          * For a list of possible boundary condition see subclasses of {{{AbstractCellPopulationBoundaryCondition}}}.
          * These can be found in the inheritance diagram, here,
-         * [wiki:AbstractCellPopulationBoundaryCondition AbstractCellPopulationBoundaryCondition].
+         * [class:AbstractCellPopulationBoundaryCondition AbstractCellPopulationBoundaryCondition].
          * Note that some of these boundary conditions are not compatible with vertex-based
          * simulations see the specific class documentation for details, if you try to use an
          * incompatible class then you will receive a warning.
@@ -236,19 +227,16 @@ public:
         c_vector<double,2> point = zero_vector<double>(2);
         c_vector<double,2> normal = zero_vector<double>(2);
         normal(1) = -1.0;
-        /* Finally we now make a pointer to a {{{PlaneBoundaryCondition}}} (passing the point
+        /* We can now make a pointer to a {{{PlaneBoundaryCondition}}} (passing the point
          * and normal to the plane) and pass it to the {{{OffLatticeSimulation}}}.*/
         MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&cell_population, point, normal));
         simulator.AddCellPopulationBoundaryCondition(p_bc);
 
-        /* We now create one or more {{{CellKilers}}}s, which determine how cells are removed
+        /* We now create one or more {{{CellKiller}}}s, which determine how cells are removed
          * from the simulation. For this test, we use a {{{PlaneBasedCellKiller}}}, and pass
          * it to the {{{OffLatticeSimulation}}}. For a list of possible cell killers see subclasses
          * of {{{AbstractCellKiller}}}. These can be found in the inheritance diagram, here,
-         * [wiki:AbstractCellKiller AbstractCellKiller].
-         * Note that some of these boundary condtitions are not compatible with vertex-based
-         * simulations see the specific class documentation for details, if you try to use an
-         * incompatible class then you will receive a warning.
+         * [class:AbstractCellKiller AbstractCellKiller].
          *
          * The first step is to define a point on the plane boundary and a normal to the plane.
          * We reuse the point and normal from the {{{PlaneBoundaryCondition}}}.
@@ -262,20 +250,12 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
     }
     /*
      * EMPTYLINE
      *
      * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
      * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexBasedPeriodicMonolayer/results_from_time_0}}}.
-     * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
-     * java executable.
      *
      * You should see that the edges of the mesh are identical on both sides; cells no
      * longer pass through the line y=0; and cells are removed at y=3.

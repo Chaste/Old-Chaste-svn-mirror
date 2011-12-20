@@ -61,7 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
 
-/* The following header is usually included in all cell-based test suites. It enables us to write tests where the {{{SimulationTime}}} is handled automatically and simplifies the code.*/
+/* The following header is usually included in all cell-based test suites. It enables us to write tests where the {{{SimulationTime}}} is handled automatically and simplifies the tests.*/
 #include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
@@ -81,8 +81,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SphereGeometryBoundaryCondition.hpp"
 /* Next, we define the test class. This time we inherit from {{{AbstractCellBasedTestSuite}}} rather than {{{CxxTest::TestSuite}}}.
  * When using this class the singleton objects are set up and destroyed for us:
- * {{{SimulationTime}}} is initialised to zero at the beginning of the test and destroyed at the end;
- * {{{RandomNumberGenerator}}} is re seeded with zero at the begining and destroyed at the end; and
+ * {{{SimulationTime}}} is initialised to zero at the beginning of the test and destroyed at the end of the test;
+ * {{{RandomNumberGenerator}}} is re-seeded with zero at the begining and destroyed at the end of the test; and
  * {{{CellPropertyRegistry}}} (which stores {{{CellProperties}}}, you learn about these in a later tutorial UserTutorials/CreatingAndUsingANewCellProperty)  is cleared at the beginning of the test.
  * This makes for cleaner code.
  */
@@ -123,27 +123,27 @@ public:
          * and the dimension. We create an empty vector of cells and pass this into the
          * method along with the mesh. The second argument represents the size of that the vector
          * {{{cells}}} should become - one cell for each node, the third argument specifies
-         * the proliferative type of the cell STEM TRANSIT or DIFFERENTIATED. */
+         * the proliferative type of the cell STEM, TRANSIT or DIFFERENTIATED. */
         std::vector<CellPtr> cells;
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(),TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-        * In general, this class associates a collection of cells with a set of elements or a mesh.
+        * In general, this class associates a collection of cells with a mesh.
         * For this test, because we have a {{{NodesOnlyMesh}}}, we use a particular type of
         * cell population called a {{{NodeBasedCellPopulation}}}.
         */
         NodeBasedCellPopulation<2> cell_population(*p_mesh, cells);
-        /* To run node-based simulations you need to define a cut of length, which
+        /* To run node-based simulations you need to define a cut off length, which
          * defines the connectivity of the nodes by defining a radius of interaction. */
         cell_population.SetMechanicsCutOffLength(1.5);
 
         /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
-         * and set the output directory and end time. */
+         * and set the output directory, output multiple and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("NodeBasedMonolayer");
-        simulator.SetEndTime(10.0);
         simulator.SetSamplingTimestepMultiple(12);
+        simulator.SetEndTime(10.0);
 
         /* We now pass a force law to the simulation. */
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
@@ -151,12 +151,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-        * at the beginning of the next test in this file, an assertion will be triggered.
-        */
-        SimulationTime::Destroy();
 
         /* We conclude by calling {{{SimulationTime::Destroy()}}}. To avoid memory leaks, 
          * we also delete any pointers that we created in the test. */
@@ -168,7 +162,7 @@ public:
      *
      * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
      * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/NodeBasedMonolayer/results_from_time_0}}}.
-     * You will need to select the 'Cells as circles` option to be able to visualise the cells, as opposed
+     * we need to select the 'Cells as circles` option to be able to visualise the cells, as opposed
      * to just the centres.
      * We may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
      * java executable.
@@ -180,7 +174,7 @@ public:
      * EMPTYLINE
      *
      * In the second test we run a simple node-based simulation in 3D. This is very similar
-     * to the 2D test with the dimension template changed from 2 to 3 and instead of using a mesh
+     * to the 2D test with the dimension template (<2,2> and <2>) changed from 2 to 3 and instead of using a mesh
      * generator we generate the nodes directly.
      */
     void TestSpheroid() throw(Exception)
@@ -226,9 +220,7 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* We conclude by calling {{{SimulationTime::Destroy()}}}. 
-         * To avoid memory leaks, we also delete any pointers that we created in the test.*/
-        SimulationTime::Destroy();
+        /* To avoid memory leaks, we conclude by deleting any pointers that we created in the test.*/
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
@@ -241,7 +233,7 @@ public:
      * To visualize the results, use Paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information.
      *
      * Load the file {{{/tmp/$USER/testoutput/NodeBasedSpheroid/results_from_time_0/results.pvd}}},
-     * add a spherical glyph.
+     * and add spherical glyphs to represent cells.
      *
      * EMPTYLINE
      *
@@ -306,9 +298,7 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* As before, we conclude by calling {{{SimulationTime::Destroy()}}}. 
-         * To avoid memory leaks, we also delete any pointers that we created in the test.*/
-        SimulationTime::Destroy();
+        /* To avoid memory leaks, we conclude by deleting any pointers that we created in the test.*/
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
@@ -320,7 +310,7 @@ public:
      * To visualize the results, use Paraview. See the UserTutorials/VisualizingWithParaview tutorial for more information.
      *
      * Load the file {{{/tmp/$USER/testoutput/NodeBasedOnSphere/results_from_time_0/results.pvd}}},
-     * add a spherical glyph.
+     * and add spherical glyphs to represent cells.
      *
      * EMPTYLINE
      */

@@ -123,6 +123,9 @@ public:
          * and the dimension.
          * For a list of possible cell cycle models see subclasses of {{{AbstractCellCycleModel}}}.
          * These can be found in the inheritance diagram, here, [class:AbstractCellCycleModel AbstractCellCycleModel].
+         * Note that some of these models will require information on the surrounding medium such as Oxygen concentration to work,
+         * see specific class documentation for details. Some of these will be covered in later tutorials (UserTutorials/RunningContactInhibitionSimulations,
+         * UserTutorials/RunningDeltaNotchSimulations, and UserTutorials/RunningTumourSpheroidSimulations).
          * We create an empty vector of cells and pass this into the
          * method along with the mesh. The second argument represents the size of that the vector
          * {{{cells}}} should become - one cell for each node, the third argument specifies
@@ -147,9 +150,9 @@ public:
         /*
          * For longer simulations, we may not want to output the results
          * every time step. In this case we can use the following method,
-         * to print results every 12 time steps instead. As the time step
+         * to print results every 12 time steps instead. As the default time step
          * used by the simulator, is 30 seconds, this method will cause the
-         * simulator to print results every 6 minutes.
+         * simulator to print results every 6 minutes (or 0.1 hours).
          */
         simulator.SetSamplingTimestepMultiple(12);
 
@@ -185,20 +188,17 @@ public:
      * You will notice that half of each cell cell around the edge is missing.
      * This is because the Voronoi region for nodes on the edge of the mesh can be
      * infinite, therefore we only visualise the part inside the mesh.
-     *
      * This also means there may be "long" edges in the mesh which can cause the cells
      * to move due long range interactions resulting in an artificially rounded shape.
      *
      * There are two solutiona to this. The first is to define a cut off length on the force,
      * which can be done by using the command
-     *
      * {{{p_force->SetCutOffLength(1.5);}}}
-     *
      * on the {{{GeneralisedLinearSpringForce}}}. Here there will be no forces exerted
      * on any "springs" which are longer than 1.5 cell radii.
      *
      * The second solution is to use 'ghost nodes'. Ghost nodes can be added to mesh-based
-     * simulations to remove infinite voronoii regions and long edges. To do this, a set of
+     * simulations to remove infinite voronoi regions and long edges. To do this, a set of
      * nodes (known as ghost nodes) are added around the original mesh which exert forces
      * on each other but do not exert forces on the nodes of the original mesh (known as
      * real nodes). In addition real nodes exert forces on ghost nodes so the ghost nodes
@@ -259,8 +259,8 @@ public:
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(10.0);
 
-        /* Again we create a force laws, and pass it to the {{{OffLatticeSimulation}}}. This
-         * force law ensures that ghost nodes dont exert forces on real nodes but real nodes
+        /* Again we create a force law, and pass it to the {{{OffLatticeSimulation}}}. This
+         * force law ensures that ghost nodes don't exert forces on real nodes but real nodes
          * exert forces on ghost nodes.*/
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
         simulator.AddForce(p_force);
@@ -276,8 +276,6 @@ public:
      *
      * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
      * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedMonolayerWithGhostNodes/results_from_time_0}}}.
-     * We may have to do: {{{javac Visualize2dCentreCells.java}}} beforehand to create the
-     * java executable.
      *
      * EMPTYLINE
      */
