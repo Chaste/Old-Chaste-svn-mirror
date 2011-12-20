@@ -277,6 +277,7 @@ public:
      *
      * Load the file {{{/tmp/$USER/testoutput/TestNodeBasedMonolayerWithDeltaNotch/results_from_time_0/results.pvd}}},
      * add a spherical glyph.
+     */
 };
 
 #endif /*TESTRUNNINGDELTANOTCHSIMULATIONSTUTORIAL_HPP_*/
