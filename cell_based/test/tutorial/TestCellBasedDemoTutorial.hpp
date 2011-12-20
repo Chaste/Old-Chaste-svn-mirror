@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * This tutroial is designed to give you a quick introduction to running cell-based
- * simulations in Chaste. Full details are postponed till later tutorials.
+ * simulations in Chaste. Full details are postponed until later tutorials.
  *
  * We begin with a simple monolayer simulation and see how to:
  *   * change the cell-level model;
@@ -94,7 +94,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods. We are using {{{AbstractCellBasedTestSuite}}} instead of {{{CxxTest::TestSuite}}} as this
- * handles some of the set up for us, details are given in later tutorials,
+ * handles some of the simulations set up for us, details are given in later tutorials,
  * UserTutorials/RunningMeshBasedSimulations and UserTutorials/RunningNodeBasedSimulations.
  */
 class TestCellBasedDemoTutorial : public AbstractCellBasedTestSuite
@@ -107,7 +107,7 @@ public:
      * EMPTYLINE
      *
      * In the first test, we run a simple vertex-based simulation of an epithelial monolayer. 
-     * Each cell in the simulation is assigned a simple stochastic cell-cycle model.
+     * Each cell in the simulation is assigned a simple stochastic cell-cycle model, the cells will divide randomly and never stop proliferating.
      */
     void TestVertexBasedMonolayer() throw (Exception)
     {
@@ -125,10 +125,10 @@ public:
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), TRANSIT);
 
         /* We now create a {{{CellPopulation}}} object (passing in the mesh and cells) to connect the mesh and the cells together.
-         * Here that is a {{{VertexBasedCellPopulation}}} and the dimension is 2.*/
+         * Here that is a {{{VertexBasedCellPopulation}}} and the dimension is <2>.*/
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We create a {{{OffSimulation}}} object and pass in the {{{CellPopulation}}}. We also set some
+        /* We now create an {{{OffSimulation}}} object and pass in the {{{CellPopulation}}}. We also set some
          * options on the simulation like output directory, output multiple (so we don't visualise every timestep),
          * and end time.
          */
@@ -138,7 +138,7 @@ public:
         simulator.SetEndTime(20.0);
 
         /* In order to specify how cells move around we create a "shared pointer" to a
-         * {{{Force}}} object and pass it to the {{{OffLatticeSimulation}}}.
+         * {{{Force}}} object and pass it to the {{{OffLatticeSimulation}}}. This is done using the MAKE_PTR macro as follows.
          */
         MAKE_PTR(NagaiHondaForce<2>, p_force);
         simulator.AddForce(p_force);
@@ -181,26 +181,26 @@ public:
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(), TRANSIT); //**Changed**//
 
-        /* This time we create a {{{NodeBasedPopulation}}} as we are using a {{{NodesOnlyMesh}}}.
+        /* This time we create a {{{NodeBasedCellPopulation}}} as we are using a {{{NodesOnlyMesh}}}.
          * We also set a cut off length to speed up simulations. This defines a radius of interaction for the cells.*/
         NodeBasedCellPopulation<2> cell_population(*p_mesh, cells);//**Changed**//
         cell_population.SetMechanicsCutOffLength(1.5); //**Changed**//
 
-        /* We create a {{{OffSimulation}}} object as before, all we change is the output directory
+        /* We create an {{{OffSimulation}}} object as before, all we change is the output directory
          * and output results more often as a larger default timestep is used for these simulations. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("CellBasedDemo2"); //**Changed**//
         simulator.SetSamplingTimestepMultiple(12); //**Changed**//
         simulator.SetEndTime(20.0);
 
-        /* We use a different {{{Force}}} which is suitiale for node based simulations.
+        /* We use a different {{{Force}}} which is suitable for node based simulations.
          */
         MAKE_PTR(RepulsionForce<2>, p_force); //**Changed**//
         simulator.AddForce(p_force);
 
-        /* In all simulations you specify how cells are removed from the simulation by specifying
-         * a {{{CellKiller}}}. You create this in the same was as the {{{Force}}} and pass it to the {{{CellBasedSimulation}}}.
-         * Note that here the constructor for  {{{{RandomCellKiller}}} requires some arguments, therefore we use the
+        /* In all types of simulation you may specify how cells are removed from the simulation by specifying
+         * a {{{CellKiller}}}. You create these in the same was as the {{{Force}}} and pass them to the {{{CellBasedSimulation}}}.
+         * Note that here the constructor for {{{RandomCellKiller}}} requires some arguments to be passed to it, therefore we use the
          * {{{MAKE_PTR_ARGS}}} macro.
          */
         MAKE_PTR_ARGS(RandomCellKiller<2>, p_cell_killer, (&cell_population, 0.01)); //**Changed**//
@@ -243,7 +243,7 @@ public:
         /* This time we create a {{{MeshBasedCellPopulation}}} as we are using a {{{MutableMesh}}}.*/
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells); //**Changed**//
 
-        /* We create a {{{OffSimulation}}} object as before, all we change is the output directory.*/
+        /* We create an {{{OffSimulation}}} object as before, all we change is the output directory.*/
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("CellBasedDemo3"); //**Changed**//
         simulator.SetSamplingTimestepMultiple(12);
@@ -251,8 +251,8 @@ public:
 
         /* We use a different {{{Force}}} which is suitable for mesh based simulations.
          * Note we could of used the same one as before as node based and mesh based simulations
-         * share many of the same forces the only difference is in how cell-cell interactions
-         * are calculated.
+         * share many of the same forces the only difference between the two models is in how cell-cell interactions
+         * are specified.
          */
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force); //**Changed**//
         simulator.AddForce(p_force);
@@ -285,18 +285,18 @@ public:
 
         /* We only want to create cells for non ghost nodes. To find these we get them from the {{{HoneycombMeshGenerator}}}
          * using the method {{{GetCellLocationIndices}}}. We also use a different {{{CellCycleModel}}}. Here we use a
-         * {{{TysonNovakCellCycleModel}}} which solves a set of ODEs in each cell to calculate when the cell divides. */
+         * {{{TysonNovakCellCycleModel}}} which solves a coupled set of ODEs for each cell to calculate when each cell divides. */
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();//**Changed**//
         std::vector<CellPtr> cells;
         CellsGenerator<TysonNovakCellCycleModel, 2> cells_generator; //**Changed**//
         cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT); //**Changed**//
 
         /* This time we create a {{{MeshBasedCellPopulation}}} as we are using a {{{MutableMesh}}} and have ghost nodes.
-         * We pass the indices of non ghost nodes as an extra argument.*/
+         * We also need to pass the indices of non ghost nodes as an extra argument.*/
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices); //**Changed**//
 
-        /* We create a {{{OffSimulation}}} object as before, all we change is the output directory and the end time.
-         * The Tyson Novak model is for Yeast cells and therefore cells proliferate much more often and so we run the simulation for
+        /* We create an {{{OffSimulation}}} object as before, all we change is the output directory and the end time.
+         * The Tyson Novak model is for yeast cells and therefore cells proliferate much more often and so we run the simulation for
          * less time to keep cell numbers relatively small for this demo.
          *
          */
@@ -332,19 +332,19 @@ public:
         CylindricalHoneycombMeshGenerator generator(5, 2, 2); //**Changed**//
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh(); //**Changed**//
 
-        /* Again we create one cell for each non ghost node. Note that we have changed back to a {{{StochasticDurationCellCycleModel}}}.*/
+        /* Again we create one cell for each non ghost node. Note that we have changed back to using a {{{StochasticDurationCellCycleModel}}}.*/
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
         std::vector<CellPtr> cells;
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator; //**Changed**//
         cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT);
 
-        /* We use the same {{{CellPopulation}}}, {{{CellBasedSimulation}}} (only changing the output directory) and {{{Force}}} as before and run the simulation.*/
+        /* We use the same {{{CellPopulation}}}, {{{CellBasedSimulation}}} (only changing the output directory and end time) and {{{Force}}} as before and run the simulation.*/
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("CellBasedDemo5"); //**Changed**//
         simulator.SetSamplingTimestepMultiple(12);
-        simulator.SetEndTime(20.0);
+        simulator.SetEndTime(20.0); //**Changed**//
 
         MAKE_PTR(GeneralisedLinearSpringForce<2>, p_force);
         simulator.AddForce(p_force);
@@ -362,7 +362,7 @@ public:
      *
      * == Test 6 - basic periodic mesh-based simulation with obstructions ==
      *
-     * In the final test, we show how to modify the previous test to include one 
+     * We next show how to modify the previous test to include one
      * or more 'obstructions' within the domain.
      */
     void TestMeshBasedMonolayerPeriodicSolidBottomBoundary() throw (Exception)
@@ -411,7 +411,7 @@ public:
      *
      * EMPTYLINE
      *
-     * We next show how to modify the earlier tests (with off lattice simulations) to implement a 'Potts-based' simulation,
+     * In the final test we show how to modify the earlier tests (using off lattice models) to implement a 'Potts-based' simulation,
      * in which cells are represented by collections of sites on a fixed lattice.
      */
    void TestPottsBasedMonolayer() throw (Exception)
