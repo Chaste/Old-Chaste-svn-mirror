@@ -107,18 +107,8 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<CellPtr> cells;
-        MAKE_PTR(WildTypeCellMutationState, p_state);
-        for (unsigned i=0; i<location_indices.size(); i++)
-        {
-        	StochasticDurationCellCycleModel* p_model = new StochasticDurationCellCycleModel();
-            p_model->SetCellProliferativeType(TRANSIT);
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()* (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration() );
-
-            CellPtr p_cell(new Cell(p_state, p_model));
-            p_cell->SetBirthTime(birth_time);
-            cells.push_back(p_cell);
-        }
+        CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT);
 
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
@@ -148,13 +138,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} and {{{RandomNumberGenerator::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 
     /*
@@ -218,12 +201,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-        * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-        * at the beginning of the next test in this file, an assertion will be triggered.
-        */
-        SimulationTime::Destroy();
     }
     /*
     * EMPTYLINE

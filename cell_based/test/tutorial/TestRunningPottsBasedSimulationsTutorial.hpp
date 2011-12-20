@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how Chaste can be used to create, run and visualize Potts-based simulations.
- * Full details of the mathematical model proposed by Graner, F. and Glazier, J. A. (1992). Simulation
+ * Full details of the mathematical model can be found in Graner, F. and Glazier, J. A. (1992). Simulation
  * of biological cell sorting using a two-dimensional extended potts model. Phys. Rev. Lett., 69(13):2013–2016.
  *
  * EMPTYLINE
@@ -67,7 +67,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Chaste tutorials. */
 #include "CellsGenerator.hpp"
 #include "SmartPointers.hpp"
-/* The next header file defines the cell-cycle model. */
 #include "StochasticDurationCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "PottsMeshGenerator.hpp"
@@ -94,18 +93,17 @@ public:
      * EMPTYLINE
      *
      * In the first test, we run a simple Potts-based simulation, in which we create a monolayer
-     * of cells, using a Potts mesh. Each cell is assigned a fixed cell-cycle model.
+     * of cells, using a Potts mesh. Each cell is assigned a stochastic cell-cycle model.
      */
     void TestMonolayer() throw(Exception)
     {
         /* First, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
          * the {{{PottsMeshGenerator}}}. This generates a regular square-shaped mesh,
          * in which all elements are the same size.
-         *
          * Here the first three arguments specify the domain width; the number of elements across; and the width of
          * elements. The second set of three arguments specify the domain height; the number of elements up; and
          * the height of individual elements.
-         * We have chosen a 2 by 2 block of elements each consisting of 4 by 4  ( = 16) lattice sites.
+         * We have chosen a 2 by 2 block of elements, each consisting of 4 by 4  ( = 16) lattice sites.
          */
         PottsMeshGenerator<2> generator(50, 2, 4, 50, 2, 4);  // Parameters are: lattice sites across; num elements across; element width; lattice sites up; num elements up; and element height
         PottsMesh<2>* p_mesh = generator.GetMesh();
@@ -122,14 +120,14 @@ public:
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(),TRANSIT);
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-         * In general, this class associates a collection of cells with a set of elements or a mesh.
+         * In general, this class associates a collection of cells with a mesh.
          * For this test, because we have a {{{PottsMesh}}}, we use a particular type of
          * cell population called a {{{PottsBasedCellPopulation}}}.
          */
         PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /*
-         * We can set the "Temperature" to be used in the Potts Simulation using the optional command.
+         * We can set the "Temperature" to be used in the Potts Simulation using the optional command below.
          * The default value is 0.1.
          */
         cell_population.SetTemperature(0.1);
@@ -146,28 +144,28 @@ public:
         simulator.SetOutputDirectory("PottsBasedMonolayer");
         simulator.SetEndTime(50.0);
         /*
-         * The default timestep is 0.1, but can be changed using the below command. The timestep is used in conjuction with the "Temperature" and
-         * number of sweeps per timestep to specify the relationship between cell movement and prolideration.
+         * The default timestep is 0.1, but can be changed using the below command. The timestep is used in conjunction with the "Temperature" and
+         * number of sweeps per timestep to specify the relationship between cell movement and proliferation.
          */
         simulator.SetDt(0.1);
 
         /* We must now create one or more update rules, which determine the Hamiltonian
          * in the Potts simulation. For this test, we use two update rules based upon
-         * an area constraint and adhesion between cells and pass them to the {{{OnLatticeSimulation}}}.
+         * a volume constraint ({{{VolumeConstraintPottsUpdateRule}}}) and adhesion between cells ({{{AdhesionPottsUpdateRule}}}) and pass them to the {{{OnLatticeSimulation}}}.
          * For a list of possible update rules see subclasses of {{{AbstractPottsUpdateRule}}}.
          * These can be found in the inheritance diagram, here, [class:AbstractPottsUpdateRule AbstractPottsUpdateRule].
          *
          * Similarly to specifying forces for off lattice simulations we use the {{{MAKE_PTR}}} macro
-         * to make a pointer to our required update rule before specifying parameters and passing to the simulation as follows
+         * to make a boost shared pointer to our required update rule before specifying parameters and passing to the simulation as follows
          */
         MAKE_PTR(VolumeConstraintPottsUpdateRule<2>, p_volume_constraint_update_rule);
         /*
-         * Set an appropriate target volume in number of lattice sites. Here we use the default vale of 16 lattice sites.
+         * Set an appropriate target volume in number of lattice sites. Here we use the default value of 16 lattice sites.
          */
         p_volume_constraint_update_rule->SetMatureCellTargetVolume(16);
         /*
          * You can also vary the deformatuion energy parameter. The larger the parameter
-         * the more cells will try to maintain target volume. Here we use the default vale of 0.2.
+         * the more cells will try to maintain target volume. Here we use the default value of 0.2.
          */
         p_volume_constraint_update_rule->SetDeformationEnergyParameter(0.2);
         /*
@@ -182,12 +180,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -204,9 +196,9 @@ public:
      *
      * EMPTYLINE
      *
-     * The next test generates a collection of cells, there are two types of cells labelled ones
+     * The next test generates a collection of cells, there are two types of cells, labelled ones
      * and non labelled ones, there is differential adhesion between the cell types. For the
-     * specified parameters,the cells sort into separate types.
+     * parameters specified, the cells sort into separate types.
      *
      * Parameters are taken from Graner, F. and Glazier, J. A. (1992). Simulation of biological
      * cell sorting using a two-dimensional extended potts model. Phys. Rev. Lett., 69(13):2013–2016.
@@ -217,10 +209,6 @@ public:
         /* First, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
          * the {{{PottsMeshGenerator}}}. This generates a regular square-shaped mesh,
          * in which all elements are the same size.
-         *
-         * Here the first three arguments specify the domain width; the number of elements across; and the width of
-         * elements. The second set of three arguments specify the domain height; the number of elements up; and
-         * the height of individual elements.
          * We have chosen an 8 by 8 block of elements each consisting of 4 by 4  ( = 16) lattice sites.
          */
         PottsMeshGenerator<2> generator(50, 8, 4, 50, 8, 4);  // Parameters are: lattice sites across; num elements across; element width; lattice sites up; num elements up; and element height
@@ -233,7 +221,7 @@ public:
         CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), DIFFERENTIATED);
 
-        /* Before we make a {{{CellPopulation}}} we make a pointer to a cell label and then assign this
+        /* Before we make a {{{CellPopulation}}} we make a boost shared pointer to a cell label and then assign this
          * label to some randomly chosen cells. */
         MAKE_PTR(CellLabel, p_label);
         for (unsigned i = 0; i<cells.size(); i++)
@@ -245,11 +233,11 @@ public:
         }
 
         /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-         * In general, this class associates a collection of cells with a set of elements or a mesh.
-         * For this test, because we have a {{{PottsMesh}}}, we use a particular type of
-         * cell population called a {{{PottsBasedCellPopulation}}}.
          */
         PottsBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+        /* In order to visualise labelled cells we need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
 
         /* We then pass in the cell population into an {{{OnLatticeSimulation}}},
          * and set the output directory and end time. */
@@ -259,35 +247,26 @@ public:
 
         /* We must now create one or more update rules, which determine the Hamiltonian
          * in the Potts simulation. For this test, we use two update rules based upon
-         * an area constraint and differential adhesion between cells and pass them to the {{{OnLatticeSimulation}}}.
+         * a volume constraint ({{{VolumeConstraintPottsUpdateRule}}}) and differential adhesion between cells ({{{DifferentialAdhesionPottsUpdateRule}}}), set appropriate parameters, and pass them to the {{{OnLatticeSimulation}}}.
          */
         MAKE_PTR(VolumeConstraintPottsUpdateRule<2>, p_volume_constraint_update_rule);
-        /*
-         * Set an appropriate target volume in number of lattice sites.
-         */
         p_volume_constraint_update_rule->SetMatureCellTargetVolume(16);
         p_volume_constraint_update_rule->SetDeformationEnergyParameter(0.2);
         simulator.AddPottsUpdateRule(p_volume_constraint_update_rule);
 
         MAKE_PTR(DifferentialAdhesionPottsUpdateRule<2>, p_differential_adhesion_update_rule);
-        /*
-         * These parameters cause the cells to sort, for different values you can get different patterns.
-         */
+
         p_differential_adhesion_update_rule->SetLabelledCellLabelledCellAdhesionEnergyParameter(0.16);
         p_differential_adhesion_update_rule->SetLabelledCellCellAdhesionEnergyParameter(0.11);
         p_differential_adhesion_update_rule->SetCellCellAdhesionEnergyParameter(0.02);
         p_differential_adhesion_update_rule->SetLabelledCellBoundaryAdhesionEnergyParameter(0.16);
         p_differential_adhesion_update_rule->SetCellBoundaryAdhesionEnergyParameter(0.16);
         simulator.AddPottsUpdateRule(p_differential_adhesion_update_rule);
-
-        /* To run the simulation, we call {{{Solve()}}}. */
+        /*
+         * These parameters cause the cells to sort, for different values you can get different patterns.
+         *
+         * To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -347,6 +326,9 @@ public:
          */
         PottsBasedCellPopulation<3> cell_population(*p_mesh, cells);
 
+        /* In order to visualise labelled cells we need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
+
         /* We then pass in the cell population into an {{{OnLatticeSimulation}}},
          * and set the output directory and end time. */
         OnLatticeSimulation<3> simulator(cell_population);
@@ -379,11 +361,6 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
     }
     /*
      * EMPTYLINE
@@ -391,7 +368,17 @@ public:
      * To visualize the results, we need to use Paraview. 
      * See UserTutorials/VisualizingWithParaview for more information.
      *
-     * In particular we need to create glyphs for each lattice site and color them based on cell Index or cell type.
+     * Load the file {{{/tmp/$USER/testoutput/PottsCellSorting3D/results_from_time_0/results.pvd}}}, and click apply
+     *
+     * Add box "Glyphs" to represent lattice sites (you will need to adjust the size so they don't overlap).
+     *
+     * Select the "Display" tab and select "color by" cell label. (you can also "color by" cell index to see individual cells)
+     *
+     * Add a "Threshold" filter, filter by cell type and make the lower threshold 0 or greater (unocupied lattice sites are labelled with -1). This will allow you to view only the cells.
+     *
+     * Click play to see the evolution of the simulation.
+     *
+     * You should see that the cells sort into ones of the same type.
      *
      * EMPTYLINE
      */
