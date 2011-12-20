@@ -54,6 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * header file and archiving headers.
  */
 #include <cxxtest/TestSuite.h>
+#include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
 #include <boost/archive/text_oarchive.hpp>
