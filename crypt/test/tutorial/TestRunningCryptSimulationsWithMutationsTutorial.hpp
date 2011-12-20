@@ -56,22 +56,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Full details of the computational model can be found in the paper by
  * Osborne ''et al.'' (2010) [10.1098/rsta.2010.0173].
  *
- * The first thing to do is include the following header file, which allows us
- * to use certain methods in our test. This header file must be included
- * in any Chaste test.
+ * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
-/*
- * Any test in which the {{{GetIdentifier()}}} method is used, even via the main
- * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods),
- * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
- * as the first Chaste header file.
- */
 #include "CheckpointArchiveTypes.hpp"
-
-/* The next header includes the Boost shared_ptr smart pointer, and defines some useful
- * macros to save typing when using it. */
 #include "SmartPointers.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The next header file defines a helper class for generating cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
@@ -120,10 +110,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 
 /*
- * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
+ * Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
  */
-class TestRunningCryptSimulationsWithMutationsTutorial : public CxxTest::TestSuite
+class TestRunningCryptSimulationsWithMutationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
@@ -138,11 +128,8 @@ public:
      */
     void TestMeshBasedCryptWithMutations() throw(Exception)
     {
-        /* We first re-initialize time to zero and reseed the random number generator. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-
-        /* We then create a cylindrical mesh, and get the cell location indices, exactly as before. */
+        /* Note that time is re-initialized to zero and random number generator is re-seeded to zero in the {{{AbstractCellBasedTestSuite}}}.
+         * We first create a cylindrical mesh, and get the cell location indices, exactly as before. */
         CylindricalHoneycombMeshGenerator generator(6, 9, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
@@ -153,11 +140,11 @@ public:
         CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* Make pointers to any mutations you want to use.
+        /* Make boost shared pointers to any mutations you want to use.
          * you need to do this before making the cell population or otherwise the numbers of
          * each type of mutation aren't tracked.
          */
-        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+        MAKE_PTR(ApcTwoHitCellMutationState, p_state);
 
         /* We create the cell population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
@@ -230,10 +217,9 @@ public:
         simulator.Solve();
 
         /*
-         * Finally, we must tidy up by destroying the {{{SimulationTime}}} and the {{{WntConcentration}}}
-         * singleton objects. This avoids memory leaks occurring. */
+         * Finally, we must tidy up by destroying the {{{WntConcentration}}}
+         * singleton object. This avoids memory leaks occurring. */
         WntConcentration<2>::Destroy();
-        SimulationTime::Destroy();
     }
     /*
      * EMPTYLINE

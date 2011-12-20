@@ -60,6 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered some of these header files in previous cell-based
@@ -71,12 +72,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
 /*
- * The next three header files define three different types of cell-cycle model,
- * one with fixed cell-cycle times, one with stochastic cell-cycle times and one
+ * The next three header files define two different types of cell-cycle model,
+ * one with fixed cell-cycle times and one
  * where the cell-cycle time depends on the Wnt concentration.
  */
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "HoneycombVertexMeshGenerator.hpp"
@@ -93,7 +93,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NagaiHondaForce.hpp"
 
 /* Next, we define the test class. */
-class TestRunningVertexBasedCryptSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningVertexBasedCryptSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -110,9 +110,6 @@ public:
      */
     void TestVertexBasedCrypt() throw(Exception)
     {
-        /* First re-initialize time to zero. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* Create a cylindrical mesh, and get the cell location indices. To enforce
          * periodicity at the left and right hand sides of the mesh, we use a subclass
          * called {{{Cylindrical2dMesh}}}, which has extra methods for maintaining
@@ -160,12 +157,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -195,9 +186,6 @@ public:
      */
     void TestVertexBasedCryptWithSimpleWntCellCycleModel() throw(Exception)
     {
-        /* First re-initialize time to zero. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* Create a cylindrical mesh, and get the cell location indices, as before. */
         CylindricalHoneycombVertexMeshGenerator generator(6, 9);
         Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
@@ -239,9 +227,6 @@ public:
 
         /* Run the simulation, by calling {{{Solve()}}}. */
         simulator.Solve();
-
-        /* Recall that {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test. */
-        SimulationTime::Destroy();
     }
     /*
     * EMPTYLINE

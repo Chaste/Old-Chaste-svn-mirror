@@ -55,6 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
 #include "SmartPointers.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The next header file defines a helper class for generating cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
@@ -103,7 +104,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 
 /* Next, we define the test class. */
-class TestRunningMeshBasedCryptSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningMeshBasedCryptSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
@@ -118,11 +119,7 @@ public:
      */
     void TestCryptWithFixedCellCycle() throw(Exception)
     {
-        /* As in '''all''' cell-based simulations, we must first set the start time.
-         */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a mesh. The basic Chaste mesh is a {{{TetrahedralMesh}}}.
+        /* First, we generate a mesh. The basic Chaste mesh is a {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left- and right-hand sides of the mesh, we
          * use a subclass called {{{Cylindrical2dMesh}}}, which has extra methods for
          * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use a helper class called
@@ -203,12 +200,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered.
-         */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -232,11 +223,8 @@ public:
      */
     void TestCryptWithWntCellCycle() throw(Exception)
     {
-        /* We first re-initialize time to zero and reseed the random number generator. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-        RandomNumberGenerator::Instance()->Reseed(0);
-
-        /* We then create a cylindrical mesh, and get the cell location indices, exactly as before. */
+        /* First we create a cylindrical mesh, and get the cell location indices, exactly as before.
+         * Note that time is re-initialized to zero and random number generator is re-seeded to zero in the {{{AbstractCellBasedTestSuite}}}.*/
         CylindricalHoneycombMeshGenerator generator(6, 9, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
@@ -284,10 +272,9 @@ public:
         simulator.Solve();
 
         /*
-         * Finally, we must tidy up by destroying the {{{SimulationTime}}} and the {{{WntConcentration}}}
-         * singleton objects. This avoids memory leaks occurring. */
+         * Finally, we must tidy up by destroying the {{{WntConcentration}}}
+         * singleton object. This avoids memory leaks occurring. */
         WntConcentration<2>::Destroy();
-        SimulationTime::Destroy();
     }
 };
     /*
