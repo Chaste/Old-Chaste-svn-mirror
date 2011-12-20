@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * mutation states, cells may be given much more general properties, using the cell
  * property class hierarchy. In this tutorial, we show how to create a new cell property
  * class, and how this can be used in a cell-based simulation. We will also use a simple
- * new force to illustrate what you can do with cell properties.
+ * new force to illustrate what you can do with cell properties (and mutations).
  *
  * == 1. Including header files ==
  *
@@ -180,7 +180,7 @@ private:
 public:
     /* The first public method is a default constructor, which calls the base
      * constructor. There is a single input argument, which defines the strength
-     * of the force. We provide a default value of 1.0 for this argument. Inside
+     * of the force. We provide a default value of 2.0 for this argument. Inside
      * the method, we add an assertion to make sure that the strength is strictly
      * positive.
      */
@@ -200,9 +200,9 @@ public:
                               AbstractCellPopulation<2>& rCellPopulation)
     {
         /* Inside the method, we loop over cells, and add a vector to
-         * each node associated with cells with the {{{MotileCellProperty}}}, which is proportional (with constant {{{mStrength}}})to the negative of the position. Causing
-         * cells to move inwards towards the origin. Note that this will only work with {{{AbstractCentreBasedCellPopulation}}}s as
-         * we associate cells with nodes in the force calculation. This could be modified to make it work for {{{VertexBasedCellPopulation}}}s.
+         * each node associated with cells with the {{{MotileCellProperty}}}, which is proportional (with constant {{{mStrength}}}) to the negative of the position. Causing
+         * cells to move inwards towards the origin. Note that this will currently only work with subclasses of {{{AbstractCentreBasedCellPopulation}}}s as
+         * we associate cells with nodes in the force calculation. However, this could easily be modified to make it work for {{{VertexBasedCellPopulation}}}s.
          */
         for (AbstractCellPopulation<2>::Iterator cell_iter = rCellPopulation.Begin();
              cell_iter != rCellPopulation.End();
@@ -218,7 +218,7 @@ public:
         }
     }
 
-    /* Just as we encountered in the cell killer tutorial, here we must override
+    /* Just as we encountered in UserTutorials/CreatingAndUsingANewCellKiller, here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
      * In our case, we output the member variable {{{mStrength}}}, then call the method on the base class.
      */
@@ -235,7 +235,7 @@ public:
  *
  * Identifiers for both classes are defined together here, since we can only have each #include once
  * in this source file.  Normally the first include and export would go in the class' header, and the second
- * include and export in the .cpp file.
+ * include and export in the .cpp file for each respective class.
  */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MotileCellProperty)
@@ -353,7 +353,8 @@ public:
          */
         MAKE_PTR(CellLabel, p_label);
 
-        /* Next, we create some cells, as follows. */
+        /* Next, we create some cells. We dont use a Gnereator as we want to give some cells the new cell property, therefore
+         * we create the cells in a loop, as follows.*/
         MAKE_PTR(WildTypeCellMutationState, p_state);
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -393,13 +394,13 @@ public:
          */
         cell_population.SetMechanicsCutOffLength(1.5);
 
-        /* In order to visualise labelled cells you need to use the following command.*/
+        /* In order to visualise labelled cells we need to use the following command.*/
         cell_population.SetOutputCellMutationStates(true);
 
         /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMotileCellProperty");
+        simulator.SetOutputDirectory("NodeBasedMonlayerWithMotileCellProperty");
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(10.0);
 
@@ -414,7 +415,15 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
+
+        /* We conclude by deleting any pointers that we created in the test to avoid memory leaks.*/
+        delete p_mesh;
     }
+    /*
+     * When you visualise the results with
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/NodeBasedMonlayerWithMotileCellProperty/results_from_time_0}}}
+     * you should see a collection of cells with the cell property (labelled dark blue) moving towards the origin.     *
+     */
 };
 
 #endif /*TESTCREATINGANDUSINGANEWCELLPROPERTYTUTORIAL_HPP_*/

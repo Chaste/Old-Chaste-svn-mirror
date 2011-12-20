@@ -413,8 +413,8 @@ public:
         p_linear_force->SetCutOffLength(3);
         simulator.AddForce(p_linear_force);
 
-        /* Test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
     }
 };
 

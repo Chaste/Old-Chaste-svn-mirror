@@ -255,14 +255,21 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes());
 
+        /* We now asign the mutation to the 11th and 51st cell.*/
+        cells[10]->SetMutationState(p_state);
+        cells[50]->SetMutationState(p_state);
+
         /* Now that we have defined the mesh and cells, we can define the cell population. The constructor
          * takes in the mesh and the cells vector. */
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+        /* In order to visualise labelled cells we need to use the following command.*/
+        cell_population.SetOutputCellMutationStates(true);
+
         /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("TestOffLatticeSimulationWithp_motile");
+        simulator.SetOutputDirectory("MeshBasedMonlayerWithNewMutation");
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(10.0);
 
@@ -271,9 +278,17 @@ public:
         p_linear_force->SetCutOffLength(3);
         simulator.AddForce(p_linear_force);
 
-        /* Test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
     }
+    /*
+     * When you visualise the results with
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedMonolayerWithNewMutation/results_from_time_0}}}
+     * you should see two cells in black which are the cells with the new mutation. If we want these cells to behave differently we
+     * would need to write an new {{{CellCycleModel}}}, {{{CellKiller}}}, {{{Force}}}, or {{{CellPopulationBoundaryCondition}}}
+     * which checks for the new mutation.
+     *
+     */
 };
 
 #endif /*TESTCREATINGANDUSINGANEWCELLMUTATIONSTATETUTORIAL_HPP_*/

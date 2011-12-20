@@ -347,8 +347,8 @@ public:
         /* We now pass the cell population boundary condition into the cell-based simulation. */
         simulator.AddCellPopulationBoundaryCondition(p_bc);
 
-        /* We test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
     }
 };
 

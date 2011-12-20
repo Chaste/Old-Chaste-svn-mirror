@@ -152,8 +152,7 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
 
-        /* We conclude by calling {{{SimulationTime::Destroy()}}}. To avoid memory leaks, 
-         * we also delete any pointers that we created in the test. */
+        /* We conclude by deleting any pointers that we created in the test to avoid memory leaks.*/
         delete p_mesh;
     }
 

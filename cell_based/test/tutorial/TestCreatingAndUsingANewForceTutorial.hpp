@@ -153,7 +153,7 @@ public:
         return mStrength;
     }
 
-    /* Just as we encountered in the cell killer tutorial, here we must override
+    /* Just as we encountered in UserTutorials/CreatingAndUsingANewCellKiller, here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
      * In our case, we output the member variable {{{mStrength}, then call the method on the base class.
      */
@@ -297,8 +297,8 @@ public:
         MAKE_PTR_ARGS(MyForce, p_force, (0.5));
         simulator.AddForce(p_force);
 
-        /* We test that the Solve() method does not throw any exceptions. */
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        /* To run the simulation, we call {{{Solve()}}}. */
+        simulator.Solve();
     }
 };
 

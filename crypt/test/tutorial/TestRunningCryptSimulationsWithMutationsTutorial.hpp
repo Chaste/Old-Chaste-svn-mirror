@@ -46,13 +46,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * This tutorial assumes you have already read UserTutorials/RunningMeshBasedCryptSimulations
- * and UserTutorials/RunningVertexBasedCryptSimulations.
+ * This tutorial assumes you have already read UserTutorials/RunningMeshBasedCryptSimulations.
  *
  * EMPTYLINE
  *
  * In this tutorial we show how Chaste can be used to simulate a cylindrical model of an
- * intestinal crypt with mutations in both mesh and vertex-based simulations.
+ * intestinal crypt with mutations using both mesh and vertex-based simulations.
  * Full details of the computational model can be found in the paper by
  * Osborne ''et al.'' (2010) [10.1098/rsta.2010.0173].
  *
@@ -66,17 +65,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header file defines a helper class for generating cells for crypt simulations. */
 #include "CryptCellsGenerator.hpp"
 /*
- * The next two header files define two different types of cell-cycle model.
- * In a {{{FixedDurationGenerationBasedCellCycleModel}}}, the duration of each phase
- * of the cell cycle is fixed. In a {{{WntCellCycleModel}}}, the duration of a cell's G1 phase
- * is determined by a system of nonlinear ODEs describing a cell's response to the local
- * concentration of Wnt,
- * a secreted cell–cell signalling molecule that is known to play a key role in cell
- * proliferation in the crypt. In our crypt simulations, we impose a fixed gradient of
- * Wnt up the axis of the crypt.
+ * The next header file defines a {{{WntCellCycleModel}}}, where the proliferative behaviour of a cell is
+ * dependent on the concentration of Wnt at that point in space. Cells proliferate where there is a plentiful level of Wnt
+ * and cease proliferation below a given threshold.
  */
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable triangular mesh
  * for the crypt simulation, such that the cell corresponding to each node is initially
  * in mechanical equilibrium with its neighours and periodic boundary conditions are applied
@@ -122,13 +115,12 @@ public:
      *
      * EMPTYLINE
      *
-     * In the first test, we demonstrate how to create a crypt simulation using a
-     * cylindrical mesh, with each cell progressing through a simple wnt dependent cell-cycle model,
-     * with the Wnt concentration varying within the crypt in a predefined manner.
+     * In the first test, we demonstrate how to introduce mutations into a simulation of a crypt.
      */
     void TestMeshBasedCryptWithMutations() throw(Exception)
     {
-        /* Note that time is re-initialized to zero and random number generator is re-seeded to zero in the {{{AbstractCellBasedTestSuite}}}.
+        /* Note that time is re-initialized to zero and the random number generator is re-seeded to zero in the {{{AbstractCellBasedTestSuite}}}.
+         *
          * We first create a cylindrical mesh, and get the cell location indices, exactly as before. */
         CylindricalHoneycombMeshGenerator generator(6, 9, 2);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
@@ -140,26 +132,29 @@ public:
         CryptCellsGenerator<SimpleWntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* Make boost shared pointers to any mutations you want to use.
-         * you need to do this before making the cell population or otherwise the numbers of
-         * each type of mutation aren't tracked.
+        /* We now create boost shared pointers to any mutations we wish to use.
+         * We need to do this before making the cell population or otherwise the numbers of
+         * each type of mutation aren't tracked.          *
+         * For a list of possible mutations see subclasses of {{{AbstractCellMutationState}}}.
+         * These can be found in the inheritance diagram, here, [class:AbstractCellMutationState AbstractCellMutationState].
+         * Each mutation has a different effect on the cell cycle models see the class documentation for details.
          */
         MAKE_PTR(ApcTwoHitCellMutationState, p_state);
 
         /* We create the cell population, as before. */
         MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
-        /* In order to visualise mutant cells and to count how many cells there are of each type you need to use the following command.*/
+        /* In order to visualise mutant cells and to count how many cells there are of each type we need to use the following command.*/
         cell_population.SetOutputCellMutationStates(true);
 
         /*
-         * We set the height of the crypt. As well as passing this variable into the {{{sloughingCellKiller}}},
+         * We set the height of the crypt. As well as passing this variable into the {{{SloughingCellKiller}}},
          * we will pass it to the {{{WntConcentration}}} object (see below).
          */
         double crypt_height = 8.0;
 
         /*
-         * When using a {{{SiumpleWntCellCycleModel}}}, we need a way of telling each cell what the Wnt concentration
+         * When using a {{{SimpleWntCellCycleModel}}}, we need a way of telling each cell what the Wnt concentration
          * is at its location. To do this, we set up a {{{WntConcentration}}} object. Like {{{SimulationTime}}},
          * {{{WntConcentration}}} is a singleton class, so when instantiated it is accessible from anywhere in
          * the code (and in particular, all cells and cell-cycle models can access it). We need to say what
@@ -187,16 +182,8 @@ public:
         simulator.Solve();
 
         /*
-         * Now we have run the simulation to a steady state we select a cell to become mutant.
-         *
-         *  EMPTYLINE
-         *
-         * First we re set the end time to some later time.
-         */
-        simulator.SetEndTime(20);
-
-        /*
-         * Now we select one of the cells and set the mutation state to {{{ApcTwoHitCellMutationState}}} (i.e. p_state).
+         * Now we have run the simulation to a steady state (where the initial regular configuration is lost) we select a cell to become mutant.
+         * We select one of the cells and set the mutation state to {{{ApcTwoHitCellMutationState}}} (i.e. p_state).
          */
         for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
                                                  cell_iter != cell_population.End();
@@ -212,6 +199,10 @@ public:
 
         // Change the drag on the mutant cell
         cell_population.SetDampingConstantMutant(10*cell_population.GetDampingConstantNormal());
+
+       /* Next we re set the end time to some later time.
+        */
+       simulator.SetEndTime(20);
 
         /* Solve to new end time */
         simulator.Solve();
