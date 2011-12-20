@@ -268,10 +268,10 @@ public:
         simulator.Solve();
 
         // Check the number of cells
-        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 4u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 3u);
 
         // Test no deaths and some births
-        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 3u);
+        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 2u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
     }
 
@@ -447,10 +447,10 @@ public:
         simulator.Solve();
 
         // Check the number of cells
-        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 4u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 3u);
 
         // Test no deaths and some births
-        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 3u);
+        TS_ASSERT_EQUALS(simulator.GetNumBirths(), 2u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
     }
 
@@ -553,15 +553,15 @@ public:
         // Check some results
         PottsElement<2>* element_0 = static_cast <PottsBasedCellPopulation<2>*>(&simulator.rGetCellPopulation())->GetElement(0u);
         TS_ASSERT_EQUALS(element_0->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 47u);
-        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 58u);
-        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 34u);
+        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 24u);
+        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 32u);
 
         PottsElement<2>* element_1 = static_cast <PottsBasedCellPopulation<2>*>(&simulator.rGetCellPopulation())->GetElement(1u);
         TS_ASSERT_EQUALS(element_1->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 55u);
-        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 77u);
-        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 84u);
+        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 46u);
+        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 69u);
+        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 25u);
     }
 
     void TestSave() throw (Exception)
@@ -616,18 +616,18 @@ public:
         p_simulator2->SetEndTime(20.0);
         p_simulator2->Solve();
 
-        // These results are from time 20.0 in TestStandardResultForArchivingTestBelow()
+        // These results are from time 20.0 in TestStandardResultForArchivingTestsBelow()
         PottsElement<2>* element_0 = static_cast <PottsBasedCellPopulation<2>*>(&p_simulator2->rGetCellPopulation())->GetElement(0u);
         TS_ASSERT_EQUALS(element_0->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 47u);
-        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 58u);
-        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 17u);
+        TS_ASSERT_EQUALS(element_0->GetNode(0)->GetIndex(), 34u);
+        TS_ASSERT_EQUALS(element_0->GetNode(8)->GetIndex(), 24u);
+        TS_ASSERT_EQUALS(element_0->GetNode(15)->GetIndex(), 32u);
 
         PottsElement<2>* element_1 = static_cast <PottsBasedCellPopulation<2>*>(&p_simulator2->rGetCellPopulation())->GetElement(1u);
         TS_ASSERT_EQUALS(element_1->GetNumNodes(), 16u);
-        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 55u);
-        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 77u);
-        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 84u);
+        TS_ASSERT_EQUALS(element_1->GetNode(0)->GetIndex(), 46u);
+        TS_ASSERT_EQUALS(element_1->GetNode(8)->GetIndex(), 69u);
+        TS_ASSERT_EQUALS(element_1->GetNode(15)->GetIndex(), 25u);
 
         // Tidy up
         delete p_simulator1;

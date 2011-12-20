@@ -614,12 +614,12 @@ public:
 
         // Test the locations of a few nodes
         std::vector<double> node_4_location = simulator.GetNodeLocation(4);
-        TS_ASSERT_DELTA(node_4_location[0], 0.0009, 1e-4);
-        TS_ASSERT_DELTA(node_4_location[1], 0.0699, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[0], 3.9998, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], 0.0681, 1e-4);
 
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 1.0, 1e-3);
-        TS_ASSERT_DELTA(node_5_location[1], 0.0704, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[1], 0.0681, 1e-4);
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
@@ -763,12 +763,12 @@ public:
 
         // Test the locations of a few nodes
         std::vector<double> node_4_location = p_simulator2->GetNodeLocation(4);
-        TS_ASSERT_DELTA(node_4_location[0], 0.0009, 1e-4);
-        TS_ASSERT_DELTA(node_4_location[1], 0.0699, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[0], 3.9998, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], 0.0681, 1e-4);
 
         std::vector<double> node_5_location = p_simulator2->GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 1.0, 1e-3);
-        TS_ASSERT_DELTA(node_5_location[1], 0.0704, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[1], 0.0681, 1e-4);
 
         // Test Wnt concentration was set up correctly
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), true);

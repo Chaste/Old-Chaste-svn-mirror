@@ -75,7 +75,7 @@ void StochasticDurationCellCycleModel::SetG1Duration()
     switch (mCellProliferativeType)
     {
         case STEM:
-            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf(); // U[0,2]mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf(); // U[0,2]
+            mG1Duration = GetStemCellG1Duration() + 2*p_gen->ranf(); // U[0,2]
             break;
         case TRANSIT:
             mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[0,2]

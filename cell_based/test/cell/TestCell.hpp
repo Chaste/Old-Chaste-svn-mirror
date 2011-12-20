@@ -459,6 +459,7 @@ public:
         CellPtr p_stochastic_differentiated_cell(new Cell(p_healthy_state, p_stoch_diff_model));
         p_stochastic_differentiated_cell->InitialiseCellCycleModel();
 
+
         FixedDurationGenerationBasedCellCycleModel* p_transit_model = new FixedDurationGenerationBasedCellCycleModel();
         p_transit_model->SetCellProliferativeType(TRANSIT);
         p_transit_model->SetGeneration(2);
@@ -477,13 +478,19 @@ public:
 
         // SimulationTime = 24 hours
         TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), false);
-        TS_ASSERT_EQUALS(p_stochastic_stem_cell->ReadyToDivide(), true);
+        TS_ASSERT_EQUALS(p_stochastic_stem_cell->ReadyToDivide(), false);
 
         p_simulation_time->IncrementTimeOneStep();
 
         // SimulationTime = 30 hours
         TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), true);
+        TS_ASSERT_EQUALS(p_stochastic_stem_cell->ReadyToDivide(), false);
+
+        p_simulation_time->IncrementTimeOneStep();
+
+        // SimulationTime = 36 hours
         TS_ASSERT_EQUALS(p_stochastic_stem_cell->ReadyToDivide(), true);
+
 
         CellPtr p_daughter_cell1 = p_stem_cell->Divide();
         TS_ASSERT(typeid(p_daughter_cell1->GetCellCycleModel()) == typeid(p_stem_cell->GetCellCycleModel()));
@@ -636,8 +643,8 @@ public:
         differentiated_cell_mean=differentiated_cell_mean/(double) number_of_simulations;
 
         TS_ASSERT_DELTA(stem_cell_mean, 1.0, 1e-12);
-        TS_ASSERT_DELTA(transit_cell_mean, 6.84, 1.0);
-        TS_ASSERT_DELTA(differentiated_cell_mean, 16.0, 1.0);
+        TS_ASSERT_DELTA(transit_cell_mean, 2.0, 1.0);
+        TS_ASSERT_DELTA(differentiated_cell_mean, 8.0, 1.0);
     }
 
     void TestInitialise0DBucket()

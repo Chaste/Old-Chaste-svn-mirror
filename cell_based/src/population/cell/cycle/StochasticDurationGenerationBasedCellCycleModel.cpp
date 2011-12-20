@@ -76,10 +76,10 @@ void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
     switch (mCellProliferativeType)
     {
         case STEM:
-            mG1Duration = 1 + 4*p_gen->ranf(); // U[1,5] according to Meineke
+            mG1Duration = GetStemCellG1Duration() + 4*p_gen->ranf(); // U[14,18] for default parameters (mStemCellG1Duration) according to Meineke
             break;
         case TRANSIT:
-            mG1Duration = 1 + 2*p_gen->ranf(); // U[1,3] according to Meineke
+            mG1Duration = GetTransitCellG1Duration() + 2*p_gen->ranf(); // U[4,6] for default parameters (mTransitG1CellDuration) according to Meineke
             break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;

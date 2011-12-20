@@ -184,7 +184,7 @@ public:
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            cells.push_back(temp_cells[location_indices[i]]);
+        	cells.push_back(temp_cells[location_indices[i]]);
         }
 
         // Create cell population
@@ -263,7 +263,7 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(counter, 15u);
+        TS_ASSERT_EQUALS(counter, 17u);
 
         // Test that LabelAllCellsAsHealthy sets all cells back to be UNLABELLED wild type cells
         crypt_statistics.LabelAllCellsAsHealthy();
@@ -318,10 +318,10 @@ public:
         std::vector<bool> labelled = crypt_statistics.AreCryptSectionCellsLabelled(crypt_section);
 
         // Test that the vector of booleans corresponds with a visualisation of the data -
-        // only the third cell had been labelled
+        // only the first cell had been labelled
         for (unsigned vector_index=0; vector_index<labelled.size(); vector_index++)
         {
-            if (vector_index == 2u)
+            if (vector_index == 0u)
             {
                 TS_ASSERT_EQUALS(labelled[vector_index], true);
             }

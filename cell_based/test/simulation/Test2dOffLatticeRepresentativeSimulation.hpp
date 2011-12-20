@@ -71,6 +71,8 @@ public:
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(TRANSIT);
             p_model->SetMaxTransitGenerations(UINT_MAX);
+            p_model->SetTransitCellG1Duration(1.0);
+            p_model->SetStemCellG1Duration(1.0);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (  p_model->GetStemCellG1Duration()

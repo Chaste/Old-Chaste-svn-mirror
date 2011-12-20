@@ -45,8 +45,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
-#include "TysonNovakCellCycleModel.hpp"
 #include "SmartPointers.hpp"
 
 /*

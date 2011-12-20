@@ -225,6 +225,9 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
+            // Do this here due to fixing #1972 and not wanting to change saved results
+            p_model->SetStemCellG1Duration(1.0);
+            p_model->SetTransitCellG1Duration(1.0);
 
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
@@ -353,6 +356,7 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+
             CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
@@ -376,6 +380,11 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
+
+            // Do this here due to fixing #1972 and not wanting to change saved results
+			p_model->SetStemCellG1Duration(1.0);
+			p_model->SetTransitCellG1Duration(1.0);
+
 
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);

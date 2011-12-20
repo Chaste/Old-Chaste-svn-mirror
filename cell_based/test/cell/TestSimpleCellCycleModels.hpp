@@ -169,13 +169,13 @@ public:
         p_stem_model->SetCellProliferativeType(STEM);
 
         // Change G1 Duration for this model
-        p_stem_model->SetStemCellG1Duration(8.0);
+        p_stem_model->SetStemCellG1Duration(1.0);
 
         StochasticDurationGenerationBasedCellCycleModel* p_transit_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_transit_model->SetCellProliferativeType(TRANSIT);
 
         // Change G1 Duration for this model
-        p_stem_model->SetTransitCellG1Duration(8.0);
+        p_transit_model->SetTransitCellG1Duration(1.0);
 
         StochasticDurationGenerationBasedCellCycleModel* p_diff_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
@@ -210,6 +210,8 @@ public:
 
         StochasticDurationGenerationBasedCellCycleModel* p_hepa_one_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_hepa_one_model->SetCellProliferativeType(STEM);
+        // Change G1 Duration for this model
+        p_hepa_one_model->SetStemCellG1Duration(1.0);
 
         CellPtr p_hepa_one_cell(new Cell(p_healthy_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
@@ -876,6 +878,7 @@ public:
             AbstractCellCycleModel* const p_model = new StochasticDurationGenerationBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
+            p_model->SetTransitCellG1Duration(1.0);
 
             static_cast<StochasticDurationGenerationBasedCellCycleModel*>(p_model)->SetG1Duration();
             TS_ASSERT_DELTA(p_model->GetG1Duration(), 2.6803, 1e-4);

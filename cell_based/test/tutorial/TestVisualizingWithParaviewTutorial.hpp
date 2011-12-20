@@ -68,7 +68,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered each of these header files in previous cell-based
  * Chaste tutorials. */
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "StochasticDurationCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
@@ -110,9 +110,8 @@ public:
         MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+        	StochasticDurationCellCycleModel* p_model = new StochasticDurationCellCycleModel();
             p_model->SetCellProliferativeType(TRANSIT);
-            p_model->SetMaxTransitGenerations(UINT_MAX);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()* (p_model->GetStemCellG1Duration() + p_model->GetSG2MDuration() );
 
