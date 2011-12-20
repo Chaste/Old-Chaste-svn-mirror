@@ -62,14 +62,14 @@ public:
         p_stem_model->SetDimension(2);
 
         // Change G1 duration for this model
-        p_stem_model->SetStemCellG1Duration(8.0);
+        p_stem_model->SetStemCellG1Duration(1.0);
 
         DeltaNotchCellCycleModel* p_transit_model = new DeltaNotchCellCycleModel;
         p_transit_model->SetCellProliferativeType(TRANSIT);
         p_transit_model->SetDimension(3);
 
         // Change G1 duration for this model
-        p_stem_model->SetTransitCellG1Duration(8.0);
+        p_stem_model->SetTransitCellG1Duration(1.0);
 
         DeltaNotchCellCycleModel* p_diff_model = new DeltaNotchCellCycleModel;
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
@@ -97,7 +97,7 @@ public:
 
             // The numbers for the G1 durations below are taken from the first three random numbers generated
             CheckReadyToDivideAndPhaseIsUpdated(p_stem_model, 4.36075);
-            CheckReadyToDivideAndPhaseIsUpdated(p_transit_model, 1.78877);
+            CheckReadyToDivideAndPhaseIsUpdated(p_transit_model, 2.78877);
             CheckReadyToDivideAndPhaseIsUpdated(p_diff_model, 132);  // any old number
         }
 
