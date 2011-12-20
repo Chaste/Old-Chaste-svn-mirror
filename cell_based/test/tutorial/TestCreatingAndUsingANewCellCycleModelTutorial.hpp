@@ -51,14 +51,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
+#include "CheckpointArchiveTypes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
-/* The next two headers are used in archiving, and only need to be included
- * if we wish to be able to archive (save or load) the new cell-cycle model object
- * in a cell-based simulation (in this case, these headers must be included before
- * any other serialization headers). */
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 
 /* The next header includes the Boost shared_ptr smart pointer, and defines some useful
  * macros to save typing when using it. */
