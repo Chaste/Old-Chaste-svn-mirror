@@ -119,7 +119,8 @@ public:
          * incorporates a Delta/Notch ODE system. In this example we choose to make each cell differentiated, 
          * so that no cell division occurs. */
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
             DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();
@@ -208,7 +209,7 @@ public:
         p_mesh->ConstructNodesWithoutMesh(*p_generating_mesh);
 
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             DeltaNotchCellCycleModel* p_model = new DeltaNotchCellCycleModel();

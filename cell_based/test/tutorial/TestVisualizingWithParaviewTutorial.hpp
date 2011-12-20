@@ -107,7 +107,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<CellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();

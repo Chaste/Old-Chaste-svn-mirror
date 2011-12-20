@@ -62,6 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * header file and archiving headers.
  */
 #include <cxxtest/TestSuite.h>
+#include "AbstractCellBasedTestSuite.hpp"
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -251,9 +252,9 @@ CHASTE_CLASS_EXPORT(MyMotiveForce)
  *
  * == The Tests ==
  *
- * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+ * We now define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}.
  */
-class TestCreatingAndUsingANewCellPropertyTutorial : public CxxTest::TestSuite
+class TestCreatingAndUsingANewCellPropertyTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -271,7 +272,7 @@ public:
          * object (although strictly speaking, they are not required to). Observe that
          * in this case we have provided a value for the member variable {{{mColour}}}
          * in the {{{MotileCellProperty}}} constructor.*/
-        boost::shared_ptr<AbstractCellProperty> p_property(new MotileCellProperty(8));
+        MAKE_PTR_ARGS(MotileCellProperty, p_property, (8));
 
         /* Each cell property has a member variable, {{{mCellCount}}}, which
          * stores the number of cells with this cell property. We can test whether
@@ -335,9 +336,6 @@ public:
      */
     void TestOffLatticeSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
     {
-        /* We begin by setting up the start time, as follows. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* We use the {{{HoneycombMeshGenerator}}} to create a honeycomb mesh covering a
          * circular domain of given radius, and use this to generate a {{{NodesOnlyMesh}}}
          * as follows. */
@@ -355,7 +353,7 @@ public:
         MAKE_PTR(CellLabel, p_label);
 
         /* Next, we create some cells, as follows. */
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -415,10 +413,6 @@ public:
 
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
-
-        /* Finally, we call {{{Destroy()}}} on the singleton classes. */
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 };
 

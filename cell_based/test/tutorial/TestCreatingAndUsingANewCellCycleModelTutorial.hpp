@@ -49,8 +49,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * == Including header files ==
  *
- * We begin by including the necessary header file. */
+ * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The next two headers are used in archiving, and only need to be included
  * if we wish to be able to archive (save or load) the new cell-cycle model object
@@ -225,9 +226,9 @@ CHASTE_CLASS_EXPORT(MyCellCycleModel)
  *
  * === The Tests ===
  *
- * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+ * We now define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}.
  */
-class TestCreatingAndUsingANewCellCycleModelTutorial : public CxxTest::TestSuite
+class TestCreatingAndUsingANewCellCycleModelTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -238,14 +239,6 @@ public:
      */
     void TestMyCellCycleModel() throw(Exception)
     {
-        /* We must first set the start time. In addition, it is advisable to reset
-         * the values of all model parameters. Recall that {{{SimulationTime}}} is a
-         * ''singleton'' class; this means one and only
-         * one of each of this object is instantiated at any time, and that single
-         * object is accessible from anywhere in the code. As a result, we do not need
-         * to keep passing round the current time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
 
@@ -364,13 +357,6 @@ public:
             TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
         }
-
-        /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
-         * If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
-         * at the beginning of the next test in this file, an assertion will be triggered. */
-        SimulationTime::Destroy();
-        /* Also call {{{Destroy()}}} on the {{{RandomNumberGenerator}}} singleton class. */
-        RandomNumberGenerator::Destroy();
     }
 
     /*
@@ -381,9 +367,6 @@ public:
      */
     void TestOffLatticeSimulationWithMyCellCycleModel() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* We use the honeycomb mesh generator to create a honeycomb mesh covering a
          * circular domain of given radius.
          */
@@ -432,10 +415,6 @@ public:
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-        /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 };
 

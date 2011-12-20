@@ -62,6 +62,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
+
 /* The next header defines a base class for forces, from which the new class will inherit. */
 #include "AbstractForce.hpp"
 /* The remaining header files define classes that will be used in the cell population
@@ -183,9 +185,9 @@ CHASTE_CLASS_EXPORT(MyForce)
  *
  * EMPTYLINE
  *
- * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+ * We now define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}.
  */
-class TestCreatingAndUsingANewForceTutorial : public CxxTest::TestSuite
+class TestCreatingAndUsingANewForceTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -200,10 +202,7 @@ public:
      */
     void TestMyForce() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* We now create a {{{MeshBasedCellPopulation}}} using the helper
+        /* We first create a {{{MeshBasedCellPopulation}}} using the helper
          * classes {{{HoneycombMeshGenerator}}} and {{{CellsGenerator}}},
          * as in previous cell-based Chaste tutorials.
          */
@@ -267,9 +266,6 @@ public:
 
             delete p_force;
         }
-
-        /* We conclude the test by calling Destroy() on any singleton classes. */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -280,9 +276,6 @@ public:
      */
     void TestOffLatticeSimulationWithMyForce() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* Once again we create a {{{MeshBasedCellPopulation}}}. */
         HoneycombMeshGenerator generator(20, 20);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -306,9 +299,6 @@ public:
 
         /* We test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-        /* We conclude the test by calling {{{Destroy()}}} on any singleton classes. */
-        SimulationTime::Destroy();
     }
 };
 

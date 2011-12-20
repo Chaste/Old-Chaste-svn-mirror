@@ -61,6 +61,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * header file and archiving headers.
  */
 #include <cxxtest/TestSuite.h>
+#include "AbstractCellBasedTestSuite.hpp"
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -144,9 +145,9 @@ CHASTE_CLASS_EXPORT(P53GainOfFunctionCellMutationState)
  *
  * EMPTYLINE
  *
- * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+ * We now define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}.
  */
-class TestCreatingAndUsingANewCellMutationStateTutorial : public CxxTest::TestSuite
+class TestCreatingAndUsingANewCellMutationStateTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -240,9 +241,6 @@ public:
      */
     void TestOffLatticeSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
     {
-        /* The first thing to do, as before, is to set up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* We use the {{{HoneycombMeshGenerator}}} to create a honeycomb mesh covering a
          * circular domain of given radius, as follows. */
         HoneycombMeshGenerator generator(10, 10);
@@ -274,10 +272,6 @@ public:
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-        /* Finally, we call {{{Destroy()}}} on the singleton classes. */
-        SimulationTime::Destroy();
-        RandomNumberGenerator::Destroy();
     }
 };
 

@@ -54,6 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * header file and archiving headers.
  */
 #include <cxxtest/TestSuite.h>
+#include "AbstractCellBasedTestSuite.hpp"
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -180,9 +181,9 @@ namespace boost
  *
  * === The Tests ===
  *
- * We now define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+ * We now define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}.
  */
-class TestCreatingAndUsingANewCellKillerTutorial : public CxxTest::TestSuite
+class TestCreatingAndUsingANewCellKillerTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -193,9 +194,6 @@ public:
      */
     void TestMyCellKiller() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -278,9 +276,6 @@ public:
             input_arch >> p_cell_killer;
             delete p_cell_killer;
         }
-
-        /* We conclude the test by calling {{{Destroy()}}} on any singleton classes. */
-        SimulationTime::Destroy();
     }
 
     /*
@@ -292,8 +287,6 @@ public:
     void TestOffLatticeSimulationWithMyCellKiller() throw(Exception)
     {
         /* We proceed as before, creating a mesh-based cell population. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         HoneycombMeshGenerator generator(20, 20, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
@@ -324,9 +317,6 @@ public:
 
         /* Test that the Solve() method does not throw any exceptions. */
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-
-        /* We conclude the test by calling {{{Destroy()}}} on any singleton classes. */
-        SimulationTime::Destroy();
     }
 };
 

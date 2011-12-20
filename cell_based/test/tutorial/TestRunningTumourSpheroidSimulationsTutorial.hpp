@@ -149,7 +149,7 @@ public:
          * This line defines a mutation state to be used for all cells, of type
          * `WildTypeCellMutationState` (i.e. 'healthy'):
          */
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        MAKE_PTR(WildTypeCellMutationState, p_state);
 
         /*
          * Now we loop over the nodes...
