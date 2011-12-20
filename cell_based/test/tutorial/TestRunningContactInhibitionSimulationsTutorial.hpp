@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-#ifndef TESTUSINGCONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_
-#define TESTUSINGCONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_
+#ifndef TESTRUNNIGCONTACTINHIBITIONSIMULATIONSTUTORIAL_HPP_
+#define TESTRUNNIGCONTACTINHIBITIONSIMULATIONSTUTORIAL_HPP_
 
 /*
  * = An example showing how to use the contact inhibition cell cycle model (with the contact inhibition simulator) =
@@ -58,6 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * We begin by including the necessary header files. */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* These two headers need to be includes here to ensure archiving of {{{CelwiseData}}} works on all Boost versions*/
 #include <boost/archive/text_oarchive.hpp>
@@ -102,8 +103,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableVertexMesh.hpp"
 #include "PlaneBoundaryCondition.hpp"
 
-/* We first define the global test class that inherits from {{{CxxTest::TestSuite}}}. */
-class TestUsingContactInhibitionCellCycleModelTutorial : public CxxTest::TestSuite
+/* We first define the global test class that inherits from {{{AbstractCellBasedTestSuite}}}. */
+class TestRunningContactInhibitionSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /*
@@ -114,15 +115,6 @@ public:
      */
     void TestContactInhibitionInBox()
     {
-        /* We must first set the start time. In addition, it is advisable to reset
-         * the values of all model parameters. Recall that {{{SimulationTime}}} is
-         * a ''singleton'' class; this means one and only one of each of this object
-         * is instantiated at any time, and that single object is accessible from
-         * anywhere in the code. As a result, we do not need to keep passing around
-         * the present time. */
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
         /* We use the honeycomb mesh generator to create a honeycomb mesh and
          * the associated mutable mesh. */
         HoneycombMeshGenerator generator(3, 3);
@@ -255,10 +247,6 @@ public:
      */
     void TestContactInhibitionInBoxWithMutants()
     {
-        /* Set up SimulationTime. */
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
         /* Create a simple mesh. */
         HoneycombMeshGenerator generator(3, 3);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
@@ -394,10 +382,6 @@ public:
 	 */
 	void TestContactInhibitionWithVertex()
 	{
-        /* Set up SimulationTime. */
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetStartTime(0.0);
-
 		// Create a simple 2D MutableVertexMesh.
 		HoneycombVertexMeshGenerator generator(2, 2);
 		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
@@ -482,4 +466,4 @@ public:
      */
 
 };
-#endif /*TESTUSINGCONTACTINHIBITIONCELLCYCLEMODELTUTORIAL_HPP_*/
+#endif /*TESTRUNNIGCONTACTINHIBITIONSIMULATIONSTUTORIAL_HPP_*/

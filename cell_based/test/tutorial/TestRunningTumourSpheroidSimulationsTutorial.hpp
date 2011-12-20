@@ -65,12 +65,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * As in the crypt simulation tutorial, we begin by including the necessary header files. We have
+ * As in the other cell-based simulation tutorials, we begin by including the necessary header files. We have
  * encountered some of these files already. Recall that often {{{CheckpointArchiveTypes.hpp}}}
- * or {{{CellBasedSimulationArchiver.hpp}}} must be included the first Chaste header.
+ * or {{{CellBasedSimulationArchiver.hpp}}} must be included as the first Chaste header.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "RandomNumberGenerator.hpp"
@@ -114,7 +115,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * Having included all the necessary header files, we proceed by defining the test class.
  */
-class TestRunningTumourSpheroidSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningTumourSpheroidSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     void TestSpheroidTutorial() throw(Exception)
@@ -126,12 +127,7 @@ public:
         EXIT_IF_PARALLEL;
 
         /*
-         * The first thing to do, as before, is to set up the start time.
-         */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /*
-         * Now we want to create a '''non-periodic''' 'honeycomb' mesh.
+         * First we want to create a '''non-periodic''' 'honeycomb' mesh.
          * We use the honeycomb mesh generator, as before, saying 10 cells wide
          * and 10 cells high. Note that the thickness of the ghost nodes layer is
          * 0, i.e. there are no ghost nodes, and the {{{false}}} indicates that the
@@ -303,12 +299,21 @@ public:
         simulator.Solve();
 
         /*
-         * Finally, we call {{{Destroy()}}} on the singleton classes. The results
-         * can be visualized as in the crypt simulation tutorial.
+         * Finally, we call {{{Destroy()}}} on the singleton {{{CellwiseData}}} class.
          */
-        SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
     }
+    /*
+     * EMPTYLINE
+     *
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/SpheroidTutorial/results_from_time_0}}}.
+     *
+     * Or use Paraview.
+     *
+     * EMPTYLINE
+     */
+
 };
 
 #endif /*TESTRUNNINGTUMOURSPHEROIDSIMULATIONSTUTORIAL_HPP_*/

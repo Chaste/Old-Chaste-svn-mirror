@@ -70,6 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "NodeBasedCellPopulation.hpp"
@@ -94,7 +95,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* Having included all the necessary header files, we proceed by defining the test class.
  */
-class TestRunningDeltaNotchSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningDeltaNotchSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
 
@@ -110,9 +111,6 @@ public:
      */
     void TestVertexBasedMonolayerWithDeltaNotch() throw (Exception)
     {
-        /* The first thing to do, as usual, is to set up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* First we create a regular vertex mesh. */
         HoneycombVertexMeshGenerator generator(5, 5);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
@@ -180,7 +178,6 @@ public:
 
         /* Finally, as before, we call {{{Destroy()}}} on any singleton classes. */
         CellwiseData<2>::Destroy();
-        SimulationTime::Destroy();
     }
 
     /*
@@ -205,8 +202,6 @@ public:
          * Most of the code in this test is the same as in the previous test, 
          * except we now create a 'nodes-only mesh' and {{{NodeBasedCellPopulation}}}.
          */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         HoneycombMeshGenerator generator(5, 5);
         MutableMesh<2,2>* p_generating_mesh = generator.GetMesh();
         NodesOnlyMesh<2>* p_mesh = new NodesOnlyMesh<2>;
@@ -265,7 +260,6 @@ public:
 
         /* Finally, as before, we call {{{Destroy()}}} on any singleton classes. */
         CellwiseData<2>::Destroy();
-        SimulationTime::Destroy();
 
         /* To avoid memory leaks, we also delete any pointers we created in the test. */
         delete p_mesh;

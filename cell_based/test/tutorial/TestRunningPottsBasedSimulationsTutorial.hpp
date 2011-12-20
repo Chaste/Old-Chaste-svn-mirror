@@ -60,6 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered some of these header files in previous cell-based
@@ -80,10 +81,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DifferentialAdhesionPottsUpdateRule.hpp"
 
 /*
- * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
+ * Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
  */
-class TestRunningPottsBasedSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningPottsBasedSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
@@ -97,10 +98,7 @@ public:
      */
     void TestMonolayer() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
+        /* First, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
          * the {{{PottsMeshGenerator}}}. This generates a regular square-shaped mesh,
          * in which all elements are the same size.
          *
@@ -216,10 +214,7 @@ public:
      */
     void TestPottsMonolayerCellSorting() throw (Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
+        /* First, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
          * the {{{PottsMeshGenerator}}}. This generates a regular square-shaped mesh,
          * in which all elements are the same size.
          *
@@ -314,10 +309,7 @@ public:
      */
     void TestPottsSpheroidCellSorting() throw (Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
+        /* First, we generate a Potts mesh. To create a {{{PottsMesh}}}, we can use
          * the {{{PottsMeshGenerator}}}. This generates a regular square-shaped mesh,
          * in which all elements are the same size.
          *

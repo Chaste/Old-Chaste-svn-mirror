@@ -63,6 +63,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered each of these header files in previous cell-based
@@ -79,10 +80,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OffLatticeSimulation.hpp"
 #include "SmartPointers.hpp"
 
-/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
+/* Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
  */
-class TestVisualizingWithParaviewTutorial : public CxxTest::TestSuite
+class TestVisualizingWithParaviewTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
@@ -94,11 +95,8 @@ public:
      * In the first test, we run a simple cell-based simulation, in which we use
      * a honeycomb mesh with ghost nodes, and give each cell a stochastic cell-cycle model.
      */
-    void Test2DMonolayerSimulationForVisualizing() throw (Exception)
+    void Test2DMeshBasedMonolayerSimulationForVisualizing() throw (Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* In a similar way to previous cell-based Chaste tutorials,
          * we create a mesh-based cell population in which cells are defined by their centres,
          * and cell proliferation is governed by a stochastic generation-based cell-cycle model
@@ -194,11 +192,8 @@ public:
     * Here, we run a simple vertex-based simulation, in which we create a monolayer
     * of cells using a mutable vertex mesh. Each cell is assigned a fixed cell-cycle model.
     */
-    void TestMonolayerFixedCellCycle() throw(Exception)
+    void Test2DVertexBasedMonolayerSimulationForVisualizing() throw(Exception)
     {
-        /* First re-initialize time to zero. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
         /* In this test, we create a vertex-based cell population in which cells are defined
          * by their vertices, and cell proliferation is governed by a fixed generation-based
          * cell-cycle model (with differentiation after a default number of generations).

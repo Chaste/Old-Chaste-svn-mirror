@@ -104,7 +104,8 @@ public:
      */
     void TestMonolayer() throw(Exception)
     {
-        /* As in most cell-based Chaste tutorials, we begin by setting up the start time. */
+        /* As in all cell-based Chaste tests, we begin by setting up the start time.
+         * In later tutorials (UserTutorials/RunningNodeBasedSimulations) you will see a way to do this automatically.*/
         SimulationTime::Instance()->SetStartTime(0.0);
 
         /* Next, we generate a mutable mesh. To create a {{{MutableMesh}}}, we can use

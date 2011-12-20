@@ -94,7 +94,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /*
  * Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods. We are using {{{AbstractCellBasedTestSuite}}} instead of {{{CxxTest::TestSuite}}} as this
- * handles some of the set up for us, details are given in later tutorials. '''GIVE LINK'''
+ * handles some of the set up for us, details are given in later tutorials,
+ * UserTutorials/RunningMeshBasedSimulations and UserTutorials/RunningNodeBasedSimulations.
  */
 class TestCellBasedDemoTutorial : public AbstractCellBasedTestSuite
 {

@@ -60,6 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We have encountered some of these header files in previous cell-based
@@ -86,10 +87,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header file defines a cell killer, which specifies how cells are removed from the simulation.*/
 #include "PlaneBasedCellKiller.hpp"
 
-/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
+/* Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
  */
-class TestRunningVertexBasedSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
@@ -103,10 +104,7 @@ public:
     */
     void TestMonolayer() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
+        /* First, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
         * the {{{HoneycombVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
         * in which all nodes are equidistant. Here the first and second arguments
         * define the size of the mesh - we have chosen a mesh that is 2 elements (i.e.
@@ -190,10 +188,7 @@ public:
     */
     void TestPeriodicMonolayer() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a vertex mesh. To create a {{{Cylindrical2dVertexMesh}}}, we can use
+        /* First, we generate a vertex mesh. To create a {{{Cylindrical2dVertexMesh}}}, we can use
          * the {{{CylindricalHoneycombVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
          * in which all nodes are equidistant and the right hand side is associated with the left hand side.
          * Here the first and second arguments define the size of the mesh - we have chosen a mesh that

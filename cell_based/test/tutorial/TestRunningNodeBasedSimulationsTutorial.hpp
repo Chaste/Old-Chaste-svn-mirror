@@ -56,10 +56,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * As in previous cell-based Chaste tutorials, we begin by including the necessary header files.
+ * As in previous cell-based Chaste tutorials (UserTutorials/RunningMeshBasedSimulations), we begin by including the necessary header files.
  */
 #include <cxxtest/TestSuite.h>
 #include "CheckpointArchiveTypes.hpp"
+
+/* The following header is usually included in all cell-based test suites. It enables us to write tests where the {{{SimulationTime}}} is handled automatically and simplifies the code.*/
+#include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
  * simulation test. We encountered some of these header files in 
@@ -76,9 +79,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NodeBasedCellPopulation.hpp"
 /* The next header file defines a boundary condition to be used in the third test.*/
 #include "SphereGeometryBoundaryCondition.hpp"
-/* Next, we define the test class.
+/* Next, we define the test class. This time we inherit from {{{AbstractCellBasedTestSuite}}} rather than {{{CxxTest::TestSuite}}}.
+ * When using this class the singleton objects are set up and destroyed for us:
+ * {{{SimulationTime}}} is initialised to zero at the beginning of the test and destroyed at the end;
+ * {{{RandomNumberGenerator}}} is re seeded with zero at the begining and destroyed at the end; and
+ * {{{CellPropertyRegistry}}} (which stores {{{CellProperties}}}, you learn about these in a later tutorial UserTutorials/CreatingAndUsingANewCellProperty)  is cleared at the beginning of the test.
+ * This makes for cleaner code.
  */
-class TestRunningNodeBasedSimulationsTutorial : public CxxTest::TestSuite
+class TestRunningNodeBasedSimulationsTutorial : public AbstractCellBasedTestSuite
 {
 public:
     /* EMPTYLINE
@@ -92,10 +100,8 @@ public:
      */
     void TestMonolayer() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a nodes only mesh. To do this we first create a {{{MutableMesh}}}
+        /* We no longer need to set up the start time as this is fone in the {{{AbstractCellBasedTestSuite}}}.
+         * The first thing we do is generate a nodes only mesh. To do this we first create a {{{MutableMesh}}}
          * to use as a generating mesh.
          * To do this we can use the {{{HoneycombMeshGenerator}}}. This generates a honeycomb-shaped mesh,
          * in which all nodes are equidistant. Here the first and second arguments
@@ -179,10 +185,8 @@ public:
      */
     void TestSpheroid() throw(Exception)
     {
-        /* As in previous cell-based Chaste tutorials, we begin by setting up the start time. */
-        SimulationTime::Instance()->SetStartTime(0.0);
-
-        /* Next, we generate a nodes only mesh. This time we specify the nodes manually by first
+        /*
+         * First, we generate a nodes only mesh. This time we specify the nodes manually by first
          * creating a vector of nodes. */
         std::vector<Node<3>*> nodes;
         /* We then create some nodes to add to this vector. */
@@ -250,11 +254,10 @@ public:
     void TestOnSurfaceOfSphere() throw(Exception)
     {
         /*
-         * We begin with exactly the same code as the previous test: we set up {{{SimulationTime}}}, 
-         * create a cell population from a mesh and vector of cells, and use this in turn to create 
+         * We begin with exactly the same code as the previous test: we create a cell population
+         * from a mesh and vector of cells, and use this in turn to create
          * a simulation object.
          */
-        SimulationTime::Instance()->SetStartTime(0.0);
 
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0u,  false,  0.5, 0.0, 0.0));
