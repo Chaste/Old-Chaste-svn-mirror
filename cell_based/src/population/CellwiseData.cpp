@@ -108,7 +108,7 @@ void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopulation)
 {
-    if (dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(mpCellPopulation))
+    if (dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(pCellPopulation))
     {
     	EXCEPTION("CellwiseData does not work with ghost nodes.");
     }

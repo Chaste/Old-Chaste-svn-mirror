@@ -54,7 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * mutation states, cells may be given much more general properties, using the cell
  * property class hierarchy. In this tutorial, we show how to create a new cell property
  * class, and how this can be used in a cell-based simulation. We will also use a simple
- * new force to illustrate what you can do with cell properties (and mutations).
+ * new force to illustrate what you can do with cell properties (and also mutations).
  *
  * == 1. Including header files ==
  *
@@ -71,7 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header defines a base class for cell properties. Our new
  * cell property will inherit from this abstract class. */
 #include "AbstractCellProperty.hpp"
-/* The remaining header files define classes that will be used in the cell population
+/* The remaining header files define classes that will be used in the cell-based
  * simulation test. We have encountered each of these header files in previous cell-based
  * Chaste tutorials. */
 #include "AbstractForce.hpp"
@@ -218,7 +218,7 @@ public:
         }
     }
 
-    /* Just as we encountered in UserTutorials/CreatingAndUsingANewCellKiller, here we must override
+    /* Just as we encountered in [wiki:UserTutorials/CreatingAndUsingANewCellKiller], here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
      * In our case, we output the member variable {{{mStrength}}}, then call the method on the base class.
      */
@@ -335,7 +335,7 @@ public:
      * We conclude with a brief test demonstrating how {{{MotileCellProperty}}} can be used
      * in a cell-based simulation.
      */
-    void TestOffLatticeSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
+    void TestOffLatticeSimulationWithMotileCellProperty() throw(Exception)
     {
         /* We use the {{{HoneycombMeshGenerator}}} to create a honeycomb mesh covering a
          * circular domain of given radius, and use this to generate a {{{NodesOnlyMesh}}}
@@ -353,7 +353,7 @@ public:
          */
         MAKE_PTR(CellLabel, p_label);
 
-        /* Next, we create some cells. We dont use a Gnereator as we want to give some cells the new cell property, therefore
+        /* Next, we create some cells. We don't use a Generator as we want to give some cells the new cell property, therefore
          * we create the cells in a loop, as follows.*/
         MAKE_PTR(WildTypeCellMutationState, p_state);
         std::vector<CellPtr> cells;
@@ -400,7 +400,7 @@ public:
         /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("NodeBasedMonlayerWithMotileCellProperty");
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithMotileCellProperty");
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(10.0);
 
@@ -421,7 +421,9 @@ public:
     }
     /*
      * When you visualise the results with
-     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/NodeBasedMonlayerWithMotileCellProperty/results_from_time_0}}}
+     *
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestOffLatticeSimulationWithMotileCellProperty/results_from_time_0}}}
+     *
      * you should see a collection of cells with the cell property (labelled dark blue) moving towards the origin.     *
      */
 };

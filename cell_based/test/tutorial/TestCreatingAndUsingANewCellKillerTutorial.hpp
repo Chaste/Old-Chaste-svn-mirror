@@ -63,7 +63,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header defines a base class for cell killers, from which the new
  * cell killer class will inherit. */
 #include "AbstractCellKiller.hpp"
-/* The remaining header files define classes that will be used in the cell population
+/* The remaining header files define classes that will be used in the cell-based
  * simulation test. We have encountered each of these header files in previous cell-based
  * Chaste tutorials. */
 #include "HoneycombMeshGenerator.hpp"
@@ -135,7 +135,7 @@ public:
 
 };
 
-/* As mentioned in the cell-cycle model tutorial, we need to include the next block
+/* As mentioned in [wiki:UserTutorials/CreatingAndUsingANewCellCycleModel], we need to include the next block
  * of code to be able to archive the cell killer object in a cell-based
  * simulation, and to obtain a unique identifier for our new cell killer for writing
  * results to file.
@@ -319,6 +319,14 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
     }
+    /*
+     * When you visualise the results with
+     *
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestOffLatticeSimulationWithMyCellKiller/results_from_time_0}}}
+     *
+     * you should see that once cells move out of the ellipse they are removed from the simulation.
+     *
+     */
 };
 
 #endif /*TESTCREATINGANDUSINGANEWCELLKILLERTUTORIAL_HPP_*/

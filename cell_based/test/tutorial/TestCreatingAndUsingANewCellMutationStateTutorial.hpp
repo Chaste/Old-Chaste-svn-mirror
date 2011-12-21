@@ -70,7 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header defines a base class for cell mutation states. Our new
  * cell mutation state will inherit from this abstract class. */
 #include "AbstractCellMutationState.hpp"
-/* The remaining header files define classes that will be used in the cell population
+/* The remaining header files define classes that will be used in the cell-based
  * simulation test. We have encountered each of these header files in previous cell-based
  * Chaste tutorials. */
 #include "HoneycombMeshGenerator.hpp"
@@ -269,7 +269,7 @@ public:
         /* We then pass in the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory, output multiple, and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("MeshBasedMonlayerWithNewMutation");
+        simulator.SetOutputDirectory("TestOffLatticeSimulationWithNewMutationState");
         simulator.SetSamplingTimestepMultiple(12);
         simulator.SetEndTime(10.0);
 
@@ -283,7 +283,9 @@ public:
     }
     /*
      * When you visualise the results with
-     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/MeshBasedMonolayerWithNewMutation/results_from_time_0}}}
+     *
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestOffLatticeSimulationWithNewMutationState/results_from_time_0}}}
+     *
      * you should see two cells in black which are the cells with the new mutation. If we want these cells to behave differently we
      * would need to write an new {{{CellCycleModel}}}, {{{CellKiller}}}, {{{Force}}}, or {{{CellPopulationBoundaryCondition}}}
      * which checks for the new mutation.

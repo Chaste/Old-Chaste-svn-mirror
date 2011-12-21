@@ -66,7 +66,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header defines a base class for cell population boundary conditions,
  * from which the new class will inherit. */
 #include "AbstractCellPopulationBoundaryCondition.hpp"
-/* The remaining header files define classes that will be used in the cell population
+/* The remaining header files define classes that will be used in the cell-based
  * simulation test. You will have encountered some these files already in previous
  * cell-based Chaste tutorials. */
 #include "OffLatticeSimulation.hpp"
@@ -174,7 +174,7 @@ public:
         return condition_satisfied;
     }
 
-    /* Just as we encountered in the cell killer tutorial, here we must override
+    /* Just as we encountered in [wiki:UserTutorials/CreatingAndUsingANewCellKiller], here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
      * In our case, there are no parameters, so we simply call the method on the base class.
      * Nonetheless, we still need to override the method, since it is pure virtual in the base
@@ -252,7 +252,7 @@ public:
          * classes {{{HoneycombMeshGenerator}}} and {{{CellsGenerator}}},
          * as in previous cell-based Chaste tutorials.
          */
-        HoneycombMeshGenerator generator(7, 7, 0);
+        HoneycombMeshGenerator generator(7, 7);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<CellPtr> cells;
@@ -320,7 +320,7 @@ public:
     void TestOffLatticeSimulationWithMyBoundaryCondition() throw(Exception)
     {
         /* Once again we create a {{{MeshBasedCellPopulation}}}. */
-        HoneycombMeshGenerator generator(20, 20, 0);
+        HoneycombMeshGenerator generator(7, 7, 0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<CellPtr> cells;
@@ -350,6 +350,14 @@ public:
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
     }
+    /*
+     * When you visualise the results with
+     *
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestOffLatticeSimulationWithMyBoundaryCondition/results_from_time_0}}}
+     *
+     * you should see that cells are restricted to the domain 0 <= y <= 5.
+     *
+     */
 };
 
 #endif /*TESTCREATINGANDUSINGANEWCELLPOPULATIONBOUNDARYCONDITIONTUTORIAL_HPP_*/

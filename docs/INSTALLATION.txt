@@ -156,7 +156,12 @@ Note: From Release 1.1 installation of triangle is not required.
 
 =============== VTK =====================
 
-VTK installation is optional.  If you wish to produce VTK output for a visualizer such as Paraview or Mayavi2 then you will need to install the VTK development libraries.  If you have a root/priviledged access then it is easy to install 
+VTK installation is now recommended.  
+If you do not wish to install VTK then you should turn off that option in python/hostconfig/default.py:
+    # use_vtk defaults to True. Change to False if VTK development libraries are not available.
+    use_vtk = int(prefs.get('use-vtk', True))
+
+If you wish to produce VTK output for a visualizer such as Paraview or Mayavi2 then you will need to install the VTK development libraries.  If you have a root/privileged access then it is easy to install 
 the libvtk5-dev with
 sudo aptitude install libvtk5-dev #(Ubuntu/Debian)
 sudo yum install vtk-devel             #(Fedora/RedHat)

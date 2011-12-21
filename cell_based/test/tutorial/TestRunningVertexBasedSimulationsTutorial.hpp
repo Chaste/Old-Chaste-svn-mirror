@@ -132,7 +132,7 @@ public:
          * and set the output directory and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("VertexBasedMonolayer");
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         /*
          * For longer simulations, we may not want to output the results
@@ -204,7 +204,7 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("VertexBasedPeriodicMonolayer");
         simulator.SetSamplingTimestepMultiple(50);
-        simulator.SetEndTime(10.0);
+        simulator.SetEndTime(1.0);
 
         /* We now make a pointer to an appropriate force and pass it to the
          * {{{OffLatticeSimulation}}}.

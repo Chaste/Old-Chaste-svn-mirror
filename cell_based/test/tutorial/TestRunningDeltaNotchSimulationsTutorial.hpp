@@ -166,11 +166,11 @@ public:
         }
 
         /* We are now in a position to create and configure the cell-based simulation object, pass a force law to it, 
-         * and run the simulation. */
+         * and run the simulation. We can make the simulation run for longer to see more paterning by changing the end time. */
         DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexBasedMonolayerWithDeltaNotch");
         simulator.SetSamplingTimestepMultiple(10);
-        simulator.SetEndTime(5.0);
+        simulator.SetEndTime(1.0);
 
         MAKE_PTR(NagaiHondaForce<2>, p_force);
         simulator.AddForce(p_force);

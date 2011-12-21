@@ -104,8 +104,8 @@ def Configure(prefs, build):
     global use_cvode
     global use_vtk
     
-    # use_vtk defaults to false. Change to True if VTK development libraries are available.
-    use_vtk = int(prefs.get('use-vtk', False))
+    # use_vtk defaults to True. Change to False if VTK development libraries are not available.
+    use_vtk = int(prefs.get('use-vtk', True))
     
     # VTK is required for adaptivity to work, so if vtk is turned off, turn off adaptivity too.
     # See also https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallAdaptivityLibrary

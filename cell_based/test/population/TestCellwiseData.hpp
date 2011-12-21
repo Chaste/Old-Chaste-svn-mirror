@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "VertexBasedCellPopulation.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
+#include "HoneycombMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
@@ -164,6 +166,30 @@ public:
         // Other values should have been initialised to zero
         ++cell_iter2;
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 0), 0.0, 1e-12);
+
+        // Tidy up
+        CellwiseData<2>::Destroy();
+    }
+
+    void TestCellwiseDataExceptions() throw(Exception)
+    {
+        // Create a simple mesh with 2 layers of ghost nodes
+        HoneycombMeshGenerator generator(2, 2, 2);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Setup some cells
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, location_indices.size(), TRANSIT);
+
+        // Create a cell population
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
+
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+        TS_ASSERT_THROWS_THIS(p_data->SetCellPopulation(&cell_population),
+                "CellwiseData does not work with ghost nodes.");
 
         // Tidy up
         CellwiseData<2>::Destroy();

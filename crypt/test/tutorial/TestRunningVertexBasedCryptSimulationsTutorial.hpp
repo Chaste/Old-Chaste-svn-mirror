@@ -174,7 +174,7 @@ public:
      *
      * EMPTYLINE
      *
-     * == Test 3 - create a vertex-based crypt simulation with a simple wnt dependent cell-cycle model ==
+     * == Test 2 - create a vertex-based crypt simulation with a simple wnt dependent cell-cycle model ==
      *
      * EMPTYLINE
      *

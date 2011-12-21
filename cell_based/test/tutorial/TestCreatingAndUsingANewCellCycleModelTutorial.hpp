@@ -57,7 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header includes the Boost shared_ptr smart pointer, and defines some useful
  * macros to save typing when using it. */
 #include "SmartPointers.hpp"
-/* The next header include the NEVER_REACHED macro, used in one of the methods below. */
+/* The next header includes the NEVER_REACHED macro, used in one of the methods below. */
 #include "Exception.hpp"
 
 /* The next header defines a base class for simple generation-based cell-cycle models.
@@ -70,7 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * to this. Our new cell-cycle model will inherit from this abstract class. */
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
-/* The remaining header files define classes that will be used in the cell population
+/* The remaining header files define classes that will be used in the cell-based
  * simulation test. We have encountered each of these header files in previous cell-based Chaste
  * tutorials, except for {{{CheckReadyToDivideAndPhaseIsUpdated}}}, which defines a helper
  * class for testing a cell-cycle model. */
@@ -370,7 +370,7 @@ public:
 
         /* Next, we create some cells. First, define the cells vector. */
         std::vector<CellPtr> cells;
-        /* We must create a shared_ptr to a CellMutationState with which to bestow the cells.
+        /* We must create a shared_ptr to a {{{CellMutationState}}} with which to bestow the cells.
          * We make use of the macro MAKE_PTR to do this: the first argument is the class and
          * the second argument is the name of the shared_ptr. */
         MAKE_PTR(WildTypeCellMutationState, p_state);

@@ -83,7 +83,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * When using this class the singleton objects are set up and destroyed for us:
  * {{{SimulationTime}}} is initialised to zero at the beginning of the test and destroyed at the end of the test;
  * {{{RandomNumberGenerator}}} is re-seeded with zero at the begining and destroyed at the end of the test; and
- * {{{CellPropertyRegistry}}} (which stores {{{CellProperties}}}, you learn about these in a later tutorial UserTutorials/CreatingAndUsingANewCellProperty)  is cleared at the beginning of the test.
+ * {{{CellPropertyRegistry}}} (which stores {{{CellProperties}}}, you learn about these in a later tutorial [wiki:UserTutorials/CreatingAndUsingANewCellProperty])  is cleared at the beginning of the test.
  * This makes for cleaner code.
  */
 class TestRunningNodeBasedSimulationsTutorial : public AbstractCellBasedTestSuite

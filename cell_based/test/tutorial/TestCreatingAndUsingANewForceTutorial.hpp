@@ -66,7 +66,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* The next header defines a base class for forces, from which the new class will inherit. */
 #include "AbstractForce.hpp"
-/* The remaining header files define classes that will be used in the cell population
+/* The remaining header files define classes that will be used in the cell-based
  * simulation test. We have encountered each of these header files in previous cell-based
  * Chaste tutorials. */
 #include "HoneycombMeshGenerator.hpp"
@@ -153,9 +153,9 @@ public:
         return mStrength;
     }
 
-    /* Just as we encountered in UserTutorials/CreatingAndUsingANewCellKiller, here we must override
+    /* Just as we encountered in [wiki:UserTutorials/CreatingAndUsingANewCellKiller], here we must override
      * a method that outputs any member variables to a specified results file {{{rParamsFile}}}.
-     * In our case, we output the member variable {{{mStrength}, then call the method on the base class.
+     * In our case, we output the member variable {{{mStrength}}}, then call the method on the base class.
      */
     void OutputForceParameters(out_stream& rParamsFile)
     {
@@ -277,12 +277,12 @@ public:
     void TestOffLatticeSimulationWithMyForce() throw(Exception)
     {
         /* Once again we create a {{{MeshBasedCellPopulation}}}. */
-        HoneycombMeshGenerator generator(20, 20);
+        HoneycombMeshGenerator generator(5, 5);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumNodes(),TRANSIT);
 
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
@@ -291,15 +291,27 @@ public:
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestOffLatticeSimulationWithMyForce");
         simulator.SetSamplingTimestepMultiple(12);
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(5.0);
 
         /* We create our force law and pass it to the {{{OffLatticeSimulation}}}. */
         MAKE_PTR_ARGS(MyForce, p_force, (0.5));
         simulator.AddForce(p_force);
 
+        /* We also create a force law to say how the cells interact and pass it to the {{{OffLatticeSimulation}}}. */
+        MAKE_PTR(GeneralisedLinearSpringForce<2>, p_linear_force);
+        p_linear_force->SetCutOffLength(1.5);
+        simulator.AddForce(p_linear_force);
+
         /* To run the simulation, we call {{{Solve()}}}. */
         simulator.Solve();
     }
+    /*
+     * When you visualise the results with
+     *
+     * {{{java Visualize2dCentreCells /tmp/$USER/testoutput/TestOffLatticeSimulationWithMyForce/results_from_time_0}}}
+     *
+     * you should see a collection of cells moving downwards and proliferating.
+     */
 };
 
 #endif /*TESTCREATINGANDUSINGANEWFORCETUTORIAL_HPP_*/

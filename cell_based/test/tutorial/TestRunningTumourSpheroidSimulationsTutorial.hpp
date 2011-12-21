@@ -53,11 +53,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * move. In tumour spheroid simulations, however, these are also coupled to a
  * system of partial differential equations (PDEs) that determine the concentration
  * of specified nutrients (e.g. oxygen) throughout the cell population. Also, unlike
- * in a crypt simulation, the cell population may grow substantially as the simulation
+ * in a crypt simulation (for example), the cell population may grow substantially as the simulation
  * progresses.
  *
- * In summary, the main differences between this tutorial and the crypt simulation
- * tutorials are: a PDE is defined, to be used in the simulation; and a non-periodic mesh is used.
+ * In summary, the main difference between this tutorial and the other cell-based simulation
+ * tutorials is that a PDE is defined, which is used in the simulation.
  *
  * EMPTYLINE
  *
@@ -82,7 +82,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * to the local oxygen concentration. We also include the {{{WildTypeCellMutationState}}}
  * header file, which defines a wild type cell mutation state that we will use to construct
  * cells. A cell mutation state is always required when constructing a cell, however
- * in the crypt simulation tutorial we used a helper class ({{{CryptCellsGenerator}}}) that
+ * in earlier simulation tutorial we used a helper classes (({{{CellsGenerator}}} and {{{CryptCellsGenerator}}}) that
  * allowed us to avoid having to construct cells directly.
  */
 #include "SimpleOxygenBasedCellCycleModel.hpp"
@@ -309,7 +309,7 @@ public:
      * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
      * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCentreCells /tmp/$USER/testoutput/SpheroidTutorial/results_from_time_0}}}.
      *
-     * Or use Paraview.
+     * Or use Paraview, see [wiki:UserTutorials/VisualizingWithParaview] for details.
      *
      * EMPTYLINE
      */
