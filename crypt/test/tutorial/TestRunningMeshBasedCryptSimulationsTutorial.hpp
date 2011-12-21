@@ -76,12 +76,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in mechanical equilibrium with its neighours and periodic boundary conditions are applied
  * at the left- and right-hand sides of the mesh (hence the "cylindrical"). */
 #include "CylindricalHoneycombMeshGenerator.hpp"
-/* The next two header files were encountered in UserTutorials/RunningMeshBasedSimulations. 
- * The first header  
+/* The next two header files were encountered in UserTutorials/RunningMeshBasedSimulations.
+ * The first header
  * defines a {{{CellPopulation}}} class that uses a triangular mesh, and allows
  * for the inclusion of 'ghost nodes': these are nodes in the mesh that do not correspond
  * to cells, but help ensure that a sensible Delaunay triangulation is generated
- * at each timestep; this is because the triangulation algorithm requires a convex hull. 
+ * at each timestep; this is because the triangulation algorithm requires a convex hull.
  * The next header file defines a force law, based on a linear spring, for describing
  * the mechanical interactions between neighbouring cells in the crypt.*/
 #include "MeshBasedCellPopulationWithGhostNodes.hpp"

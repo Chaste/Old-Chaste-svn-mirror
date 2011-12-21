@@ -501,7 +501,7 @@ void LinearParabolicPdeSystemWithCoupledOdeSystemSolver<ELEMENT_DIM, SPACE_DIM, 
         // Write solution to VTK
         WriteVtkResultsToFile(soln, stepper.GetTotalTimeStepsTaken());
     }
-    
+
     // Restore saved initial condition to avoid user confusion!
     if (this->mInitialCondition != initial_condition)
     {

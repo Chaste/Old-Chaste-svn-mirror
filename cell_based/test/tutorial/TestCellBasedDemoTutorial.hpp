@@ -62,7 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * We begin by including the necessary header files. These will be described in detail in 
+ * We begin by including the necessary header files. These will be described in detail in
  * subsequent cell-based tutorials.
  */
 #include <cxxtest/TestSuite.h>
@@ -106,7 +106,7 @@ public:
      *
      * EMPTYLINE
      *
-     * In the first test, we run a simple vertex-based simulation of an epithelial monolayer. 
+     * In the first test, we run a simple vertex-based simulation of an epithelial monolayer.
      * Each cell in the simulation is assigned a simple stochastic cell-cycle model, the cells will divide randomly and never stop proliferating.
      */
     void TestVertexBasedMonolayer() throw (Exception)
@@ -161,8 +161,8 @@ public:
      *
      * EMPTYLINE
      *
-     * We next show how to modify the previous test to implement a 'node-based' simulation, 
-     * in which cells are represented by overlapping spheres (actually circles, since we're 
+     * We next show how to modify the previous test to implement a 'node-based' simulation,
+     * in which cells are represented by overlapping spheres (actually circles, since we're
      * in 2D).
      */
     void TestNodeBasedMonolayer() throw (Exception)
@@ -225,8 +225,8 @@ public:
      *
      * == Test 3 - basic mesh-based simulation ==
      *
-     * We next show how to modify the previous test to implement a 'mesh-based' simulation, 
-     * in which cells are represented by their centres and a Voronoi tessellation is used to 
+     * We next show how to modify the previous test to implement a 'mesh-based' simulation,
+     * in which cells are represented by their centres and a Voronoi tessellation is used to
      * find nearest neighbours.
      */
     void TestMeshBasedMonolayer() throw (Exception)
@@ -264,15 +264,15 @@ public:
     /*
      * EMPTYLINE
      *
-     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the
      * previous test, with the results directory changed from {{{CellBasedDemo2}}} to {{{CellBasedDemo3}}}.
      *
      * EMPTYLINE
      *
      * == Test 4 - basic mesh-based simulation with ghost nodes ==
      *
-     * We next show how to modify the previous test to include 'ghost nodes', which do not 
-     * correspond to cells but are sometimes needed when using a Voronoi tessellation. We 
+     * We next show how to modify the previous test to include 'ghost nodes', which do not
+     * correspond to cells but are sometimes needed when using a Voronoi tessellation. We
      * will discuss ghost nodes in more detail in subsequent cell-based tutorials.
      */
     void TestMeshBasedMonolayerWithGhostNodes() throw (Exception)
@@ -315,14 +315,14 @@ public:
     /*
      * EMPTYLINE
      *
-     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the
      * previous test, with the results directory changed from {{{CellBasedDemo3}}} to {{{CellBasedDemo4}}}.
      *
      * EMPTYLINE
      *
      * == Test 5 - basic periodic mesh-based simulation ==
-     * 
-     * We next show how to modify the previous test to implement a periodic boundary to the 
+     *
+     * We next show how to modify the previous test to implement a periodic boundary to the
      * left and right of the domain.
      */
     void TestMeshBasedMonolayerPeriodic() throw (Exception)
@@ -355,7 +355,7 @@ public:
     /*
      * EMPTYLINE
      *
-     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the
      * previous test, with the results directory changed from {{{CellBasedDemo4}}} to {{{CellBasedDemo5}}}.
      *
      * EMPTYLINE
@@ -401,8 +401,8 @@ public:
     }
     /*
      * EMPTYLINE
-     * 
-     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the 
+     *
+     * The results may be visualized using {{{Visualize2dCentreCells}}} as described in the
      * previous test, with the results directory changed from {{{CellBasedDemo5}}} to {{{CellBasedDemo6}}}.
      *
      * EMPTYLINE

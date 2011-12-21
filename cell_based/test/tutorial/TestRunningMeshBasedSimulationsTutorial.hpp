@@ -55,23 +55,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * We begin by including the necessary header files. The first thing to do is include the 
- * following header file, which allows us to use certain methods in our test. This header 
+ * We begin by including the necessary header files. The first thing to do is include the
+ * following header file, which allows us to use certain methods in our test. This header
  * file must be included in any Chaste test.
  */
 #include <cxxtest/TestSuite.h>
-/* Any test in which the {{{GetIdentifier()}}} method is used, even via the main 
- * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods), 
- * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}} 
- * as the first Chaste header file. 
+/* Any test in which the {{{GetIdentifier()}}} method is used, even via the main
+ * `cell_based` code (through calls to {{{AbstractCellPopulation}}} output methods),
+ * must also include {{{CheckpointArchiveTypes.hpp}}} or {{{CellBasedSimulationArchiver.hpp}}}
+ * as the first Chaste header file.
  */
 #include "CheckpointArchiveTypes.hpp"
-/* The next header includes the Boost shared_ptr smart pointer, and defines some useful 
+/* The next header includes the Boost shared_ptr smart pointer, and defines some useful
  * macros to save typing when using it.
  */
 #include "SmartPointers.hpp"
 /* The remaining header files define classes that will be used in the cell population
- * simulation test. The first defines a helper class for generating a suitable collection 
+ * simulation test. The first defines a helper class for generating a suitable collection
  * of cells. */
 #include "CellsGenerator.hpp"
 /* The next header file defines a stochastic cell-cycle model class. */

@@ -83,17 +83,17 @@ public:
         mesh.ConstructNodesWithoutMesh(*p_generating_mesh);
 
         // Create cells
-		std::vector<CellPtr> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasicRandom(cells, mesh.GetNumNodes());
 
-		// Create a node-based cell population
-		NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
-		node_based_cell_population.SetMechanicsCutOffLength(1.5);
+        // Create a node-based cell population
+        NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
+        node_based_cell_population.SetMechanicsCutOffLength(1.5);
 
         // Try to set up simulation
         TS_ASSERT_THROWS_THIS(VolumeTrackedOffLatticeSimulation<2> simulator(node_based_cell_population),
-        		"VolumeTrackedOffLatticeSimulation require a subclass of MeshBasedCellPopulation or VertexBasedSimulation.");
+                "VolumeTrackedOffLatticeSimulation require a subclass of MeshBasedCellPopulation or VertexBasedSimulation.");
     }
 
     void TestMeshBasedSimulationWithContactInhibition()
@@ -171,59 +171,59 @@ public:
     void TestVertexBasedSimulationWithContactInhibition()
         {
 
-		// Create a simple 2D MutableVertexMesh
-		HoneycombVertexMeshGenerator generator(2, 2);
-		MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        // Create a simple 2D MutableVertexMesh
+        HoneycombVertexMeshGenerator generator(2, 2);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-		// Create cell state
-		MAKE_PTR(WildTypeCellMutationState, p_state);
-		std::vector<CellPtr> cells;
+        // Create cell state
+        MAKE_PTR(WildTypeCellMutationState, p_state);
+        std::vector<CellPtr> cells;
 
-		for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
-		{
-		ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-		p_cycle_model->SetCellProliferativeType(STEM);
-		p_cycle_model->SetDimension(2);
-		p_cycle_model->SetBirthTime(-10.0);
-		p_cycle_model->SetQuiescentVolumeFraction(0.7);
-		p_cycle_model->SetEquilibriumVolume(1.0);
-		p_cycle_model->SetStemCellG1Duration(0.1);
-		p_cycle_model->SetTransitCellG1Duration(0.1);
+        for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+        {
+        ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+        p_cycle_model->SetCellProliferativeType(STEM);
+        p_cycle_model->SetDimension(2);
+        p_cycle_model->SetBirthTime(-10.0);
+        p_cycle_model->SetQuiescentVolumeFraction(0.7);
+        p_cycle_model->SetEquilibriumVolume(1.0);
+        p_cycle_model->SetStemCellG1Duration(0.1);
+        p_cycle_model->SetTransitCellG1Duration(0.1);
 
-		CellPtr p_cell(new Cell(p_state, p_cycle_model));
-		p_cell->InitialiseCellCycleModel();
-		cells.push_back(p_cell);
-		}
+        CellPtr p_cell(new Cell(p_state, p_cycle_model));
+        p_cell->InitialiseCellCycleModel();
+        cells.push_back(p_cell);
+        }
 
-		// Create cell population
-		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        // Create cell population
+        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-		// Create a force law and pass it to the simulation
-		MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
+        // Create a force law and pass it to the simulation
+        MAKE_PTR(NagaiHondaForce<2>, p_nagai_honda_force);
 
-		// Create a singleton class to store the volume of the cells and initialize it
-		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-		p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
-		p_data->SetCellPopulation(&cell_population);
+        // Create a singleton class to store the volume of the cells and initialize it
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumElements(), 1);
+        p_data->SetCellPopulation(&cell_population);
 
-		for (unsigned i=0; i<cell_population.GetNumElements(); i++)
-		{
-		  p_data->SetValue(1.0, i);
-		}
+        for (unsigned i=0; i<cell_population.GetNumElements(); i++)
+        {
+          p_data->SetValue(1.0, i);
+        }
 
-		// Create a contact inhibition simulator
-		VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
-		simulator.SetOutputDirectory("TestVertexBasedSimulationWithVolumeTracked");
-		simulator.SetEndTime(1.0);
-		simulator.AddForce(p_nagai_honda_force);
+        // Create a contact inhibition simulator
+        VolumeTrackedOffLatticeSimulation<2> simulator(cell_population);
+        simulator.SetOutputDirectory("TestVertexBasedSimulationWithVolumeTracked");
+        simulator.SetEndTime(1.0);
+        simulator.AddForce(p_nagai_honda_force);
 
-		// Run simulation
-		simulator.Solve();
+        // Run simulation
+        simulator.Solve();
 
-		// Tidy up
-		SimulationTime::Destroy();
-		RandomNumberGenerator::Destroy();
-		CellwiseData<2>::Destroy();
+        // Tidy up
+        SimulationTime::Destroy();
+        RandomNumberGenerator::Destroy();
+        CellwiseData<2>::Destroy();
         }
 
     void TestVolumeTrackedOffLatticeSimulationArchiving() throw (Exception)

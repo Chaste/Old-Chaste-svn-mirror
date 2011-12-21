@@ -33,8 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 VolumeTrackedOffLatticeSimulation<DIM>::VolumeTrackedOffLatticeSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-													  bool deleteCellPopulationInDestructor,
-													  bool initialiseCells)
+                                                      bool deleteCellPopulationInDestructor,
+                                                      bool initialiseCells)
     : OffLatticeSimulation<DIM>(rCellPopulation, deleteCellPopulationInDestructor, initialiseCells)
 {
     if (!dynamic_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation) && !dynamic_cast<VertexBasedCellPopulation<DIM>*>(&rCellPopulation) )
@@ -51,45 +51,45 @@ VolumeTrackedOffLatticeSimulation<DIM>::~VolumeTrackedOffLatticeSimulation()
 template<unsigned DIM>
 void VolumeTrackedOffLatticeSimulation<DIM>::PostSolve()
 {
-	// Make sure the cell population is updated
-	this->mrCellPopulation.Update();
-	CellwiseData<DIM>::Instance()->ReallocateMemory();
+    // Make sure the cell population is updated
+    this->mrCellPopulation.Update();
+    CellwiseData<DIM>::Instance()->ReallocateMemory();
 
     if (dynamic_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)))
-	{
-		// Static cast on the cell population
-		MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
+    {
+        // Static cast on the cell population
+        MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
 
-		// Create Voronoi tessellation for volumes
-		p_static_cast_cell_population->CreateVoronoiTessellation();
+        // Create Voronoi tessellation for volumes
+        p_static_cast_cell_population->CreateVoronoiTessellation();
 
-		// Loop over cells and set volume value in CellWiseData
-		for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
-			 cell_iter != this->mrCellPopulation.End();
-			 ++cell_iter)
-		{
-			// Get the index of the node corresponding to this cell
-			unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+        // Loop over cells and set volume value in CellWiseData
+        for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
+             cell_iter != this->mrCellPopulation.End();
+             ++cell_iter)
+        {
+            // Get the index of the node corresponding to this cell
+            unsigned node_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
-			// Store in CellwiseData
-			CellwiseData<DIM>::Instance()->SetValue(p_static_cast_cell_population->GetVolumeOfVoronoiElement(node_index), node_index, 0);
-		}
+            // Store in CellwiseData
+            CellwiseData<DIM>::Instance()->SetValue(p_static_cast_cell_population->GetVolumeOfVoronoiElement(node_index), node_index, 0);
+        }
     }
     else if (dynamic_cast<VertexBasedCellPopulation<DIM>*>(&(this->mrCellPopulation)))
     {
-    	// Static cast on the cell population
-		VertexBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<VertexBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
+        // Static cast on the cell population
+        VertexBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<VertexBasedCellPopulation<DIM>*>(&(this->mrCellPopulation));
 
         for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mrCellPopulation.Begin();
              cell_iter != this->mrCellPopulation.End();
              ++cell_iter)
         {
 
-        	// Get the index of vertex element corresponding to this cell
-			unsigned element_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
+            // Get the index of vertex element corresponding to this cell
+            unsigned element_index = this->mrCellPopulation.GetLocationIndexUsingCell(*cell_iter);
 
-			// Store in CellwiseData
-			CellwiseData<DIM>::Instance()->SetValue(p_static_cast_cell_population->rGetMesh().GetVolumeOfElement(element_index), element_index, 0);
+            // Store in CellwiseData
+            CellwiseData<DIM>::Instance()->SetValue(p_static_cast_cell_population->rGetMesh().GetVolumeOfElement(element_index), element_index, 0);
         }
     }
 }

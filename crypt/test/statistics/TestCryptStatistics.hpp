@@ -184,7 +184,7 @@ public:
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-        	cells.push_back(temp_cells[location_indices[i]]);
+            cells.push_back(temp_cells[location_indices[i]]);
         }
 
         // Create cell population

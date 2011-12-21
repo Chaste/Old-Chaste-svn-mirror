@@ -349,14 +349,14 @@ public:
          * For mechanics problems, the .ortho file
          * can be used to either define the fibre information PER-ELEMENT or PER-QUADRATURE-POINT (ie all the quadrature points
          * in all the elements). The latter provides a higher resolution description of fibres.
-         * 
+         *
          * In this tutorial, we will generate both types of fibre files, using our own choice of fibre fibre for the cubic tissue.
-         * To generate a fibre file prescribing fibres that depend on the X-coordinate, one fibre definition per element, 
-         * we can do: 
+         * To generate a fibre file prescribing fibres that depend on the X-coordinate, one fibre definition per element,
+         * we can do:
          */
-        OutputFileHandler handler("TutorialFibreFiles");      
+        OutputFileHandler handler("TutorialFibreFiles");
         out_stream p_file = handler.OpenOutputFile("5by5by5_fibres.ortho");
-        
+
         *p_file << mechanics_mesh.GetNumElements() << "\n"; // first line is number of entries
         for(unsigned i=0; i<mechanics_mesh.GetNumElements(); i++)
         {
@@ -369,8 +369,8 @@ public:
         p_file->close();
         /* This will generate a file, TutorialFibreFiles/5by5by5_fibres.ortho. Note that out_streams are essentially
          * pointers to a C++ ofstream.
-         * 
-         * More advanced: we can also generate the same type of file, but where there is one line for each quadrature point. 
+         *
+         * More advanced: we can also generate the same type of file, but where there is one line for each quadrature point.
          * By default there are, per element, 3 quadrature points in each direction, so in this 3D problem there are
          * (3^3^)*num_elem quadrature points. Here's how we can obtain their positions, and set-up the analogous
          * fibre file, which we name similarly to the above but change the extension. */
@@ -413,7 +413,7 @@ public:
     }
 
     /* == Mechano-electric feedback, and alternative boundary conditions ==
-     * 
+     *
      * Let us now run a simulation with mechano-electric feedback (MEF), and with different boundary conditions.
      */
     void TestWithMef() throw(Exception)

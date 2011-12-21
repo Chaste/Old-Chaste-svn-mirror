@@ -382,8 +382,8 @@ public:
             }
 
             // Do this here due to fixing #1972 and not wanting to change saved results
-			p_model->SetStemCellG1Duration(1.0);
-			p_model->SetTransitCellG1Duration(1.0);
+            p_model->SetStemCellG1Duration(1.0);
+            p_model->SetTransitCellG1Duration(1.0);
 
 
             p_model->SetCellProliferativeType(cell_type);

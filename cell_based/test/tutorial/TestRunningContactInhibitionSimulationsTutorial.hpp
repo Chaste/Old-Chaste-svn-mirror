@@ -83,7 +83,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ContactInhibitionCellCycleModel.hpp"
 
 /*
- * The next header is the simulation class corresponding to the contact inhibition cell-cycle model. 
+ * The next header is the simulation class corresponding to the contact inhibition cell-cycle model.
  * The essential difference with other simulation classes is that {{{CellWiseData}}} is updated with the
  * volumes each cell (either the volume of the Voronoi elements or vertex element depending on population type).
  */
@@ -358,13 +358,13 @@ public:
      * EMPTYLINE
      *
      * == Testing contact inhibition in vertex-based monolayer ==
-	 *
-	 * We now test the behaviour of normal contact inhibited cells for a vertex-based population.
-	 * The example we use is a growing monolayer.
-	 *
-	 */
-	void TestContactInhibitionWithVertex()
-	{
+     *
+     * We now test the behaviour of normal contact inhibited cells for a vertex-based population.
+     * The example we use is a growing monolayer.
+     *
+     */
+    void TestContactInhibitionWithVertex()
+    {
         /* First we create a simple 2D MutableVertexMesh.*/
         HoneycombVertexMeshGenerator generator(2, 2);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
@@ -376,16 +376,16 @@ public:
         std::vector<CellPtr> cells;
         for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
         {
-        	ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
-        	p_cycle_model->SetCellProliferativeType(TRANSIT);
-        	p_cycle_model->SetDimension(2);
-        	p_cycle_model->SetBirthTime(-(double)i - 2.0); // So all out of M phase
-        	p_cycle_model->SetQuiescentVolumeFraction(0.9);
-        	p_cycle_model->SetEquilibriumVolume(1.0);
+            ContactInhibitionCellCycleModel* p_cycle_model = new ContactInhibitionCellCycleModel();
+            p_cycle_model->SetCellProliferativeType(TRANSIT);
+            p_cycle_model->SetDimension(2);
+            p_cycle_model->SetBirthTime(-(double)i - 2.0); // So all out of M phase
+            p_cycle_model->SetQuiescentVolumeFraction(0.9);
+            p_cycle_model->SetEquilibriumVolume(1.0);
 
-        	CellPtr p_cell(new Cell(p_state, p_cycle_model));
-        	p_cell->InitialiseCellCycleModel();
-        	cells.push_back(p_cell);
+            CellPtr p_cell(new Cell(p_state, p_cycle_model));
+            p_cell->InitialiseCellCycleModel();
+            cells.push_back(p_cell);
         }
 
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
@@ -422,7 +422,7 @@ public:
 
         /* Finally, as in previous cell-based Chaste tutorials, we call {{{Destroy()}}} on the singleton classes. */
         CellwiseData<2>::Destroy();
-	}
+    }
     /*
      * EMPTYLINE
      *

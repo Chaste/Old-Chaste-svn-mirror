@@ -365,7 +365,7 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, we need to use Paraview. 
+     * To visualize the results, we need to use Paraview.
      * See UserTutorials/VisualizingWithParaview for more information.
      *
      * Load the file {{{/tmp/$USER/testoutput/PottsCellSorting3D/results_from_time_0/results.pvd}}}, and click apply

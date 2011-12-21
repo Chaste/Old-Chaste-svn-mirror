@@ -324,7 +324,7 @@ public:
             init_cond[i] = sin(M_PI*x)*sin(M_PI*y);
         }
         Vec initial_condition = PetscTools::CreateVec(init_cond);
-        
+
         // Need an output folder
         TS_ASSERT_THROWS_THIS(solver.SolveAndWriteResultsToFile(),
                 "SetOutputDirectory() must be called prior to SolveAndWriteResultsToFile()");

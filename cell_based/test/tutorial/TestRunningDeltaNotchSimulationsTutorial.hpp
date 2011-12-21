@@ -47,15 +47,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how Chaste can be used to simulate a growing cell monolayer culture 
- * into which a simple model of Delta/Notch signalling is incorporated. This model was developed 
- * by Collier et al. ("Pattern formation by lateral inhibition with feedback: a mathematical 
- * model of delta-notch intercellular signalling", J. Theor. Biol. 183:429-446) and comprises 
- * two ODEs to describe the evolution in concentrations of Delta and Notch in each cell. The ODE 
- * for Notch includes a reaction term that depends on the mean Delta concentration among neighbouring 
- * cells. Thus in this simulation each cell needs to be able to access information about its 
- * neighbours. We use the {{{CellwiseData}}} singleton to facilitate this, and introduce a subclass 
- * of {{{OffLatticeSimulation}}} called {{{DeltaNotchOffLatticeSimulation}}} to handle the updating 
+ * In this tutorial we show how Chaste can be used to simulate a growing cell monolayer culture
+ * into which a simple model of Delta/Notch signalling is incorporated. This model was developed
+ * by Collier et al. ("Pattern formation by lateral inhibition with feedback: a mathematical
+ * model of delta-notch intercellular signalling", J. Theor. Biol. 183:429-446) and comprises
+ * two ODEs to describe the evolution in concentrations of Delta and Notch in each cell. The ODE
+ * for Notch includes a reaction term that depends on the mean Delta concentration among neighbouring
+ * cells. Thus in this simulation each cell needs to be able to access information about its
+ * neighbours. We use the {{{CellwiseData}}} singleton to facilitate this, and introduce a subclass
+ * of {{{OffLatticeSimulation}}} called {{{DeltaNotchOffLatticeSimulation}}} to handle the updating
  * of {{{CellwiseData}}} at each time step as cell neighbours change.
  *
  * EMPTYLINE
@@ -79,17 +79,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "SmartPointers.hpp"
 /*
- * The next header file defines a simple stochastic cell-cycle model that includes the functionality 
- * for solving each cell's Delta/Notch signalling ODE system at each time step, using information about neighbouring 
- * cells through the {{{CellwiseData}}} singleton. We note that in this simple cell-cycle model, the 
- * proliferative status of each cell is unaffected by its Delta/Notch activity; such dependence could 
+ * The next header file defines a simple stochastic cell-cycle model that includes the functionality
+ * for solving each cell's Delta/Notch signalling ODE system at each time step, using information about neighbouring
+ * cells through the {{{CellwiseData}}} singleton. We note that in this simple cell-cycle model, the
+ * proliferative status of each cell is unaffected by its Delta/Notch activity; such dependence could
  * easily be introduced given an appropriate model of this coupling.
  */
 #include "DeltaNotchCellCycleModel.hpp"
 /*
- * The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}, 
- * specialized to deal with updating of the {{{CellwiseData}}} singleton to deal with Delta-Notch 
- * signalling between cells. 
+ * The next header file defines the class that simulates the evolution of a {{{CellPopulation}}},
+ * specialized to deal with updating of the {{{CellwiseData}}} singleton to deal with Delta-Notch
+ * signalling between cells.
  */
 #include "DeltaNotchOffLatticeSimulation.hpp"
 
@@ -115,8 +115,8 @@ public:
         HoneycombVertexMeshGenerator generator(5, 5);
         MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* We then create some cells, each with a cell-cycle model, {{{DeltaNotchCellCycleModel}}}, which 
-         * incorporates a Delta/Notch ODE system. In this example we choose to make each cell differentiated, 
+        /* We then create some cells, each with a cell-cycle model, {{{DeltaNotchCellCycleModel}}}, which
+         * incorporates a Delta/Notch ODE system. In this example we choose to make each cell differentiated,
          * so that no cell division occurs. */
         std::vector<CellPtr> cells;
         MAKE_PTR(WildTypeCellMutationState, p_state);
@@ -133,7 +133,7 @@ public:
             cells.push_back(p_cell);
         }
 
-        /* Using the vertex mesh and cells, we create a cell-based population object, and specify which results to 
+        /* Using the vertex mesh and cells, we create a cell-based population object, and specify which results to
          * output to file. */
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
         cell_population.SetOutputCellMutationStates(true);
@@ -144,13 +144,13 @@ public:
         cell_population.SetOutputCellVolumes(true);
         cell_population.SetOutputCellVariables(true);
 
-        /* As we are using the {{{CellwiseData}}} singleton to store the information about each cell required to 
-         * solve the Delta/Notch ODE system, we must first instantiate this singleton and associate it with the 
-         * cell population. Note that we set the number of variables to 3. This is because each cell's ODE system 
-         * comprises two ODEs describing Delta/Notch activity, and an additional 'dummy' ODE with zero reaction term 
-         * that describes how the mean concentration of Delta among neighbouring cells changes. This latter quantity 
-         * remains constant for the purposes of solving the ODE system over each time step, but is updated at the 
-         * end of the time step by a method on {{{DeltaNotchOffLatticeSimulation}}}. 
+        /* As we are using the {{{CellwiseData}}} singleton to store the information about each cell required to
+         * solve the Delta/Notch ODE system, we must first instantiate this singleton and associate it with the
+         * cell population. Note that we set the number of variables to 3. This is because each cell's ODE system
+         * comprises two ODEs describing Delta/Notch activity, and an additional 'dummy' ODE with zero reaction term
+         * that describes how the mean concentration of Delta among neighbouring cells changes. This latter quantity
+         * remains constant for the purposes of solving the ODE system over each time step, but is updated at the
+         * end of the time step by a method on {{{DeltaNotchOffLatticeSimulation}}}.
          */
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(p_mesh->GetNumElements(), 3);
@@ -165,7 +165,7 @@ public:
             p_data->SetValue(RandomNumberGenerator::Instance()->ranf(), cell_population.GetLocationIndexUsingCell(*cell_iter), 2);
         }
 
-        /* We are now in a position to create and configure the cell-based simulation object, pass a force law to it, 
+        /* We are now in a position to create and configure the cell-based simulation object, pass a force law to it,
          * and run the simulation. We can make the simulation run for longer to see more paterning by changing the end time. */
         DeltaNotchOffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("TestVertexBasedMonolayerWithDeltaNotch");
@@ -194,13 +194,13 @@ public:
      *
      * EMPTYLINE
      *
-     * In the next test we run a similar simulation as before, but this time with node-based 
+     * In the next test we run a similar simulation as before, but this time with node-based
      * 'overlapping spheres' model.
      */
     void TestNodeBasedMonolayerWithDeltaNotch() throw (Exception)
     {
         /*
-         * Most of the code in this test is the same as in the previous test, 
+         * Most of the code in this test is the same as in the previous test,
          * except we now create a 'nodes-only mesh' and {{{NodeBasedCellPopulation}}}.
          */
         HoneycombMeshGenerator generator(5, 5);
@@ -223,7 +223,7 @@ public:
         }
 
         NodeBasedCellPopulation<2> cell_population(*p_mesh, cells);
-        /* The mechanics cut-off length is also used in this simulation to determine nearest 
+        /* The mechanics cut-off length is also used in this simulation to determine nearest
          * neighbours for the purpose of the Delta/Notch intercellular signalling model.
          */
         cell_population.SetMechanicsCutOffLength(1.5);

@@ -110,10 +110,10 @@ void CellwiseData<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopu
 {
     if (dynamic_cast<MeshBasedCellPopulationWithGhostNodes<DIM>*>(pCellPopulation))
     {
-    	EXCEPTION("CellwiseData does not work with ghost nodes.");
+        EXCEPTION("CellwiseData does not work with ghost nodes.");
     }
 
-	if (mAllocatedMemory == false)
+    if (mAllocatedMemory == false)
     {
         EXCEPTION("SetCellPopulation must be called after SetNumCellsAndVars()");
     }

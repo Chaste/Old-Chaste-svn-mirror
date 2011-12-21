@@ -65,7 +65,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 
 /* The remaining header files define classes that will be used in the cell population
- * simulation test. We encountered some of these header files in 
+ * simulation test. We encountered some of these header files in
  * UserTutorials/RunningMeshBasedSimulations. */
 #include "CellsGenerator.hpp"
 #include "StochasticDurationCellCycleModel.hpp"
