@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * resolved by making sure that Chaste's interface to the Boost libraries are included
  * as early as possible.
  */
-#include "UblasCustomFunctions.hpp"
+#include "UblasIncludes.hpp"
 /*
  * This is the class that is needed to solve a system of coupled linear
  * parabolic PDEs and ODEs.
@@ -90,13 +90,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * perturbation of the spatially uniform steady state of the
  * system.
  *
- * Next, we define the test suite (a class). It is sensible to name it the same
+ * To do this we define the test suite (a class). It is sensible to name it the same
  * as the filename. The class should inherit from {{{CxxTest::TestSuite}}}.
  */
 class TestSolvingLinearParabolicPdeSystemsWithCoupledOdeSystemsTutorial : public CxxTest::TestSuite
 {
 /*
- * All individual test defined in this test suite '''must''' be declared as public.
+ * All individual tests defined in this test suite '''must''' be declared as public.
  */
 public:
     /*
@@ -160,12 +160,13 @@ public:
 
         /* We now solve the PDE system and write results to VTK files, for
          * visualization using Paraview.  Results will be written to CHASTE_TEST_OUTPUT/TestSchnackenbergSystemOnButterflyMesh
-         * as a results.pvd file and several results_[time].vtu files
+         * as a results.pvd file and several results_[time].vtu files.
+         * You should see something like [[Image(u.png, 350px)]] for u and [[Image(v.png, 350px)]] for v.
          */
         solver.SolveAndWriteResultsToFile();
 
         /*
-         * All Petsc {{{Vec}}}s should be destroyed when they are no longer needed.
+         * All PETSc {{{Vec}}}s should be destroyed when they are no longer needed.
          */
         VecDestroy(initial_condition);
     }

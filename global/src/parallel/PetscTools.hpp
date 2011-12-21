@@ -225,7 +225,7 @@ public:
     static void ReplicateException(bool flag);
 
     /**
-     * Dumps a given Petsc object to disk.
+     * Dumps a given PETSc object to disk.
      *
      * @param rMat a matrix
      * @param rOutputFileFullPath where to dump the matrix to disk
@@ -233,7 +233,7 @@ public:
     static void DumpPetscObject(const Mat& rMat, const std::string& rOutputFileFullPath);
 
     /**
-     * Dumps a given Petsc object to disk.
+     * Dumps a given PETSc object to disk.
      *
      * @param rVec a vector
      * @param rOutputFileFullPath where to dump the vector to disk
@@ -241,7 +241,7 @@ public:
     static void DumpPetscObject(const Vec& rVec, const std::string& rOutputFileFullPath);
 
     /**
-     * Read a previously dumped Petsc object from disk.
+     * Read a previously dumped PETSc object from disk.
      *
      * @param rMat a matrix
      * @param rOutputFileFullPath where to read the matrix from
@@ -250,7 +250,7 @@ public:
     static void ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
 
     /**
-     * Read a previously dumped Petsc object from disk.
+     * Read a previously dumped PETSc object from disk.
      *
      * @param rVec a vector
      * @param rOutputFileFullPath where to read the matrix from

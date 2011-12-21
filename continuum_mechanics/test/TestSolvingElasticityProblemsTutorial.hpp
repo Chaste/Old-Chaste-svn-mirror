@@ -326,15 +326,15 @@ public:
      *
      * ''HYPRE should be considered a pre-requisite for large incompressible mechanics problems.''
      *
-     * To use HYRPE, you need to have Petsc installed with HYPRE. However, if you followed installation
-     * instructions for Chaste 2.1 or later, you probably do already have Petsc installed with HYPRE.
+     * To use HYRPE, you need to have PETSc installed with HYPRE. However, if you followed installation
+     * instructions for Chaste 2.1 or later, you probably do already have PETSc installed with HYPRE.
      *
      * To switch on HYPRE, open the file `continuum_mechanics/src/solver/AbstractNonlinearElasticitySolver` and uncomment the line
      * #define MECH_USE_HYPRE
      * near the top of the file (currently: line 53).
      * (There are other things that can be uncommented here, which provide more verbose mechanics output).
      *
-     * Note: Petsc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
+     * Note: PETSc unfortunately doesn't quit if you try to use HYPRE without it being installed, but it spew lots of error messages.
      *
      */
 

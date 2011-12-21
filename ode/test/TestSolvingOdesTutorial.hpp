@@ -46,7 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 /*
- * In some early versions of Boost this file has to be included first so that the ODE solvers used can be written to result files.
+ * In some early versions of Boost this file has to be included first so that the name of the ODE solver
+ * used can be written to result files.
  */
 #include "CheckpointArchiveTypes.hpp"
 /*
@@ -58,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * and must inherit from the following class, which defines an ODE interface.
  */
 #include "AbstractOdeSystem.hpp"
-/* In order to convenient define useful information about the ODE system, such
+/* In order to define useful information about the ODE system conveniently, such
  * as the names and units of variables, and suggested initial conditions, we
  * need the following header.
  */
@@ -69,7 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * == Defining the ODE classes ==
  *
  * Let us solve the ODE dy/dt = y^2^+t^2^, with y(0) = 1. To do so, we have to define
- * our own ODE class, inheriting from {{{AbstractOdeSystem}}}, which implements that
+ * our own ODE class, inheriting from {{{AbstractOdeSystem}}}, which implements the
  * {{{EvaluateYDerivatives()}}} method.
  */
 class MyOde : public AbstractOdeSystem
@@ -85,15 +86,15 @@ public:
         mpSystemInfo = OdeSystemInformation<MyOde>::Instance();
     }
 
-/* The ODE solvers will repeatedly call a method called EvaluateYDerivatives(), which needs
+/* The ODE solvers will repeatedly call a method called `EvaluateYDerivatives`, which needs
  * to be implemented in this concrete class. This takes in the time, a {{{std::vector}}} of
  * y values (in this case, of size 1), and a reference to a {{{std::vector}}} in which the
- * derivative(s) should be filled in by the method..
+ * derivative(s) should be filled in by the method...
  */
     void EvaluateYDerivatives(double time, const std::vector<double>& rY,
                               std::vector<double>& rDY)
     {
-        /*..so we set {{{rDY[0]}}} to be y^2^ + t^2^. */
+        /*...so we set {{{rDY[0]}}} to be y^2^ + t^2^. */
         rDY[0] = rY[0]*rY[0] + time*time;
     }
 };
@@ -115,10 +116,13 @@ void OdeSystemInformation<MyOde>::Initialise()
 /* That would be all that is needed to solve this ODE. However, rather
  * than solving up to a fixed time, suppose we wanted to solve until some function
  * of y (and t) reached a certain value, e.g. let's say we wanted to solve the ODE until
- * y reached 2.5. To do this, we have to define a stopping event, by implementing
- * the method {{{CalculateStoppingEvent()}}} in {{{AbstractOdeSystem}}}. For this, let us
+ * y reached 2.5. To do this, we have to define a stopping event, by overriding
+ * the method {{{CalculateStoppingEvent}}} from {{{AbstractOdeSystem}}}. For this, let us
  * define a new class, inheriting from the above class (i.e. representing the same ODE)
  * but with a stopping event defined.
+ *
+ * Note that we do not define separate ODE system information for this class - it uses
+ * that defined in the base class `MyOde`, since it represents the same ODE.
  */
 class MyOdeWithStoppingEvent : public MyOde
 {
@@ -133,10 +137,9 @@ public:
     }
 };
 
-/* (Ignore the following class until solving with state variables is discussed).
- *
- * This is another ODE class which sets up a 'state variable'. Note that this is done in the
- * constructor, and the {{{EvaluateYDerivatives}}} is identical to before */
+/* The following class will make more sense when solving with state variables is discussed.
+ * It is another ODE class which sets up a 'state variable'. Note that this is done in the
+ * constructor, and the {{{EvaluateYDerivatives}}} method is identical to before. */
 class MyOdeUsingStateVariables : public AbstractOdeSystem
 {
 public:
@@ -153,7 +156,7 @@ public:
     }
 };
 
-/* Again we need to define the ODE system information.
+/* This time we do need to define the ODE system information.
  */
 template<>
 void OdeSystemInformation<MyOdeUsingStateVariables>::Initialise()
@@ -166,7 +169,7 @@ void OdeSystemInformation<MyOdeUsingStateVariables>::Initialise()
 }
 
 /* This class is another simple ODE class, just as an example of how a 2d ODE is solved. Here
- * we solve the ODE dy,,1,,/dt = y,,2,,, dy,,2,,/dt = (y,,1,,)^2^ (which represents the second-order ODE d^2^y/dt^2^ = y^2^
+ * we solve the ODE dy,,1,,/dt = y,,2,,, dy,,2,,/dt = (y,,1,,)^2^ (which represents the second-order ODE d^2^y/dt^2^ = y^2^).
  */
 class My2dOde : public AbstractOdeSystem
 {
@@ -207,9 +210,9 @@ void OdeSystemInformation<My2dOde>::Initialise()
  *
  * EMPTYLINE
  *
- * === Standard ODE Solving ===
+ * === Standard ODE solving ===
  *
- * Now we can define the test, where the ODEs are solved. */
+ * Now we can define the test, in which the ODEs are solved. */
 class TestSolvingOdesTutorial: public CxxTest::TestSuite
 {
 public:
@@ -223,21 +226,21 @@ public:
          * be a {{{std::vector}}}.*/
         std::vector<double> initial_condition;
         initial_condition.push_back(1.0);
-        /* Then, just call Solve(), passing in a pointer to the ODE, the
+        /* Then, just call `Solve`, passing in a pointer to the ODE, the
          * initial condition, the start time, end time, the solving timestep,
-         * and sampling timestep (how often we want the returned solution).
+         * and sampling timestep (how often we want the solution stored in the returned `OdeSolution` object).
          * Here we solve from 0 to 1, with a timestep of 0.01 but a ''sampling
-         * timestep'' (how often the results are stored) of 0.1. The return value is an object of type {{{OdeSolution}}}
+         * timestep'' of 0.1. The return value is an object of type {{{OdeSolution}}}
          * (which is basically just a list of times and solutions).
          */
         OdeSolution solutions = euler_solver.Solve(&my_ode, initial_condition, 0, 1, 0.01, 0.1);
-        /* Let's look at the results, which can be obtained from the {{{OdeSolutions}}}
+        /* Let's look at the results, which can be obtained from the {{{OdeSolution}}}
          * object using the methods {{{rGetTimes()}}} and {{{rGetSolutions()}}}, which
          * return a {{{std::vector}}} and a {{{std::vector}}} of {{{std::vector}}}s
          * respectively. */
         for (unsigned i=0; i<solutions.rGetTimes().size(); i++)
         {
-            /* the {{{[0]}}} here is because getting the zeroth component of y (a 1-dimensional vector) */
+            /* The {{{[0]}}} here is because we are getting the zeroth component of y (a 1-dimensional vector). */
             std::cout << solutions.rGetTimes()[i] << " " << solutions.rGetSolutions()[i][0] << "\n";
         }
 
@@ -246,7 +249,7 @@ public:
         solutions.WriteToFile("SolvingOdesTutorial", "my_ode_solution", "sec");
         /* Two files are written
          * * {{{my_ode_solution.dat}}} contains the results (a header line, then one column for time and one column per variable)
-         * * {{{my_ode_solution.info}}} contains information for reading the data back, a line about the ODE solver: {{{ODE SOLVER: EulerIvpOdeSolver}}} and provenance information.
+         * * {{{my_ode_solution.info}}} contains information for reading the data back, a line about the ODE solver ("{{{ODE SOLVER: EulerIvpOdeSolver}}}") and provenance information.
          */
 
         /* We can see from the printed out results that y goes above 2.5 somewhere just
@@ -256,12 +259,12 @@ public:
 
         /* '''Note:''' ''when a {{{std::vector}}} is passed in as an initial condition
          * to a {{{Solve}}} call, it gets updated as the solve takes place''. Therefore, if
-         * we want to use the same initial condition again, we have to reset it back to 1.0 */
+         * we want to use the same initial condition again, we have to reset it back to 1.0. */
         initial_condition[0] = 1.0;
         solutions = euler_solver.Solve(&my_ode_stopping, initial_condition, 0, 1, 0.01, 0.1);
         /* We can check with the solver that it stopped because of the stopping event, rather than because
          * it reached to end time. */
-        assert(euler_solver.StoppingEventOccurred()==true);
+        TS_ASSERT(euler_solver.StoppingEventOccurred());
         /* Finally, let's print the time of the stopping event (to the nearest dt or so). */
         std::cout << "Stopping event occurred at t="<<solutions.rGetTimes().back()<<"\n";
     }
@@ -269,14 +272,14 @@ public:
     /*
      * EMPTYLINE
      *
-     * === ODE Solving Using the State Variable ===
+     * === ODE solving using state variables ===
      *
      * In this second test, we show how to do an alternative version of ODE solving, which
      * does not involve passing in initial conditions and returning an {{{OdeSolution}}}.
-     * The {{{AbstractOdeSystem}}} has a variable called the ''state variable'', which can
-     * be used to hold the solution, and will be updated if a particular version of Solve
+     * The {{{AbstractOdeSystem}}} class has a member variable called the ''state variable vector'', which can
+     * be used to hold the solution, and will be updated if a particular version of `Solve`
      * is called. This can be useful for embedding ODE models in a bigger system, since
-     * the ODE models will then always contain their current solution.
+     * the ODE models will then always contain their current solution state.
      */
     void TestOdeSolvingUsingStateVariable()
     {
@@ -285,7 +288,7 @@ public:
          * been set to be a vector of size one, containing the value 1.0. */
         MyOdeUsingStateVariables my_ode_using_state_vars;
 
-        /* To solve updating the state variable, just call appropriate method with
+        /* To solve updating the state variable, just call the appropriate method on
          * a chosen solver. Note that no initial condition is required, no
          * {{{OdeSolution}}} is returned, and no sampling timestep is given. */
         EulerIvpOdeSolver euler_solver;
@@ -301,15 +304,15 @@ public:
      * === Solving n-dimensional ODEs ===
      *
      * Finally, here's a simple test showing how to solve a 2d ODE using the first method.
-     * All that is different is the initial condition has be a 2d vector, and returned
-     * solution is 2d at every timestep.
+     * All that is different is the initial condition has be a vector of length 2, and returned
+     * solution is of length 2 at every timestep.
      */
     void TestWith2dOde()
     {
         My2dOde my_2d_ode;
         EulerIvpOdeSolver euler_solver;
 
-        /* Define a 2d initial condition. */
+        /* Define the initial condition for each state variable. */
         std::vector<double> initial_condition;
         initial_condition.push_back(1.0);
         initial_condition.push_back(0.0);

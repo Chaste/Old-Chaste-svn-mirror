@@ -250,7 +250,7 @@ public:
     void TestSolvingCompressibleProblem() throw (Exception)
     {
         /* Incompressible problems will run in parallel but not scale well. For compressible problems,
-         * at the moment, the Petsc preconditioner that is used is one that sequential-only, hence we
+         * at the moment, the PETSc preconditioner that is used is one that sequential-only, hence we
          * can't run compressible solves in parallel, which the following macro avoids. Implementation
          * of parallel mechanics is currently work in progress.
          */

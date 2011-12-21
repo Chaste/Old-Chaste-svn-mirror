@@ -222,14 +222,14 @@ private:
         surface_integral_assembler.SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false /*don't zero vector before assembling!*/);
         surface_integral_assembler.Assemble();
 
-        /* Some necessary Petsc communication before applying Dirichet BCs */
+        /* Some necessary PETSc communication before applying Dirichet BCs */
         this->mpLinearSystem->FinaliseRhsVector();         // (Petsc communication)
         this->mpLinearSystem->SwitchWriteModeLhsMatrix();  // (Petsc communication - needs to called when going from adding entries to inserting entries)
 
         /* Apply the dirichlet BCs from the BCC to the linear system */
         mpBoundaryConditions->ApplyDirichletToLinearProblem(*(this->mpLinearSystem), computeMatrix);
 
-        /* Some necessary Petsc communication to finish */
+        /* Some necessary PETSc communication to finish */
         this->mpLinearSystem->FinaliseRhsVector();
         this->mpLinearSystem->FinaliseLhsMatrix();
     }

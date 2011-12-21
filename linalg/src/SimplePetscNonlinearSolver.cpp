@@ -86,7 +86,7 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
         reason_stream << reason;
         VecDestroy(x); // Since caller can't free the memory in this case
         SNESDestroy(snes);
-        EXCEPTION("Nonlinear Solver did not converge. Petsc reason code:"
+        EXCEPTION("Nonlinear Solver did not converge. PETSc reason code:"
                   +reason_stream.str()+" .");
     }
 #undef COVERAGE_IGNORE

@@ -58,10 +58,10 @@ public:
     ReplicatableVector();
 
     /**
-     * Constructor taking in Petsc vector, which is immediately
+     * Constructor taking in PETSc vector, which is immediately
      * replicated into the internal data
      *
-     * @param vec a Petsc vector
+     * @param vec a PETSc vector
      */
     ReplicatableVector(Vec vec);
 

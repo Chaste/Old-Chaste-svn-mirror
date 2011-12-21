@@ -129,7 +129,7 @@ public:
     /**
      * Get the values of a given variable at each node at a given time step.
      *
-     * @param data  Petsc vec to hold the data
+     * @param data  PETSc vec to hold the data
      * @param rVariableName  name of a variable in the data file
      * @param timestep the time step for which the data is obtained (defaults to 0)
      */

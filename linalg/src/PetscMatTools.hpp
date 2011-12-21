@@ -205,7 +205,7 @@ public:
      *
      * @param matrix  the matrix
      * @param matrixRowAndColIndices mapping from index of the ublas matrix (see param below)
-     *  to index of the Petsc matrix of this linear system
+     *  to index of the PETSc matrix of this linear system
      * @param rSmallMatrix Ublas matrix containing the values to be added
      *
      * N.B. Values which are not local (ie the row is not owned) will be skipped.

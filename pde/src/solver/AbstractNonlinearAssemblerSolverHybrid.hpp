@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NaturalNeumannSurfaceTermAssembler.hpp"
 
 /*
- * Definitions of GLOBAL functions used by Petsc nonlinear solver
+ * Definitions of GLOBAL functions used by PETSc nonlinear solver
  * (implementations are at the bottom of this file).
  */
 
@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * @param currentGuess The solution guess for the current iteration.
  * @param residualVector We fill this with the residual vector.
  * @param pContext Pointer to a AbstractNonlinearAssemblerSolverHybrid object.
- * @return Petsc expects this function to return a PetscErrorCode. We always return 0;
+ * @return PETSc expects this function to return a PetscErrorCode. We always return 0;
  *   exceptions are thrown if there is an error.
  *
  * Note: this is a global function, hence the need for a long name to avoid
@@ -75,7 +75,7 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
  * @param pPreconditioner This is not used by us, but required by PETSc.
  * @param pMatStructure This is not used by us, but required by PETSc.
  * @param pContext Pointer to a AbstractNonlinearAssemblerSolverHybrid object.
- * @return Petsc expects this function to return a PetscErrorCode. We always return 0;
+ * @return PETSc expects this function to return a PetscErrorCode. We always return 0;
  *   exceptions are thrown if there is an error.
  *
  * Note: this is a global function, hence the need a long name to avoid
@@ -430,7 +430,7 @@ bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
     return ok;
 }
 
-// Implementations of GLOBAL functions called by Petsc nonlinear solver
+// Implementations of GLOBAL functions called by PETSc nonlinear solver
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,

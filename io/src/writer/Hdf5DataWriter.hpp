@@ -182,7 +182,7 @@ public:
     void PossiblyExtend();
 
     /**
-     * Write data for a given variable from a Petsc vector to the dataset.
+     * Write data for a given variable from a PETSc vector to the dataset.
      *
      * @param variableID the variable id of the column in the HDF5 file
      * @param petscVector the data
@@ -190,7 +190,7 @@ public:
     void PutVector(int variableID, Vec petscVector);
 
     /**
-     * Write data for two variables from a Petsc vector to the dataset.
+     * Write data for two variables from a PETSc vector to the dataset.
      *
      * @param variableIDs vector of IDs of variables of the columns in the HDF5 file
      * @param petscVector the data

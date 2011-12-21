@@ -66,7 +66,7 @@ public:
     virtual ~ParallelColumnDataWriter();
 
     /**
-     * Write data for a given variable from a Petsc vector to the dataset.
+     * Write data for a given variable from a PETSc vector to the dataset.
      *
      * @param variableID the variable
      * @param petscVector the data

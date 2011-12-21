@@ -145,7 +145,7 @@ private:
      * already set up. Can use an initial solution as PETSc template,
      * or base it on the mesh size.
      *
-     * @param initialSolution Initial solution (defaults to NULL) for Petsc to use as a template.
+     * @param initialSolution Initial solution (defaults to NULL) for PETSc to use as a template.
      */
     void InitialiseForSolve(Vec initialSolution=NULL);
 

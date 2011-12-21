@@ -93,7 +93,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
     Finalise(matrix);
 
     /*
-     * Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
+     * Important! PETSc by default will destroy the sparsity structure for this row and deallocate memory
      * when the row is zeroed, and if there is a next timestep, the memory will have to reallocated when
      * assembly to done again. This can kill performance. The following makes sure the zeroed rows are kept.
      */
@@ -120,7 +120,7 @@ void PetscMatTools::ZeroRowsWithValueOnDiagonal(Mat matrix, std::vector<unsigned
     /*
      *
 [2]PETSC ERROR: MatMissingDiagonal_SeqAIJ() line 1011 in src/mat/impls/aij/seq/aij.c
-[2]PETSC ERROR: Petsc has generated inconsistent data!
+[2]PETSC ERROR: PETSc has generated inconsistent data!
 [2]PETSC ERROR: Matrix is missing diagonal number 15!
 [2]PETSC ERROR: MatILUFactorSymbolic_SeqAIJ() line 906 in src/mat/impls/aij/seq/aijfact.c
      *

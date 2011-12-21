@@ -32,10 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petsc.h>
 #include <petscksp.h>
 /**
- * Throw an exception if the Petsc error number (what is generally denoted 'ierr' in
- * Petsc code) is non-zero - see PETSCEXCEPT
+ * Throw an exception if the PETSc error number (what is generally denoted 'ierr' in
+ * PETSc code) is non-zero - see PETSCEXCEPT
  *
- * @param petscError Petsc error number
+ * @param petscError PETSc error number
  * @param line
  * @param funct
  * @param file
