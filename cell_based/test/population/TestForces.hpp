@@ -515,18 +515,16 @@ public:
     {
         unsigned cells_across = 7;
         unsigned cells_up = 5;
-        unsigned thickness_of_ghost_layer = 0;
 
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
-        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer);
+        HoneycombMeshGenerator generator(cells_across, cells_up);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         MAKE_PTR(CellLabel, p_label);
         for (unsigned i=0; i<cells.size(); i++)
@@ -535,7 +533,7 @@ public:
             cells[i]->AddCellProperty(p_label);
         }
 
-        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Set up cellwise data and associate it with the cell population
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();

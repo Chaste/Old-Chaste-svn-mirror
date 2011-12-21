@@ -288,16 +288,18 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
         std::vector<double> cell_volumes(num_elements);
         std::vector<std::vector<double> > cellwise_data;
 
-        if (CellwiseData<DIM>::Instance()->IsSetUp())
-        {
-            CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
-            unsigned num_variables = p_data->GetNumVariables();
-            for (unsigned var=0; var<num_variables; var++)
-            {
-                std::vector<double> cellwise_data_var(num_elements);
-                cellwise_data.push_back(cellwise_data_var);
-            }
-        }
+        // This code is commented code is because Cellwise Data can't deal with ghost nodes see #1975
+        assert(!CellwiseData<DIM>::Instance()->IsSetUp());
+        //if (CellwiseData<DIM>::Instance()->IsSetUp())
+        //{
+        //    CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
+        //    unsigned num_variables = p_data->GetNumVariables();
+        //    for (unsigned var=0; var<num_variables; var++)
+        //    {
+        //        std::vector<double> cellwise_data_var(num_elements);
+        //        cellwise_data.push_back(cellwise_data_var);
+        //    }
+        //}
 
         // Loop over Voronoi elements
         for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = this->mpVoronoiTessellation->GetElementIteratorBegin();
@@ -346,15 +348,17 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
                     double cell_volume = this->mpVoronoiTessellation->GetVolumeOfElement(elem_index);
                     cell_volumes[elem_index] = cell_volume;
                 }
-                if (CellwiseData<DIM>::Instance()->IsSetUp())
-                {
-                    CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
-                    unsigned num_variables = p_data->GetNumVariables();
-                    for (unsigned var=0; var<num_variables; var++)
-                    {
-                        cellwise_data[var][elem_index] = p_data->GetValue(p_cell, var);
-                    }
-                }
+                // This code is commented  because Cellwise Data can't deal with ghost nodes see #1975
+                assert(!CellwiseData<DIM>::Instance()->IsSetUp());
+                //if (CellwiseData<DIM>::Instance()->IsSetUp())
+                //{
+                //    CellwiseData<DIM>* p_data = CellwiseData<DIM>::Instance();
+                //    unsigned num_variables = p_data->GetNumVariables();
+                //    for (unsigned var=0; var<num_variables; var++)
+                //    {
+                //        cellwise_data[var][elem_index] = p_data->GetValue(p_cell, var);
+                //    }
+                //}
             }
             else
             {

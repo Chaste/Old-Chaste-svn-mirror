@@ -173,110 +173,110 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    void TestCellwiseDataGradientWithGhostNodes() throw(Exception)
-    {
-        // Create a mesh: [0,2]x[0,2]
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
-        MutableMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Set boundary nodes to be ghost nodes, interior nodes to be cells
-        std::vector<unsigned> cell_location_indices;
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            if (!(mesh.GetNode(i)->IsBoundaryNode()))
-            {
-                cell_location_indices.push_back(i);
-            }
-        }
-
-        // Set up cells
-        std::vector<CellPtr> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasic(cells, cell_location_indices.size());
-
-        // Create a cell population
-        MeshBasedCellPopulationWithGhostNodes<2> cell_population(mesh, cells, cell_location_indices);
-
-        // Create an instance of CellwiseData and associate it with the cell population
-        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumCellsAndVars(cell_population.GetNumNodes(), 1);
-        p_data->SetCellPopulation(&cell_population);
-
-        //////////////////////////////////
-        // C(x,y) = x^2 - y^2
-        //////////////////////////////////
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNode(i)->rGetLocation()[0];
-            double y = mesh.GetNode(i)->rGetLocation()[1];
-            if (mesh.GetNode(i)->IsBoundaryNode())
-            {
-                p_data->SetValue(DBL_MAX, mesh.GetNode(i)->GetIndex());
-            }
-            else
-            {
-                p_data->SetValue(x*x - y*y, mesh.GetNode(i)->GetIndex());
-            }
-        }
-
-        // Check gradient - here there is some numerical error
-
-        // The corner nodes are special because they have no adjacent real elements
-        CellwiseDataGradient<2> gradient;
-        gradient.SetupGradients();
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            double x = mesh.GetNode(i)->rGetLocation()[0];
-            double y = mesh.GetNode(i)->rGetLocation()[1];
-
-            if (!(mesh.GetNode(i)->IsBoundaryNode())) // i.e. not ghost
-            {
-                int x_corner = 0;
-
-                // Work out if on left or right
-                if (x == 0.03125)
-                {
-                    x_corner = -1;
-                }
-                if (x == 1.96875)
-                {
-                    x_corner = 1;
-                }
-                int y_corner=0;
-
-                // Work out if on top or bottom
-                if (y == 0.03125)
-                {
-                    y_corner = -1;
-                }
-                if (y == 1.96875)
-                {
-                    y_corner = 1;
-                }
-
-                switch (x_corner*y_corner)
-                {
-                    case 1: // bottom left or top right
-                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  0.0, 1e-9);
-                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(1),  0.0, 1e-9);
-                        break;
-                    case -1: // bottom right or top left
-                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  2.0, 1e-9);
-                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), -2.0, 1e-9);
-                        break;
-                    case 0: // otherwise
-                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  2*x, 0.3);
-                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), -2*y, 0.3);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        CellwiseData<2>::Destroy();
-    }
+//    void TestCellwiseDataGradientWithGhostNodes() throw(Exception)
+//    {
+//        // Create a mesh: [0,2]x[0,2]
+//        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4096_elements");
+//        MutableMesh<2,2> mesh;
+//        mesh.ConstructFromMeshReader(mesh_reader);
+//
+//        // Set boundary nodes to be ghost nodes, interior nodes to be cells
+//        std::vector<unsigned> cell_location_indices;
+//        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+//        {
+//            if (!(mesh.GetNode(i)->IsBoundaryNode()))
+//            {
+//                cell_location_indices.push_back(i);
+//            }
+//        }
+//
+//        // Set up cells
+//        std::vector<CellPtr> cells;
+//        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+//        cells_generator.GenerateBasic(cells, cell_location_indices.size());
+//
+//        // Create a cell population
+//        MeshBasedCellPopulationWithGhostNodes<2> cell_population(mesh, cells, cell_location_indices);
+//
+//        // Create an instance of CellwiseData and associate it with the cell population
+//        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+//        p_data->SetNumCellsAndVars(cell_population.GetNumNodes(), 1);
+//        p_data->SetCellPopulation(&cell_population);
+//
+//        //////////////////////////////////
+//        // C(x,y) = x^2 - y^2
+//        //////////////////////////////////
+//        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+//        {
+//            double x = mesh.GetNode(i)->rGetLocation()[0];
+//            double y = mesh.GetNode(i)->rGetLocation()[1];
+//            if (mesh.GetNode(i)->IsBoundaryNode())
+//            {
+//                p_data->SetValue(DBL_MAX, mesh.GetNode(i)->GetIndex());
+//            }
+//            else
+//            {
+//                p_data->SetValue(x*x - y*y, mesh.GetNode(i)->GetIndex());
+//            }
+//        }
+//
+//        // Check gradient - here there is some numerical error
+//
+//        // The corner nodes are special because they have no adjacent real elements
+//        CellwiseDataGradient<2> gradient;
+//        gradient.SetupGradients();
+//        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+//        {
+//            double x = mesh.GetNode(i)->rGetLocation()[0];
+//            double y = mesh.GetNode(i)->rGetLocation()[1];
+//
+//            if (!(mesh.GetNode(i)->IsBoundaryNode())) // i.e. not ghost
+//            {
+//                int x_corner = 0;
+//
+//                // Work out if on left or right
+//                if (x == 0.03125)
+//                {
+//                    x_corner = -1;
+//                }
+//                if (x == 1.96875)
+//                {
+//                    x_corner = 1;
+//                }
+//                int y_corner=0;
+//
+//                // Work out if on top or bottom
+//                if (y == 0.03125)
+//                {
+//                    y_corner = -1;
+//                }
+//                if (y == 1.96875)
+//                {
+//                    y_corner = 1;
+//                }
+//
+//                switch (x_corner*y_corner)
+//                {
+//                    case 1: // bottom left or top right
+//                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  0.0, 1e-9);
+//                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(1),  0.0, 1e-9);
+//                        break;
+//                    case -1: // bottom right or top left
+//                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  2.0, 1e-9);
+//                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), -2.0, 1e-9);
+//                        break;
+//                    case 0: // otherwise
+//                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(0),  2*x, 0.3);
+//                        TS_ASSERT_DELTA(gradient.rGetGradient(i)(1), -2*y, 0.3);
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//        }
+//
+//        CellwiseData<2>::Destroy();
+//    }
 
 };
 

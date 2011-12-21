@@ -761,6 +761,20 @@ public:
 
         TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "MeshBasedCellPopulation-3");
 
+        // Coverage of writing CellwiseData to VTK
+        CellwiseData<3>* p_data = CellwiseData<3>::Instance();
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 2);
+        p_data->SetCellPopulation(&cell_population);
+        for (unsigned var=0; var<2; var++)
+        {
+            for (AbstractCellPopulation<3>::Iterator cell_iter = cell_population.Begin();
+                 cell_iter != cell_population.End();
+                 ++cell_iter)
+            {
+                p_data->SetValue((double) 3.0*var, cell_population.GetLocationIndexUsingCell(*cell_iter), var);
+            }
+        }
+
         // Test set methods
         cell_population.SetOutputVoronoiData(true);
         cell_population.SetOutputCellPopulationVolumes(true);

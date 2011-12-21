@@ -72,12 +72,14 @@ void CellwiseDataGradient<DIM>::SetupGradients()
         {
             unsigned node_global_index = r_elem.GetNodeGlobalIndex(node_index);
 
-            // Check whether ghost element
-            if (p_cell_population->IsGhostNode(node_global_index) == true)
-            {
-                is_ghost_element = true;
-                break;
-            }
+            // This code is commented because CelwiseData Can't deal with ghost nodes see #1975
+            assert(p_cell_population->IsGhostNode(node_global_index) == false);
+            //// Check whether ghost element
+            //if (p_cell_population->IsGhostNode(node_global_index) == true)
+            //{
+            //    is_ghost_element = true;
+            //    break;
+            //}
 
             // If no ghost element, get PDE solution
             CellPtr p_cell = p_cell_population->GetCellUsingLocationIndex(node_global_index);
@@ -111,57 +113,59 @@ void CellwiseDataGradient<DIM>::SetupGradients()
 
         if (!num_real_elems_for_node[node_global_index] > 0)
         {
-            // The node is a real node which is not in any real element
-            // but should be connected to some cells (if more than one cell in mesh)
-            Node<DIM>& this_node = *(p_cell_population->GetNodeCorrespondingToCell(*cell_iter));
-
-            mGradients[node_global_index] = zero_vector<double>(DIM);
-            unsigned num_real_adjacent_nodes = 0;
-
-            // Get all the adjacent nodes which correspond to real cells
-            std::set<Node<DIM>*> real_adjacent_nodes;
-            real_adjacent_nodes.clear();
-
-            // First loop over containing elements
-            for (typename Node<DIM>::ContainingElementIterator element_iter = this_node.ContainingElementsBegin();
-                 element_iter != this_node.ContainingElementsEnd();
-                 ++element_iter)
-            {
-                // Then loop over nodes therein
-                Element<DIM,DIM>& r_adjacent_elem = *(r_mesh.GetElement(*element_iter));
-                for (unsigned local_node_index=0; local_node_index<DIM+1; local_node_index++)
-                {
-                    unsigned adjacent_node_global_index = r_adjacent_elem.GetNodeGlobalIndex(local_node_index);
-
-                    // If not a ghost node and not the node we started with
-                    if (    !(p_cell_population->IsGhostNode(adjacent_node_global_index))
-                         && adjacent_node_global_index != node_global_index )
-                    {
-
-                        // Calculate the contribution of gradient from this node
-                        Node<DIM>& adjacent_node = *(r_mesh.GetNode(adjacent_node_global_index));
-
-                        double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(*cell_iter, 0);
-                        CellPtr p_adjacent_cell = p_cell_population->GetCellUsingLocationIndex(adjacent_node_global_index);
-                        double adjacent_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(p_adjacent_cell, 0);
-
-                        c_vector<double, DIM> gradient_contribution = zero_vector<double>(DIM);
-
-                        if (fabs(this_cell_concentration-adjacent_cell_concentration) > 100*DBL_EPSILON)
-                        {
-                            c_vector<double, DIM> edge_vector = r_mesh.GetVectorFromAtoB(this_node.rGetLocation(), adjacent_node.rGetLocation());
-                            double norm_edge_vector = norm_2(edge_vector);
-                            gradient_contribution = edge_vector
-                                                        * (adjacent_cell_concentration - this_cell_concentration)
-                                                        / (norm_edge_vector * norm_edge_vector);
-                        }
-
-                        mGradients[node_global_index] += gradient_contribution;
-                        num_real_adjacent_nodes++;
-                    }
-                }
-            }
-            mGradients[node_global_index] /= num_real_adjacent_nodes;
+            NEVER_REACHED;
+            // This code is commented because CellwiseData Can't deal with ghost nodes so won't ever come into this statement see #1975
+            //// The node is a real node which is not in any real element
+            //// but should be connected to some cells (if more than one cell in mesh)
+            //Node<DIM>& this_node = *(p_cell_population->GetNodeCorrespondingToCell(*cell_iter));
+            //
+            //mGradients[node_global_index] = zero_vector<double>(DIM);
+            //unsigned num_real_adjacent_nodes = 0;
+            //
+            //// Get all the adjacent nodes which correspond to real cells
+            //std::set<Node<DIM>*> real_adjacent_nodes;
+            //real_adjacent_nodes.clear();
+            //
+            //// First loop over containing elements
+            //for (typename Node<DIM>::ContainingElementIterator element_iter = this_node.ContainingElementsBegin();
+            //     element_iter != this_node.ContainingElementsEnd();
+            //     ++element_iter)
+            //{
+            //    // Then loop over nodes therein
+            //    Element<DIM,DIM>& r_adjacent_elem = *(r_mesh.GetElement(*element_iter));
+            //    for (unsigned local_node_index=0; local_node_index<DIM+1; local_node_index++)
+            //    {
+            //        unsigned adjacent_node_global_index = r_adjacent_elem.GetNodeGlobalIndex(local_node_index);
+            //
+            //        // If not a ghost node and not the node we started with
+            //        if (    !(p_cell_population->IsGhostNode(adjacent_node_global_index))
+            //             && adjacent_node_global_index != node_global_index )
+            //        {
+            //
+            //            // Calculate the contribution of gradient from this node
+            //            Node<DIM>& adjacent_node = *(r_mesh.GetNode(adjacent_node_global_index));
+            //
+            //            double this_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(*cell_iter, 0);
+            //            CellPtr p_adjacent_cell = p_cell_population->GetCellUsingLocationIndex(adjacent_node_global_index);
+            //            double adjacent_cell_concentration = CellwiseData<DIM>::Instance()->GetValue(p_adjacent_cell, 0);
+            //
+            //            c_vector<double, DIM> gradient_contribution = zero_vector<double>(DIM);
+            //
+            //            if (fabs(this_cell_concentration-adjacent_cell_concentration) > 100*DBL_EPSILON)
+            //            {
+            //                c_vector<double, DIM> edge_vector = r_mesh.GetVectorFromAtoB(this_node.rGetLocation(), adjacent_node.rGetLocation());
+            //                double norm_edge_vector = norm_2(edge_vector);
+            //                gradient_contribution = edge_vector
+            //                                            * (adjacent_cell_concentration - this_cell_concentration)
+            //                                            / (norm_edge_vector * norm_edge_vector);
+            //            }
+            //
+            //            mGradients[node_global_index] += gradient_contribution;
+            //            num_real_adjacent_nodes++;
+            //        }
+            //    }
+            //}
+            //mGradients[node_global_index] /= num_real_adjacent_nodes;
         }
         else
         {
