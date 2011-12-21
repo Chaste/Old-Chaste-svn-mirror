@@ -57,8 +57,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Some solvers for general simple (uncoupled) linear PDEs are already provided in Chaste, such
  * as the `SimpleLinearEllipticSolver`. These are for PDEs that can be written in a generic
- * form (`SimpleLinearEllipticPde`, for example). However a general coupled set of PDEs can't
- * be written in a generic form, so the user has to write their own solver. In this tutorial
+ * form (`SimpleLinearEllipticPde`, for example). However ''coupled'' PDEs can't
+ * be easily written in generic form, so the user has to write their own solver. In this tutorial
  * we explain how to do this.
  *
  * For this tutorial the user needs to have read the solving-PDEs tutorials. It may also be
@@ -69,7 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Let us use the terminology "assembled in an FE manner" for any matrix or vector that is
  * defined via a volume/surface/line integral, and which is constructed by: looping over
- * elements (or surface elements, etc.); computing the elemental contribution (i.e. a small
+ * elements (or surface elements, etc); computing the elemental contribution (i.e. a small
  * matrix/vector) using numerical quadrature; and adding to the full matrix/vector.
  *
  * We only consider linear problems here. In these problems the discretised FE problem leads
@@ -110,11 +110,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * of u, `V` the vector of nodal values of v, `b1` the vector with entries `integral(f\phi_i dV)` (i=1,..,N)
  * and `b2` has entries `integral(g\phi_i dV)` (here `phi_i` are the linear basis functions).
  *
- * This is the linear system which we now write a solver to set up. Note, however, that
+ * This is the linear system which we now write a solver to set up. '''Note''', however, that
  * the main Chaste solvers assume a STRIPED data format, ie that the unknown vector
- * is `[U_1 V_1 U_2 V_2 .. U_n V_n]`, not `[ U_1 U_2 .. U_n V_1 V_2 .. V_n]`. We write down
+ * is `[U_1 V_1 U_2 V_2 .. U_n V_n]`, not `[ U_1 U_2 .. U_n V_1 V_2 .. V_n]`. ''We write down
  * equations in block form as it makes things clearer, but have to remember that the code
- * deals with STRIPED data structures.
+ * deals with STRIPED data structures.'' Striping is used in the code for parallelisation reasons.
  *
  * These are some basic includes as in the solving-PDEs tutorials
  */
@@ -127,7 +127,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 /* We need to include the following two classes if we are going to use a combination of
  * (element_dim, space_dim, problem_dim) that isn't explicitly instantiated in
- * `BoundaryConditionsContainer.cpp` (without these two includes this test will
+ * `BoundaryConditionsContainer.cpp` (see the bottom of that file) (without these includes this test will
  * fail to link).
  */
 #include "BoundaryConditionsContainerImplementation.hpp"
@@ -256,12 +256,11 @@ public:
  *  Dirichlet-Neumann boundary conditions will be specified.
  *
  *  The `AbstractAssemblerSolverHybrid` deals with the Dirichlet and Neumann boundary parts of the implementation,
- *  so, we, the writer of the solver, don't have to worry about this. However, this assumes that the user will specify
- *  NATURAL Neumann BCs, which are whatever appears naturally in the weak form of the problem. In this case, natural
- *  Neumann BCs are specifying: `du/dn = s1, dv/dn = s2, dw/dn = s3`, which coincide with usual Neumann BCs. However,
+ *  so, we, the writer of the solver, don't have to worry about this. The user has to realise though that they are
+ *  specifying NATURAL Neumann BCs, which are whatever appears naturally in the weak form of the problem. In this case, natural
+ *  Neumann BCs are specification of: `du/dn = s1, dv/dn = s2, dw/dn = s3`, which coincide with usual Neumann BCs. However,
  *  suppose the last equation was `w_t = Laplacian(w) + Div(D grad(u))`, then the natural BCs would be:
- *  `du/dn = s1, dv/dn = s2, dw/dn + (Dgradu).n = s3`. The user needs to realise they are specifying things such as
- *  the latter.
+ *  `du/dn = s1, dv/dn = s2, dw/dn + (Dgradu).n = s3`.
  *
  *  We need to choose a time-discretisation. Let us choose an implicit discretisation, ie
  *  {{{
@@ -431,8 +430,6 @@ public:
             TS_ASSERT_DELTA(u, u_exact, 0.002);
             TS_ASSERT_DELTA(v, v_exact, 0.007);
         }
-
-        /* We have responsibility for freeing memory used for the results vector. */
         VecDestroy(result);
     }
 
@@ -482,7 +479,7 @@ public:
          * solver to output results to file every tenth timestep. The solver will create
          * one file for each variable and for each time, so for example, the file
          * results_Variable_0_10 is the results for u, over all nodes, at the 11th printed time.
-         * Have a look in the output directory after running the test. (Note: The HDF5 data can also be
+         * Have a look in the output directory after running the test. (Note: the HDF5 data can also be
          * converted to VTK or cmgui formats).
          */
         solver.SetOutputToTxt(true);
@@ -515,8 +512,8 @@ public:
          * pos = read_chaste_node_file('mesh.node');
          * for i=0:200
          *   file = ['txt_output/results_Variable_2_',num2str(i),'.txt'];
-         *   u = load(file);
-         *   plot3(pos(:,1),pos(:,2),u,'*');
+         *   w = load(file);
+         *   plot3(pos(:,1),pos(:,2),w,'*');
          *   pause;
          * end;
          * }}}

@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  'simple' case in which the FEM discretisation leads to a linear system Ax=b where
  *  both A and b are 'assembled'. In this tutorial, we consider the more general case,
  *  and show to write assembler classes which assemble one particular matrix or vector,
- *  and how to write solver classes which use assemblers to create and solve the FEM
+ *  and how to write solver classes which ''use'' assemblers to create and solve the FEM
  *  linear system.
  *
  *  EMPTYLINE
@@ -61,25 +61,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  EMPTYLINE
  *
  *  We write a solver which uses an '''explicit''' time-discretisation (as opposed to the implicit
- *  discretisations used throughout the rest the code). The FEM linear system that needs to be set up is
+ *  discretisations used throughout the rest of the code). The FEM linear system that needs to be set up is
  *  {{{
  *  M U^{n+1} = (M + dt K) U^{n}  +  c
  *  }}}
  *  where `M` is the mass matrix, `K` the stiffness matrix, and `U^{n}` the vector of nodal
- *  values of u at timestep n. (cf an implicit time-discretisation, for which  `(M - dt K) U^{n+1} = M U^{n}`).
- *  c is the surface integral term coming from the Neumann Bcs, ie `c_i = integral_over_Gamma2 (g * phi_i dS)`.
+ *  values of u at timestep n. c is the surface integral term coming from the Neumann BCs,
+ *  ie `c_i = integral_over_Gamma2 (g * phi_i dS)`. (This can be compared with an
+ *  implicit time-discretisation, for which we solve `(M - dt K) U^{n+1} = M U^{n} + c`).
  *
  *  EMPTYLINE
  *
  *  Let us call `M + dt*K` the 'RHS matrix'. We will write a solver, inheriting from
- *  `AbstractDynamicLinearPdeSolver`, which is going to ''use'' three assemblers (i) an assembler of
+ *  `AbstractDynamicLinearPdeSolver`, which is going to ''use'' three assemblers: (i) an assembler of
  *  the mass matrix (already written); (ii) an assembler of the RHS matrix (we have to write this ourselves);
  *  and (iii) an assembler of surface term, c (already written).
  *
  *  EMPTYLINE
  *
  *  Firstly, include `AbstractFeVolumeIntegralAssembler` which the assembler we write will inherit from,
- *  `AbstractDynamicLinearPdeSolver`, which the solver we write will inherit from.
+ *  and `AbstractDynamicLinearPdeSolver`, which the solver we write will inherit from.
  */
 #include <cxxtest/TestSuite.h>
 #include "AbstractFeVolumeIntegralAssembler.hpp"
@@ -115,15 +116,15 @@ class RhsMatrixAssembler
 {
 private:
     /* Even when a class isn't being written for a very general dimensions sometimes it is a good idea
-     * to define the following, and then use ELEMENT_DIM etc in the below, as it can make the code a
+     * to define the following, and then use `ELEMENT_DIM` etc in the below, as it can make the code a
      * bit easier to understand.
      */
     static const unsigned ELEMENT_DIM = DIM;
     static const unsigned SPACE_DIM = DIM;
     static const unsigned PROBLEM_DIM = 1;
 
-    /* Since we are assembling a matrix, we need to provide a `ComputeMatrixTerm()` method, to return the
-     * elemental contribution to the RHS matrix. Note that ELEMENT_DIM+1 is the number of
+    /* We are assembling a matrix, we means we need to provide a `ComputeMatrixTerm()` method, to return the
+     * elemental contribution to the RHS matrix. Note that `ELEMENT_DIM+1` is the number of
      * nodes in the element (=number of basis functions).
      */
     c_matrix<double,PROBLEM_DIM*(ELEMENT_DIM+1),PROBLEM_DIM*(ELEMENT_DIM+1)> ComputeMatrixTerm(
@@ -136,9 +137,9 @@ private:
     {
         c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret = zero_matrix<double>(ELEMENT_DIM+1,ELEMENT_DIM+1);
 
-        for(unsigned i=0; i<ELEMENT_DIM+1; i++)
+        for(unsigned i=0; i<ELEMENT_DIM+1; i++) // essentially a loop over the basis functions
         {
-            for(unsigned j=0; j<ELEMENT_DIM+1; j++)
+            for(unsigned j=0; j<ELEMENT_DIM+1; j++) // essentially a loop over the basis functions
             {
                 // mass matrix
                 ret(i,j) = rPhi(i)*rPhi(j);
@@ -154,7 +155,10 @@ private:
         // using outer_prod(rPhi, rPhi) and prod(trans(rGradPhi), rGradPhi);
     }
 
-    /* (If we were (also) assembling a vector, we would also have to provide a `ComputeVectorTerm()` method) */
+    /* (If we were (also) assembling a vector, we would also have to provide a `ComputeVectorTerm()` method, which is
+     * very similar).
+     *
+     * Now write the constructor. */
 public:
     RhsMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
         : AbstractFeVolumeIntegralAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh)
@@ -177,7 +181,7 @@ template<unsigned DIM>
 class ExplicitHeatEquationSolver : public AbstractDynamicLinearPdeSolver<DIM,DIM,1>
 {
 private:
-    /* The constuctor will take in a mesh and a BCC, the latter is a member variable */
+    /* The constuctor will take in a mesh and a BCC, the latter will be stored as a member variable */
     BoundaryConditionsContainer<DIM,DIM,1>* mpBoundaryConditions;
     /* Declare a matrix for the RHS matrix */
     Mat mRhsMatrix;
@@ -255,7 +259,7 @@ public:
  * = A test using the solver =
  *
  * The following test uses the new solver. Since the interface is exactly the same as the
- * other solvers, except for taking in a PDE (the fact that it solves a parameterless
+ * other solvers, except for not taking in a PDE (the fact that it solves a parameterless
  * heat equation is hardcoded into the solver), all of the below should be recognisable.
  * Note however the tiny timestep - this is needed for stability as this is an explicit scheme.
  * Also, to compare with the implicit solver, comment out the appropriate lines below. Note that
