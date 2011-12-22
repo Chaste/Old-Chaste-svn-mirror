@@ -7,6 +7,213 @@
 
 <h1>Chaste Release Notes</h1>
 
+<h2>Release 3.0 (changes since Release 2.3)</h2>
+
+<h3>Headline features</h3>
+
+<h4>General</h4>
+<ul>
+  <li>The Ubuntu package now also supports Oneiric Ocelot (11.10)</li>
+  <li>Support for PETSc 3.1 has been added, and Chaste should also work with the latest versions of the Boost libraries.</li>
+  <li>This is the last Chaste release that will officially support Boost 1.33.1 and PETSc 2.2.</li>
+  <li>The mechanics (and cardiac electro-mechanics) solvers have been made significantly more flexible.</li>
+  <li>It is relatively easy to write new solvers of coupled systems of linear PDEs, and tutorials on how to do this have been added.</li>
+  <li>We now recommend using VTK with Chaste, and the default.py hostconfig assumes it is available; previously support for VTK input/output within Chaste defaulted to off.</li>
+</ul>
+
+<h4>Cardiac</h4>
+<ul>
+  <li>(Work has begun on solving fluid flow and electrophysiology with Purkinje fibres, but these features are not yet completed.)</li>
+</ul>
+
+<h4>Cell-based</h4>
+<ul>
+  <li>Lattice based cellular Potts models have been implemented.</li>
+  <li>There has been a major refactor of the structure of the cell-based code to make the specification of multi-cell models (such as cell-centre, over-lapping spheres, vertex-based and cellular Potts) more consistent.</li>
+  <li>The handling of PDEs has been improved allowing PDEs to be coupled to node-based simulations.</li>
+  <li>More exceptions are thrown when incompatible classes are used.  Exception messages give information on how to fix the problem.</li>
+</ul>
+
+<h3>Major new functionality &amp; code changes</h3>
+
+<h4>General</h4>
+<ul>
+  <li>An error is given if using Boost 1.41 due to a <a href="http://sourceforge.net/apps/trac/easystroke/ticket/21">bug</a> in its serialization library.  Versions 1.44-1.46.1 also have a <a href="https://svn.boost.org/trac/boost/ticket/4842">bug</a> triggered when some tests exit, but the tests do run successfully.</li>
+  <li>All the solid mechanics related functionality has been moved out of the <tt>pde</tt> component to a new component <tt>continuum_mechanics</tt>. These components should be considered as quite separate to each other.</li>
+  <li>The interfaces to the solid mechanics solvers have changed considerably. They now take in a 'problem definition' object and are much more powerful. The tutorials describe the new interfaces in detail.
+  <ul>
+    <li>The incompressible solver is now called <tt>IncompressibleNonlinearElasticitySolver</tt>.</li>
+    <li>Further work has been done on the compressible solver.</li>
+    <li>Both the incompressible and compressible solvers take in a new class, <tt>SolidMechanicsProblemDefinition</tt>, on which the material law, body force, displacement and traction boundary conditions are defined. See the solid mechanics tutorial to see how these classes are used. They also now take in a reference to a mesh not a mesh pointer.</li>
+    <li>Sliding boundary conditions are now possible (i.e. displacement boundary conditions, for only some components of the displacement, at given nodes).</li>
+    <li>Solid mechanics problems can now use boundary conditions that specify that a particular pressure should act in the normal direction on deformed surfaces.  It may not be fully optimised yet though - the Jacobian in the nonlinear solve needs altering.</li>
+  </ul></li>
+  <li>PDE-related changes:
+  <ul>
+    <li>When solving general time-dependent PDEs the solution can now be written to file at a specified sampling interval, in a variety of formats (HDF5, cmgui, text).  See <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/UserTutorials/SolvingLinearPdes">UserTutorials/SolvingLinearPdes</a> for more details.</li>
+    <li>Renamed <tt>AbstractFeObjectAssembler</tt> to <tt>AbstractFeVolumeIntegralAssembler</tt>, moved the surface integral functionality from this class to <tt>AbstractSurfaceIntegralAssembler</tt>, and created a natural Neumann concrete child of <tt>AbstractSurfaceIntegralAssembler</tt> to be used in PDE solvers.</li>
+    <li>These changes allow solvers of <i>systems of PDEs</i> to be set up relatively easily (for PDEs for which it is appropriate to use linear basis functions, e.g. systems of coupled heat or diffusion equations). Tutorials on writing your own PDE solvers have been added: start with <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/UserTutorials/WritingPdeSolvers">UserTutorials/WritingPdeSolvers</a>.</li>
+    <li>Added new classes <tt>AbstractLinearParabolicPdeSystemForCoupledOdeSystem</tt> and <tt>LinearParabolicPdeSystemWithCoupledOdeSystemSolver</tt> for the numerical solution of coupled systems of reaction-diffusion PDEs and ODEs.  See the associated tutorial <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/UserTutorials/SolvingLinearParabolicPdeSystemsWithCoupledOdeSystems">UserTutorials/SolvingLinearParabolicPdeSystemsWithCoupledOdeSystems</a>.</li>
+    <li>The efficiency of <tt>PetscMatTools::ZeroRowsAndColumnsWithValueOnDiagonal</tt> has been significantly improved, which should improve performance when using Dirichlet boundary conditions.</li>
+  </ul></li>
+  <li>Due to floating point error, it was previously possible for <tt>TimeStepper</tt> to occasionally take a very small step in long simulations, when all steps should have been the same size, and hence break code that assumed a constant time-step.  The tests and calculations have now been made much more robust, by being based on machine precision rather than magic numbers.
+  <ul>
+    <li>Any time-stepping object will throw if stepped past its end time.  (Previously (i) the core/heart <tt>TimeStepper</tt> class silently remained at the end time and (ii) the cell_based <tt>SimulationTime</tt> singleton class silently stepped past the end time.)</li>
+  </ul></li>
+  <li>Mesh-related changes:
+  <ul>
+    <li><tt>GenericMeshReader</tt> has been changed from a class to a function.  If you use it directly, you must now do something like "<tt>std::auto_ptr&lt;AbstractMeshReader&lt;2,2&gt; &gt; p_reader = GenericMeshReader&lt;2,2&gt;(mesh_path);</tt>".  The returned smart pointer will automatically destroy the reader when it goes out of scope, so any other changes to your code should be limited to replacing <tt>reader</tt> with <tt>*p_reader</tt>.</li>
+    <li>Some mixed dimension meshes may now be read in to Chaste, i.e. 1d elements embedded in a 2d or 3d mesh.  The 1d elements are defined in a separate <tt>.cable</tt> file, with the same format as the <tt>.edge</tt> file.</li>
+  </ul></li>
+  <li>Other new functionality:
+  <ul>
+    <li>Various additions to <tt>CommandLineArguments</tt> make it possible to pass in lists of arguments for a particular option. An option is now defined as starting with '-' followed by any non-numeric character to avoid confusion with negative numbers. Various helper methods have been added to avoid having to use <tt>char*</tt> and <tt>atoi</tt> etc.</li>
+    <li>There's a new class <tt>CompareDoubles</tt> in <tt>MathsCustomFunctions</tt> with static methods for comparing floating point numbers to absolute or relative tolerances.  This is now used in <tt>NumericFileComparison</tt> so that files can be compared to the looser of an absolute or relative tolerance.  The default is still to use just absolute as before.</li>
+    <li>Added methods <tt>PetscMatTools::CheckSymmetry</tt> and <tt>PetscMatTools::CheckEquality</tt>.</li>
+    <li>Where work can be split between isolated processes, it would be nice to be able to do so easily without worrying about collective calls made inside classes such as <tt>OutputFileHandler</tt> leading to deadlock.  A new method <tt>PetscTools::IsolateProcesses</tt> has been added to facilitate this.  Note that it doesn't guarantee safety - collective calls not resulting from the 3 methods affected will still cause deadlock.</li>
+  </ul></li>
+</ul>
+
+<h4>Cardiac</h4>
+<ul>
+  <li>Changes accessible via the XML parameters file:
+  <ul>
+    <li>Allowed the precision with which Meshalyzer and Cmgui visualisation output is written to be specified from the XML configuration file and via <tt>HeartConfig</tt>. (Thanks to Megan Marsh.)</li>
+    <li>Added the ability to specify paths relative to the XML configuration file for elements with type <tt>path_type</tt> (e.g. <tt>ArchiveDirectory</tt> and cell model paths).  Use the attribute <tt>relative_to="this_file"</tt>.</li>
+  </ul></li>
+  <li>Electro-mechanics: See the cardiac electro-mechanics tutorials for examples/usage of the following changes:
+  <ul>
+    <li>Cardiac electro-mechanics solvers can now use compressible elasticity as well as incompressible elasticity.</li>
+    <li>The interface to <tt>CardiacElectroMechanicsProblem</tt> has completely changed, and the interface to <tt>CardiacElectroMechProblemRegularGeom</tt> has slightly changed. <tt>CardiacElectroMechanicsProblem</tt> now takes in a problem definition object (c.f. the mechanics solvers) which means it is now much more flexible. Anything that can be done in a mechanics simulation can now immediately be done in a electro-mechanics simulation.</li>
+    <li>For both <tt>CardiacElectroMechanicsProblem</tt> and <tt>CardiacElectroMechProblemRegularGeom</tt>: electrics PDE timestep if different to 0.01, and simulation end time, should be set using <tt>HeartConfig</tt>, and not in the constructor of the problem class.</li>
+    <li><tt>CardiacElectroMechProblemRegularGeom</tt> constructor parameters are in a slightly different order, and it also can't be used with mechano-electric feedback or fibre files any longer (use <tt>CardiacElectroMechanicsProblem</tt> instead).</li>
+    <li>Some new tutorial tests have been added.</li>
+  </ul></li>
+  <li>Added functionality to solve extended bidomain problems (with two cell types at each control volume). This functionality is not yet available for the executable users.</li>
+  <li>The ability to perform non-matrix-based assembly (of the RHS vector) has been removed; matrix-based assembly is now always used. The option <tt>SetUseMatrixBasedRhsAssembly</tt> no longer exists.</li>
+  <li>The convenience method <tt>GetAllOrtho</tt> used to do VTK visualisation of ortho files was incorrect.  It was returning the <i>rows</i> of the conductivity tensor which represent a transpose of the original fibre data.</li>
+  <li>Various cardiac post-processing operations scale poorly with the number of nodes.  This has been significantly improved, although dramatic slowdown will still be observed with very large simulations.  (Technical detail: the reason for this is that the output data is written to the HDF5 file at each printing time-step, and so the file layout is optimised for reading/writing every node at one time-step.  However, post-processing needs to read every time-step for a single node or subset of nodes, and so cannot access disk as efficiently.)</li>
+  <li>Implemented calculating fibre orientations (Streeter) in a wedge preparation, for either left or right ventricle.  Previously both LV and RV endocardial surfaces were required.</li>
+</ul>
+
+<h4>Cell-based</h4>
+<ul>
+  <li>A major refactor of the cell population and cell-based simulation class hierarchies has taken place, based upon a distinction between on- and off-lattice models. This was done to integrate the code more thoroughly as on-lattice population and simulation classes were introduced, and to ensure that the use of update rules and forces is more consistent.
+  <ul>
+    <li>The <tt>CellBasedSimulation</tt> class has been split up into a hierarchy, with <tt>OffLatticeSimulation</tt> and <tt>OnLatticeSimulation</tt> inheriting from  <tt>AbstractCellBasedSimulation</tt>.</li>
+    <li>All cell populations now inherit from either <tt>AbstractOffLatticeCellPopulation</tt> or <tt>AbstractOnLatticeCellPopulation</tt> the former are used by <tt>OffLatticeSimulation</tt> and the later are used by <tt>OnLatticeSimulation</tt>.</li>
+  </ul></li>
+  <li>Cellular Potts models have been implemented in Chaste
+  <ul>
+    <li>The <tt>PottsBasedCellPopulation</tt> has been created with associated <tt>PottsMesh</tt> and <tt>PottsElement</tt> classes to store spatial information.</li>
+    <li>The <tt>AbstractPottsBasedUpdateRule</tt> hierarchy is used to define the dynamics of the simulation.</li>
+    <li>Simulations make use of the existing cell-cycle model and cell-killer hierarchies.</li>
+    <li>Added functionality for visualizing Potts-based cell simulations either using the visualizer <tt>Visualize2dVertexCells.java</tt> or using Paraview with VTK output.</li>
+  </ul></li>
+  <li>We have moved much of the cell-based code to use <tt>boost::shared_ptr</tt>s rather than plain pointers. This makes memory handling much more straightforward.
+  <ul>
+    <li>The <tt>CellBasedSimulation</tt> class and its subclasses now store collections of cell killers, boundary conditions, forces or update rules as <tt>boost::shared_ptr</tt>s.
+        These are passed to cell-based simulations as  (e.g.) <tt>std::vector&lt;boost::shared_ptr&lt;AbstractForce&lt;DIM&gt;&gt;&gt;</tt> instead of <tt>std::vector&lt;AbstractForce&lt;DIM&gt;*&gt;</tt>.</li>
+    <li>We also use helper macros such as <tt>MAKE_PTR</tt> a lot more in tests; these are defined in the header <tt>SmartPointers.hpp</tt>.</li>
+  </ul></li>
+  <li>A new overlapping spheres based force law, used by Buske <i>et al.</i> in their 2011 model of the crypt based on previous work by Galle <i>et al.</i>, has been implemented.
+  <ul>
+    <li>Added <tt>OdeLinearSystemSolver</tt> for solving large systems of ODEs of the form M dr/dt = f(t,r), where M is large and sparse.</li>
+    <li>Added two new force classes, <tt>BuskeInteractionForce</tt> and <tt>BuskeCompressionForce</tt>, to implement the model of cell-cell mechanical interactions used by Buske.</li>
+    <li>Added the ability to set/get cell radii in <tt>NodeBasedCellPopulation</tt> (via a member of <tt>NodesOnlyMesh</tt>), and allowed these to be updated when cell division/death occurs.  Cell radii may also be written to VTK output.</li>
+  </ul></li>
+  <li>We have generalised the way that PDEs, coupled to cell-based simulations, are handled:
+  <ul>
+    <li>Altered the input arguments to the method <tt>CellBasedSimulationWithPdes::UseCoarsePdeMesh</tt> and allowed output of the PDE solution on the coarse mesh.</li>
+    <li>Enabled the numerical solution of one or more (steady) reaction-diffusion PDEs coupled to a <tt>NodeBasedCellPopulation</tt>, by introducing a "coarse" PDE mesh associated with the population.</li>
+    <li>Extended <tt>CellBasedEventHandler</tt> so that it also records the time spent solving any coupled PDEs, for use in <tt>CellBasedSimulationWithPdes</tt>.</li>
+    <li>Created an <tt>AbstractCellBasedPde</tt> class which contains the PDE, the solver, the boundary conditions and an interface to an <tt>AbstractCellPopulation</tt>. This class can be passed to a concrete instantiation of an <tt>AbstractCellBasedSimulation</tt> just as forces or update rules are; this change avoids having to implement PDEs in each of <tt>OffLatticeSimulation</tt> and <tt>OnLatticeSimulation</tt>.</li>
+  </ul></li>
+  <li>We have introduced a new method of imposing boundary conditions (such as restricted geometries) on cell-based simulations:
+  <ul>
+    <li>The <tt>CellBasedSimulation</tt> method <tt>ApplyCellPopulationBoundaryConditions</tt> has been removed.</li>
+    <li>Boundary conditions must now be implemented using the <tt>CellPopulationBoundaryCondition</tt> hierarchy. This change allows the use of multiple boundary conditions in a cell-based simulation, just as multiple force laws may be used.</li>
+  </ul></li>
+  <li>An example cell-cycle model class <tt>ContactInhibitionCellCycleModel</tt> has been added. This class may be used to simulate contact inhibition of cell division and assumes that the volume of each cell is stored in the singleton <tt>CellwiseData</tt>.
+  <ul>
+    <li>The simulation class <tt>VolumeTrackedOffLatticeSimulation</tt> has been created to be used with the contact inhibition cell cycle model.</li>
+  </ul></li>
+  <li>Cell cycle phases can now be written to file for visualization if required, in the file <tt>results.vizcellphases</tt>.</li>
+</ul>
+
+<h3>Minor new functionality and code changes, which may still require changes to user code</h3>
+
+<h4>General</h4>
+<ul>
+  <li>Mesh-related changes:
+  <ul>
+    <li>The mesh reader now throws an <tt>Exception</tt> if attributes are declared in the header line but missing in the mesh files.</li>
+    <li>Added <tt>AbstractTetrahedralElement::CalculateNormal</tt> and <tt>AbstractTetrahedralMesh::CheckOutwardNormals</tt> to obtain normal vectors to boundary elements, and check they all face outwards, respectively.</li>
+    <li>Altered perimeter edges created in <tt>TetrahedralMesh::ConstructRectangularMesh</tt>  and <tt>DistributedTetrahedralMesh::ConstructRectangularMesh</tt> so that they are all oriented anticlockwise.  This makes sure that the normals are pointing outward.</li>
+    <li>Previously a <tt>QuadraticMesh</tt> had to read a tetrahedral mesh from file using a special converter (i.e. with the method <tt>ConstructFromLinearMeshReader</tt>). Now the usual method (<tt>ConstructFromMeshReader</tt>) may also be used.  It warns that extra work is done, since a mesher library has to be used to construct the extra nodes.</li>
+  </ul></li>
+  <li>Build system changes:
+  <ul>
+    <li>You can now do a coverage build for a single test in a project (e.g. <tt>scons b=Coverage ts=projects/...</tt>).</li>
+    <li>We have worked around an SCons issue that causes parallel builds (e.g. <tt>-j3</tt>) with <tt>cl=0</tt> to fail in parallel. However, it uses undocumented internal functionality in SCons, so please report an issue if it fails for you, and tell us what version of SCons you are using.</li>
+    <li>Removed broken support for the <tt>SPECIAL_SERIAL</tt> <tt>#define</tt>.  This is unlikely to break anything, since it would have already been broken...</li>
+  </ul></li>
+  <li>Miscellaneous other changes:
+  <ul>
+    <li>The <tt>TERMINATE</tt> and <tt>NEVER_REACHED</tt> macros have been moved into <tt>Exception.hpp</tt> (from <tt>PetscTools.hpp</tt>), and various includes tidied up.  Some macros have also been renamed for clarity and readability: <tt>EXPECTNON0</tt> -&gt; <tt>EXPECT_NON0</tt>, <tt>MPIABORTIFNON0</tt> -&gt; <tt>ABORT_IF_NON0</tt>.  (The latter macro now works correctly in non-MPI-using tests.)  Note also, if you are using <tt>PetscTools::Terminate</tt> directly rather than via a macro, that this method no longer exists - use <tt>Exception::Terminate</tt> instead.</li>
+    <li>The <tt>EXCEPTION</tt> and <tt>WARNING</tt> macros now allow 'streaming' within their message argument, so that you can write (for example)<pre>EXCEPTION("Number of nodes " &lt;&lt; num_nodes &lt;&lt; " does not match expected value of " &lt;&lt; ELEMENT_DIM+1);</pre></li>
+    <li><tt>Exception</tt> subclasses may now change the error message after the base class is constructed.</li>
+    <li>A <tt>GetParent</tt> method has been added to <tt>FileFinder</tt>.  A <tt>FileFinder</tt> can also now be created relative to some existing file or directory.</li>
+    <li>Functions <tt>CreateEmptyVector</tt> and <tt>IsEmptyVector</tt> have been added to <tt>VectorHelperFunctions.hpp</tt></li>
+    <li>Moved the functions <tt>SmallPow</tt> and <tt>Divides</tt> from the <tt>linalg</tt> component into a new header <tt>MathsCustomFunctions.hpp</tt>.</li>
+    <li>A new class <tt>AbstractCvodeSystem</tt> has been created between <tt>AbstractCvodeCell</tt> and <tt>AbstractParameterisedSystem</tt>, analogously to <tt>AbstractOdeSystem</tt>.
+    <ul>
+      <li><tt>AbstractCvodeSystem</tt> has a new method <tt>SetAutoReset</tt>. If this is turned on then CVODE will not have its internal state reset between calls to <tt>Solve</tt> (unless the state variables or simulation time are changed by external code in the meantime).  A method <tt>ResetSolver</tt> has been added to force a reset if other changes are made externally that may require this (e.g. changing the RHS function by modifying a parameter).</li>
+    </ul></li>
+    <li>Moved all methods of <tt>AbstractParameterisedSystem</tt> which don't require the vector type up into a new base class <tt>AbstractUntemplatedParameterisedSystem</tt>.  This should not affect other code.</li>
+    <li>Renamed <tt>PetscMatTools::AssembleFinal</tt> to <tt>PetscMatTools::Finalise</tt>, <tt>PetscMatTools::AssembleIntermediate</tt> to <tt>PetscMatTools::SwitchWriteMode</tt>, and <tt>PetscVecTools::Assemble</tt> to <tt>PetscVecTools::Finalise</tt>.  Similar name changes happened to the analogous <tt>LinearSystem</tt> convenience methods.</li>
+    <li>Changed <tt>AbstractLinearEllipticPde::ComputeConstantInUSourceTerm(rX)</tt> to <tt>AbstractLinearEllipticPde::ComputeConstantInUSourceTerm(rX, pElement)</tt> so it can take in an element containing <tt>rX</tt> to make it consistent with <tt>ComputeLinearInUCoeffInSourceTerm</tt>.  You can pass in a <tt>NULL</tt> pointer for <tt>pElement</tt>.  Changed all associated classes.</li>
+    <li>Method for writing strain per element added to <tt>AbstractNonlinearElasticitySolver</tt>. There is as yet no interface to it: to use it you must call it from the main output method.</li>
+  </ul></li>
+</ul>
+
+<h4>Cardiac</h4>
+<ul>
+  <li>Changes to CellML support:
+  <ul>
+    <li>The cell model converter class is now more robust to certain errors, and gives more helpful error messages.  Temporary files are now saved when an error occurs during the conversion of a cell model from CellML.</li>
+    <li>Various performance improvements have been made to the cell model code generation in PyCml.</li>
+    <li>PyCml now includes support for generating cell models that can be solved using the Rush-Larsen method.  These are not available 'by default' but must be generated manually or loaded dynamically.  See <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/browser/trunk/heart/test/ionicmodels/TestRushLarsen.hpp">source:trunk/heart/test/ionicmodels/TestRushLarsen.hpp</a> for some examples.</li>
+  </ul></li>
+  <li>A binary format has now been defined for fibre files, to enable random access into the file.</li>
+</ul>
+
+<h4>Cell-based</h4>
+<ul>
+  <li>Moved an uncaught exception (from the element Jacobian code) and turned it into a higher-level exception in <tt>MeshBasedCellPopulation</tt>, which is thrown when any element has zero area/volume.</li>
+  <li>Added a method to perform vertex intersection swaps in the <tt>VertexMesh</tt> class.</li>
+  <li>Resolved bug which prevented VTK or cell volume data at time-step zero being written to file.</li>
+  <li>Calling <tt>GetCircularMesh</tt> on a <tt>HoneycombMeshGenerator</tt> that contains ghost nodes now throws an exception; previously the generator created a corrupt mesh.</li>
+  <li><tt>HoneycombMeshGenerator</tt> now defaults to not use ghost nodes.</li>
+  <li>Moved the method <tt>GetNeighbouringNodeIndices</tt> from <tt>DiscreteSystemForceCalculator</tt> into <tt>AbstractCellPopulation</tt>, where it is pure virtual and hence overridden in subclasses.</li>
+  <li>Added an overridden <tt>WriteCellVolumeResultsToFile</tt> method in all cell population subclasses.</li>
+  <li>Added the <tt>SerializableSingleton</tt> class to allow for singleton classes and subclasses of <tt>AbstractCellBasedSimulation</tt> to be serialized more easily. This removed the need for the <tt>CryptSimulationArchiver</tt> class, which has been removed: simply use<tt> CellBasedSimulationArchiver</tt> instead.</li>
+  <li>Added methods to get the centre of mass and dimensions of a cell population to <tt>CellBasedSimulationWithPdes</tt>.</li>
+  <li>Added methods to <tt>NodesOnlyMesh</tt> to allow removal of nodes.</li>
+</ul>
+
+
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<hr />
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+
+
+
+
 <h2>Release 2.3 (changes since Release 2.2)</h2>
 <h3>Headline features</h3>
 <h4>General</h4>
@@ -17,7 +224,7 @@
 <h4>Cardiac</h4>
 <ul>
   <li>A simple model of drug conductance block is now available in the standalone executable.</li>
-  <li>A sequential implementation of adaptive mesh refinement has been added, using a library developed in collaboration with Imperial College London to reduce the computational load and memory footprint of large simulations.  This is not available within the standalone executable however.  Instructions for installing the required library are available on the Chaste wiki at <a class="wiki" href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallAdaptivityLibrary">InstallAdaptivityLibrary</a>, and you will need to edit your hostconfig file to turn on support in Chaste (by setting <tt>use_adaptivity = True</tt> and adding appropriate paths etc.).</li>
+  <li>A sequential implementation of adaptive mesh refinement has been added, using a library developed in collaboration with Imperial College London to reduce the computational load and memory footprint of large simulations.  This is not available within the standalone executable however.  Instructions for installing the required library are available on the Chaste wiki at <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallAdaptivityLibrary">InstallAdaptivityLibrary</a>, and you will need to edit your hostconfig file to turn on support in Chaste (by setting <tt>use_adaptivity = True</tt> and adding appropriate paths etc.).</li>
 </ul>
 
 <h3>New functionality &amp; major code changes</h3>
@@ -55,7 +262,16 @@
   <li><tt>NodeBasedCellPopulation</tt> constructors now take in a <tt>NodesOnlyMesh</tt> instead of a vector of nodes.</li>
 </ul>
 
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 <hr />
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+
+
+
 
 
 <h2>Release 2.2 (changes since Release 2.1)</h2>
@@ -76,7 +292,7 @@
 
 <ul>
   <li>Added support for the definition of multiple bath/tissue regions. Based on whichever convention you followed in the elements file, you can inform Chaste of your choice of region identifiers with <tt>HeartConfig::SetTissueIdentifiers(std::set&lt;unsigned&gt; )</tt> and <tt>HeartConfig::SetBathIdentifiers(std::set&lt;unsigned&gt; )</tt>. One can also assign different conductivities to different bath regions with <tt>HeartConfig::SetBathMultipleConductivities(std::map&lt;unsigned, double&gt; )</tt>.</li>
-  <li>State variable interpolation may now be used for cardiac simulations.  This can lead to improved conduction velocity accuracy on meshes with spatial resolutions typically used in simulation studies, and has been implemented in an efficient manner. See <a class="wiki" href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/StateVariableInterpolation">ChasteGuides/StateVariableInterpolation</a> for more details.</li>
+  <li>State variable interpolation may now be used for cardiac simulations.  This can lead to improved conduction velocity accuracy on meshes with spatial resolutions typically used in simulation studies, and has been implemented in an efficient manner. See <a href="https://chaste.cs.ox.ac.uk/cgi-bin/trac.cgi/wiki/ChasteGuides/StateVariableInterpolation">ChasteGuides/StateVariableInterpolation</a> for more details.</li>
   <li>It is now possible to output visualisation in parallel VTK (.pvtu) format. To do this you need to set the <tt>parallel_vtk</tt> attribute to "yes" in the <tt>OutputVisualizer</tt> element in the parameters file.</li>
   <li>Fixed bug in fibre direction heterogeneities: when running in parallel some fibre directions were permuted between elements.  (This bug did not exist prior to release 2.1.)</li>
   <li>Fixed bug with conductivity heterogeneities in 1D and 2D causing a '<tt>boost::numeric::ublas::bad_size</tt>' error.</li>
@@ -174,7 +390,15 @@
 </ul>
 
 
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 <hr />
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+
+
 
 
 <h2>Release 2.1 (changes since Release 2.0)</h2>
@@ -453,7 +677,16 @@
   </li>
 </ul>
 
+
+
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 <hr />
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+
+
+
 
 <h2>Release 2.0 (changes since Release 1.1)</h2>
 
