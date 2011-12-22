@@ -90,7 +90,7 @@ if build.is_profile:
 Export('static_libs')
 
 # Whether to build Chaste libraries, or link tests against object files directly
-use_chaste_libs = int(ARGUMENTS.get('chaste_libs',  ARGUMENTS.get('cl', 0)))
+use_chaste_libs = int(ARGUMENTS.get('chaste_libs',  ARGUMENTS.get('cl', 1)))
 Export('use_chaste_libs')
 
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
