@@ -414,16 +414,18 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::WriteVtkResultsToFile()
         {
             mesh_writer.AddCellData("Cell volumes", cell_volumes);
         }
-        if (CellwiseData<DIM>::Instance()->IsSetUp())
-        {
-            for (unsigned var=0; var<cellwise_data.size(); var++)
-            {
-                std::stringstream data_name;
-                data_name << "Cellwise data " << var;
-                std::vector<double> cellwise_data_var = cellwise_data[var];
-                mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
-            }
-        }
+        // This code is commented code is because Cellwise Data can't deal with ghost nodes see #1975
+        assert(!CellwiseData<DIM>::Instance()->IsSetUp())
+		//if (CellwiseData<DIM>::Instance()->IsSetUp())
+		//{
+		//	for (unsigned var=0; var<cellwise_data.size(); var++)
+		//	{
+		//		std::stringstream data_name;
+		//		data_name << "Cellwise data " << var;
+		//		std::vector<double> cellwise_data_var = cellwise_data[var];
+		//		mesh_writer.AddCellData(data_name.str(), cellwise_data_var);
+		//	}
+		//}
 
         mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());
         *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
