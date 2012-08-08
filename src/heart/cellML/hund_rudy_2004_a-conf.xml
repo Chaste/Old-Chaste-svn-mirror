@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<pycml_config>
+
+ <!-- The '-m' flag adds modifiers to the metadata annotated variables, 
+      we need these in this class because we use as an
+      AbstractCardiacCellWithModifiers -->
+
+<command_line_args>
+  <arg>-m</arg>
+</command_line_args>
+
+  <for_model id="hund_rudy_2004">
+  <lookup_tables>
+    <lookup_table>
+      <var type='config-name'>transmembrane_potential</var>
+      <min>-100.0001</min>
+      <max>199.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+</pycml_config>
