@@ -1,0 +1,4385 @@
+EXPERIMENT = 0
+Initial mutation state = 3
+Initial mutation height = 0.542816
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 155
+Experiment start time = 342.009
+Experiment duration = 94
+Mutant population washed out of crypt
+EXPERIMENT = 1
+Initial mutation state = 3
+Initial mutation height = 0.0126706
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 190
+Experiment start time = 436.009
+Experiment duration = 173
+Mutant population washed out of crypt
+EXPERIMENT = 2
+Initial mutation state = 3
+Initial mutation height = 0.234993
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 96
+Experiment start time = 609.009
+Experiment duration = 99
+Mutant population washed out of crypt
+EXPERIMENT = 3
+Initial mutation state = 3
+Initial mutation height = 0.00162684
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 9
+Experiment start time = 708.009
+Experiment duration = 545
+Mutant population washed out of crypt
+EXPERIMENT = 4
+Initial mutation state = 3
+Initial mutation height = 0.074551
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 43
+Experiment start time = 1253.01
+Experiment duration = 575
+Mutant population washed out of crypt
+EXPERIMENT = 5
+Initial mutation state = 3
+Initial mutation height = 0.018982
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 191
+Experiment start time = 1828.01
+Experiment duration = 2099
+Mutant population taken over crypt
+EXPERIMENT = 6
+Initial mutation state = 3
+Initial mutation height = 0.0329738
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 156
+Experiment start time = 306.772
+Experiment duration = 1067
+Mutant population taken over crypt
+EXPERIMENT = 7
+Initial mutation state = 3
+Initial mutation height = 0.00149309
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 219
+Experiment start time = 324.345
+Experiment duration = 189
+Mutant population washed out of crypt
+EXPERIMENT = 8
+Initial mutation state = 3
+Initial mutation height = 0.0110857
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 163
+Experiment start time = 513.345
+Experiment duration = 247
+Mutant population washed out of crypt
+EXPERIMENT = 9
+Initial mutation state = 3
+Initial mutation height = 0.00722449
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 760.345
+Experiment duration = 299
+Mutant population washed out of crypt
+EXPERIMENT = 10
+Initial mutation state = 3
+Initial mutation height = 0.229833
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 273
+Experiment start time = 1059.35
+Experiment duration = 121
+Mutant population washed out of crypt
+EXPERIMENT = 11
+Initial mutation state = 3
+Initial mutation height = 0.0491828
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 5
+Experiment start time = 1180.35
+Experiment duration = 352
+Mutant population washed out of crypt
+EXPERIMENT = 12
+Initial mutation state = 3
+Initial mutation height = 0.010904
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 245
+Experiment start time = 1532.35
+Experiment duration = 112
+Mutant population washed out of crypt
+EXPERIMENT = 13
+Initial mutation state = 3
+Initial mutation height = 0.0034887
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 259
+Experiment start time = 1644.35
+Experiment duration = 274
+Mutant population washed out of crypt
+EXPERIMENT = 14
+Initial mutation state = 3
+Initial mutation height = 0.0230384
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 77
+Experiment start time = 1918.35
+Experiment duration = 416
+Mutant population washed out of crypt
+EXPERIMENT = 15
+Initial mutation state = 3
+Initial mutation height = 0.0277771
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 248
+Experiment start time = 2334.35
+Experiment duration = 929
+Mutant population taken over crypt
+EXPERIMENT = 16
+Initial mutation state = 3
+Initial mutation height = 0.172856
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 264
+Experiment start time = 310.772
+Experiment duration = 103
+Mutant population washed out of crypt
+EXPERIMENT = 17
+Initial mutation state = 3
+Initial mutation height = 0.0207539
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 18
+Experiment start time = 413.772
+Experiment duration = 151
+Mutant population washed out of crypt
+EXPERIMENT = 18
+Initial mutation state = 3
+Initial mutation height = 0.71085
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 267
+Experiment start time = 564.772
+Experiment duration = 88
+Mutant population washed out of crypt
+EXPERIMENT = 19
+Initial mutation state = 3
+Initial mutation height = 0.0107675
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 275
+Experiment start time = 652.772
+Experiment duration = 238
+Mutant population washed out of crypt
+EXPERIMENT = 20
+Initial mutation state = 3
+Initial mutation height = 0.0162812
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 247
+Experiment start time = 890.772
+Experiment duration = 266
+Mutant population washed out of crypt
+EXPERIMENT = 21
+Initial mutation state = 3
+Initial mutation height = 0.546563
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 177
+Experiment start time = 1156.77
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 22
+Initial mutation state = 3
+Initial mutation height = 0.0247011
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 1270.77
+Experiment duration = 104
+Mutant population washed out of crypt
+EXPERIMENT = 23
+Initial mutation state = 3
+Initial mutation height = 0.0173587
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 226
+Experiment start time = 1374.77
+Experiment duration = 156
+Mutant population washed out of crypt
+EXPERIMENT = 24
+Initial mutation state = 3
+Initial mutation height = 0.558287
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 289
+Experiment start time = 1530.77
+Experiment duration = 85
+Mutant population washed out of crypt
+EXPERIMENT = 25
+Initial mutation state = 3
+Initial mutation height = 0.0281286
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 192
+Experiment start time = 1615.77
+Experiment duration = 112
+Mutant population washed out of crypt
+EXPERIMENT = 26
+Initial mutation state = 3
+Initial mutation height = 0.0394513
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 57
+Experiment start time = 1727.77
+Experiment duration = 2812
+Mutant population taken over crypt
+EXPERIMENT = 27
+Initial mutation state = 3
+Initial mutation height = 0.0071976
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 246
+Experiment start time = 332.992
+Experiment duration = 157
+Mutant population washed out of crypt
+EXPERIMENT = 28
+Initial mutation state = 3
+Initial mutation height = 0.0369853
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 154
+Experiment start time = 489.992
+Experiment duration = 181
+Mutant population washed out of crypt
+EXPERIMENT = 29
+Initial mutation state = 3
+Initial mutation height = 0.015649
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 227
+Experiment start time = 670.992
+Experiment duration = 284
+Mutant population washed out of crypt
+EXPERIMENT = 30
+Initial mutation state = 3
+Initial mutation height = 0.00604148
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 206
+Experiment start time = 954.992
+Experiment duration = 140
+Mutant population washed out of crypt
+EXPERIMENT = 31
+Initial mutation state = 3
+Initial mutation height = 0.0314859
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 184
+Experiment start time = 1094.99
+Experiment duration = 233
+Mutant population washed out of crypt
+EXPERIMENT = 32
+Initial mutation state = 3
+Initial mutation height = 0.0291203
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 264
+Experiment start time = 1327.99
+Experiment duration = 1162
+Mutant population washed out of crypt
+EXPERIMENT = 33
+Initial mutation state = 3
+Initial mutation height = 0.225444
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 95
+Experiment start time = 2489.99
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 34
+Initial mutation state = 3
+Initial mutation height = 0.00972155
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 21
+Experiment start time = 2627.99
+Experiment duration = 211
+Mutant population washed out of crypt
+EXPERIMENT = 35
+Initial mutation state = 3
+Initial mutation height = 0.0263178
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 167
+Experiment start time = 2838.99
+Experiment duration = 123
+Mutant population washed out of crypt
+EXPERIMENT = 36
+Initial mutation state = 3
+Initial mutation height = 0.596082
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 105
+Experiment start time = 2961.99
+Experiment duration = 111
+Mutant population washed out of crypt
+EXPERIMENT = 37
+Initial mutation state = 3
+Initial mutation height = 0.698205
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 271
+Experiment start time = 3072.99
+Experiment duration = 108
+Mutant population washed out of crypt
+EXPERIMENT = 38
+Initial mutation state = 3
+Initial mutation height = 0.502463
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 250
+Experiment start time = 3180.99
+Experiment duration = 90
+Mutant population washed out of crypt
+EXPERIMENT = 39
+Initial mutation state = 3
+Initial mutation height = 0.0324792
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 142
+Experiment start time = 3270.99
+Experiment duration = 1459
+Mutant population taken over crypt
+EXPERIMENT = 40
+Initial mutation state = 3
+Initial mutation height = 0.0118565
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 100
+Experiment start time = 340.971
+Experiment duration = 169
+Mutant population washed out of crypt
+EXPERIMENT = 41
+Initial mutation state = 3
+Initial mutation height = 0.0170497
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 24
+Experiment start time = 509.971
+Experiment duration = 146
+Mutant population washed out of crypt
+EXPERIMENT = 42
+Initial mutation state = 3
+Initial mutation height = 0.0118115
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 270
+Experiment start time = 655.971
+Experiment duration = 134
+Mutant population washed out of crypt
+EXPERIMENT = 43
+Initial mutation state = 3
+Initial mutation height = 0.0379527
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 111
+Experiment start time = 789.971
+Experiment duration = 146
+Mutant population washed out of crypt
+EXPERIMENT = 44
+Initial mutation state = 3
+Initial mutation height = 0.013004
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 64
+Experiment start time = 935.971
+Experiment duration = 327
+Mutant population washed out of crypt
+EXPERIMENT = 45
+Initial mutation state = 3
+Initial mutation height = 0.0107685
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 62
+Experiment start time = 1262.97
+Experiment duration = 506
+Mutant population washed out of crypt
+EXPERIMENT = 46
+Initial mutation state = 3
+Initial mutation height = 0.000786621
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 87
+Experiment start time = 1768.97
+Experiment duration = 146
+Mutant population washed out of crypt
+EXPERIMENT = 47
+Initial mutation state = 3
+Initial mutation height = 0.00424849
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 172
+Experiment start time = 1914.97
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 48
+Initial mutation state = 3
+Initial mutation height = 0.0438535
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 228
+Experiment start time = 2053.97
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 49
+Initial mutation state = 3
+Initial mutation height = 0.669494
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 3
+Experiment start time = 2192.97
+Experiment duration = 102
+Mutant population washed out of crypt
+EXPERIMENT = 50
+Initial mutation state = 3
+Initial mutation height = 0.0161633
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 240
+Experiment start time = 2294.97
+Experiment duration = 113
+Mutant population washed out of crypt
+EXPERIMENT = 51
+Initial mutation state = 3
+Initial mutation height = 0.0140947
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 188
+Experiment start time = 2407.97
+Experiment duration = 140
+Mutant population washed out of crypt
+EXPERIMENT = 52
+Initial mutation state = 3
+Initial mutation height = 0.0481336
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 23
+Experiment start time = 2547.97
+Experiment duration = 2732
+Mutant population taken over crypt
+EXPERIMENT = 53
+Initial mutation state = 3
+Initial mutation height = 0.0402804
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 118
+Experiment start time = 348.885
+Experiment duration = 877
+Mutant population taken over crypt
+EXPERIMENT = 54
+Initial mutation state = 3
+Initial mutation height = 0.721002
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 266
+Experiment start time = 316.477
+Experiment duration = 110
+Mutant population washed out of crypt
+EXPERIMENT = 55
+Initial mutation state = 3
+Initial mutation height = 0.670508
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 75
+Experiment start time = 426.477
+Experiment duration = 96
+Mutant population washed out of crypt
+EXPERIMENT = 56
+Initial mutation state = 3
+Initial mutation height = 0.0206785
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 227
+Experiment start time = 522.477
+Experiment duration = 147
+Mutant population washed out of crypt
+EXPERIMENT = 57
+Initial mutation state = 3
+Initial mutation height = 0.683581
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 66
+Experiment start time = 669.477
+Experiment duration = 94
+Mutant population washed out of crypt
+EXPERIMENT = 58
+Initial mutation state = 3
+Initial mutation height = 0.0244132
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 235
+Experiment start time = 763.477
+Experiment duration = 263
+Mutant population washed out of crypt
+EXPERIMENT = 59
+Initial mutation state = 3
+Initial mutation height = 0.0360812
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 238
+Experiment start time = 1026.48
+Experiment duration = 132
+Mutant population washed out of crypt
+EXPERIMENT = 60
+Initial mutation state = 3
+Initial mutation height = 0.0519219
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 220
+Experiment start time = 1158.48
+Experiment duration = 269
+Mutant population washed out of crypt
+EXPERIMENT = 61
+Initial mutation state = 3
+Initial mutation height = 0.00743474
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 178
+Experiment start time = 1427.48
+Experiment duration = 149
+Mutant population washed out of crypt
+EXPERIMENT = 62
+Initial mutation state = 3
+Initial mutation height = 0.0259531
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 256
+Experiment start time = 1576.48
+Experiment duration = 312
+Mutant population washed out of crypt
+EXPERIMENT = 63
+Initial mutation state = 3
+Initial mutation height = 0.0484576
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 259
+Experiment start time = 1888.48
+Experiment duration = 148
+Mutant population washed out of crypt
+EXPERIMENT = 64
+Initial mutation state = 3
+Initial mutation height = 0.704128
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 225
+Experiment start time = 2036.48
+Experiment duration = 107
+Mutant population washed out of crypt
+EXPERIMENT = 65
+Initial mutation state = 3
+Initial mutation height = 0.0135573
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 124
+Experiment start time = 2143.48
+Experiment duration = 220
+Mutant population washed out of crypt
+EXPERIMENT = 66
+Initial mutation state = 3
+Initial mutation height = 0.0465208
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 261
+Experiment start time = 2363.48
+Experiment duration = 117
+Mutant population washed out of crypt
+EXPERIMENT = 67
+Initial mutation state = 3
+Initial mutation height = 0.0474846
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 239
+Experiment start time = 2480.48
+Experiment duration = 133
+Mutant population washed out of crypt
+EXPERIMENT = 68
+Initial mutation state = 3
+Initial mutation height = 0.0286123
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 194
+Experiment start time = 2613.48
+Experiment duration = 151
+Mutant population washed out of crypt
+EXPERIMENT = 69
+Initial mutation state = 3
+Initial mutation height = 0.0141276
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 29
+Experiment start time = 2764.48
+Experiment duration = 166
+Mutant population washed out of crypt
+EXPERIMENT = 70
+Initial mutation state = 3
+Initial mutation height = 0.0416116
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 260
+Experiment start time = 2930.48
+Experiment duration = 175
+Mutant population washed out of crypt
+EXPERIMENT = 71
+Initial mutation state = 3
+Initial mutation height = 0.0255019
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 174
+Experiment start time = 3105.48
+Experiment duration = 200
+Mutant population washed out of crypt
+EXPERIMENT = 72
+Initial mutation state = 3
+Initial mutation height = 0.0356611
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 287
+Experiment start time = 3305.48
+Experiment duration = 119
+Mutant population washed out of crypt
+EXPERIMENT = 73
+Initial mutation state = 3
+Initial mutation height = 0.0384329
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 237
+Experiment start time = 3424.48
+Experiment duration = 493
+Mutant population taken over crypt
+EXPERIMENT = 74
+Initial mutation state = 3
+Initial mutation height = 0.0427804
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 124
+Experiment start time = 349.923
+Experiment duration = 465
+Mutant population washed out of crypt
+EXPERIMENT = 75
+Initial mutation state = 3
+Initial mutation height = 0.415994
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 4
+Experiment start time = 814.923
+Experiment duration = 1060
+Mutant population taken over crypt
+EXPERIMENT = 76
+Initial mutation state = 3
+Initial mutation height = 0.00035855
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 184
+Experiment start time = 310.938
+Experiment duration = 226
+Mutant population washed out of crypt
+EXPERIMENT = 77
+Initial mutation state = 3
+Initial mutation height = 0.03044
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 536.938
+Experiment duration = 141
+Mutant population washed out of crypt
+EXPERIMENT = 78
+Initial mutation state = 3
+Initial mutation height = 0.700917
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 677.938
+Experiment duration = 95
+Mutant population washed out of crypt
+EXPERIMENT = 79
+Initial mutation state = 3
+Initial mutation height = 0.00548694
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 37
+Experiment start time = 772.938
+Experiment duration = 107
+Mutant population washed out of crypt
+EXPERIMENT = 80
+Initial mutation state = 3
+Initial mutation height = 0.0483997
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 209
+Experiment start time = 879.938
+Experiment duration = 133
+Mutant population washed out of crypt
+EXPERIMENT = 81
+Initial mutation state = 3
+Initial mutation height = 0.0332843
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 147
+Experiment start time = 1012.94
+Experiment duration = 1633
+Mutant population taken over crypt
+EXPERIMENT = 82
+Initial mutation state = 3
+Initial mutation height = 0.715889
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 263
+Experiment start time = 343.217
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 83
+Initial mutation state = 3
+Initial mutation height = 0.0568646
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 271
+Experiment start time = 482.217
+Experiment duration = 107
+Mutant population washed out of crypt
+EXPERIMENT = 84
+Initial mutation state = 3
+Initial mutation height = 0.0393812
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 123
+Experiment start time = 589.217
+Experiment duration = 353
+Mutant population washed out of crypt
+EXPERIMENT = 85
+Initial mutation state = 3
+Initial mutation height = 0.00714243
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 73
+Experiment start time = 942.217
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 86
+Initial mutation state = 3
+Initial mutation height = 0.075541
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 1056.22
+Experiment duration = 118
+Mutant population washed out of crypt
+EXPERIMENT = 87
+Initial mutation state = 3
+Initial mutation height = 0.048377
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 129
+Experiment start time = 1174.22
+Experiment duration = 174
+Mutant population washed out of crypt
+EXPERIMENT = 88
+Initial mutation state = 3
+Initial mutation height = 0.00161145
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 1348.22
+Experiment duration = 1317
+Mutant population taken over crypt
+EXPERIMENT = 89
+Initial mutation state = 3
+Initial mutation height = 0.00794966
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 45
+Experiment start time = 343.976
+Experiment duration = 103
+Mutant population washed out of crypt
+EXPERIMENT = 90
+Initial mutation state = 3
+Initial mutation height = 0.037968
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 269
+Experiment start time = 446.976
+Experiment duration = 488
+Mutant population washed out of crypt
+EXPERIMENT = 91
+Initial mutation state = 3
+Initial mutation height = 0.0125986
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 48
+Experiment start time = 934.976
+Experiment duration = 134
+Mutant population washed out of crypt
+EXPERIMENT = 92
+Initial mutation state = 3
+Initial mutation height = 0.00364326
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 250
+Experiment start time = 1068.98
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 93
+Initial mutation state = 3
+Initial mutation height = 0.00378124
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 208
+Experiment start time = 1182.98
+Experiment duration = 102
+Mutant population washed out of crypt
+EXPERIMENT = 94
+Initial mutation state = 3
+Initial mutation height = 0.43843
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 179
+Experiment start time = 1284.98
+Experiment duration = 98
+Mutant population washed out of crypt
+EXPERIMENT = 95
+Initial mutation state = 3
+Initial mutation height = 0.0535661
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 235
+Experiment start time = 1382.98
+Experiment duration = 294
+Mutant population washed out of crypt
+EXPERIMENT = 96
+Initial mutation state = 3
+Initial mutation height = 0.0278226
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 25
+Experiment start time = 1676.98
+Experiment duration = 91
+Mutant population washed out of crypt
+EXPERIMENT = 97
+Initial mutation state = 3
+Initial mutation height = 0.00447712
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 68
+Experiment start time = 1767.98
+Experiment duration = 1228
+Mutant population taken over crypt
+EXPERIMENT = 98
+Initial mutation state = 3
+Initial mutation height = 0.0235321
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 164
+Experiment start time = 305.001
+Experiment duration = 593
+Mutant population taken over crypt
+EXPERIMENT = 99
+Initial mutation state = 3
+Initial mutation height = 0.042067
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 235
+Experiment start time = 323.005
+Experiment duration = 177
+Mutant population washed out of crypt
+EXPERIMENT = 100
+Initial mutation state = 3
+Initial mutation height = 0.0194917
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 124
+Experiment start time = 500.005
+Experiment duration = 189
+Mutant population washed out of crypt
+EXPERIMENT = 101
+Initial mutation state = 3
+Initial mutation height = 0.0323825
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 241
+Experiment start time = 689.005
+Experiment duration = 234
+Mutant population washed out of crypt
+EXPERIMENT = 102
+Initial mutation state = 3
+Initial mutation height = 0.00516059
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 241
+Experiment start time = 923.005
+Experiment duration = 103
+Mutant population washed out of crypt
+EXPERIMENT = 103
+Initial mutation state = 3
+Initial mutation height = 0.11095
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 143
+Experiment start time = 1026
+Experiment duration = 171
+Mutant population washed out of crypt
+EXPERIMENT = 104
+Initial mutation state = 3
+Initial mutation height = 0.044144
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 1197
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 105
+Initial mutation state = 3
+Initial mutation height = 0.335548
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 89
+Experiment start time = 1335
+Experiment duration = 573
+Mutant population washed out of crypt
+EXPERIMENT = 106
+Initial mutation state = 3
+Initial mutation height = 0.0362693
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 175
+Experiment start time = 1908
+Experiment duration = 169
+Mutant population washed out of crypt
+EXPERIMENT = 107
+Initial mutation state = 3
+Initial mutation height = 0.0104121
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 102
+Experiment start time = 2077
+Experiment duration = 162
+Mutant population washed out of crypt
+EXPERIMENT = 108
+Initial mutation state = 3
+Initial mutation height = 0.705448
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 280
+Experiment start time = 2239
+Experiment duration = 88
+Mutant population washed out of crypt
+EXPERIMENT = 109
+Initial mutation state = 3
+Initial mutation height = 0.0472705
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 163
+Experiment start time = 2327
+Experiment duration = 99
+Mutant population washed out of crypt
+EXPERIMENT = 110
+Initial mutation state = 3
+Initial mutation height = 0.0241641
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 163
+Experiment start time = 2426
+Experiment duration = 418
+Mutant population washed out of crypt
+EXPERIMENT = 111
+Initial mutation state = 3
+Initial mutation height = 0.0200005
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 168
+Experiment start time = 2844
+Experiment duration = 1784
+Mutant population taken over crypt
+EXPERIMENT = 112
+Initial mutation state = 3
+Initial mutation height = 0.0100088
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 288
+Experiment start time = 305.953
+Experiment duration = 118
+Mutant population washed out of crypt
+EXPERIMENT = 113
+Initial mutation state = 3
+Initial mutation height = 0.0203739
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 65
+Experiment start time = 423.953
+Experiment duration = 2100
+Mutant population taken over crypt
+EXPERIMENT = 114
+Initial mutation state = 3
+Initial mutation height = 0.0224405
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 59
+Experiment start time = 341.795
+Experiment duration = 1503
+Mutant population taken over crypt
+EXPERIMENT = 115
+Initial mutation state = 3
+Initial mutation height = 0.0348545
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 265
+Experiment start time = 309.804
+Experiment duration = 226
+Mutant population washed out of crypt
+EXPERIMENT = 116
+Initial mutation state = 3
+Initial mutation height = 0.354312
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 166
+Experiment start time = 535.804
+Experiment duration = 109
+Mutant population washed out of crypt
+EXPERIMENT = 117
+Initial mutation state = 3
+Initial mutation height = 0.722775
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 133
+Experiment start time = 644.804
+Experiment duration = 87
+Mutant population washed out of crypt
+EXPERIMENT = 118
+Initial mutation state = 3
+Initial mutation height = 0.0454813
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 197
+Experiment start time = 731.804
+Experiment duration = 242
+Mutant population washed out of crypt
+EXPERIMENT = 119
+Initial mutation state = 3
+Initial mutation height = 0.605982
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 973.804
+Experiment duration = 92
+Mutant population washed out of crypt
+EXPERIMENT = 120
+Initial mutation state = 3
+Initial mutation height = 0.716091
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 227
+Experiment start time = 1065.8
+Experiment duration = 105
+Mutant population washed out of crypt
+EXPERIMENT = 121
+Initial mutation state = 3
+Initial mutation height = 0.0280467
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 256
+Experiment start time = 1170.8
+Experiment duration = 1223
+Mutant population taken over crypt
+EXPERIMENT = 122
+Initial mutation state = 3
+Initial mutation height = 0.521463
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 69
+Experiment start time = 335.014
+Experiment duration = 143
+Mutant population washed out of crypt
+EXPERIMENT = 123
+Initial mutation state = 3
+Initial mutation height = 0.00696225
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 95
+Experiment start time = 478.014
+Experiment duration = 2006
+Mutant population washed out of crypt
+EXPERIMENT = 124
+Initial mutation state = 3
+Initial mutation height = 0.396008
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 250
+Experiment start time = 2484.01
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 125
+Initial mutation state = 3
+Initial mutation height = 0.0287097
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 283
+Experiment start time = 2598.01
+Experiment duration = 626
+Mutant population taken over crypt
+EXPERIMENT = 126
+Initial mutation state = 3
+Initial mutation height = 1.85531e-06
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 306.744
+Experiment duration = 131
+Mutant population washed out of crypt
+EXPERIMENT = 127
+Initial mutation state = 3
+Initial mutation height = 0.0293177
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 241
+Experiment start time = 437.744
+Experiment duration = 3180
+Mutant population taken over crypt
+EXPERIMENT = 128
+Initial mutation state = 3
+Initial mutation height = 0.262488
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 98
+Experiment start time = 317.601
+Experiment duration = 174
+Mutant population washed out of crypt
+EXPERIMENT = 129
+Initial mutation state = 3
+Initial mutation height = 0.062736
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 239
+Experiment start time = 491.601
+Experiment duration = 89
+Mutant population washed out of crypt
+EXPERIMENT = 130
+Initial mutation state = 3
+Initial mutation height = 0.00753754
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 180
+Experiment start time = 580.601
+Experiment duration = 131
+Mutant population washed out of crypt
+EXPERIMENT = 131
+Initial mutation state = 3
+Initial mutation height = 0.0200224
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 158
+Experiment start time = 711.601
+Experiment duration = 567
+Mutant population taken over crypt
+EXPERIMENT = 132
+Initial mutation state = 3
+Initial mutation height = 0.670873
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 134
+Experiment start time = 314.268
+Experiment duration = 985
+Mutant population washed out of crypt
+EXPERIMENT = 133
+Initial mutation state = 3
+Initial mutation height = 0.011983
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 74
+Experiment start time = 1299.27
+Experiment duration = 137
+Mutant population washed out of crypt
+EXPERIMENT = 134
+Initial mutation state = 3
+Initial mutation height = 0.0353164
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 208
+Experiment start time = 1436.27
+Experiment duration = 685
+Mutant population taken over crypt
+EXPERIMENT = 135
+Initial mutation state = 3
+Initial mutation height = 0.0389472
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 118
+Experiment start time = 343.183
+Experiment duration = 263
+Mutant population washed out of crypt
+EXPERIMENT = 136
+Initial mutation state = 3
+Initial mutation height = 0.0445608
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 166
+Experiment start time = 606.183
+Experiment duration = 210
+Mutant population washed out of crypt
+EXPERIMENT = 137
+Initial mutation state = 3
+Initial mutation height = 0.694709
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 294
+Experiment start time = 816.183
+Experiment duration = 118
+Mutant population washed out of crypt
+EXPERIMENT = 138
+Initial mutation state = 3
+Initial mutation height = 0.000412499
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 199
+Experiment start time = 934.183
+Experiment duration = 963
+Mutant population taken over crypt
+EXPERIMENT = 139
+Initial mutation state = 3
+Initial mutation height = 0.10115
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 31
+Experiment start time = 314.923
+Experiment duration = 180
+Mutant population washed out of crypt
+EXPERIMENT = 140
+Initial mutation state = 3
+Initial mutation height = 0.0364324
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 99
+Experiment start time = 494.923
+Experiment duration = 1827
+Mutant population taken over crypt
+EXPERIMENT = 141
+Initial mutation state = 3
+Initial mutation height = 0.441375
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 163
+Experiment start time = 300.564
+Experiment duration = 279
+Mutant population washed out of crypt
+EXPERIMENT = 142
+Initial mutation state = 3
+Initial mutation height = 0.707044
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 21
+Experiment start time = 579.564
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 143
+Initial mutation state = 3
+Initial mutation height = 0.00174239
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 299
+Experiment start time = 717.564
+Experiment duration = 845
+Mutant population washed out of crypt
+EXPERIMENT = 144
+Initial mutation state = 3
+Initial mutation height = 0.0487537
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 1562.56
+Experiment duration = 141
+Mutant population washed out of crypt
+EXPERIMENT = 145
+Initial mutation state = 3
+Initial mutation height = 0.0434891
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 45
+Experiment start time = 1703.56
+Experiment duration = 108
+Mutant population washed out of crypt
+EXPERIMENT = 146
+Initial mutation state = 3
+Initial mutation height = 0.00430558
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 247
+Experiment start time = 1811.56
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 147
+Initial mutation state = 3
+Initial mutation height = 0.0297284
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 1925.56
+Experiment duration = 1085
+Mutant population taken over crypt
+EXPERIMENT = 148
+Initial mutation state = 3
+Initial mutation height = 0.0163754
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 168
+Experiment start time = 300.775
+Experiment duration = 150
+Mutant population washed out of crypt
+EXPERIMENT = 149
+Initial mutation state = 3
+Initial mutation height = 0.00936111
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 126
+Experiment start time = 450.775
+Experiment duration = 170
+Mutant population washed out of crypt
+EXPERIMENT = 150
+Initial mutation state = 3
+Initial mutation height = 0.0273435
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 276
+Experiment start time = 620.775
+Experiment duration = 325
+Mutant population washed out of crypt
+EXPERIMENT = 151
+Initial mutation state = 3
+Initial mutation height = 0.000698501
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 19
+Experiment start time = 945.775
+Experiment duration = 187
+Mutant population washed out of crypt
+EXPERIMENT = 152
+Initial mutation state = 3
+Initial mutation height = 0.407384
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 283
+Experiment start time = 1132.77
+Experiment duration = 93
+Mutant population washed out of crypt
+EXPERIMENT = 153
+Initial mutation state = 3
+Initial mutation height = 0.00560264
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 0
+Experiment start time = 1225.77
+Experiment duration = 1295
+Mutant population washed out of crypt
+EXPERIMENT = 154
+Initial mutation state = 3
+Initial mutation height = 0.0404894
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 21
+Experiment start time = 2520.77
+Experiment duration = 168
+Mutant population washed out of crypt
+EXPERIMENT = 155
+Initial mutation state = 3
+Initial mutation height = 0.0114499
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 160
+Experiment start time = 2688.77
+Experiment duration = 3705
+Mutant population taken over crypt
+EXPERIMENT = 156
+Initial mutation state = 3
+Initial mutation height = 0.00382864
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 229
+Experiment start time = 344.422
+Experiment duration = 1864
+Mutant population taken over crypt
+EXPERIMENT = 157
+Initial mutation state = 3
+Initial mutation height = 0.374089
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 192
+Experiment start time = 337.399
+Experiment duration = 105
+Mutant population washed out of crypt
+EXPERIMENT = 158
+Initial mutation state = 3
+Initial mutation height = 0.00845521
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 3
+Experiment start time = 442.399
+Experiment duration = 942
+Mutant population taken over crypt
+EXPERIMENT = 159
+Initial mutation state = 3
+Initial mutation height = 0.0359795
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 32
+Experiment start time = 348.052
+Experiment duration = 1671
+Mutant population taken over crypt
+EXPERIMENT = 160
+Initial mutation state = 3
+Initial mutation height = 0.042192
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 190
+Experiment start time = 316.094
+Experiment duration = 411
+Mutant population washed out of crypt
+EXPERIMENT = 161
+Initial mutation state = 3
+Initial mutation height = 0.0112297
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 181
+Experiment start time = 727.094
+Experiment duration = 132
+Mutant population washed out of crypt
+EXPERIMENT = 162
+Initial mutation state = 3
+Initial mutation height = 0.00668666
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 290
+Experiment start time = 859.094
+Experiment duration = 121
+Mutant population washed out of crypt
+EXPERIMENT = 163
+Initial mutation state = 3
+Initial mutation height = 0.0141926
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 261
+Experiment start time = 980.094
+Experiment duration = 570
+Mutant population taken over crypt
+EXPERIMENT = 164
+Initial mutation state = 3
+Initial mutation height = 0.0286669
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 38
+Experiment start time = 312.654
+Experiment duration = 1321
+Mutant population taken over crypt
+EXPERIMENT = 165
+Initial mutation state = 3
+Initial mutation height = 0.0337869
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 133
+Experiment start time = 330.703
+Experiment duration = 2154
+Mutant population taken over crypt
+EXPERIMENT = 166
+Initial mutation state = 3
+Initial mutation height = 0.0322422
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 323.582
+Experiment duration = 108
+Mutant population washed out of crypt
+EXPERIMENT = 167
+Initial mutation state = 3
+Initial mutation height = 0.0140185
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 68
+Experiment start time = 431.582
+Experiment duration = 171
+Mutant population washed out of crypt
+EXPERIMENT = 168
+Initial mutation state = 3
+Initial mutation height = 0.72344
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 107
+Experiment start time = 602.582
+Experiment duration = 120
+Mutant population washed out of crypt
+EXPERIMENT = 169
+Initial mutation state = 3
+Initial mutation height = 0.000990422
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 722.582
+Experiment duration = 113
+Mutant population washed out of crypt
+EXPERIMENT = 170
+Initial mutation state = 3
+Initial mutation height = 0.0101121
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 190
+Experiment start time = 835.582
+Experiment duration = 292
+Mutant population washed out of crypt
+EXPERIMENT = 171
+Initial mutation state = 3
+Initial mutation height = 0.67479
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 115
+Experiment start time = 1127.58
+Experiment duration = 120
+Mutant population washed out of crypt
+EXPERIMENT = 172
+Initial mutation state = 3
+Initial mutation height = 0.491035
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 16
+Experiment start time = 1247.58
+Experiment duration = 97
+Mutant population washed out of crypt
+EXPERIMENT = 173
+Initial mutation state = 3
+Initial mutation height = 0.219086
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 1344.58
+Experiment duration = 121
+Mutant population washed out of crypt
+EXPERIMENT = 174
+Initial mutation state = 3
+Initial mutation height = 0.0103319
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 257
+Experiment start time = 1465.58
+Experiment duration = 113
+Mutant population washed out of crypt
+EXPERIMENT = 175
+Initial mutation state = 3
+Initial mutation height = 0.0370567
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 190
+Experiment start time = 1578.58
+Experiment duration = 307
+Mutant population washed out of crypt
+EXPERIMENT = 176
+Initial mutation state = 3
+Initial mutation height = 0.0159064
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 14
+Experiment start time = 1885.58
+Experiment duration = 128
+Mutant population washed out of crypt
+EXPERIMENT = 177
+Initial mutation state = 3
+Initial mutation height = 0.0216358
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 281
+Experiment start time = 2013.58
+Experiment duration = 1610
+Mutant population taken over crypt
+EXPERIMENT = 178
+Initial mutation state = 3
+Initial mutation height = 0.701263
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 258
+Experiment start time = 338.518
+Experiment duration = 104
+Mutant population washed out of crypt
+EXPERIMENT = 179
+Initial mutation state = 3
+Initial mutation height = 0.256229
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 220
+Experiment start time = 442.518
+Experiment duration = 332
+Mutant population washed out of crypt
+EXPERIMENT = 180
+Initial mutation state = 3
+Initial mutation height = 0.0481948
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 101
+Experiment start time = 774.518
+Experiment duration = 3873
+Mutant population taken over crypt
+EXPERIMENT = 181
+Initial mutation state = 3
+Initial mutation height = 0.550822
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 220
+Experiment start time = 317.392
+Experiment duration = 141
+Mutant population washed out of crypt
+EXPERIMENT = 182
+Initial mutation state = 3
+Initial mutation height = 0.0307712
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 136
+Experiment start time = 458.392
+Experiment duration = 132
+Mutant population washed out of crypt
+EXPERIMENT = 183
+Initial mutation state = 3
+Initial mutation height = 0.721039
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 282
+Experiment start time = 590.392
+Experiment duration = 96
+Mutant population washed out of crypt
+EXPERIMENT = 184
+Initial mutation state = 3
+Initial mutation height = 0.00173936
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 291
+Experiment start time = 686.392
+Experiment duration = 97
+Mutant population washed out of crypt
+EXPERIMENT = 185
+Initial mutation state = 3
+Initial mutation height = 0.0468835
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 1
+Experiment start time = 783.392
+Experiment duration = 132
+Mutant population washed out of crypt
+EXPERIMENT = 186
+Initial mutation state = 3
+Initial mutation height = 0.00103767
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 188
+Experiment start time = 915.392
+Experiment duration = 113
+Mutant population washed out of crypt
+EXPERIMENT = 187
+Initial mutation state = 3
+Initial mutation height = 0.0210772
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 18
+Experiment start time = 1028.39
+Experiment duration = 117
+Mutant population washed out of crypt
+EXPERIMENT = 188
+Initial mutation state = 3
+Initial mutation height = 0.0121735
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 230
+Experiment start time = 1145.39
+Experiment duration = 135
+Mutant population washed out of crypt
+EXPERIMENT = 189
+Initial mutation state = 3
+Initial mutation height = 0.048381
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 117
+Experiment start time = 1280.39
+Experiment duration = 131
+Mutant population washed out of crypt
+EXPERIMENT = 190
+Initial mutation state = 3
+Initial mutation height = 0.169084
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 260
+Experiment start time = 1411.39
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 191
+Initial mutation state = 3
+Initial mutation height = 0.015655
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 1550.39
+Experiment duration = 180
+Mutant population washed out of crypt
+EXPERIMENT = 192
+Initial mutation state = 3
+Initial mutation height = 0.0213813
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 79
+Experiment start time = 1730.39
+Experiment duration = 3193
+Mutant population taken over crypt
+EXPERIMENT = 193
+Initial mutation state = 3
+Initial mutation height = 0.108826
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 279
+Experiment start time = 332.541
+Experiment duration = 111
+Mutant population washed out of crypt
+EXPERIMENT = 194
+Initial mutation state = 3
+Initial mutation height = 0.00956028
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 221
+Experiment start time = 443.541
+Experiment duration = 131
+Mutant population washed out of crypt
+EXPERIMENT = 195
+Initial mutation state = 3
+Initial mutation height = 0.0151585
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 29
+Experiment start time = 574.541
+Experiment duration = 103
+Mutant population washed out of crypt
+EXPERIMENT = 196
+Initial mutation state = 3
+Initial mutation height = 0.0469489
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 197
+Experiment start time = 677.541
+Experiment duration = 126
+Mutant population washed out of crypt
+EXPERIMENT = 197
+Initial mutation state = 3
+Initial mutation height = 0.0284004
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 803.541
+Experiment duration = 342
+Mutant population washed out of crypt
+EXPERIMENT = 198
+Initial mutation state = 3
+Initial mutation height = 0.140858
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 286
+Experiment start time = 1145.54
+Experiment duration = 662
+Mutant population washed out of crypt
+EXPERIMENT = 199
+Initial mutation state = 3
+Initial mutation height = 0.0239536
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 25
+Experiment start time = 1807.54
+Experiment duration = 105
+Mutant population washed out of crypt
+EXPERIMENT = 200
+Initial mutation state = 3
+Initial mutation height = 0.0225865
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 275
+Experiment start time = 1912.54
+Experiment duration = 220
+Mutant population washed out of crypt
+EXPERIMENT = 201
+Initial mutation state = 3
+Initial mutation height = 0.033151
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 271
+Experiment start time = 2132.54
+Experiment duration = 101
+Mutant population washed out of crypt
+EXPERIMENT = 202
+Initial mutation state = 3
+Initial mutation height = 0.0271688
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 229
+Experiment start time = 2233.54
+Experiment duration = 284
+Mutant population washed out of crypt
+EXPERIMENT = 203
+Initial mutation state = 3
+Initial mutation height = 0.653122
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 35
+Experiment start time = 2517.54
+Experiment duration = 174
+Mutant population washed out of crypt
+EXPERIMENT = 204
+Initial mutation state = 3
+Initial mutation height = 0.0115167
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 208
+Experiment start time = 2691.54
+Experiment duration = 101
+Mutant population washed out of crypt
+EXPERIMENT = 205
+Initial mutation state = 3
+Initial mutation height = 0.0458452
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 211
+Experiment start time = 2792.54
+Experiment duration = 145
+Mutant population washed out of crypt
+EXPERIMENT = 206
+Initial mutation state = 3
+Initial mutation height = 0.0141379
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 15
+Experiment start time = 2937.54
+Experiment duration = 182
+Mutant population washed out of crypt
+EXPERIMENT = 207
+Initial mutation state = 3
+Initial mutation height = 0.223546
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 177
+Experiment start time = 3119.54
+Experiment duration = 1923
+Mutant population taken over crypt
+EXPERIMENT = 208
+Initial mutation state = 3
+Initial mutation height = 0.0254276
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 188
+Experiment start time = 326.287
+Experiment duration = 1097
+Mutant population washed out of crypt
+EXPERIMENT = 209
+Initial mutation state = 3
+Initial mutation height = 0.218043
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 112
+Experiment start time = 1423.29
+Experiment duration = 104
+Mutant population washed out of crypt
+EXPERIMENT = 210
+Initial mutation state = 3
+Initial mutation height = 0.712431
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 1527.29
+Experiment duration = 101
+Mutant population washed out of crypt
+EXPERIMENT = 211
+Initial mutation state = 3
+Initial mutation height = 0.0442285
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 204
+Experiment start time = 1628.29
+Experiment duration = 154
+Mutant population washed out of crypt
+EXPERIMENT = 212
+Initial mutation state = 3
+Initial mutation height = 9.82001e-05
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 166
+Experiment start time = 1782.29
+Experiment duration = 251
+Mutant population washed out of crypt
+EXPERIMENT = 213
+Initial mutation state = 3
+Initial mutation height = 0.668273
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 274
+Experiment start time = 2033.29
+Experiment duration = 91
+Mutant population washed out of crypt
+EXPERIMENT = 214
+Initial mutation state = 3
+Initial mutation height = 0.0236394
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 213
+Experiment start time = 2124.29
+Experiment duration = 1131
+Mutant population taken over crypt
+EXPERIMENT = 215
+Initial mutation state = 3
+Initial mutation height = 0.0275423
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 65
+Experiment start time = 326.628
+Experiment duration = 132
+Mutant population washed out of crypt
+EXPERIMENT = 216
+Initial mutation state = 3
+Initial mutation height = 0.0435616
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 250
+Experiment start time = 458.628
+Experiment duration = 130
+Mutant population washed out of crypt
+EXPERIMENT = 217
+Initial mutation state = 3
+Initial mutation height = 0.00911459
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 265
+Experiment start time = 588.628
+Experiment duration = 502
+Mutant population washed out of crypt
+EXPERIMENT = 218
+Initial mutation state = 3
+Initial mutation height = 0.0490554
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 209
+Experiment start time = 1090.63
+Experiment duration = 144
+Mutant population washed out of crypt
+EXPERIMENT = 219
+Initial mutation state = 3
+Initial mutation height = 0.647245
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 249
+Experiment start time = 1234.63
+Experiment duration = 126
+Mutant population washed out of crypt
+EXPERIMENT = 220
+Initial mutation state = 3
+Initial mutation height = 0.00145588
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 33
+Experiment start time = 1360.63
+Experiment duration = 195
+Mutant population washed out of crypt
+EXPERIMENT = 221
+Initial mutation state = 3
+Initial mutation height = 0.0308071
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 236
+Experiment start time = 1555.63
+Experiment duration = 134
+Mutant population washed out of crypt
+EXPERIMENT = 222
+Initial mutation state = 3
+Initial mutation height = 0.375956
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 260
+Experiment start time = 1689.63
+Experiment duration = 1893
+Mutant population taken over crypt
+EXPERIMENT = 223
+Initial mutation state = 3
+Initial mutation height = 0.204714
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 161
+Experiment start time = 319.933
+Experiment duration = 1285
+Mutant population taken over crypt
+EXPERIMENT = 224
+Initial mutation state = 3
+Initial mutation height = 0.0307147
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 227
+Experiment start time = 337.969
+Experiment duration = 2018
+Mutant population taken over crypt
+EXPERIMENT = 225
+Initial mutation state = 3
+Initial mutation height = 0.030117
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 32
+Experiment start time = 330.887
+Experiment duration = 3268
+Mutant population taken over crypt
+EXPERIMENT = 226
+Initial mutation state = 3
+Initial mutation height = 0.00357051
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 167
+Experiment start time = 323.688
+Experiment duration = 1018
+Mutant population taken over crypt
+EXPERIMENT = 227
+Initial mutation state = 3
+Initial mutation height = 0.395029
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 28
+Experiment start time = 316.699
+Experiment duration = 736
+Mutant population washed out of crypt
+EXPERIMENT = 228
+Initial mutation state = 3
+Initial mutation height = 0.00384056
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 126
+Experiment start time = 1052.7
+Experiment duration = 1182
+Mutant population taken over crypt
+EXPERIMENT = 229
+Initial mutation state = 3
+Initial mutation height = 0.0297048
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 279
+Experiment start time = 302.7
+Experiment duration = 123
+Mutant population washed out of crypt
+EXPERIMENT = 230
+Initial mutation state = 3
+Initial mutation height = 0.00768508
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 198
+Experiment start time = 425.7
+Experiment duration = 116
+Mutant population washed out of crypt
+EXPERIMENT = 231
+Initial mutation state = 3
+Initial mutation height = 0.0267718
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 66
+Experiment start time = 541.7
+Experiment duration = 304
+Mutant population washed out of crypt
+EXPERIMENT = 232
+Initial mutation state = 3
+Initial mutation height = 0.0228079
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 14
+Experiment start time = 845.7
+Experiment duration = 120
+Mutant population washed out of crypt
+EXPERIMENT = 233
+Initial mutation state = 3
+Initial mutation height = 0.68082
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 284
+Experiment start time = 965.7
+Experiment duration = 112
+Mutant population washed out of crypt
+EXPERIMENT = 234
+Initial mutation state = 3
+Initial mutation height = 0.0318424
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 224
+Experiment start time = 1077.7
+Experiment duration = 214
+Mutant population washed out of crypt
+EXPERIMENT = 235
+Initial mutation state = 3
+Initial mutation height = 0.0114789
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 77
+Experiment start time = 1291.7
+Experiment duration = 156
+Mutant population washed out of crypt
+EXPERIMENT = 236
+Initial mutation state = 3
+Initial mutation height = 0.0352374
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 41
+Experiment start time = 1447.7
+Experiment duration = 513
+Mutant population washed out of crypt
+EXPERIMENT = 237
+Initial mutation state = 3
+Initial mutation height = 0.00205484
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 182
+Experiment start time = 1960.7
+Experiment duration = 178
+Mutant population washed out of crypt
+EXPERIMENT = 238
+Initial mutation state = 3
+Initial mutation height = 0.000727609
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 127
+Experiment start time = 2138.7
+Experiment duration = 1453
+Mutant population taken over crypt
+EXPERIMENT = 239
+Initial mutation state = 3
+Initial mutation height = 0.0226646
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 155
+Experiment start time = 306.724
+Experiment duration = 1566
+Mutant population taken over crypt
+EXPERIMENT = 240
+Initial mutation state = 3
+Initial mutation height = 0.228918
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 263
+Experiment start time = 349.79
+Experiment duration = 531
+Mutant population washed out of crypt
+EXPERIMENT = 241
+Initial mutation state = 3
+Initial mutation height = 0.128088
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 249
+Experiment start time = 880.79
+Experiment duration = 2212
+Mutant population taken over crypt
+EXPERIMENT = 242
+Initial mutation state = 3
+Initial mutation height = 0.432302
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 178
+Experiment start time = 335.278
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 243
+Initial mutation state = 3
+Initial mutation height = 0.203976
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 13
+Experiment start time = 449.278
+Experiment duration = 217
+Mutant population washed out of crypt
+EXPERIMENT = 244
+Initial mutation state = 3
+Initial mutation height = 0.0207992
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 174
+Experiment start time = 666.278
+Experiment duration = 337
+Mutant population washed out of crypt
+EXPERIMENT = 245
+Initial mutation state = 3
+Initial mutation height = 0.00826668
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 214
+Experiment start time = 1003.28
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 246
+Initial mutation state = 3
+Initial mutation height = 0.00458834
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 29
+Experiment start time = 1142.28
+Experiment duration = 387
+Mutant population washed out of crypt
+EXPERIMENT = 247
+Initial mutation state = 3
+Initial mutation height = 0.01044
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 1529.28
+Experiment duration = 95
+Mutant population washed out of crypt
+EXPERIMENT = 248
+Initial mutation state = 3
+Initial mutation height = 0.0270183
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 69
+Experiment start time = 1624.28
+Experiment duration = 136
+Mutant population washed out of crypt
+EXPERIMENT = 249
+Initial mutation state = 3
+Initial mutation height = 0.000861593
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 92
+Experiment start time = 1760.28
+Experiment duration = 332
+Mutant population washed out of crypt
+EXPERIMENT = 250
+Initial mutation state = 3
+Initial mutation height = 0.0148952
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 13
+Experiment start time = 2092.28
+Experiment duration = 162
+Mutant population washed out of crypt
+EXPERIMENT = 251
+Initial mutation state = 3
+Initial mutation height = 0.406844
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 165
+Experiment start time = 2254.28
+Experiment duration = 135
+Mutant population washed out of crypt
+EXPERIMENT = 252
+Initial mutation state = 3
+Initial mutation height = 0.0442622
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 270
+Experiment start time = 2389.28
+Experiment duration = 319
+Mutant population washed out of crypt
+EXPERIMENT = 253
+Initial mutation state = 3
+Initial mutation height = 0.70549
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 261
+Experiment start time = 2708.28
+Experiment duration = 87
+Mutant population washed out of crypt
+EXPERIMENT = 254
+Initial mutation state = 3
+Initial mutation height = 0.048151
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 44
+Experiment start time = 2795.28
+Experiment duration = 130
+Mutant population washed out of crypt
+EXPERIMENT = 255
+Initial mutation state = 3
+Initial mutation height = 0.01297
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 273
+Experiment start time = 2925.28
+Experiment duration = 110
+Mutant population washed out of crypt
+EXPERIMENT = 256
+Initial mutation state = 3
+Initial mutation height = 0.00358327
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 105
+Experiment start time = 3035.28
+Experiment duration = 136
+Mutant population washed out of crypt
+EXPERIMENT = 257
+Initial mutation state = 3
+Initial mutation height = 0.223413
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 179
+Experiment start time = 3171.28
+Experiment duration = 148
+Mutant population washed out of crypt
+EXPERIMENT = 258
+Initial mutation state = 3
+Initial mutation height = 0.0499483
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 4
+Experiment start time = 3319.28
+Experiment duration = 725
+Mutant population washed out of crypt
+EXPERIMENT = 259
+Initial mutation state = 3
+Initial mutation height = 0.290707
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 86
+Experiment start time = 4044.28
+Experiment duration = 206
+Mutant population washed out of crypt
+EXPERIMENT = 260
+Initial mutation state = 3
+Initial mutation height = 0.0197957
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 248
+Experiment start time = 4250.28
+Experiment duration = 159
+Mutant population washed out of crypt
+EXPERIMENT = 261
+Initial mutation state = 3
+Initial mutation height = 0.0314681
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 102
+Experiment start time = 4409.28
+Experiment duration = 264
+Mutant population washed out of crypt
+EXPERIMENT = 262
+Initial mutation state = 3
+Initial mutation height = 0.653446
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 253
+Experiment start time = 4673.28
+Experiment duration = 100
+Mutant population washed out of crypt
+EXPERIMENT = 263
+Initial mutation state = 3
+Initial mutation height = 0.0393026
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 51
+Experiment start time = 4773.28
+Experiment duration = 2701
+Mutant population taken over crypt
+EXPERIMENT = 264
+Initial mutation state = 3
+Initial mutation height = 0.0477701
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 279
+Experiment start time = 329.822
+Experiment duration = 194
+Mutant population washed out of crypt
+EXPERIMENT = 265
+Initial mutation state = 3
+Initial mutation height = 0.0036059
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 100
+Experiment start time = 523.822
+Experiment duration = 97
+Mutant population washed out of crypt
+EXPERIMENT = 266
+Initial mutation state = 3
+Initial mutation height = 0.00243861
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 240
+Experiment start time = 620.822
+Experiment duration = 1248
+Mutant population taken over crypt
+EXPERIMENT = 267
+Initial mutation state = 3
+Initial mutation height = 0.0930436
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 148
+Experiment start time = 308.49
+Experiment duration = 131
+Mutant population washed out of crypt
+EXPERIMENT = 268
+Initial mutation state = 3
+Initial mutation height = 0.0055742
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 78
+Experiment start time = 439.49
+Experiment duration = 103
+Mutant population washed out of crypt
+EXPERIMENT = 269
+Initial mutation state = 3
+Initial mutation height = 0.00409837
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 226
+Experiment start time = 542.49
+Experiment duration = 3029
+Mutant population taken over crypt
+EXPERIMENT = 270
+Initial mutation state = 3
+Initial mutation height = 0.10002
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 260
+Experiment start time = 337.384
+Experiment duration = 370
+Mutant population washed out of crypt
+EXPERIMENT = 271
+Initial mutation state = 3
+Initial mutation height = 0.0206162
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 11
+Experiment start time = 707.384
+Experiment duration = 102
+Mutant population washed out of crypt
+EXPERIMENT = 272
+Initial mutation state = 3
+Initial mutation height = 0.402979
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 294
+Experiment start time = 809.384
+Experiment duration = 93
+Mutant population washed out of crypt
+EXPERIMENT = 273
+Initial mutation state = 3
+Initial mutation height = 0.0130376
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 273
+Experiment start time = 902.384
+Experiment duration = 247
+Mutant population washed out of crypt
+EXPERIMENT = 274
+Initial mutation state = 3
+Initial mutation height = 0.716103
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 245
+Experiment start time = 1149.38
+Experiment duration = 106
+Mutant population washed out of crypt
+EXPERIMENT = 275
+Initial mutation state = 3
+Initial mutation height = 0.0497765
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 1255.38
+Experiment duration = 119
+Mutant population washed out of crypt
+EXPERIMENT = 276
+Initial mutation state = 3
+Initial mutation height = 0.0440101
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 39
+Experiment start time = 1374.38
+Experiment duration = 100
+Mutant population washed out of crypt
+EXPERIMENT = 277
+Initial mutation state = 3
+Initial mutation height = 0.00501027
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 43
+Experiment start time = 1474.38
+Experiment duration = 629
+Mutant population washed out of crypt
+EXPERIMENT = 278
+Initial mutation state = 3
+Initial mutation height = 0.0843514
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 8
+Experiment start time = 2103.38
+Experiment duration = 272
+Mutant population washed out of crypt
+EXPERIMENT = 279
+Initial mutation state = 3
+Initial mutation height = 0.00661622
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 113
+Experiment start time = 2375.38
+Experiment duration = 165
+Mutant population washed out of crypt
+EXPERIMENT = 280
+Initial mutation state = 3
+Initial mutation height = 0.00568334
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 24
+Experiment start time = 2540.38
+Experiment duration = 3929
+Mutant population taken over crypt
+EXPERIMENT = 281
+Initial mutation state = 3
+Initial mutation height = 0.00740477
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 51
+Experiment start time = 334.053
+Experiment duration = 97
+Mutant population washed out of crypt
+EXPERIMENT = 282
+Initial mutation state = 3
+Initial mutation height = 0.327759
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 133
+Experiment start time = 431.053
+Experiment duration = 147
+Mutant population washed out of crypt
+EXPERIMENT = 283
+Initial mutation state = 3
+Initial mutation height = 0.228087
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 219
+Experiment start time = 578.053
+Experiment duration = 1542
+Mutant population taken over crypt
+EXPERIMENT = 284
+Initial mutation state = 3
+Initial mutation height = 0.0211003
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 276
+Experiment start time = 313.06
+Experiment duration = 249
+Mutant population washed out of crypt
+EXPERIMENT = 285
+Initial mutation state = 3
+Initial mutation height = 0.254141
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 252
+Experiment start time = 562.06
+Experiment duration = 95
+Mutant population washed out of crypt
+EXPERIMENT = 286
+Initial mutation state = 3
+Initial mutation height = 0.0259922
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 247
+Experiment start time = 657.06
+Experiment duration = 156
+Mutant population washed out of crypt
+EXPERIMENT = 287
+Initial mutation state = 3
+Initial mutation height = 0.00793968
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 233
+Experiment start time = 813.06
+Experiment duration = 178
+Mutant population washed out of crypt
+EXPERIMENT = 288
+Initial mutation state = 3
+Initial mutation height = 0.00439762
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 47
+Experiment start time = 991.06
+Experiment duration = 2314
+Mutant population taken over crypt
+EXPERIMENT = 289
+Initial mutation state = 3
+Initial mutation height = 0.0200785
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 118
+Experiment start time = 302.761
+Experiment duration = 195
+Mutant population washed out of crypt
+EXPERIMENT = 290
+Initial mutation state = 3
+Initial mutation height = 0.207946
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 229
+Experiment start time = 497.761
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 291
+Initial mutation state = 3
+Initial mutation height = 0.00914655
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 292
+Experiment start time = 635.761
+Experiment duration = 143
+Mutant population washed out of crypt
+EXPERIMENT = 292
+Initial mutation state = 3
+Initial mutation height = 0.00520352
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 135
+Experiment start time = 778.761
+Experiment duration = 169
+Mutant population washed out of crypt
+EXPERIMENT = 293
+Initial mutation state = 3
+Initial mutation height = 0.165619
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 148
+Experiment start time = 947.761
+Experiment duration = 114
+Mutant population washed out of crypt
+EXPERIMENT = 294
+Initial mutation state = 3
+Initial mutation height = 0.00648452
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 273
+Experiment start time = 1061.76
+Experiment duration = 116
+Mutant population washed out of crypt
+EXPERIMENT = 295
+Initial mutation state = 3
+Initial mutation height = 0.0346909
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 45
+Experiment start time = 1177.76
+Experiment duration = 128
+Mutant population washed out of crypt
+EXPERIMENT = 296
+Initial mutation state = 3
+Initial mutation height = 0.0200664
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 281
+Experiment start time = 1305.76
+Experiment duration = 545
+Mutant population taken over crypt
+EXPERIMENT = 297
+Initial mutation state = 3
+Initial mutation height = 0.0480589
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 90
+Experiment start time = 320.991
+Experiment duration = 120
+Mutant population washed out of crypt
+EXPERIMENT = 298
+Initial mutation state = 3
+Initial mutation height = 0.0122312
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 284
+Experiment start time = 440.991
+Experiment duration = 146
+Mutant population washed out of crypt
+EXPERIMENT = 299
+Initial mutation state = 3
+Initial mutation height = 0.0354753
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 586.991
+Experiment duration = 477
+Mutant population washed out of crypt
+EXPERIMENT = 300
+Initial mutation state = 3
+Initial mutation height = 0.0650529
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 114
+Experiment start time = 1063.99
+Experiment duration = 133
+Mutant population washed out of crypt
+EXPERIMENT = 301
+Initial mutation state = 3
+Initial mutation height = 0.0041296
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 65
+Experiment start time = 1196.99
+Experiment duration = 111
+Mutant population washed out of crypt
+EXPERIMENT = 302
+Initial mutation state = 3
+Initial mutation height = 0.0425199
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 158
+Experiment start time = 1307.99
+Experiment duration = 685
+Mutant population washed out of crypt
+EXPERIMENT = 303
+Initial mutation state = 3
+Initial mutation height = 0.00456959
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 180
+Experiment start time = 1992.99
+Experiment duration = 203
+Mutant population washed out of crypt
+EXPERIMENT = 304
+Initial mutation state = 3
+Initial mutation height = 0.625771
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 2195.99
+Experiment duration = 3499
+Mutant population taken over crypt
+EXPERIMENT = 305
+Initial mutation state = 3
+Initial mutation height = 0.676682
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 259
+Experiment start time = 339.391
+Experiment duration = 82
+Mutant population washed out of crypt
+EXPERIMENT = 306
+Initial mutation state = 3
+Initial mutation height = 0.0397088
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 260
+Experiment start time = 421.391
+Experiment duration = 242
+Mutant population washed out of crypt
+EXPERIMENT = 307
+Initial mutation state = 3
+Initial mutation height = 0.0419706
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 183
+Experiment start time = 663.391
+Experiment duration = 351
+Mutant population washed out of crypt
+EXPERIMENT = 308
+Initial mutation state = 3
+Initial mutation height = 0.0466083
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 184
+Experiment start time = 1014.39
+Experiment duration = 1917
+Mutant population taken over crypt
+EXPERIMENT = 309
+Initial mutation state = 3
+Initial mutation height = 0.00888676
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 205
+Experiment start time = 335.841
+Experiment duration = 145
+Mutant population washed out of crypt
+EXPERIMENT = 310
+Initial mutation state = 3
+Initial mutation height = 0.0047937
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 253
+Experiment start time = 480.841
+Experiment duration = 221
+Mutant population washed out of crypt
+EXPERIMENT = 311
+Initial mutation state = 3
+Initial mutation height = 0.0133955
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 123
+Experiment start time = 701.841
+Experiment duration = 771
+Mutant population washed out of crypt
+EXPERIMENT = 312
+Initial mutation state = 3
+Initial mutation height = 0.0077672
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 191
+Experiment start time = 1472.84
+Experiment duration = 281
+Mutant population washed out of crypt
+EXPERIMENT = 313
+Initial mutation state = 3
+Initial mutation height = 0.708601
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 300
+Experiment start time = 1753.84
+Experiment duration = 97
+Mutant population washed out of crypt
+EXPERIMENT = 314
+Initial mutation state = 3
+Initial mutation height = 0.0347277
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 3
+Experiment start time = 1850.84
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 315
+Initial mutation state = 3
+Initial mutation height = 0.346539
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 76
+Experiment start time = 1988.84
+Experiment duration = 537
+Mutant population taken over crypt
+EXPERIMENT = 316
+Initial mutation state = 3
+Initial mutation height = 0.0245095
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 16
+Experiment start time = 336.449
+Experiment duration = 191
+Mutant population washed out of crypt
+EXPERIMENT = 317
+Initial mutation state = 3
+Initial mutation height = 0.0230663
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 527.449
+Experiment duration = 453
+Mutant population washed out of crypt
+EXPERIMENT = 318
+Initial mutation state = 3
+Initial mutation height = 0.0270624
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 62
+Experiment start time = 980.449
+Experiment duration = 166
+Mutant population washed out of crypt
+EXPERIMENT = 319
+Initial mutation state = 3
+Initial mutation height = 0.00936728
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 15
+Experiment start time = 1146.45
+Experiment duration = 1002
+Mutant population taken over crypt
+EXPERIMENT = 320
+Initial mutation state = 3
+Initial mutation height = 0.451265
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 269
+Experiment start time = 333.245
+Experiment duration = 1655
+Mutant population taken over crypt
+EXPERIMENT = 321
+Initial mutation state = 3
+Initial mutation height = 0.177847
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 223
+Experiment start time = 326.383
+Experiment duration = 90
+Mutant population washed out of crypt
+EXPERIMENT = 322
+Initial mutation state = 3
+Initial mutation height = 0.266166
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 32
+Experiment start time = 416.383
+Experiment duration = 102
+Mutant population washed out of crypt
+EXPERIMENT = 323
+Initial mutation state = 3
+Initial mutation height = 0.00700145
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 79
+Experiment start time = 518.383
+Experiment duration = 1591
+Mutant population taken over crypt
+EXPERIMENT = 324
+Initial mutation state = 3
+Initial mutation height = 0.0154702
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 235
+Experiment start time = 304.74
+Experiment duration = 241
+Mutant population washed out of crypt
+EXPERIMENT = 325
+Initial mutation state = 3
+Initial mutation height = 0.276308
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 288
+Experiment start time = 545.74
+Experiment duration = 1077
+Mutant population taken over crypt
+EXPERIMENT = 326
+Initial mutation state = 3
+Initial mutation height = 0.117967
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 102
+Experiment start time = 315.585
+Experiment duration = 153
+Mutant population washed out of crypt
+EXPERIMENT = 327
+Initial mutation state = 3
+Initial mutation height = 0.0101114
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 468.585
+Experiment duration = 136
+Mutant population washed out of crypt
+EXPERIMENT = 328
+Initial mutation state = 3
+Initial mutation height = 0.0381367
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 29
+Experiment start time = 604.585
+Experiment duration = 179
+Mutant population washed out of crypt
+EXPERIMENT = 329
+Initial mutation state = 3
+Initial mutation height = 0.0150025
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 26
+Experiment start time = 783.585
+Experiment duration = 119
+Mutant population washed out of crypt
+EXPERIMENT = 330
+Initial mutation state = 3
+Initial mutation height = 0.0497201
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 32
+Experiment start time = 902.585
+Experiment duration = 107
+Mutant population washed out of crypt
+EXPERIMENT = 331
+Initial mutation state = 3
+Initial mutation height = 0.140438
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 41
+Experiment start time = 1009.58
+Experiment duration = 245
+Mutant population washed out of crypt
+EXPERIMENT = 332
+Initial mutation state = 3
+Initial mutation height = 0.0347068
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 39
+Experiment start time = 1254.58
+Experiment duration = 153
+Mutant population washed out of crypt
+EXPERIMENT = 333
+Initial mutation state = 3
+Initial mutation height = 0.69915
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 131
+Experiment start time = 1407.58
+Experiment duration = 93
+Mutant population washed out of crypt
+EXPERIMENT = 334
+Initial mutation state = 3
+Initial mutation height = 0.015011
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 149
+Experiment start time = 1500.58
+Experiment duration = 3102
+Mutant population taken over crypt
+EXPERIMENT = 335
+Initial mutation state = 3
+Initial mutation height = 0.0506668
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 237
+Experiment start time = 327.038
+Experiment duration = 119
+Mutant population washed out of crypt
+EXPERIMENT = 336
+Initial mutation state = 3
+Initial mutation height = 0.0163525
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 218
+Experiment start time = 446.038
+Experiment duration = 1491
+Mutant population taken over crypt
+EXPERIMENT = 337
+Initial mutation state = 3
+Initial mutation height = 0.226243
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 109
+Experiment start time = 312.691
+Experiment duration = 273
+Mutant population washed out of crypt
+EXPERIMENT = 338
+Initial mutation state = 3
+Initial mutation height = 0.00677153
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 115
+Experiment start time = 585.691
+Experiment duration = 1496
+Mutant population washed out of crypt
+EXPERIMENT = 339
+Initial mutation state = 3
+Initial mutation height = 0.00979107
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 269
+Experiment start time = 2081.69
+Experiment duration = 178
+Mutant population washed out of crypt
+EXPERIMENT = 340
+Initial mutation state = 3
+Initial mutation height = 0.0100083
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 250
+Experiment start time = 2259.69
+Experiment duration = 1561
+Mutant population taken over crypt
+EXPERIMENT = 341
+Initial mutation state = 3
+Initial mutation height = 0.00455829
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 169
+Experiment start time = 309.331
+Experiment duration = 108
+Mutant population washed out of crypt
+EXPERIMENT = 342
+Initial mutation state = 3
+Initial mutation height = 0.66651
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 189
+Experiment start time = 417.331
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 343
+Initial mutation state = 3
+Initial mutation height = 0.04558
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 184
+Experiment start time = 556.331
+Experiment duration = 115
+Mutant population washed out of crypt
+EXPERIMENT = 344
+Initial mutation state = 3
+Initial mutation height = 0.233336
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 162
+Experiment start time = 671.331
+Experiment duration = 224
+Mutant population washed out of crypt
+EXPERIMENT = 345
+Initial mutation state = 3
+Initial mutation height = 0.0326026
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 136
+Experiment start time = 895.331
+Experiment duration = 1286
+Mutant population taken over crypt
+EXPERIMENT = 346
+Initial mutation state = 3
+Initial mutation height = 0.0492996
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 10
+Experiment start time = 348.955
+Experiment duration = 265
+Mutant population washed out of crypt
+EXPERIMENT = 347
+Initial mutation state = 3
+Initial mutation height = 0.44793
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 244
+Experiment start time = 613.955
+Experiment duration = 97
+Mutant population washed out of crypt
+EXPERIMENT = 348
+Initial mutation state = 3
+Initial mutation height = 0.005441
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 158
+Experiment start time = 710.955
+Experiment duration = 1426
+Mutant population taken over crypt
+EXPERIMENT = 349
+Initial mutation state = 3
+Initial mutation height = 0.00425816
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 186
+Experiment start time = 327.787
+Experiment duration = 125
+Mutant population washed out of crypt
+EXPERIMENT = 350
+Initial mutation state = 3
+Initial mutation height = 0.0396767
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 58
+Experiment start time = 452.787
+Experiment duration = 104
+Mutant population washed out of crypt
+EXPERIMENT = 351
+Initial mutation state = 3
+Initial mutation height = 0.062142
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 151
+Experiment start time = 556.787
+Experiment duration = 1722
+Mutant population taken over crypt
+EXPERIMENT = 352
+Initial mutation state = 3
+Initial mutation height = 0.0226493
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 96
+Experiment start time = 306.459
+Experiment duration = 177
+Mutant population washed out of crypt
+EXPERIMENT = 353
+Initial mutation state = 3
+Initial mutation height = 0.0254809
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 27
+Experiment start time = 483.459
+Experiment duration = 516
+Mutant population washed out of crypt
+EXPERIMENT = 354
+Initial mutation state = 3
+Initial mutation height = 0.0385428
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 289
+Experiment start time = 999.459
+Experiment duration = 161
+Mutant population washed out of crypt
+EXPERIMENT = 355
+Initial mutation state = 3
+Initial mutation height = 0.161935
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 6
+Experiment start time = 1160.46
+Experiment duration = 129
+Mutant population washed out of crypt
+EXPERIMENT = 356
+Initial mutation state = 3
+Initial mutation height = 0.0491682
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 277
+Experiment start time = 1289.46
+Experiment duration = 146
+Mutant population washed out of crypt
+EXPERIMENT = 357
+Initial mutation state = 3
+Initial mutation height = 0.0217684
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 41
+Experiment start time = 1435.46
+Experiment duration = 2149
+Mutant population taken over crypt
+EXPERIMENT = 358
+Initial mutation state = 3
+Initial mutation height = 0.0193945
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 281
+Experiment start time = 339.089
+Experiment duration = 2075
+Mutant population washed out of crypt
+EXPERIMENT = 359
+Initial mutation state = 3
+Initial mutation height = 0.0104422
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 279
+Experiment start time = 2414.09
+Experiment duration = 100
+Mutant population washed out of crypt
+EXPERIMENT = 360
+Initial mutation state = 3
+Initial mutation height = 0.0640513
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 226
+Experiment start time = 2514.09
+Experiment duration = 1029
+Mutant population taken over crypt
+EXPERIMENT = 361
+Initial mutation state = 3
+Initial mutation height = 0.0294847
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 135
+Experiment start time = 342.839
+Experiment duration = 102
+Mutant population washed out of crypt
+EXPERIMENT = 362
+Initial mutation state = 3
+Initial mutation height = 0.0198876
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 237
+Experiment start time = 444.839
+Experiment duration = 766
+Mutant population taken over crypt
+EXPERIMENT = 363
+Initial mutation state = 3
+Initial mutation height = 0.316335
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 246
+Experiment start time = 303.776
+Experiment duration = 1335
+Mutant population taken over crypt
+EXPERIMENT = 364
+Initial mutation state = 3
+Initial mutation height = 0.00137022
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 26
+Experiment start time = 346.586
+Experiment duration = 255
+Mutant population washed out of crypt
+EXPERIMENT = 365
+Initial mutation state = 3
+Initial mutation height = 0.151584
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 214
+Experiment start time = 601.586
+Experiment duration = 4924
+Mutant population washed out of crypt
+EXPERIMENT = 366
+Initial mutation state = 3
+Initial mutation height = 0.0136529
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 270
+Experiment start time = 5525.59
+Experiment duration = 109
+Mutant population washed out of crypt
+EXPERIMENT = 367
+Initial mutation state = 3
+Initial mutation height = 0.0103263
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 248
+Experiment start time = 5634.59
+Experiment duration = 158
+Mutant population washed out of crypt
+EXPERIMENT = 368
+Initial mutation state = 3
+Initial mutation height = 0.00391974
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 196
+Experiment start time = 5792.59
+Experiment duration = 184
+Mutant population washed out of crypt
+EXPERIMENT = 369
+Initial mutation state = 3
+Initial mutation height = 0.00277633
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 48
+Experiment start time = 5976.59
+Experiment duration = 149
+Mutant population washed out of crypt
+EXPERIMENT = 370
+Initial mutation state = 3
+Initial mutation height = 0.00421231
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 81
+Experiment start time = 6125.59
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 371
+Initial mutation state = 3
+Initial mutation height = 0.032651
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 201
+Experiment start time = 6263.59
+Experiment duration = 205
+Mutant population washed out of crypt
+EXPERIMENT = 372
+Initial mutation state = 3
+Initial mutation height = 0.00897665
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 163
+Experiment start time = 6468.59
+Experiment duration = 201
+Mutant population washed out of crypt
+EXPERIMENT = 373
+Initial mutation state = 3
+Initial mutation height = 0.0423193
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 153
+Experiment start time = 6669.59
+Experiment duration = 173
+Mutant population washed out of crypt
+EXPERIMENT = 374
+Initial mutation state = 3
+Initial mutation height = 0.0223101
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 268
+Experiment start time = 6842.59
+Experiment duration = 136
+Mutant population washed out of crypt
+EXPERIMENT = 375
+Initial mutation state = 3
+Initial mutation height = 0.0275039
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 268
+Experiment start time = 6978.59
+Experiment duration = 4107
+Mutant population taken over crypt
+EXPERIMENT = 376
+Initial mutation state = 3
+Initial mutation height = 0.00505567
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 245
+Experiment start time = 311.773
+Experiment duration = 109
+Mutant population washed out of crypt
+EXPERIMENT = 377
+Initial mutation state = 3
+Initial mutation height = 0.0352252
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 159
+Experiment start time = 420.773
+Experiment duration = 135
+Mutant population washed out of crypt
+EXPERIMENT = 378
+Initial mutation state = 3
+Initial mutation height = 0.0237282
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 266
+Experiment start time = 555.773
+Experiment duration = 154
+Mutant population washed out of crypt
+EXPERIMENT = 379
+Initial mutation state = 3
+Initial mutation height = 0.222013
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 148
+Experiment start time = 709.773
+Experiment duration = 388
+Mutant population washed out of crypt
+EXPERIMENT = 380
+Initial mutation state = 3
+Initial mutation height = 0.0278225
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 118
+Experiment start time = 1097.77
+Experiment duration = 854
+Mutant population taken over crypt
+EXPERIMENT = 381
+Initial mutation state = 3
+Initial mutation height = 0.0102372
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 149
+Experiment start time = 326.066
+Experiment duration = 135
+Mutant population washed out of crypt
+EXPERIMENT = 382
+Initial mutation state = 3
+Initial mutation height = 0.0141814
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 182
+Experiment start time = 461.066
+Experiment duration = 256
+Mutant population washed out of crypt
+EXPERIMENT = 383
+Initial mutation state = 3
+Initial mutation height = 0.00757694
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 268
+Experiment start time = 717.066
+Experiment duration = 173
+Mutant population washed out of crypt
+EXPERIMENT = 384
+Initial mutation state = 3
+Initial mutation height = 0.0094509
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 75
+Experiment start time = 890.066
+Experiment duration = 729
+Mutant population washed out of crypt
+EXPERIMENT = 385
+Initial mutation state = 3
+Initial mutation height = 0.049316
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 42
+Experiment start time = 1619.07
+Experiment duration = 172
+Mutant population washed out of crypt
+EXPERIMENT = 386
+Initial mutation state = 3
+Initial mutation height = 0.0181724
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 4
+Experiment start time = 1791.07
+Experiment duration = 2086
+Mutant population taken over crypt
+EXPERIMENT = 387
+Initial mutation state = 3
+Initial mutation height = 0.355469
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 275
+Experiment start time = 333.554
+Experiment duration = 498
+Mutant population washed out of crypt
+EXPERIMENT = 388
+Initial mutation state = 3
+Initial mutation height = 0.0419898
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 831.554
+Experiment duration = 1231
+Mutant population washed out of crypt
+EXPERIMENT = 389
+Initial mutation state = 3
+Initial mutation height = 0.00141275
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 210
+Experiment start time = 2062.55
+Experiment duration = 3285
+Mutant population taken over crypt
+EXPERIMENT = 390
+Initial mutation state = 3
+Initial mutation height = 0.475948
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 129
+Experiment start time = 312.347
+Experiment duration = 96
+Mutant population washed out of crypt
+EXPERIMENT = 391
+Initial mutation state = 3
+Initial mutation height = 0.0342931
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 20
+Experiment start time = 408.347
+Experiment duration = 155
+Mutant population washed out of crypt
+EXPERIMENT = 392
+Initial mutation state = 3
+Initial mutation height = 0.0151208
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 151
+Experiment start time = 563.347
+Experiment duration = 2150
+Mutant population taken over crypt
+EXPERIMENT = 393
+Initial mutation state = 3
+Initial mutation height = 0.0129219
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 238
+Experiment start time = 341.236
+Experiment duration = 172
+Mutant population washed out of crypt
+EXPERIMENT = 394
+Initial mutation state = 3
+Initial mutation height = 0.0280039
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 233
+Experiment start time = 513.236
+Experiment duration = 175
+Mutant population washed out of crypt
+EXPERIMENT = 395
+Initial mutation state = 3
+Initial mutation height = 0.702586
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 140
+Experiment start time = 688.236
+Experiment duration = 2551
+Mutant population taken over crypt
+EXPERIMENT = 396
+Initial mutation state = 3
+Initial mutation height = 0.704905
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 30
+Experiment start time = 319.991
+Experiment duration = 142
+Mutant population washed out of crypt
+EXPERIMENT = 397
+Initial mutation state = 3
+Initial mutation height = 0.0982784
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 1
+Experiment start time = 461.991
+Experiment duration = 1343
+Mutant population washed out of crypt
+EXPERIMENT = 398
+Initial mutation state = 3
+Initial mutation height = 0.0290916
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 155
+Experiment start time = 1804.99
+Experiment duration = 1326
+Mutant population taken over crypt
+EXPERIMENT = 399
+Initial mutation state = 3
+Initial mutation height = 0.0948767
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 273
+Experiment start time = 323.787
+Experiment duration = 3935
+Mutant population taken over crypt
+EXPERIMENT = 400
+Initial mutation state = 3
+Initial mutation height = 0.0302722
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 286
+Experiment start time = 341.542
+Experiment duration = 1352
+Mutant population taken over crypt
+EXPERIMENT = 401
+Initial mutation state = 3
+Initial mutation height = 0.0453355
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 267
+Experiment start time = 309.391
+Experiment duration = 261
+Mutant population washed out of crypt
+EXPERIMENT = 402
+Initial mutation state = 3
+Initial mutation height = 0.018917
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 30
+Experiment start time = 570.391
+Experiment duration = 787
+Mutant population washed out of crypt
+EXPERIMENT = 403
+Initial mutation state = 3
+Initial mutation height = 0.0201631
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 284
+Experiment start time = 1357.39
+Experiment duration = 907
+Mutant population taken over crypt
+EXPERIMENT = 404
+Initial mutation state = 3
+Initial mutation height = 0.00212409
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 230
+Experiment start time = 313.377
+Experiment duration = 228
+Mutant population washed out of crypt
+EXPERIMENT = 405
+Initial mutation state = 3
+Initial mutation height = 0.00390571
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 210
+Experiment start time = 541.377
+Experiment duration = 103
+Mutant population washed out of crypt
+EXPERIMENT = 406
+Initial mutation state = 3
+Initial mutation height = 0.0172074
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 43
+Experiment start time = 644.377
+Experiment duration = 256
+Mutant population washed out of crypt
+EXPERIMENT = 407
+Initial mutation state = 3
+Initial mutation height = 0.690612
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 244
+Experiment start time = 900.377
+Experiment duration = 93
+Mutant population washed out of crypt
+EXPERIMENT = 408
+Initial mutation state = 3
+Initial mutation height = 0.032992
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 241
+Experiment start time = 993.377
+Experiment duration = 104
+Mutant population washed out of crypt
+EXPERIMENT = 409
+Initial mutation state = 3
+Initial mutation height = 0.125455
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 103
+Experiment start time = 1097.38
+Experiment duration = 215
+Mutant population washed out of crypt
+EXPERIMENT = 410
+Initial mutation state = 3
+Initial mutation height = 0.196227
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 48
+Experiment start time = 1312.38
+Experiment duration = 137
+Mutant population washed out of crypt
+EXPERIMENT = 411
+Initial mutation state = 3
+Initial mutation height = 0.0146377
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 202
+Experiment start time = 1449.38
+Experiment duration = 165
+Mutant population washed out of crypt
+EXPERIMENT = 412
+Initial mutation state = 3
+Initial mutation height = 0.0405095
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 265
+Experiment start time = 1614.38
+Experiment duration = 160
+Mutant population washed out of crypt
+EXPERIMENT = 413
+Initial mutation state = 3
+Initial mutation height = 0.0108555
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 174
+Experiment start time = 1774.38
+Experiment duration = 189
+Mutant population washed out of crypt
+EXPERIMENT = 414
+Initial mutation state = 3
+Initial mutation height = 0.0240366
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 233
+Experiment start time = 1963.38
+Experiment duration = 531
+Mutant population washed out of crypt
+EXPERIMENT = 415
+Initial mutation state = 3
+Initial mutation height = 0.00968616
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 205
+Experiment start time = 2494.38
+Experiment duration = 115
+Mutant population washed out of crypt
+EXPERIMENT = 416
+Initial mutation state = 3
+Initial mutation height = 0.596243
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 287
+Experiment start time = 2609.38
+Experiment duration = 112
+Mutant population washed out of crypt
+EXPERIMENT = 417
+Initial mutation state = 3
+Initial mutation height = 0.00906397
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 20
+Experiment start time = 2721.38
+Experiment duration = 138
+Mutant population washed out of crypt
+EXPERIMENT = 418
+Initial mutation state = 3
+Initial mutation height = 0.0805284
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 253
+Experiment start time = 2859.38
+Experiment duration = 134
+Mutant population washed out of crypt
+EXPERIMENT = 419
+Initial mutation state = 3
+Initial mutation height = 0.0973304
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 229
+Experiment start time = 2993.38
+Experiment duration = 115
+Mutant population washed out of crypt
+EXPERIMENT = 420
+Initial mutation state = 3
+Initial mutation height = 0.277251
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 179
+Experiment start time = 3108.38
+Experiment duration = 140
+Mutant population washed out of crypt
+EXPERIMENT = 421
+Initial mutation state = 3
+Initial mutation height = 0.00392253
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 270
+Experiment start time = 3248.38
+Experiment duration = 90
+Mutant population washed out of crypt
+EXPERIMENT = 422
+Initial mutation state = 3
+Initial mutation height = 0.0249464
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 84
+Experiment start time = 3338.38
+Experiment duration = 216
+Mutant population washed out of crypt
+EXPERIMENT = 423
+Initial mutation state = 3
+Initial mutation height = 0.0254151
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 109
+Experiment start time = 3554.38
+Experiment duration = 129
+Mutant population washed out of crypt
+EXPERIMENT = 424
+Initial mutation state = 3
+Initial mutation height = 0.0414621
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 291
+Experiment start time = 3683.38
+Experiment duration = 163
+Mutant population washed out of crypt
+EXPERIMENT = 425
+Initial mutation state = 3
+Initial mutation height = 0.0197276
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 167
+Experiment start time = 3846.38
+Experiment duration = 324
+Mutant population washed out of crypt
+EXPERIMENT = 426
+Initial mutation state = 3
+Initial mutation height = 0.0282737
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 179
+Experiment start time = 4170.38
+Experiment duration = 219
+Mutant population washed out of crypt
+EXPERIMENT = 427
+Initial mutation state = 3
+Initial mutation height = 0.198793
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 239
+Experiment start time = 4389.38
+Experiment duration = 111
+Mutant population washed out of crypt
+EXPERIMENT = 428
+Initial mutation state = 3
+Initial mutation height = 0.607424
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 269
+Experiment start time = 4500.38
+Experiment duration = 112
+Mutant population washed out of crypt
+EXPERIMENT = 429
+Initial mutation state = 3
+Initial mutation height = 0.623299
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 289
+Experiment start time = 4612.38
+Experiment duration = 122
+Mutant population washed out of crypt
+EXPERIMENT = 430
+Initial mutation state = 3
+Initial mutation height = 0.0103437
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 178
+Experiment start time = 4734.38
+Experiment duration = 128
+Mutant population washed out of crypt
+EXPERIMENT = 431
+Initial mutation state = 3
+Initial mutation height = 0.0132978
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 269
+Experiment start time = 4862.38
+Experiment duration = 3446
+Mutant population taken over crypt
+EXPERIMENT = 432
+Initial mutation state = 3
+Initial mutation height = 0.0268599
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 32
+Experiment start time = 339.974
+Experiment duration = 1269
+Mutant population taken over crypt
+EXPERIMENT = 433
+Initial mutation state = 3
+Initial mutation height = 0.00117979
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 175
+Experiment start time = 307.92
+Experiment duration = 133
+Mutant population washed out of crypt
+EXPERIMENT = 434
+Initial mutation state = 3
+Initial mutation height = 0.0252301
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 43
+Experiment start time = 440.92
+Experiment duration = 167
+Mutant population washed out of crypt
+EXPERIMENT = 435
+Initial mutation state = 3
+Initial mutation height = 0.0475567
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 138
+Experiment start time = 607.92
+Experiment duration = 1920
+Mutant population taken over crypt
+EXPERIMENT = 436
+Initial mutation state = 3
+Initial mutation height = 0.131488
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 261
+Experiment start time = 311.787
+Experiment duration = 130
+Mutant population washed out of crypt
+EXPERIMENT = 437
+Initial mutation state = 3
+Initial mutation height = 0.0070528
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 441.787
+Experiment duration = 576
+Mutant population washed out of crypt
+EXPERIMENT = 438
+Initial mutation state = 3
+Initial mutation height = 0.0656179
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 161
+Experiment start time = 1017.79
+Experiment duration = 96
+Mutant population washed out of crypt
+EXPERIMENT = 439
+Initial mutation state = 3
+Initial mutation height = 0.0256052
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 264
+Experiment start time = 1113.79
+Experiment duration = 175
+Mutant population washed out of crypt
+EXPERIMENT = 440
+Initial mutation state = 3
+Initial mutation height = 0.027541
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 249
+Experiment start time = 1288.79
+Experiment duration = 221
+Mutant population washed out of crypt
+EXPERIMENT = 441
+Initial mutation state = 3
+Initial mutation height = 0.352069
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 73
+Experiment start time = 1509.79
+Experiment duration = 212
+Mutant population washed out of crypt
+EXPERIMENT = 442
+Initial mutation state = 3
+Initial mutation height = 0.0457383
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 1721.79
+Experiment duration = 123
+Mutant population washed out of crypt
+EXPERIMENT = 443
+Initial mutation state = 3
+Initial mutation height = 0.00543057
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 114
+Experiment start time = 1844.79
+Experiment duration = 182
+Mutant population washed out of crypt
+EXPERIMENT = 444
+Initial mutation state = 3
+Initial mutation height = 0.00445799
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 190
+Experiment start time = 2026.79
+Experiment duration = 768
+Mutant population washed out of crypt
+EXPERIMENT = 445
+Initial mutation state = 3
+Initial mutation height = 0.0104218
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 107
+Experiment start time = 2794.79
+Experiment duration = 316
+Mutant population washed out of crypt
+EXPERIMENT = 446
+Initial mutation state = 3
+Initial mutation height = 0.000180363
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 266
+Experiment start time = 3110.79
+Experiment duration = 108
+Mutant population washed out of crypt
+EXPERIMENT = 447
+Initial mutation state = 3
+Initial mutation height = 0.146737
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 77
+Experiment start time = 3218.79
+Experiment duration = 182
+Mutant population washed out of crypt
+EXPERIMENT = 448
+Initial mutation state = 3
+Initial mutation height = 0.037453
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 251
+Experiment start time = 3400.79
+Experiment duration = 130
+Mutant population washed out of crypt
+EXPERIMENT = 449
+Initial mutation state = 3
+Initial mutation height = 0.00776968
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 278
+Experiment start time = 3530.79
+Experiment duration = 1151
+Mutant population taken over crypt
+EXPERIMENT = 450
+Initial mutation state = 3
+Initial mutation height = 0.0104868
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 261
+Experiment start time = 337.728
+Experiment duration = 1230
+Mutant population taken over crypt
+EXPERIMENT = 451
+Initial mutation state = 3
+Initial mutation height = 0.0233224
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 99
+Experiment start time = 305.402
+Experiment duration = 173
+Mutant population washed out of crypt
+EXPERIMENT = 452
+Initial mutation state = 3
+Initial mutation height = 0.211965
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 98
+Experiment start time = 478.402
+Experiment duration = 100
+Mutant population washed out of crypt
+EXPERIMENT = 453
+Initial mutation state = 3
+Initial mutation height = 0.0422798
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 174
+Experiment start time = 578.402
+Experiment duration = 278
+Mutant population washed out of crypt
+EXPERIMENT = 454
+Initial mutation state = 3
+Initial mutation height = 0.037779
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 266
+Experiment start time = 856.402
+Experiment duration = 118
+Mutant population washed out of crypt
+EXPERIMENT = 455
+Initial mutation state = 3
+Initial mutation height = 0.0143201
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 81
+Experiment start time = 974.402
+Experiment duration = 171
+Mutant population washed out of crypt
+EXPERIMENT = 456
+Initial mutation state = 3
+Initial mutation height = 0.0323587
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 117
+Experiment start time = 1145.4
+Experiment duration = 147
+Mutant population washed out of crypt
+EXPERIMENT = 457
+Initial mutation state = 3
+Initial mutation height = 0.680323
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 158
+Experiment start time = 1292.4
+Experiment duration = 93
+Mutant population washed out of crypt
+EXPERIMENT = 458
+Initial mutation state = 3
+Initial mutation height = 0.00179295
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 45
+Experiment start time = 1385.4
+Experiment duration = 149
+Mutant population washed out of crypt
+EXPERIMENT = 459
+Initial mutation state = 3
+Initial mutation height = 0.0486681
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 256
+Experiment start time = 1534.4
+Experiment duration = 112
+Mutant population washed out of crypt
+EXPERIMENT = 460
+Initial mutation state = 3
+Initial mutation height = 0.0493258
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 21
+Experiment start time = 1646.4
+Experiment duration = 125
+Mutant population washed out of crypt
+EXPERIMENT = 461
+Initial mutation state = 3
+Initial mutation height = 0.719633
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 276
+Experiment start time = 1771.4
+Experiment duration = 109
+Mutant population washed out of crypt
+EXPERIMENT = 462
+Initial mutation state = 3
+Initial mutation height = 0.343728
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 219
+Experiment start time = 1880.4
+Experiment duration = 102
+Mutant population washed out of crypt
+EXPERIMENT = 463
+Initial mutation state = 3
+Initial mutation height = 0.033667
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 205
+Experiment start time = 1982.4
+Experiment duration = 464
+Mutant population washed out of crypt
+EXPERIMENT = 464
+Initial mutation state = 3
+Initial mutation height = 0.0603603
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 226
+Experiment start time = 2446.4
+Experiment duration = 156
+Mutant population washed out of crypt
+EXPERIMENT = 465
+Initial mutation state = 3
+Initial mutation height = 0.0443711
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 147
+Experiment start time = 2602.4
+Experiment duration = 2649
+Mutant population taken over crypt
+EXPERIMENT = 466
+Initial mutation state = 3
+Initial mutation height = 0.0440529
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 295
+Experiment start time = 324.368
+Experiment duration = 309
+Mutant population washed out of crypt
+EXPERIMENT = 467
+Initial mutation state = 3
+Initial mutation height = 0.485115
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 229
+Experiment start time = 633.368
+Experiment duration = 82
+Mutant population washed out of crypt
+EXPERIMENT = 468
+Initial mutation state = 3
+Initial mutation height = 0.0344379
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 34
+Experiment start time = 715.368
+Experiment duration = 330
+Mutant population washed out of crypt
+EXPERIMENT = 469
+Initial mutation state = 3
+Initial mutation height = 0.0290705
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 133
+Experiment start time = 1045.37
+Experiment duration = 2717
+Mutant population washed out of crypt
+EXPERIMENT = 470
+Initial mutation state = 3
+Initial mutation height = 0.00237352
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 4
+Experiment start time = 3762.37
+Experiment duration = 651
+Mutant population washed out of crypt
+EXPERIMENT = 471
+Initial mutation state = 3
+Initial mutation height = 0.0436853
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 30
+Experiment start time = 4413.37
+Experiment duration = 140
+Mutant population washed out of crypt
+EXPERIMENT = 472
+Initial mutation state = 3
+Initial mutation height = 0.020444
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 222
+Experiment start time = 4553.37
+Experiment duration = 1743
+Mutant population taken over crypt
+EXPERIMENT = 473
+Initial mutation state = 3
+Initial mutation height = 0.0269528
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 250
+Experiment start time = 324.831
+Experiment duration = 101
+Mutant population washed out of crypt
+EXPERIMENT = 474
+Initial mutation state = 3
+Initial mutation height = 0.00522021
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 164
+Experiment start time = 425.831
+Experiment duration = 207
+Mutant population washed out of crypt
+EXPERIMENT = 475
+Initial mutation state = 3
+Initial mutation height = 0.718594
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 279
+Experiment start time = 632.831
+Experiment duration = 109
+Mutant population washed out of crypt
+EXPERIMENT = 476
+Initial mutation state = 3
+Initial mutation height = 0.170358
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 166
+Experiment start time = 741.831
+Experiment duration = 145
+Mutant population washed out of crypt
+EXPERIMENT = 477
+Initial mutation state = 3
+Initial mutation height = 0.00891338
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 201
+Experiment start time = 886.831
+Experiment duration = 1728
+Mutant population taken over crypt
+EXPERIMENT = 478
+Initial mutation state = 3
+Initial mutation height = 0.00331653
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 30
+Experiment start time = 314.309
+Experiment duration = 399
+Mutant population washed out of crypt
+EXPERIMENT = 479
+Initial mutation state = 3
+Initial mutation height = 0.713562
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 291
+Experiment start time = 713.309
+Experiment duration = 93
+Mutant population washed out of crypt
+EXPERIMENT = 480
+Initial mutation state = 3
+Initial mutation height = 0.0286095
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 67
+Experiment start time = 806.309
+Experiment duration = 303
+Mutant population washed out of crypt
+EXPERIMENT = 481
+Initial mutation state = 3
+Initial mutation height = 0.0112506
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 93
+Experiment start time = 1109.31
+Experiment duration = 129
+Mutant population washed out of crypt
+EXPERIMENT = 482
+Initial mutation state = 3
+Initial mutation height = 0.00760281
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 103
+Experiment start time = 1238.31
+Experiment duration = 4019
+Mutant population taken over crypt
+EXPERIMENT = 483
+Initial mutation state = 3
+Initial mutation height = 0.639361
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 88
+Experiment start time = 303.732
+Experiment duration = 162
+Mutant population washed out of crypt
+EXPERIMENT = 484
+Initial mutation state = 3
+Initial mutation height = 0.281179
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 226
+Experiment start time = 465.732
+Experiment duration = 111
+Mutant population washed out of crypt
+EXPERIMENT = 485
+Initial mutation state = 3
+Initial mutation height = 0.642338
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 113
+Experiment start time = 576.732
+Experiment duration = 92
+Mutant population washed out of crypt
+EXPERIMENT = 486
+Initial mutation state = 3
+Initial mutation height = 0.0404848
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 221
+Experiment start time = 668.732
+Experiment duration = 2141
+Mutant population taken over crypt
+EXPERIMENT = 487
+Initial mutation state = 3
+Initial mutation height = 0.0175318
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 267
+Experiment start time = 325.402
+Experiment duration = 158
+Mutant population washed out of crypt
+EXPERIMENT = 488
+Initial mutation state = 3
+Initial mutation height = 0.040352
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 213
+Experiment start time = 483.402
+Experiment duration = 304
+Mutant population washed out of crypt
+EXPERIMENT = 489
+Initial mutation state = 3
+Initial mutation height = 0.60308
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 787.402
+Experiment duration = 130
+Mutant population washed out of crypt
+EXPERIMENT = 490
+Initial mutation state = 3
+Initial mutation height = 0.00507246
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 917.402
+Experiment duration = 117
+Mutant population washed out of crypt
+EXPERIMENT = 491
+Initial mutation state = 3
+Initial mutation height = 0.0302993
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 46
+Experiment start time = 1034.4
+Experiment duration = 140
+Mutant population washed out of crypt
+EXPERIMENT = 492
+Initial mutation state = 3
+Initial mutation height = 0.0349315
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 131
+Experiment start time = 1174.4
+Experiment duration = 125
+Mutant population washed out of crypt
+EXPERIMENT = 493
+Initial mutation state = 3
+Initial mutation height = 0.00595854
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 284
+Experiment start time = 1299.4
+Experiment duration = 129
+Mutant population washed out of crypt
+EXPERIMENT = 494
+Initial mutation state = 3
+Initial mutation height = 0.0130944
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 289
+Experiment start time = 1428.4
+Experiment duration = 172
+Mutant population washed out of crypt
+EXPERIMENT = 495
+Initial mutation state = 3
+Initial mutation height = 0.015932
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 25
+Experiment start time = 1600.4
+Experiment duration = 194
+Mutant population washed out of crypt
+EXPERIMENT = 496
+Initial mutation state = 3
+Initial mutation height = 0.508416
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 172
+Experiment start time = 1794.4
+Experiment duration = 105
+Mutant population washed out of crypt
+EXPERIMENT = 497
+Initial mutation state = 3
+Initial mutation height = 0.0103396
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 185
+Experiment start time = 1899.4
+Experiment duration = 165
+Mutant population washed out of crypt
+EXPERIMENT = 498
+Initial mutation state = 3
+Initial mutation height = 0.00132154
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 280
+Experiment start time = 2064.4
+Experiment duration = 107
+Mutant population washed out of crypt
+EXPERIMENT = 499
+Initial mutation state = 3
+Initial mutation height = 0.722278
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 247
+Experiment start time = 2171.4
+Experiment duration = 119
+Mutant population washed out of crypt
+EXPERIMENT = 500
+Initial mutation state = 3
+Initial mutation height = 0.0314682
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 115
+Experiment start time = 2290.4
+Experiment duration = 137
+Mutant population washed out of crypt
+EXPERIMENT = 501
+Initial mutation state = 3
+Initial mutation height = 0.0777493
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 59
+Experiment start time = 2427.4
+Experiment duration = 932
+Mutant population washed out of crypt
+EXPERIMENT = 502
+Initial mutation state = 3
+Initial mutation height = 0.000382477
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 41
+Experiment start time = 3359.4
+Experiment duration = 253
+Mutant population washed out of crypt
+EXPERIMENT = 503
+Initial mutation state = 3
+Initial mutation height = 0.000745047
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 192
+Experiment start time = 3612.4
+Experiment duration = 139
+Mutant population washed out of crypt
+EXPERIMENT = 504
+Initial mutation state = 3
+Initial mutation height = 0.00555307
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 8
+Experiment start time = 3751.4
+Experiment duration = 158
+Mutant population washed out of crypt
+EXPERIMENT = 505
+Initial mutation state = 3
+Initial mutation height = 0.549014
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 141
+Experiment start time = 3909.4
+Experiment duration = 1378
+Mutant population taken over crypt
+EXPERIMENT = 506
+Initial mutation state = 3
+Initial mutation height = 0.0434944
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 272
+Experiment start time = 316.042
+Experiment duration = 446
+Mutant population washed out of crypt
+EXPERIMENT = 507
+Initial mutation state = 3
+Initial mutation height = 0.00411256
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 224
+Experiment start time = 762.042
+Experiment duration = 1257
+Mutant population taken over crypt
+EXPERIMENT = 508
+Initial mutation state = 3
+Initial mutation height = 0.0250988
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 67
+Experiment start time = 326.665
+Experiment duration = 131
+Mutant population washed out of crypt
+EXPERIMENT = 509
+Initial mutation state = 3
+Initial mutation height = 0.036016
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 55
+Experiment start time = 457.665
+Experiment duration = 2019
+Mutant population taken over crypt
+EXPERIMENT = 510
+Initial mutation state = 3
+Initial mutation height = 0.00348023
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 191
+Experiment start time = 337.601
+Experiment duration = 1300
+Mutant population taken over crypt
+EXPERIMENT = 511
+Initial mutation state = 3
+Initial mutation height = 0.0365989
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 21
+Experiment start time = 330.665
+Experiment duration = 200
+Mutant population washed out of crypt
+EXPERIMENT = 512
+Initial mutation state = 3
+Initial mutation height = 0.0095833
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 10
+Experiment start time = 530.665
+Experiment duration = 144
+Mutant population washed out of crypt
+EXPERIMENT = 513
+Initial mutation state = 3
+Initial mutation height = 0.657384
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 275
+Experiment start time = 674.665
+Experiment duration = 142
+Mutant population washed out of crypt
+EXPERIMENT = 514
+Initial mutation state = 3
+Initial mutation height = 0.0309404
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 7
+Experiment start time = 816.665
+Experiment duration = 127
+Mutant population washed out of crypt
+EXPERIMENT = 515
+Initial mutation state = 3
+Initial mutation height = 0.0495083
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 7
+Experiment start time = 943.665
+Experiment duration = 185
+Mutant population washed out of crypt
+EXPERIMENT = 516
+Initial mutation state = 3
+Initial mutation height = 0.2756
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 207
+Experiment start time = 1128.66
+Experiment duration = 124
+Mutant population washed out of crypt
+EXPERIMENT = 517
+Initial mutation state = 3
+Initial mutation height = 0.0299325
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 150
+Experiment start time = 1252.66
+Experiment duration = 1408
+Mutant population taken over crypt
+EXPERIMENT = 518
+Initial mutation state = 3
+Initial mutation height = 0.0124183
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 196
+Experiment start time = 306.038
+Experiment duration = 134
+Mutant population washed out of crypt
+EXPERIMENT = 519
+Initial mutation state = 3
+Initial mutation height = 0.0226044
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 125
+Experiment start time = 440.038
+Experiment duration = 176
+Mutant population washed out of crypt
+EXPERIMENT = 520
+Initial mutation state = 3
+Initial mutation height = 0.141188
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 255
+Experiment start time = 616.038
+Experiment duration = 137
+Mutant population washed out of crypt
+EXPERIMENT = 521
+Initial mutation state = 3
+Initial mutation height = 0.486302
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 76
+Experiment start time = 753.038
+Experiment duration = 105
+Mutant population washed out of crypt
+EXPERIMENT = 522
+Initial mutation state = 3
+Initial mutation height = 0.0432507
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 241
+Experiment start time = 858.038
+Experiment duration = 198
+Mutant population washed out of crypt
+EXPERIMENT = 523
+Initial mutation state = 3
+Initial mutation height = 0.0318977
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 188
+Experiment start time = 1056.04
+Experiment duration = 237
+Mutant population washed out of crypt
+EXPERIMENT = 524
+Initial mutation state = 3
+Initial mutation height = 0.00530882
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 171
+Experiment start time = 1293.04
+Experiment duration = 213
+Mutant population washed out of crypt
+EXPERIMENT = 525
+Initial mutation state = 3
+Initial mutation height = 0.0070648
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 46
+Experiment start time = 1506.04
+Experiment duration = 150
+Mutant population washed out of crypt
+EXPERIMENT = 526
+Initial mutation state = 3
+Initial mutation height = 0.00222653
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 285
+Experiment start time = 1656.04
+Experiment duration = 91
+Mutant population washed out of crypt
+EXPERIMENT = 527
+Initial mutation state = 3
+Initial mutation height = 0.00256502
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 197
+Experiment start time = 1747.04
+Experiment duration = 400
+Mutant population washed out of crypt
+EXPERIMENT = 528
+Initial mutation state = 3
+Initial mutation height = 0.559557
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 278
+Experiment start time = 2147.04
+Experiment duration = 106
+Mutant population washed out of crypt
+EXPERIMENT = 529
+Initial mutation state = 3
+Initial mutation height = 0.00781814
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 229
+Experiment start time = 2253.04
+Experiment duration = 154
+Mutant population washed out of crypt
+EXPERIMENT = 530
+Initial mutation state = 3
+Initial mutation height = 0.010862
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 262
+Experiment start time = 2407.04
+Experiment duration = 87
+Mutant population washed out of crypt
+EXPERIMENT = 531
+Initial mutation state = 3
+Initial mutation height = 0.00360674
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 188
+Experiment start time = 2494.04
+Experiment duration = 6617
+Mutant population taken over crypt
+EXPERIMENT = 532
+Initial mutation state = 3
+Initial mutation height = 0.0363554
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 247
+Experiment start time = 307.095
+Experiment duration = 98
+Mutant population washed out of crypt
+EXPERIMENT = 533
+Initial mutation state = 3
+Initial mutation height = 0.126443
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 147
+Experiment start time = 405.095
+Experiment duration = 205
+Mutant population washed out of crypt
+EXPERIMENT = 534
+Initial mutation state = 3
+Initial mutation height = 0.469377
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 234
+Experiment start time = 610.095
+Experiment duration = 123
+Mutant population washed out of crypt
+EXPERIMENT = 535
+Initial mutation state = 3
+Initial mutation height = 0.00843336
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 282
+Experiment start time = 733.095
+Experiment duration = 117
+Mutant population washed out of crypt
+EXPERIMENT = 536
+Initial mutation state = 3
+Initial mutation height = 0.0271498
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 257
+Experiment start time = 850.095
+Experiment duration = 860
+Mutant population taken over crypt
+EXPERIMENT = 537
+Initial mutation state = 3
+Initial mutation height = 0.575608
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 269
+Experiment start time = 321.432
+Experiment duration = 86
+Mutant population washed out of crypt
+EXPERIMENT = 538
+Initial mutation state = 3
+Initial mutation height = 0.0388755
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 288
+Experiment start time = 407.432
+Experiment duration = 100
+Mutant population washed out of crypt
+EXPERIMENT = 539
+Initial mutation state = 3
+Initial mutation height = 0.0275092
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 233
+Experiment start time = 507.432
+Experiment duration = 147
+Mutant population washed out of crypt
+EXPERIMENT = 540
+Initial mutation state = 3
+Initial mutation height = 0.0355209
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 51
+Experiment start time = 654.432
+Experiment duration = 1910
+Mutant population taken over crypt
+EXPERIMENT = 541
+Initial mutation state = 3
+Initial mutation height = 0.00244903
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 237
+Experiment start time = 343.307
+Experiment duration = 109
+Mutant population washed out of crypt
+EXPERIMENT = 542
+Initial mutation state = 3
+Initial mutation height = 0.00411592
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 59
+Experiment start time = 452.307
+Experiment duration = 495
+Mutant population washed out of crypt
+EXPERIMENT = 543
+Initial mutation state = 3
+Initial mutation height = 0.0375282
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 232
+Experiment start time = 947.307
+Experiment duration = 2461
+Mutant population taken over crypt
+EXPERIMENT = 544
+Initial mutation state = 3
+Initial mutation height = 0.0172925
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 204
+Experiment start time = 347.2
+Experiment duration = 1153
+Mutant population taken over crypt
+EXPERIMENT = 545
+Initial mutation state = 3
+Initial mutation height = 0.00183301
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 247
+Experiment start time = 339.851
+Experiment duration = 380
+Mutant population washed out of crypt
+EXPERIMENT = 546
+Initial mutation state = 3
+Initial mutation height = 0.0158763
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 274
+Experiment start time = 719.851
+Experiment duration = 208
+Mutant population washed out of crypt
+EXPERIMENT = 547
+Initial mutation state = 3
+Initial mutation height = 0.050233
+Initial mutation damping multiplier = 1.5
+Initial mutation occurred at node 225
+Experiment start time = 927.851
+Experiment duration = 3897
+Mutant population taken over crypt
+EXPERIMENTS COMPLETE
